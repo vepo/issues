@@ -5,7 +5,7 @@
   <div class="body">
     <form [formGroup]="ticketForm">
       <!-- Project -->
-      <mat-form-field class="form-field" appearance="fill">
+      <mat-form-field class="form-field" appearance="outline">
         <mat-label i18n>Projeto</mat-label>
         <mat-select formControlName="projectId">
           <mat-option [value]="-1" disabled i18n>Selecione um projeto...</mat-option>
@@ -20,7 +20,7 @@
         }
       </mat-form-field>
       <!-- Title -->
-      <mat-form-field class="form-field" appearance="fill">
+      <mat-form-field class="form-field" appearance="outline">
         <mat-label i18n>Título</mat-label>
         <input matInput placeholder="Insira o título do ticket..." formControlName="title" />
         @if (title && title.touched && title.invalid && title.hasError('required')) {
@@ -42,7 +42,7 @@
         }
       </mat-form-field>
       <!-- Description -->
-      <mat-form-field class="form-field" appearance="fill">
+      <mat-form-field class="form-field" appearance="outline">
         <mat-label i18n>Descrição</mat-label>
         <textarea matInput formControlName="description" rows="4"></textarea>
         @if (description && description.touched && description.invalid && description.hasError('required')) {
@@ -64,7 +64,7 @@
         }
       </mat-form-field>
       <!-- Category -->
-      <mat-form-field class="form-field" appearance="fill">
+      <mat-form-field class="form-field" appearance="outline">
         <mat-label i18n>Categoria</mat-label>
         <mat-select formControlName="categoryId" name="categoryId" required>
           <mat-option [value]="-1" disabled i18n>Selecione uma categoria...</mat-option>
@@ -82,8 +82,8 @@
   </div>
   <div class="actions">
     <div class="form-actions">
-      <button matButton class="btn btn-cancel" (click)="close()" i18n>Cancelar</button>
-      <button matButton class="btn" [disabled]="ticketForm.invalid" (click)="createTicket()" i18n>Criar</button>
+      <button matButton="outlined" class="btn btn-cancel" (click)="close()" i18n>Cancelar</button>
+      <button matButton="filled" class="btn" [disabled]="ticketForm.invalid" (click)="createTicket()" i18n>Criar</button>
     </div>
   </div>
 </div>

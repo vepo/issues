@@ -1,39 +1,46 @@
-<div class="centered">
-    <h1>Gestão de Projetos</h1>
-
-    <div class="table">
-        <div class="header">
-            Projetos
-            <div class="actions">
-                <button class="btn" matButton [routerLink]="['/', 'projects', 'new']">
-                    <mat-icon fontIcon="work"></mat-icon> Novo
-                </button>
-            </div>
-        </div>
-        <div class="body">
-            <div class="sub-header">
-                <div>ID</div>
-                <div class="left-aligned">Nome</div>
-                <div class="left-aligned">Descrição</div>
-                <div class="left-aligned">Prefixo</div>
-                <div>Ações</div>
-            </div>
-            @for (entry of projects; track entry.id) {
-            <div class="row {{ $even ? 'even' : 'odd' }}">
-                <div>{{ entry.id }}</div>
-                <div class="left-aligned">{{ entry.name }}</div>
-                <div class="left-aligned">{{ entry.description }}</div>
-                <div class="left-aligned">{{ entry.prefix }}</div>
-                <div>
-                    <button class="btn" matButton [routerLink]="['/', 'projects', entry.id]">
-                        <mat-icon fontIcon="work"></mat-icon> Editar
-                    </button>
-                </div>
-            </div>
-            }
-        </div>
-        @if (projects.length == 0 ){
-        <div class="table empty">Nenhum projeto encontrado...</div>
-        }
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Projetos</h1>
+      <p class="page-subtitle" i18n>Configure projetos e processos de trabalho</p>
     </div>
+    <div class="page-header__actions">
+      <button class="btn" matButton="filled" [routerLink]="['/', 'projects', 'new']">
+        <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+        <span i18n>Novo projeto</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="page-panel page-panel--flush">
+    <div class="table">
+      <div class="header" i18n>Lista de projetos</div>
+      <div class="body">
+        <div class="sub-header">
+          <div>ID</div>
+          <div class="left-aligned" i18n>Nome</div>
+          <div class="left-aligned" i18n>Descrição</div>
+          <div class="left-aligned" i18n>Prefixo</div>
+          <div i18n>Ações</div>
+        </div>
+        @for (entry of projects; track entry.id) {
+          <div class="row {{ $even ? 'even' : 'odd' }}">
+            <div>{{ entry.id }}</div>
+            <div class="left-aligned">{{ entry.name }}</div>
+            <div class="left-aligned">{{ entry.description }}</div>
+            <div class="left-aligned">{{ entry.prefix }}</div>
+            <div>
+              <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/', 'projects', entry.id]">
+                <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
+                <span i18n>Editar</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      @if (projects.length === 0) {
+        <div class="table empty" i18n>Nenhum projeto cadastrado.</div>
+      }
+    </div>
+  </section>
 </div>

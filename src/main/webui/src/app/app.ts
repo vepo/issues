@@ -2,11 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { CreateTicketModalComponent } from './components/create-ticket-modal/create-ticket-modal.component';
@@ -26,9 +23,6 @@ import { Status, StatusService } from './services/status.service';
     NormalizePipe,
     MatButtonModule,
     MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
     NotificationComponent,
     MatIconModule,
     MatMenuModule,
@@ -50,6 +44,11 @@ export class AppComponent implements OnInit {
   selectStatus: Status = this.anyStatus;
 
   compareStatus = (first: Status, second: Status): boolean => first?.id === second?.id;
+
+  onSearchSubmit(event: Event) {
+    event.preventDefault();
+    this.goToSearch(this.searchTerm.trim(), this.selectStatus);
+  }
 
   onSearchKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter') {

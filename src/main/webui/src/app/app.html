@@ -1,45 +1,52 @@
 <header class="main-header">
-  <div>
-    <nav>
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" i18n>Início</a>
-    </nav>
-  </div>
+  <a routerLink="/" class="brand" routerLinkActive="brand-active" [routerLinkActiveOptions]="{ exact: true }"
+    aria-label="Issues — página inicial">
+    <mat-icon fontIcon="confirmation_number" aria-hidden="true"></mat-icon>
+    <span class="brand-name">Issues</span>
+  </a>
+
   @if (isAuthenticated()) {
-  <div>
-        <mat-form-field class="header-field" appearance="outline" subscriptSizing="dynamic">
-          <input
-            matInput
-            [(ngModel)]="searchTerm"
-            (keydown)="onSearchKeydown($event)"
-            i18n-placeholder
-            placeholder="Buscar tickets (Enter)"
-          />
-          <mat-icon matPrefix fontIcon="search"></mat-icon>
-        </mat-form-field>
-  </div>
-  <div>
-    <mat-form-field class="header-field status-field" appearance="outline" subscriptSizing="dynamic">
-      <mat-select [(ngModel)]="selectStatus" (ngModelChange)="onChange($event)" [compareWith]="compareStatus">
-        @for (status of statuses; track status.id) {
-          <mat-option [value]="status">{{ status.name | normalize }}</mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  </div>
-  <div>
-    <button class="btn" matButton (click)="openCreateTicketDialog()">
-      <mat-icon fontIcon="assignment"></mat-icon><span i18n>Novo ticket</span>
+  <form class="search-bar" (submit)="onSearchSubmit($event)">
+    <mat-icon class="search-bar__leading" fontIcon="search" aria-hidden="true"></mat-icon>
+    <input
+      class="search-bar__input"
+      type="search"
+      [(ngModel)]="searchTerm"
+      name="searchTerm"
+      i18n-placeholder
+      placeholder="Buscar tickets..."
+    />
+    <button type="submit" class="search-bar__action" aria-label="Buscar tickets">
+      <mat-icon fontIcon="search" aria-hidden="true"></mat-icon>
     </button>
+  </form>
+
+  <div class="toolbar-select">
+    <label class="visually-hidden" for="header-status" i18n>Filtrar por status</label>
+    <select id="header-status" [(ngModel)]="selectStatus" (ngModelChange)="onChange($event)">
+      @for (status of statuses; track status.id) {
+        <option [ngValue]="status">{{ status.name | normalize }}</option>
+      }
+    </select>
   </div>
+
+  <button class="btn btn-compact" matButton="filled" type="button" (click)="openCreateTicketDialog()">
+    <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+    <span i18n>Novo</span>
+  </button>
   }
+
   <div class="grow-space"></div>
+
   @if (isAuthenticated()) {
-  <div class="user-menu">
+  <div class="header-actions">
     <app-notification></app-notification>
-  </div>
-  <div class="user-menu">
-    <button matButton [matMenuTriggerFor]="menu">
-      <mat-icon fontIcon="menu"></mat-icon><span i18n>Menu</span>
+    <button
+      matIconButton
+      class="btn-icon-header"
+      [matMenuTriggerFor]="menu"
+      aria-label="Abrir menu">
+      <mat-icon fontIcon="menu" aria-hidden="true"></mat-icon>
     </button>
     <mat-menu #menu="matMenu" class="menu-panel">
       <button mat-menu-item [routerLink]="'/account/settings'">
@@ -62,9 +69,9 @@
     </mat-menu>
   </div>
   } @else {
-  <div class="user-menu">
-    <button matButton [routerLink]="'/login'">
-      <mat-icon aria-hidden="false" aria-label="Entrar" fontIcon="login"></mat-icon>
+  <div class="header-actions">
+    <button class="btn-header" matButton="outlined" [routerLink]="'/login'">
+      <mat-icon aria-hidden="true" fontIcon="login"></mat-icon>
       <span i18n>Acessar</span>
     </button>
   </div>

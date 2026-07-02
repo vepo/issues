@@ -1,35 +1,47 @@
-<div class="centered">
-    <form class="edit" [formGroup]="projectForm">
-        @if (editMode) {
-        <h1 i18n>Editar projeto</h1>
-        } @else {
-        <h1 i18n>Novo projeto</h1>
+<div class="page">
+  @if (editMode) {
+    <header class="page-header">
+      <div>
+        <h1 class="page-title" i18n>Editar projeto</h1>
+        <p class="page-subtitle" i18n>Atualize nome, processo e prefixo do projeto</p>
+      </div>
+    </header>
+  } @else {
+    <header class="page-header">
+      <div>
+        <h1 class="page-title" i18n>Novo projeto</h1>
+        <p class="page-subtitle" i18n>Configure um novo projeto de tickets</p>
+      </div>
+    </header>
+  }
+
+  <form class="edit" [formGroup]="projectForm">
+    <mat-form-field class="form-field" appearance="outline">
+      <mat-label i18n>Nome</mat-label>
+      <input matInput formControlName="name" required />
+    </mat-form-field>
+    <mat-form-field class="form-field" appearance="outline">
+      <mat-label i18n>Processo</mat-label>
+      <mat-select formControlName="workflow">
+        <mat-option [value]="-1" disabled i18n>Selecione um processo...</mat-option>
+        @for (workflow of workflows; track workflow.id) {
+          <mat-option [value]="workflow.id">{{ workflow.name }}</mat-option>
         }
-        <mat-form-field class="form-field" appearance="fill">
-            <mat-label i18n>Nome</mat-label>
-            <input matInput formControlName="name" required />
-        </mat-form-field>
-        <mat-form-field class="form-field" appearance="fill">
-            <mat-label i18n>Processo</mat-label>
-            <mat-select formControlName="workflow">
-                <mat-option [value]="-1" disabled i18n>Selecione um processo...</mat-option>
-                @for (workflow of workflows; track workflow.name) {
-                    <mat-option [value]="workflow.id">{{workflow.name}}</mat-option>
-                }
-            </mat-select>
-        </mat-form-field>
-        <mat-form-field class="form-field" appearance="fill">
-            <mat-label i18n>Prefixo</mat-label>
-            <input matInput formControlName="prefix" required />
-        </mat-form-field>
-        <mat-form-field class="form-field" appearance="fill">
-            <mat-label i18n>Descrição</mat-label>
-            <textarea matInput formControlName="description" required></textarea>
-        </mat-form-field>
-        <div class="actions">
-            <button class="btn btn-cancel" matButton="filled" (click)="cancel()" i18n>Cancelar</button>
-            <button class="btn" [disabled]="this.projectForm.invalid" matButton="filled"
-                (click)="save()" i18n>Salvar</button>
-        </div>
-    </form>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="form-field" appearance="outline">
+      <mat-label i18n>Prefixo</mat-label>
+      <input matInput formControlName="prefix" required />
+    </mat-form-field>
+    <mat-form-field class="form-field" appearance="outline">
+      <mat-label i18n>Descrição</mat-label>
+      <textarea matInput formControlName="description" required rows="4"></textarea>
+    </mat-form-field>
+    <div class="actions form-actions">
+      <button class="btn btn-cancel" matButton="filled" type="button" (click)="cancel()" i18n>Cancelar</button>
+      <button class="btn" [disabled]="projectForm.invalid" matButton="filled" type="button" (click)="save()" i18n
+        >Salvar</button
+      >
+    </div>
+  </form>
 </div>

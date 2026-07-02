@@ -1,43 +1,10 @@
 @use "../../../colors";
 
-.tabs {
-  display: flex;
-  border-bottom: 2px solid colors.$border-subtle;
-  margin-bottom: colors.$space-md;
-
-  .tab-button {
-    background: none;
-    border: none;
-    padding: 0.75rem colors.$space-lg;
-    cursor: pointer;
-    font-size: 1rem;
-    color: colors.$text-secondary;
-    border-bottom: 2px solid transparent;
-    transition: color 0.15s ease, background-color 0.15s ease;
-
-    &:hover {
-      color: colors.$base-active-color;
-      background-color: colors.$surface-muted;
-    }
-
-    &:focus-visible {
-      outline: 2px solid colors.$focus-ring-color;
-      outline-offset: -2px;
-    }
-
-    &.active {
-      color: colors.$base-active-color;
-      border-bottom-color: colors.$base-active-color;
-      font-weight: 600;
-    }
-  }
-}
-
 .comments-section {
   .comment-form {
     background: colors.$surface-muted;
     padding: colors.$space-lg;
-    border-radius: 4px;
+    border-radius: 8px;
     margin-bottom: colors.$space-xl;
     border: 1px solid colors.$border-subtle;
 
@@ -45,14 +12,7 @@
       margin-top: 0;
       margin-bottom: colors.$space-md;
       color: colors.$text-primary;
-    }
-
-    .form-group {
-      margin-bottom: colors.$space-md;
-    }
-
-    button {
-      margin-top: colors.$space-sm;
+      font-size: 1rem;
     }
   }
 
@@ -60,6 +20,7 @@
     h3 {
       margin-bottom: colors.$space-md;
       color: colors.$text-primary;
+      font-size: 1rem;
     }
 
     .loading {
@@ -75,21 +36,16 @@
       color: colors.$text-muted;
       font-style: italic;
       background: colors.$surface-muted;
-      border-radius: 4px;
       border: 1px dashed colors.$border-subtle;
+      border-radius: 8px;
     }
 
     .comment {
       background: colors.$surface-card;
       border: 1px solid colors.$border-subtle;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: colors.$space-md;
       margin-bottom: colors.$space-md;
-      transition: box-shadow 0.15s ease;
-
-      &:hover {
-        box-shadow: colors.$shadow-card;
-      }
 
       .comment-header {
         display: flex;
@@ -113,71 +69,6 @@
       .comment-content {
         color: colors.$text-primary;
         line-height: 1.5;
-        word-wrap: break-word;
-
-        p {
-          margin: 0 0 colors.$space-sm 0;
-        }
-
-        ul,
-        ol {
-          margin: colors.$space-sm 0;
-          padding-left: colors.$space-lg;
-        }
-
-        a {
-          color: colors.$base-active-color;
-          text-decoration: underline;
-
-          &:hover {
-            color: colors.$base-active-hover-color;
-          }
-        }
-
-        strong,
-        b {
-          font-weight: 600;
-        }
-
-        em,
-        i {
-          font-style: italic;
-        }
-
-        u {
-          text-decoration: underline;
-        }
-      }
-    }
-  }
-}
-
-@media only screen and (max-width: 750px) {
-  .tabs {
-    .tab-button {
-      padding: colors.$space-sm colors.$space-md;
-      font-size: 0.9rem;
-    }
-  }
-
-  .comments-section {
-    .comment-form {
-      padding: colors.$space-md;
-
-      .form-group textarea {
-        min-height: 80px;
-      }
-    }
-
-    .comment {
-      .comment-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: colors.$space-xs;
-
-        .comment-date {
-          font-size: 0.75rem;
-        }
       }
     }
   }

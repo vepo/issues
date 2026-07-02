@@ -1,60 +1,100 @@
-<div class="centered">
-    <h1>Gestão de Usuários</h1>
-
-    <div class="table">
-        <div class="header">
-            Usuários
-            <div class="actions">
-                <button class="btn" matButton [routerLink]="['/', 'users', 'new']">
-                    <mat-icon fontIcon="person"></mat-icon> Novo
-                </button>
-            </div>
-        </div>
-        <div class="body">
-            <div class="sub-header">
-                <div>ID</div>
-                <div>Nome</div>
-                <div>Email</div>
-                <div>Roles</div>
-                <div>&nbsp;</div>
-            </div>
-            <div class="sub-header">
-                <div><i>Filtros</i></div>
-                <div><input type="text" placeholder="Filtre por nome.." [(ngModel)]="filter.name"
-                        (ngModelChange)="filterChanged('name')" /></div>
-                <div><input type="text" placeholder="Filtre por email.." [(ngModel)]="filter.email"
-                        (ngModelChange)="filterChanged('email')" /></div>
-                <div>
-                    <input type="checkbox" [checked]="filter.roles.indexOf('admin') != -1"
-                        (change)="toggleRole('admin')" /> Administrador
-                    <input type="checkbox" [checked]="filter.roles.indexOf('project-manager') != -1"
-                        (change)="toggleRole('project-manager')" /> Gerente de Projetos
-                    <input type="checkbox" [checked]="filter.roles.indexOf('user') != -1"
-                        (change)="toggleRole('user')" /> Usuário
-                </div>
-                <div>Ações</div>
-            </div>
-            @for (entry of users; track entry.id) {
-            <div class="row {{ $even ? 'even' : 'odd' }}">
-                <div>{{ entry.id }}</div>
-                <div>{{ entry.name }}</div>
-                <div>{{ entry.email }}</div>
-                <div>
-                    <input type="checkbox" disabled [checked]="entry.roles.indexOf('admin') != -1" /> Administrador
-                    <input type="checkbox" disabled [checked]="entry.roles.indexOf('project-manager') != -1" /> Gerente
-                    de Projetos
-                    <input type="checkbox" disabled [checked]="entry.roles.indexOf('user') != -1" /> Usuário
-                </div>
-                <div>
-                    <button class="btn" matButton [routerLink]="['/', 'users', entry.id]">
-                        <mat-icon fontIcon="person"></mat-icon> Editar
-                    </button>
-                </div>
-            </div>
-            }
-        </div>
-        @if (users.length == 0 ){
-        <div class="table empty">Nenhum usuário encontrado...</div>
-        }
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Usuários</h1>
+      <p class="page-subtitle" i18n>Gerencie contas e permissões de acesso</p>
     </div>
+    <div class="page-header__actions">
+      <button class="btn" matButton="filled" [routerLink]="['/', 'users', 'new']">
+        <mat-icon fontIcon="person_add" aria-hidden="true"></mat-icon>
+        <span i18n>Novo usuário</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="page-panel page-panel--flush">
+    <div class="table">
+      <div class="header" i18n>Lista de usuários</div>
+      <div class="body">
+        <div class="sub-header">
+          <div>ID</div>
+          <div i18n>Nome</div>
+          <div i18n>E-mail</div>
+          <div i18n>Perfis</div>
+          <div i18n>Ações</div>
+        </div>
+        <div class="sub-header sub-header--filter">
+          <div><em i18n>Filtros</em></div>
+          <div>
+            <input
+              class="filter-input"
+              type="text"
+              i18n-placeholder
+              placeholder="Nome..."
+              [(ngModel)]="filter.name"
+              (ngModelChange)="filterChanged('name')"
+            />
+          </div>
+          <div>
+            <input
+              class="filter-input"
+              type="text"
+              i18n-placeholder
+              placeholder="E-mail..."
+              [(ngModel)]="filter.email"
+              (ngModelChange)="filterChanged('email')"
+            />
+          </div>
+          <div class="role-filters">
+            <label>
+              <input type="checkbox" [checked]="filter.roles.indexOf('admin') !== -1" (change)="toggleRole('admin')" />
+              <span i18n>Administrador</span>
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                [checked]="filter.roles.indexOf('project-manager') !== -1"
+                (change)="toggleRole('project-manager')"
+              />
+              <span i18n>Gerente de projetos</span>
+            </label>
+            <label>
+              <input type="checkbox" [checked]="filter.roles.indexOf('user') !== -1" (change)="toggleRole('user')" />
+              <span i18n>Usuário</span>
+            </label>
+          </div>
+          <div></div>
+        </div>
+        @for (entry of users; track entry.id) {
+          <div class="row {{ $even ? 'even' : 'odd' }}">
+            <div>{{ entry.id }}</div>
+            <div>{{ entry.name }}</div>
+            <div>{{ entry.email }}</div>
+            <div>
+              <span class="labels">
+                @if (entry.roles.indexOf('admin') !== -1) {
+                  <span class="label" i18n>Admin</span>
+                }
+                @if (entry.roles.indexOf('project-manager') !== -1) {
+                  <span class="label" i18n>Gerente</span>
+                }
+                @if (entry.roles.indexOf('user') !== -1) {
+                  <span class="label" i18n>Usuário</span>
+                }
+              </span>
+            </div>
+            <div>
+              <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/', 'users', entry.id]">
+                <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
+                <span i18n>Editar</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      @if (users.length === 0) {
+        <div class="table empty" i18n>Nenhum usuário encontrado com os filtros aplicados.</div>
+      }
+    </div>
+  </section>
 </div>

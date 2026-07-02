@@ -2,8 +2,8 @@
 
 /* dashboard-configurator.component.scss */
 .dashboard-configurator {
-  padding: colors.$space-lg;
-  height: 100vh;
+  padding: 0;
+  min-height: auto;
   display: flex;
   flex-direction: column;
 

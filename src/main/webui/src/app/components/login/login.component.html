@@ -1,30 +1,41 @@
-<div class="main centered">
-    <div class="form-header">
-        <h2 i18n>Issues - Entrar</h2>
-        <p i18n>Sistema de gerenciamento de tickets</p>
+<div class="page-auth">
+  <div class="auth-card">
+    <div class="auth-card__header">
+      <mat-icon fontIcon="login" aria-hidden="true"></mat-icon>
+      <h1 i18n>Entrar</h1>
+      <p i18n>Sistema de gerenciamento de tickets</p>
     </div>
-    <form (ngSubmit)="login()">
-        <mat-form-field class="form-field" appearance="fill">
-            <mat-label i18n>E-mail</mat-label>
-            <input matInput [(ngModel)]="email" name="email" required />
-        </mat-form-field>
-        <mat-form-field class="form-field" appearance="fill">
-            <mat-label i18n>Senha</mat-label>
-            <input matInput name="password" [(ngModel)]="password" [type]="hide() ? 'password' : 'text'" required />
-            <mat-icon matSuffix (click)="clickEvent($event)">
-                {{hide() ? 'visibility_off' : 'visibility'}}
-            </mat-icon>
-        </mat-form-field>
-        @if (error) {
-            <div class="error">{{error}}</div>
-        }
-        <div>
-            <button class="btn" matButton type="submit">
-                <mat-icon fontIcon="login"></mat-icon><span i18n>Entrar</span>
-            </button>
-            <button class="btn btn-secondary" matButton [routerLink]="'/login/reset-password'">
-                <mat-icon fontIcon="login"></mat-icon><span i18n>Recuperar Senha</span>
-            </button>
-        </div>
+    <form class="auth-card__body" (ngSubmit)="login()">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>E-mail</mat-label>
+        <input matInput [(ngModel)]="email" name="email" required autocomplete="email" />
+      </mat-form-field>
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>Senha</mat-label>
+        <input
+          matInput
+          name="password"
+          [(ngModel)]="password"
+          [type]="hide() ? 'password' : 'text'"
+          required
+          autocomplete="current-password"
+        />
+        <button type="button" mat-icon-button matSuffix (click)="clickEvent($event)" aria-label="Mostrar senha">
+          <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+      </mat-form-field>
+      @if (error) {
+        <div class="error" role="alert">{{ error }}</div>
+      }
+      <div class="form-actions">
+        <button class="btn" matButton="filled" type="submit">
+          <mat-icon fontIcon="login" aria-hidden="true"></mat-icon>
+          <span i18n>Entrar</span>
+        </button>
+        <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="'/login/reset-password'">
+          <span i18n>Recuperar senha</span>
+        </button>
+      </div>
     </form>
+  </div>
 </div>

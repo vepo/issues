@@ -1,16 +1,18 @@
-<!-- dashboard-configurator.component.html -->
-<div class="dashboard-configurator">
-  <div class="header">
-    <h2>Dashboard - {{ project?.name }}</h2>
-    <div class="controls">
-      <button matButton (click)="toggleEdit()" class="btn">
-        {{ isEditing ? 'Salvar Layout' : 'Editar Layout' }}
+<div class="page page--wide">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Painel — {{ project?.name }}</h1>
+      <p class="page-subtitle" i18n>Indicadores e widgets do projeto</p>
+    </div>
+    <div class="page-header__actions">
+      <button matButton="filled" (click)="toggleEdit()" class="btn">
+        {{ isEditing ? 'Salvar layout' : 'Editar layout' }}
       </button>
     </div>
-  </div>
+  </header>
 
+  <div class="dashboard-configurator page-panel">
   <div class="dashboard-container">
-    <!-- Available widgets panel (visible only in edit mode) -->
     @if (isEditing) {
     <div class="widgets-panel">
       <h3>Widgets Disponíveis</h3>
@@ -165,5 +167,6 @@
       </div>
     </div>
   }
+  </div>
   </div>
 </div>

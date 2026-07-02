@@ -86,7 +86,7 @@ describe('UsersEditComponent', () => {
   describe('Initialization', () => {
     it('should initialize in create mode when no user provided', () => {
       expect(component.editMode).toBeFalse();
-      expect(fixture.debugElement.query(By.css('h1')).nativeElement.textContent).toContain('Create User');
+      expect(fixture.debugElement.query(By.css('h1')).nativeElement.textContent).toContain('Novo usuário');
     });
 
     it('should initialize in edit mode when user provided', fakeAsync(() => {
@@ -112,7 +112,7 @@ describe('UsersEditComponent', () => {
         email: 'test@example.com',
         roles: ['admin']
       });
-      expect(fixture.debugElement.query(By.css('h1')).nativeElement.textContent).toContain('Edit User');
+      expect(fixture.debugElement.query(By.css('h1')).nativeElement.textContent).toContain('Editar usuário');
     }));
   });
 
@@ -144,7 +144,7 @@ describe('UsersEditComponent', () => {
       expect(component.userForm.controls.roles.invalid).toBeTrue();
       
       // Find the admin checkbox by its label text
-      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Adminstrator');
+      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Administrador');
       await adminCheckbox.check();
       
       expect(component.userForm.controls.roles.valid).toBeTrue();
@@ -153,7 +153,7 @@ describe('UsersEditComponent', () => {
 
   describe('Toggle Roles', () => {
     it('should add role when toggled on', async () => {
-      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Adminstrator');
+      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Administrador');
       
       await adminCheckbox.check();
       expect(component.userForm.value.roles).toContain('admin');
@@ -166,7 +166,7 @@ describe('UsersEditComponent', () => {
       // First add a role
       component.userForm.patchValue({ roles: ['admin'] });
       
-      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Adminstrator');
+      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Administrador');
       await adminCheckbox.uncheck();
 
       expect(component.userForm.value.roles).not.toContain('admin');
@@ -179,7 +179,7 @@ describe('UsersEditComponent', () => {
       const nameInput = await loader.getHarness(MatInputHarness.with({ selector: '[formControlName="name"]' }));
       const emailInput = await loader.getHarness(MatInputHarness.with({ selector: '[formControlName="email"]' }));
       const usernameInput = await loader.getHarness(MatInputHarness.with({ selector: '[formControlName="username"]' }));
-      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Adminstrator');
+      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Administrador');
       
       await nameInput.setValue('Test User');
       await usernameInput.setValue('test');
@@ -203,12 +203,16 @@ describe('UsersEditComponent', () => {
     it('should call update when in edit mode', fakeAsync(() => {
       component.editMode = true;
       component.userId = 1;
+      fixture.detectChanges();
       tick();
-      
-      const saveButton = fixture.debugElement.query(By.css('button.btn-primary[matButton]')).nativeElement;
-      console.log(saveButton);
-      saveButton.click();
-      
+
+      const saveButton = fixture.debugElement
+        .queryAll(By.css('button.btn[matButton="filled"]'))
+        .map((el) => el.nativeElement as HTMLButtonElement)
+        .find((btn) => btn.textContent?.trim() === 'Salvar');
+      expect(saveButton).withContext('Salvar button').toBeTruthy();
+      saveButton!.click();
+
       expect(mockUsersService.update).toHaveBeenCalledWith(1, {
         name: 'Test User',
         username: 'test',
@@ -239,7 +243,7 @@ describe('UsersEditComponent', () => {
       const nameInput = await loader.getHarness(MatInputHarness.with({ selector: '[formControlName="name"]' }));
       const emailInput = await loader.getHarness(MatInputHarness.with({ selector: '[formControlName="email"]' }));
       const usernameInput = await loader.getHarness(MatInputHarness.with({ selector: '[formControlName="username"]' }));
-      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Adminstrator');
+      const adminCheckbox = await findCheckboxByLabel(await loader.getAllHarnesses(MatCheckboxHarness), 'Administrador');
       
       await nameInput.setValue('Test User');
       await usernameInput.setValue('test');
@@ -250,7 +254,7 @@ describe('UsersEditComponent', () => {
     });
 
     it('should navigate to users list on cancel', async () => {
-      const cancelButton = await loader.getHarness(MatButtonHarness.with({ text: 'Cancel' }));
+      const cancelButton = await loader.getHarness(MatButtonHarness.with({ text: 'Cancelar' }));
       await cancelButton.click();
       
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/', 'users']);

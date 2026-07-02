@@ -1,25 +1,40 @@
-<h1>{{ project.name }}</h1>
-<div class="board">
-  @for (status of statuses; track $index) {
-  <div class="column" cdkDropList [id]="toColumnId(status)" [cdkDropListData]="ticketsOf(status.id)"
-    [cdkDropListConnectedTo]="connectedTo(status)" (cdkDropListDropped)="drop($event)">
-    <div class="header">{{ status.name | normalize }}</div>
-    <div class="card-container">
-      @let statusTicket = ticketsOf(status.id);
-      @if (statusTicket.length == 0) {
-        <div class="card empty">
-          Nenhum ticket...
-        </div>
-      }
-
-      @for (ticket of statusTicket; track $index) {
-      <div class="card" cdkDrag>
-        <div class="identifier"><a [routerLink]="['/ticket', ticket.identifier]">{{ ticket.identifier }}</a></div>
-        <div class="title">{{ ticket.title }}</div>
-        <div class="description" [innerHTML]="ticket.description"></div>
-      </div>
-      }
+<div class="page page--wide">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">{{ project.name }}</h1>
+      <p class="page-subtitle" i18n>Quadro Kanban — arraste os tickets entre colunas</p>
     </div>
+  </header>
+
+  <div class="board">
+    @for (status of statuses; track status.id) {
+      <div
+        class="column"
+        cdkDropList
+        [id]="toColumnId(status)"
+        [cdkDropListData]="ticketsOf(status.id)"
+        [cdkDropListConnectedTo]="connectedTo(status)"
+        (cdkDropListDropped)="drop($event)">
+        <div class="header">
+          {{ status.name | normalize }}
+          <span class="column-count">{{ ticketsOf(status.id).length }}</span>
+        </div>
+        <div class="card-container">
+          @let statusTicket = ticketsOf(status.id);
+          @if (statusTicket.length === 0) {
+            <div class="card empty" i18n>Nenhum ticket nesta coluna</div>
+          }
+          @for (ticket of statusTicket; track ticket.identifier) {
+            <div class="card" cdkDrag>
+              <div class="identifier">
+                <a [routerLink]="['/ticket', ticket.identifier]">{{ ticket.identifier }}</a>
+              </div>
+              <div class="title">{{ ticket.title }}</div>
+              <div class="description" [innerHTML]="ticket.description"></div>
+            </div>
+          }
+        </div>
+      </div>
+    }
   </div>
-  }
 </div>

@@ -41,18 +41,23 @@ Material theme CSS variables are aligned to `$base-active-color` in `styles.scss
 | **Location** | `app/app.html` |
 | **Visibility** | Always; search/status/create only when authenticated |
 
-**Style:** Navy background (`$base-background-color`), white text, flex row, wraps on mobile (`max-width: 750px`).
+**Style:** Navy background (`$base-background-color`), white text, flex row, wraps on mobile.
+
+**Layout (left → right):**
+- **Brand** (`.brand`) — ticket icon + "Issues" wordmark → `/` (replaces "Início" text link)
+- **Search** (`.search-bar`) — pill input + circular search button (authenticated)
+- **Status** (`.toolbar-select`) — pill dropdown on navy chrome
+- **Novo** — compact primary button
+- **Actions** (`.header-actions`) — notification icon + hamburger menu icon
 
 **Behavior:**
-- Nav link **Início** → `/` with `routerLinkActive`
-- **Buscar tickets** — compact `mat-form-field` (`.header-field`); search on **Enter** only
-- **Status** — `mat-select` (`.header-field.status-field`); change navigates to `/search` with query params
-- **Novo ticket** — opens `CreateTicketModalComponent` dialog
-- **Notificações** — SSE-backed menu (`app-notification`)
-- **Menu** — role-gated items (Conta, Usuários, Processos, Projetos, Sair)
+- **Brand** → `/` with `brand-active` on home
+- **Search** — `.search-bar` form; submit via button or Enter → `/search`
+- **Status** — `.toolbar-select`; change navigates to `/search` with query params
+- **Novo** — opens `CreateTicketModalComponent` dialog
+- **Notificações** — icon-only `matIconButton` + badge (`app-notification`)
+- **Menu** — icon-only hamburger `matIconButton` + `mat-menu`; role-gated items
 - **Acessar** — shown when logged out → `/login`
-
-**Chrome buttons** (notification, menu, login): `button.mat-mdc-button` without `.btn` — use `.btn-header` styling (translucent on navy).
 
 ### 1.2 Main content (`main.container`)
 
@@ -95,14 +100,31 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 
 **Used in:** create-ticket modal, user/project edit forms.
 
-### 2.4 Header chrome (`.btn-header`)
+### 2.4 Header icon button (`.btn-icon-header`)
 
 | Property | Value |
 |----------|-------|
-| **Style** | Semi-transparent white on navy; no primary blue fill |
-| **Used in** | Notification trigger, Menu, Acessar |
+| **Directive** | `matIconButton` |
+| **Style** | White icon on navy; circular hover |
+| **Used in** | Hamburger menu, notification bell |
 
-### 2.5 Tab button (`.tab-button`)
+### 2.5 Brand link (`.brand`)
+
+| Property | Value |
+|----------|-------|
+| **Markup** | `mat-icon` + `.brand-name` "Issues" |
+| **Style** | White wordmark; subtle underline when `brand-active` on home |
+| **Behavior** | `routerLink="/"` |
+
+### 2.6 Primary / secondary / cancel
+
+| Class | `matButton` variant |
+|-------|---------------------|
+| `.btn` | `"filled"` — corporate primary via `mat.button-overrides` |
+| `.btn-secondary` | `"outlined"` |
+| `.btn-cancel` | `"filled"` with red CSS custom properties |
+
+### 2.7 Tab button (`.tab-button`)
 
 | Property | Value |
 |----------|-------|
@@ -110,7 +132,7 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 | **Style** | Borderless; active = bottom border `$base-active-color` |
 | **Behavior** | Toggles `activeTab` (`history` \| `comments`); no route change |
 
-### 2.6 Icon-only remove (`.btn-remove`)
+### 2.8 Icon-only remove (`.btn-remove`)
 
 Dashboard widget header; borderless, muted text, red on hover.
 
@@ -128,26 +150,34 @@ Dashboard widget header; borderless, muted text, red on hover.
 
 **Used in:** login, password reset, create-ticket modal, user edit, project edit.
 
-### 3.2 Header toolbar field (`.header-field`)
+### 3.2 Search bar (`.search-bar`)
 
 | Property | Value |
 |----------|-------|
-| **Appearance** | `outline`, `subscriptSizing="dynamic"`; labels hidden via `.header-field` CSS |
-| **Width** | 220px search / 160px status (100% on mobile) |
-| **Style** | White field background on navy header; no subscript area |
+| **Markup** | `form` with leading icon, `input[type="search"]`, circular `.search-bar__action` submit |
+| **Style** | White pill (`border-radius: 999px`), shadow, focus ring on `:focus-within` |
+| **Behavior** | Submit button or implicit form submit → `/search` with query params |
 
-### 3.3 Native filter input (`input[type="text"]` in tables)
+### 3.3 Header toolbar select (`.toolbar-select`)
+
+| Property | Value |
+|----------|-------|
+| **Markup** | Native `select` with `[ngValue]` for `Status` objects |
+| **Width** | min 120px (100% on mobile) |
+| **Behavior** | Change triggers search navigation |
+
+### 3.4 Native filter input (`input[type="text"]` in tables)
 
 **Used in:** `users-view` filter row only.  
 **Style:** Global `input` rules — white bg, `$border-default` border.  
 **Tech debt:** migrate to `mat-form-field` or shared `.filter-input` for consistency.
 
-### 3.4 Checkbox
+### 3.5 Checkbox
 
 Native checkbox in users list (filter + read-only role display).  
 **Tech debt:** prefer `mat-checkbox` like `users-edit`.
 
-### 3.5 Rich text editor (`app-rich-text-editor`)
+### 3.6 Rich text editor (`app-rich-text-editor`)
 
 | Property | Value |
 |----------|-------|
@@ -162,33 +192,81 @@ Native checkbox in users list (filter + read-only role display).
 
 ## 4. Layout blocks
 
-### 4.1 Page title area (`.centered`)
+### 4.1 Page scaffold (`.page`)
 
-Centers content; used on home, lists, ticket view, search.
+Standard wrapper for every authenticated route.
 
-### 4.2 Form header (`.form-header`)
+| Class | Purpose |
+|-------|---------|
+| `.page` | Max-width content, vertical padding, `$surface-page` background |
+| `.page--wide` | Full-width variant (kanban, dashboard) |
+| `.page-header` | Flex row: title block + `.page-header__actions` |
+| `.page-title` | H1 — primary screen title |
+| `.page-subtitle` | Muted one-line context |
+| `.page-panel` | White card panel with shadow (tables, tabs, forms) |
+| `.page-panel--flush` | Panel without inner padding (embedded tables) |
 
-Navy banner above auth forms (login, password reset). White heading text.
+**Used in:** home, kanban, search, users, projects, ticket view, dashboard, edit forms.
 
-### 4.3 Edit form (`form.edit`)
+### 4.2 Auth layout (`.page-auth`)
+
+| Class | Purpose |
+|-------|---------|
+| `.page-auth` | Centers content vertically on login/password routes |
+| `.auth-card` | White card, shadow, max-width 420px |
+| `.form-actions` | Right-aligned button row in auth and modals |
+
+**Used in:** login, password-reset-request, password-reset.
+
+### 4.3 Project grid (`.project-grid` / `.project-card`)
+
+Home page project picker — responsive grid of linked cards with Kanban/Dashboard actions.
+
+### 4.4 Detail list (`.detail-list`)
+
+Definition list for read-only ticket metadata (label / value rows).
+
+### 4.5 Tabs (`.tabs`)
+
+Horizontal tab bar inside `.page-panel`; active tab underline uses `$base-active-color`.
+
+### 4.6 Filters
+
+| Class | Use |
+|-------|-----|
+| `.filter-input` | Compact text filter in list headers |
+| `.role-filters` | Toggle chips for role filtering (users list) |
+
+### 4.7 Empty state (`.empty-state`)
+
+Dashed muted panel with centered italic copy — search, lists, password-reset stub.
+
+### 4.8 Legacy (avoid in new screens)
+
+| Class | Notes |
+|-------|-------|
+| `.centered` | Superseded by `.page` |
+| `.form-header` | Superseded by `.auth-card` title inside card |
+
+### 4.9 Edit form (`form.edit`)
 
 | Property | Value |
 |----------|-------|
-| **Max-width** | 960px |
-| **Style** | White card, shadow, toolbar footer (`.actions`) |
+| **Max-width** | 960px inside `.page-panel` |
+| **Style** | Outline fields, `.form-actions` footer |
 | **Used in** | user edit, project edit |
 
-### 4.4 Card (`.card`)
+### 4.10 Card (`.card`)
 
 | Variant | Style | Behavior |
 |---------|-------|----------|
 | Default | White, border, shadow | Hover: slightly stronger shadow (no lift) |
 | `.empty` | Dashed border, muted text | Non-interactive empty state |
-| In `.box` | Wider padding | Project home grid |
+| In `.box` | Wider padding | Legacy project home (prefer `.project-card`) |
 
-**Used in:** home projects, search results, kanban tickets, parameters display.
+**Used in:** kanban tickets, legacy layouts.
 
-### 4.5 Parameters summary (`.parameters-box`)
+### 4.11 Parameters summary (`.parameters-box`)
 
 Table layout showing active search filters (term, status). Muted toolbar background.
 
@@ -296,6 +374,8 @@ Plain text: `Carregando...`, `Enviando...` on buttons and dashboard widgets.
 
 ## 11. Dashboard (`.dashboard-configurator`)
 
+Wrapped in `.page.page--wide` with standard `.page-header`. Inner `.page-panel` contains `.dashboard-container` (edit + view modes).
+
 | Mode | UI |
 |------|-----|
 | View | Widget grid with charts (Chart.js `baseChart`), KPI `data-table`, ticket `data-table` |
@@ -325,9 +405,11 @@ Issues observed in running dev environment and code audit:
 
 | Area | Finding | Status |
 |------|---------|--------|
-| Theme | M3 default primary (`#343dff`) clashed with corporate `#1565C0` | Fixed — CSS variable overrides |
-| Buttons | Global `button {}` styled tabs, menu items, toolbar | Fixed — scoped to `.btn` |
-| Header | Bulky labeled fields on navy chrome | Fixed — compact `floatLabel="never"` |
+| Theme | M3 default primary clashed with corporate palette | Fixed — `mat.button-overrides` + CSS vars |
+| Buttons | `matButton` without variant rendered text buttons; custom CSS fought Material | Fixed — `matButton="filled"` / `"outlined"` |
+| Header | `mat-form-field` too tall on navy chrome | Fixed — `.toolbar-search` / `.toolbar-select` |
+| Header chrome | Menu/notification buttons low contrast on navy | Fixed — `.btn-header` outlined variant |
+| Nav active | Bright blue pill on Início | Fixed — subtle white overlay |
 | Users list | Debug `{{ filter.name }}` leaked in template | Fixed |
 | Dashboard | Typo class `dashboar table` broke widget tables | Fixed → `.data-table` |
 | i18n | English labels on user/project forms | Fixed → PT-BR |

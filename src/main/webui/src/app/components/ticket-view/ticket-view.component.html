@@ -1,72 +1,87 @@
 @if (ticket) {
-<div class="centered">
-  <h1>
-    #{{ ticket.identifier }} - {{ ticket.title }}
-    <div class="actions">
-          <button class="btn" matButton (click)="toggle()">
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">#{{ ticket.identifier }} — {{ ticket.title }}</h1>
+      <p class="page-subtitle">{{ ticket.project.name }} · {{ ticket.status | normalize }}</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn" matButton="filled" (click)="toggle()">
         @if (isSubscribed()) {
           <ng-container>
-            <mat-icon fontIcon="notifications_off"></mat-icon>
-            Ignorar
+            <mat-icon fontIcon="notifications_off" aria-hidden="true"></mat-icon>
+            <span i18n>Deixar de observar</span>
           </ng-container>
         } @else {
           <ng-container>
-            <mat-icon fontIcon="notifications_active"></mat-icon>
-            Observar
+            <mat-icon fontIcon="notifications_active" aria-hidden="true"></mat-icon>
+            <span i18n>Observar</span>
           </ng-container>
         }
       </button>
     </div>
-  </h1>
-  <div class="left-aligned">
-    <p><strong>Projeto:</strong> {{ ticket.project.name }}</p>
-    <p><strong>Categoria:</strong> {{ ticket.category }}</p>
-    <p><strong>Descrição:</strong> {{ ticket.description }}</p>
-    <p><strong>Autor:</strong> {{ ticket.author.name }}</p>
-    <p><strong>Responsável:</strong> {{ ticket.assignee?.name }}</p>
-    <p><strong>Status:</strong> {{ ticket.status | normalize }}</p>
-    <p>
-      <strong>Subscritos:</strong> 
-        <span class="labels">
-          @for(subs of ticket.subscribers; track subs.username) {
-            <span class="label">
-              {{ subs.name }}
-            </span>
-          }
-        </span>
-    </p>
-    <hr>
-    
-    <!-- Tabs Navigation -->
-    <div class="tabs">
-      <button 
-        class="tab-button" 
+  </header>
+
+  <section class="page-panel">
+    <dl class="detail-list">
+      <dt i18n>Projeto</dt>
+      <dd>{{ ticket.project.name }}</dd>
+      <dt i18n>Categoria</dt>
+      <dd>{{ ticket.category }}</dd>
+      <dt i18n>Autor</dt>
+      <dd>{{ ticket.author.name }}</dd>
+      <dt i18n>Responsável</dt>
+      <dd>{{ ticket.assignee?.name || '—' }}</dd>
+      <dt i18n>Status</dt>
+      <dd>{{ ticket.status | normalize }}</dd>
+      <dt i18n>Subscritos</dt>
+      <dd>
+        @if (ticket.subscribers.length > 0) {
+          <span class="labels">
+            @for (subs of ticket.subscribers; track subs.username) {
+              <span class="label">{{ subs.name }}</span>
+            }
+          </span>
+        } @else {
+          <span class="text-muted" i18n>Nenhum</span>
+        }
+      </dd>
+      <dt i18n>Descrição</dt>
+      <dd>{{ ticket.description }}</dd>
+    </dl>
+
+    <nav class="tabs" aria-label="Seções do ticket">
+      <button
+        type="button"
+        class="tab-button"
         [class.active]="activeTab === 'history'"
-        (click)="setActiveTab('history')">
+        (click)="setActiveTab('history')"
+        i18n>
         Histórico
       </button>
-      <button 
-        class="tab-button" 
+      <button
+        type="button"
+        class="tab-button"
         [class.active]="activeTab === 'comments'"
-        (click)="setActiveTab('comments')">
+        (click)="setActiveTab('comments')"
+        i18n>
         Comentários
       </button>
-    </div>
+    </nav>
 
-    <!-- History Tab -->
     @if (activeTab === 'history') {
       @if (ticket.history && ticket.history.length > 0) {
         <div class="table">
-          <div class="header">Histórico de Alterações</div>
+          <div class="header" i18n>Histórico de alterações</div>
           <div class="body">
             <div class="sub-header">
-              <div>Data</div>
-              <div>Usuário</div>
-              <div>Alteração</div>
+              <div i18n>Data</div>
+              <div i18n>Usuário</div>
+              <div i18n>Alteração</div>
             </div>
             @for (entry of ticket.history; track entry.timestamp) {
               <div class="row {{ $even ? 'even' : 'odd' }}">
-                <div>{{ entry.timestamp | date:'medium' }}</div>
+                <div>{{ entry.timestamp | date: 'medium' }}</div>
                 <div>{{ entry.user.email }}</div>
                 <div>{{ entry.description }}</div>
               </div>
@@ -74,58 +89,55 @@
           </div>
         </div>
       } @else {
-        <div class="table empty">Nenhuma atividade registrada...</div>
+        <div class="empty-state" i18n>Nenhuma atividade registrada para este ticket.</div>
       }
     }
 
-    <!-- Comments Tab -->
     @if (activeTab === 'comments') {
       <div class="comments-section">
-        <!-- Add Comment Form -->
         <div class="comment-form">
-          <h3>Adicionar Comentário</h3>
-          <div class="form-group">
-            <app-rich-text-editor
-              [value]="newComment"
-              [disabled]="submittingComment"
-              placeholder="Digite seu comentário..."
-              (valueChange)="onCommentChange($event)">
-            </app-rich-text-editor>
+          <h3 i18n>Adicionar comentário</h3>
+          <app-rich-text-editor
+            [value]="newComment"
+            [disabled]="submittingComment"
+            placeholder="Digite seu comentário..."
+            (valueChange)="onCommentChange($event)">
+          </app-rich-text-editor>
+          <div class="form-actions">
+            <button
+              class="btn"
+              matButton="filled"
+              (click)="addComment()"
+              [disabled]="!newComment.trim() || submittingComment">
+              @if (submittingComment) {
+                <span i18n>Enviando...</span>
+              } @else {
+                <span i18n>Publicar comentário</span>
+              }
+            </button>
           </div>
-          <button
-            class="btn"
-            matButton
-            (click)="addComment()"
-            [disabled]="!newComment.trim() || submittingComment">
-            @if (submittingComment) {
-              Enviando...
-            } @else {
-              Adicionar Comentário
-            }
-          </button>
         </div>
 
-        <!-- Comments List -->
         <div class="comments-list">
-          <h3>Comentários ({{ comments.length }})</h3>
+          <h3 i18n>Comentários ({{ comments.length }})</h3>
           @if (loadingComments) {
-            <div class="loading">Carregando comentários...</div>
+            <div class="loading" i18n>Carregando comentários...</div>
           } @else if (comments.length > 0) {
             @for (comment of comments; track comment.id) {
               <div class="comment">
                 <div class="comment-header">
                   <span class="comment-author">{{ comment.author.name }}</span>
-                  <span class="comment-date">{{ comment.createdAt | date:'medium' }}</span>
+                  <span class="comment-date">{{ comment.createdAt | date: 'medium' }}</span>
                 </div>
                 <div class="comment-content" [innerHTML]="comment.content"></div>
               </div>
             }
           } @else {
-            <div class="no-comments">Nenhum comentário ainda. Seja o primeiro a comentar!</div>
+            <div class="no-comments" i18n>Nenhum comentário ainda. Seja o primeiro a comentar.</div>
           }
         </div>
       </div>
     }
-  </div>
+  </section>
 </div>
 }

@@ -1,27 +1,37 @@
-<div class="centered">
-  <div class="home-content">
-    <h1 i18n>Issues</h1>
-    <p i18n>Bem-vindo ao sistema de gerenciamento de tickets</p>
-    @if (isAuthenticated()) {
-    <div class="box">
-      @if (projects.length == 0) {
-      <div class="card empty" i18n>
-        Nenhum projeto disponível. Entre em contato com o administrador.
-      </div>  
-      }
-      @for (project of projects; track project.name) {
-      <div class="card">
-        <div class="title">{{ project.name }}</div>
-        <div title="{{ project.description }}" class="description">{{ project.description | trim:100 }}</div>
-        <button class="btn" matButton [routerLink]="['/project', project.id, 'kanban']">
-          <mat-icon fontIcon="view_kanban"></mat-icon><span i18n>Kanban</span>
-        </button>
-        <button class="btn" matButton [routerLink]="['/project', project.id, 'dashboard']">
-          <mat-icon fontIcon="query_stats"></mat-icon><span i18n>Painel</span>
-        </button>
-      </div>
-      }
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Projetos</h1>
+      <p class="page-subtitle" i18n>Selecione um projeto para abrir o quadro ou o painel</p>
     </div>
+  </header>
+
+  @if (isAuthenticated()) {
+    @if (projects.length === 0) {
+      <div class="empty-state" i18n>
+        Nenhum projeto disponível. Entre em contato com o administrador.
+      </div>
+    } @else {
+      <div class="project-grid">
+        @for (project of projects; track project.id) {
+          <article class="project-card">
+            <h2 class="project-card__title">{{ project.name }}</h2>
+            <p class="project-card__description" [title]="project.description">
+              {{ project.description | trim:120 }}
+            </p>
+            <div class="project-card__actions">
+              <button class="btn" matButton="filled" [routerLink]="['/project', project.id, 'kanban']">
+                <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
+                <span i18n>Kanban</span>
+              </button>
+              <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'dashboard']">
+                <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
+                <span i18n>Painel</span>
+              </button>
+            </div>
+          </article>
+        }
+      </div>
     }
-  </div>
-</div> 
+  }
+</div>

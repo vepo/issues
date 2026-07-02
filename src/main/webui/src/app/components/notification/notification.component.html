@@ -1,38 +1,37 @@
-<button matButton [matMenuTriggerFor]="notifications">
-    <mat-icon fontIcon="notifications"></mat-icon>
-    @let unread = eventsUnread();
-    @if(unread > 0) {
-        <div class="unread-box">
-            <div class="unread">
-                <span>{{ unread }}</span>
-            </div>
-        </div>
-    }
-    <span i18n>Notificações</span>
+<button
+  matIconButton
+  class="btn-icon-header"
+  [matMenuTriggerFor]="notifications"
+  aria-label="Notificações">
+  <mat-icon fontIcon="notifications" aria-hidden="true"></mat-icon>
+  @let unread = eventsUnread();
+  @if (unread > 0) {
+    <span class="notification-badge" aria-hidden="true">{{ unread }}</span>
+  }
 </button>
 <mat-menu #notifications="matMenu" class="menu-panel notifications">
-    @for(event of events; track $index) {
-    <button mat-menu-item (click)="navigate(event)">
-        <div class="notification-container">
-            <div class="notification-item">
-                <div class="icon">
-                    @if(event.read) {
-                    <mat-icon fontIcon="mark_email_read"></mat-icon>
-                    } @else {
-                    <mat-icon fontIcon="email"></mat-icon>
-                    }
-                </div>
-                <div class="content">
-                    <span i18n>{{ event.content }}</span>
-                </div>
-            </div>
-            <div class="notification-item">
-                <div>&nbsp;</div>
-                <div class="notification-date">
-                    {{ event.timestamp | date: 'dd/MM/yyyy HH:mm' }}
-                </div>
-            </div>
+  @for (event of events; track $index) {
+  <button mat-menu-item (click)="navigate(event)">
+    <div class="notification-container">
+      <div class="notification-item">
+        <div class="icon">
+          @if (event.read) {
+          <mat-icon fontIcon="mark_email_read"></mat-icon>
+          } @else {
+          <mat-icon fontIcon="email"></mat-icon>
+          }
         </div>
-    </button>
-    }
+        <div class="content">
+          <span>{{ event.content }}</span>
+        </div>
+      </div>
+      <div class="notification-item">
+        <div>&nbsp;</div>
+        <div class="notification-date">
+          {{ event.timestamp | date: 'dd/MM/yyyy HH:mm' }}
+        </div>
+      </div>
+    </div>
+  </button>
+  }
 </mat-menu>

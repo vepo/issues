@@ -29,6 +29,15 @@ html {
   @include mat.form-field-overrides((
     filled-input-text-placeholder-color: colors.$text-muted,
   ));
+
+  @include mat.button-overrides((
+    filled-container-color: colors.$base-active-color,
+    filled-label-text-color: colors.$surface-card,
+    filled-disabled-container-color: colors.$text-muted,
+    outlined-outline-color: colors.$base-secondary-color,
+    outlined-label-text-color: colors.$base-secondary-color,
+    outlined-disabled-outline-color: colors.$border-default,
+  ));
 }
 
 @mixin focus-ring {
@@ -46,92 +55,245 @@ body {
   color: colors.$text-primary;
 }
 
-button.btn.mdc-button,
-a.btn.mdc-button {
-  border: solid 1px colors.$base-active-color;
+.mat-mdc-button-base.btn {
   border-radius: 4px;
-  padding: colors.$space-sm colors.$space-lg;
-  background-color: colors.$base-active-color;
-  color: colors.$surface-card;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-
-  &.btn-secondary {
-    border-color: colors.$base-secondary-color;
-    background-color: colors.$base-secondary-bg-color;
-    color: colors.$base-secondary-color;
-
-    .mdc-button__label,
-    .mat-icon {
-      color: colors.$base-secondary-color;
-    }
-
-    &:hover {
-      background-color: colors.$base-secondary-bg-active-color;
-    }
-  }
-
-  &.btn-cancel {
-    background-color: colors.$base-error-color;
-    border-color: colors.$base-error-color;
-
-    &:hover {
-      background-color: colors.$base-error-active-color;
-    }
-  }
-
-  .mdc-button__label,
-  .mat-icon {
-    color: colors.$surface-card;
-  }
 
   &:not(:last-child) {
     margin-right: colors.$space-sm;
   }
 
-  &.mat-mdc-menu-trigger:hover {
-    background-color: colors.$base-background-color-light;
-  }
-
-  &:hover {
-    background-color: colors.$base-active-hover-color;
-    border-color: colors.$base-active-hover-color;
-  }
-
   &:focus-visible {
     @include focus-ring;
   }
+}
 
-  &[disabled] {
-    background-color: colors.$text-muted;
-    border-color: colors.$text-muted;
-    cursor: default;
-    opacity: 0.6;
+.mat-mdc-button-base.btn-cancel {
+  --mdc-filled-button-container-color: #{colors.$base-error-color};
+  --mdc-filled-button-label-text-color: #{colors.$surface-card};
+
+  &:hover {
+    --mdc-filled-button-container-color: #{colors.$base-error-active-color};
+  }
+}
+
+.mat-mdc-button-base.btn-secondary {
+  --mdc-outlined-button-outline-color: #{colors.$base-secondary-color};
+  --mdc-outlined-button-label-text-color: #{colors.$base-secondary-color};
+  --mat-outlined-button-state-layer-color: #{colors.$base-secondary-bg-active-color};
+}
+
+.mat-mdc-button-base.btn-header {
+  --mdc-outlined-button-outline-color: #{colors.$header-button-border};
+  --mdc-outlined-button-label-text-color: #{colors.$surface-card};
+  --mat-outlined-button-state-layer-color: #{colors.$header-button-hover-bg};
+  background-color: colors.$header-button-bg;
+
+  .mat-icon,
+  .mdc-button__label {
+    color: colors.$surface-card;
+  }
+
+  &:hover {
+    background-color: colors.$header-button-hover-bg;
   }
 }
 
 .main-header {
-  button.mat-mdc-button:not(.btn) {
-    background: colors.$header-button-bg;
-    border: 1px solid colors.$header-button-border;
-    color: colors.$surface-card;
-    border-radius: 4px;
-    padding: colors.$space-xs colors.$space-md;
+  padding: colors.$space-sm colors.$space-md;
+  gap: colors.$space-md;
+  flex-wrap: wrap;
+  min-height: 56px;
 
-    .mdc-button__label,
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: colors.$space-sm;
+    color: colors.$surface-card;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.125rem;
+    letter-spacing: 0.02em;
+    padding: colors.$space-xs colors.$space-sm;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease;
+
+    mat-icon {
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      text-decoration: none;
+      color: colors.$surface-card;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    &.brand-active .brand-name {
+      border-bottom: 2px solid rgba(255, 255, 255, 0.85);
+    }
+  }
+
+  .search-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: colors.$space-xs;
+    min-width: min(320px, 100%);
+    max-width: 420px;
+    flex: 1 1 240px;
+    background: colors.$surface-card;
+    border-radius: 999px;
+    padding: 3px 3px 3px colors.$space-md;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:focus-within {
+      border-color: colors.$base-active-color;
+      box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.25);
+    }
+
+    &__leading {
+      color: colors.$text-muted;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    &__input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      background: transparent;
+      margin: 0;
+      padding: colors.$space-sm colors.$space-xs;
+      font-size: 0.9rem;
+      color: colors.$text-primary;
+      box-shadow: none;
+
+      &::placeholder {
+        color: colors.$text-muted;
+      }
+
+      &:focus,
+      &:focus-visible {
+        outline: none;
+        box-shadow: none;
+        border: none;
+      }
+    }
+
+    &__action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: colors.$base-active-color;
+      color: colors.$surface-card;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background-color 0.15s ease;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: colors.$surface-card;
+      }
+
+      &:hover {
+        background: colors.$base-active-hover-color;
+      }
+
+      &:focus-visible {
+        @include focus-ring;
+      }
+    }
+  }
+
+  .toolbar-select {
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid colors.$header-button-border;
+    border-radius: 999px;
+    padding: 0 colors.$space-md;
+
+    select {
+      border: none;
+      background: transparent;
+      margin: 0;
+      padding: 0 colors.$space-lg 0 colors.$space-xs;
+      min-height: 0;
+      height: 100%;
+      color: colors.$surface-card;
+      font-size: 0.875rem;
+      cursor: pointer;
+      box-shadow: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right center;
+
+      &:focus,
+      &:focus-visible {
+        outline: none;
+        box-shadow: none;
+        border: none;
+      }
+
+      option {
+        color: colors.$text-primary;
+        background: colors.$surface-card;
+      }
+    }
+  }
+
+  .header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: colors.$space-xs;
+    flex-shrink: 0;
+  }
+
+  .btn-icon-header.mat-mdc-icon-button {
+    --mdc-icon-button-icon-size: 24px;
+    color: colors.$surface-card;
+
     .mat-icon {
       color: colors.$surface-card;
     }
 
     &:hover {
       background: colors.$header-button-hover-bg;
-      border-color: colors.$header-button-border;
-    }
-
-    &:focus-visible {
-      @include focus-ring;
     }
   }
+
+  .btn-compact {
+    flex-shrink: 0;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 a {
@@ -257,72 +419,256 @@ main {
 
   nav {
     display: flex;
-
-    a {
-      color: colors.$surface-card;
-      text-decoration: none;
-      padding: colors.$space-sm colors.$space-md;
-      border-radius: 4px;
-      transition: background-color 0.15s ease;
-
-      &:hover {
-        background: colors.$base-background-color-light;
-        text-decoration: none;
-      }
-
-      &.active {
-        background-color: colors.$base-active-color;
-        color: colors.$surface-card;
-      }
-
-      &:focus-visible {
-        @include focus-ring;
-      }
-    }
-
-    a:not(:last-child) {
-      border-right: 1px solid rgba(255, 255, 255, 0.15);
-    }
-  }
-}
-
-.main-header {
-  padding: colors.$space-xs colors.$space-md;
-  gap: colors.$space-sm;
-  flex-wrap: wrap;
-
-  .header-field {
-    width: 220px;
-    margin: 0;
-
-    .mat-mdc-text-field-wrapper {
-      background-color: colors.$surface-card;
-      border-radius: 4px;
-    }
-
-    .mat-mdc-form-field-subscript-wrapper {
-      display: none;
-    }
-
-    .mat-mdc-floating-label,
-    .mdc-floating-label {
-      display: none;
-    }
-
-    .mat-mdc-form-field-infix {
-      min-height: 36px;
-      padding-top: 6px;
-      padding-bottom: 6px;
-    }
-
-    &.status-field {
-      width: 160px;
-    }
   }
 }
 
 .centered {
   text-align: center;
+}
+
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  width: 100%;
+  padding: colors.$space-lg 0 colors.$space-xl;
+
+  &--wide {
+    max-width: none;
+  }
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: colors.$space-md;
+  margin-bottom: colors.$space-lg;
+  flex-wrap: wrap;
+
+  .page-title {
+    margin: 0 0 colors.$space-xs;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .page-subtitle {
+    margin: 0;
+    color: colors.$text-secondary;
+    font-size: 0.95rem;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: colors.$space-sm;
+    flex-shrink: 0;
+  }
+}
+
+.page-panel {
+  background: colors.$surface-card;
+  border: 1px solid colors.$border-subtle;
+  border-radius: 8px;
+  box-shadow: colors.$shadow-card;
+  padding: colors.$space-lg;
+
+  &--flush {
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+.page-auth {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: colors.$space-xl colors.$space-md colors.$space-xl;
+}
+
+.auth-card {
+  background: colors.$surface-card;
+  border-radius: 8px;
+  box-shadow: colors.$shadow-card-hover;
+  border: 1px solid colors.$border-subtle;
+  overflow: hidden;
+
+  &__header {
+    background: colors.$base-background-color;
+    color: colors.$surface-card;
+    padding: colors.$space-xl colors.$space-lg colors.$space-lg;
+    text-align: center;
+
+    mat-icon {
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+      margin-bottom: colors.$space-sm;
+      opacity: 0.95;
+    }
+
+    h1,
+    h2 {
+      margin: 0 0 colors.$space-xs;
+      color: colors.$surface-card;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      opacity: 0.88;
+      font-size: 0.9rem;
+    }
+  }
+
+  &__body {
+    padding: colors.$space-xl colors.$space-lg;
+
+    mat-form-field {
+      width: 100%;
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: colors.$space-sm;
+  margin-top: colors.$space-md;
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: minmax(120px, 160px) 1fr;
+  gap: colors.$space-sm colors.$space-lg;
+  margin: 0 0 colors.$space-lg;
+  text-align: left;
+
+  dt {
+    font-weight: 600;
+    color: colors.$text-secondary;
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  dd {
+    margin: 0;
+    color: colors.$text-primary;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: colors.$space-xs;
+  border-bottom: 1px solid colors.$border-subtle;
+  margin-bottom: colors.$space-lg;
+
+  .tab-button {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: colors.$space-sm colors.$space-md;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: colors.$text-secondary;
+    transition: color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      color: colors.$base-active-color;
+      background: colors.$surface-muted;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    &.active {
+      color: colors.$base-active-color;
+      border-bottom-color: colors.$base-active-color;
+      font-weight: 600;
+    }
+  }
+}
+
+.filter-input {
+  width: 100%;
+  padding: colors.$space-xs colors.$space-sm;
+  font-size: 0.875rem;
+  border-radius: 4px;
+}
+
+.role-filters {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-xs;
+  font-size: 0.8rem;
+  text-align: left;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: colors.$space-xs;
+    cursor: pointer;
+    color: colors.$text-primary;
+  }
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: colors.$space-lg;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-md;
+  padding: colors.$space-lg;
+  background: colors.$surface-card;
+  border: 1px solid colors.$border-subtle;
+  border-radius: 8px;
+  box-shadow: colors.$shadow-card;
+  transition: box-shadow 0.15s ease;
+
+  &:hover {
+    box-shadow: colors.$shadow-card-hover;
+  }
+
+  &__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: colors.$text-primary;
+    margin: 0;
+  }
+
+  &__description {
+    flex: 1;
+    color: colors.$text-secondary;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: colors.$space-sm;
+  }
+}
+
+.empty-state {
+  padding: colors.$space-xl;
+  text-align: center;
+  color: colors.$text-muted;
+  font-style: italic;
+  background: colors.$surface-muted;
+  border: 1px dashed colors.$border-subtle;
+  border-radius: 8px;
+}
+
+.text-muted {
+  color: colors.$text-muted;
 }
 
 .left-aligned {
@@ -490,6 +836,15 @@ main {
       justify-content: space-between;
       align-items: center;
       color: colors.$text-primary;
+
+      .column-count {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: colors.$text-muted;
+        background: colors.$surface-muted;
+        padding: 2px colors.$space-sm;
+        border-radius: 999px;
+      }
     }
 
     .card-container {
@@ -661,27 +1016,39 @@ form {
 @media only screen and (max-width: 750px) {
   .main-header {
     flex-direction: column;
-    align-items: start;
+    align-items: stretch;
     padding: colors.$space-sm colors.$space-md;
+    gap: colors.$space-sm;
 
-    div:not(.grow-space) {
-      flex: 1 1 0;
+    .brand {
+      width: 100%;
+    }
+
+    .search-bar {
       width: 100%;
       max-width: 100%;
-      margin: auto;
+      flex: 1 1 100%;
+    }
 
-      .header-field {
-        width: 100%;
-      }
+    .toolbar-select {
+      width: 100%;
 
-      button {
+      select {
         width: 100%;
-        margin: colors.$space-xs 0;
       }
     }
 
+    .btn-compact {
+      width: 100%;
+    }
+
+    .header-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+
     div.grow-space {
-      flex-grow: 0;
+      display: none;
     }
   }
 
@@ -705,6 +1072,15 @@ form {
 
   main {
     margin: auto colors.$space-md;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -813,6 +1189,16 @@ div.table {
     .sub-header {
       font-weight: 600;
       background-color: colors.$base-background-color-light;
+
+      &--filter {
+        font-weight: 500;
+        font-size: 0.875rem;
+        background-color: colors.$surface-toolbar;
+
+        div {
+          color: colors.$text-primary;
+        }
+      }
     }
 
     .row {
@@ -839,19 +1225,30 @@ div.table {
 
 form.edit {
   background-color: colors.$surface-card;
-  max-width: 960px;
-  margin: auto;
-  margin-top: colors.$space-xl;
-  padding: colors.$space-md colors.$space-xl;
-  border-radius: 4px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: colors.$space-xl;
+  border-radius: 8px;
   box-shadow: colors.$shadow-card;
+  border: 1px solid colors.$border-subtle;
+
+  h1 {
+    margin-top: 0;
+    font-size: 1.35rem;
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: colors.$space-sm;
+    margin: colors.$space-md 0;
+  }
 
   .actions {
     margin-top: colors.$space-xl;
-    padding: colors.$space-xl 0;
-    border-radius: 0 0 4px 4px;
-    background-color: colors.$surface-toolbar;
+    padding-top: colors.$space-lg;
     border-top: solid 1px colors.$border-subtle;
+    background: transparent;
   }
 }
 

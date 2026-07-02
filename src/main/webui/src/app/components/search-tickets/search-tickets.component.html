@@ -1,33 +1,48 @@
-<div class="centered">
-  <h1>Resultados da busca</h1>
-  <div class="parameters-box">
-    @if (term) {
-      <div class="card">
-        <div class="type">Termos</div>
-        <div class="value">{{ term }}</div>
-      </div>
-    }
-    @let status = statusName(statusId);
-    @if (status) {
-      <div class="card">
-        <div class="type">Status</div>
-        <div class="value">{{ status }}</div>
-      </div>
-    }
-  </div>
-  <div class="box">
-    @if (tickets.length == 0) {
-      <div class="card empty">
-        Nenhum ticket encontrado!
-      </div>
-    }
-    @for (ticket of tickets; track ticket.id) {
-    <div class="card">
-      <div class="identifier"><a [routerLink]="['/ticket', ticket.id]">{{ ticket.id }}</a></div>
-      <div class="title">{{ ticket.title }}</div>
-      <div class="description">{{ ticket.description }}</div>
-      <div class="metadata">Projeto: {{ projectName(ticket.project) }} | Status: {{ statusName(ticket.status) }}</div>
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Resultados da busca</h1>
+      <p class="page-subtitle" i18n>Tickets correspondentes aos critérios informados</p>
+    </div>
+  </header>
+
+  @if (term || statusName(statusId)) {
+    <div class="parameters-box">
+      @if (term) {
+        <div class="card">
+          <div class="type" i18n>Termo</div>
+          <div class="value">{{ term }}</div>
+        </div>
+      }
+      @let status = statusName(statusId);
+      @if (status) {
+        <div class="card">
+          <div class="type" i18n>Status</div>
+          <div class="value">{{ status }}</div>
+        </div>
+      }
     </div>
   }
-  </div>
-</div> 
+
+  @if (tickets.length === 0) {
+    <div class="empty-state" i18n>
+      Nenhum ticket encontrado. Tente outros termos ou remova o filtro de status.
+    </div>
+  } @else {
+    <div class="project-grid">
+      @for (ticket of tickets; track ticket.id) {
+        <article class="project-card">
+          <div class="identifier">
+            <a [routerLink]="['/ticket', ticket.identifier || ticket.id]">{{ ticket.identifier || ticket.id }}</a>
+          </div>
+          <h2 class="project-card__title">{{ ticket.title }}</h2>
+          <p class="project-card__description">{{ ticket.description }}</p>
+          <p class="metadata">
+            <span i18n>Projeto:</span> {{ projectName(ticket.project) }} ·
+            <span i18n>Status:</span> {{ statusName(ticket.status) }}
+          </p>
+        </article>
+      }
+    </div>
+  }
+</div>
