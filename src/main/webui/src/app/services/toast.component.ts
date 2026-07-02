@@ -36,7 +36,7 @@ import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/co
           *ngIf="closeable" 
           class="toast-close" 
           (click)="onClose()"
-          aria-label="Close">
+          aria-label="Fechar">
           ×
         </button>
       </div>
@@ -72,27 +72,27 @@ import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/co
     }
 
     .toast-success {
-      background-color: #d4edda;
-      color: #155724;
-      border-left: 4px solid #28a745;
+      background-color: #E8F5E9;
+      color: #1B5E20;
+      border-left: 4px solid #2E7D32;
     }
 
     .toast-error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border-left: 4px solid #dc3545;
+      background-color: #FFEBEE;
+      color: #B71C1C;
+      border-left: 4px solid #C62828;
     }
 
     .toast-warning {
-      background-color: #fff3cd;
-      color: #856404;
-      border-left: 4px solid #ffc107;
+      background-color: #FFF8E1;
+      color: #E65100;
+      border-left: 4px solid #F9A825;
     }
 
     .toast-info {
-      background-color: #d1ecf1;
-      color: #0c5460;
-      border-left: 4px solid #17a2b8;
+      background-color: #E3F2FD;
+      color: #0D47A1;
+      border-left: 4px solid #1565C0;
     }
 
     .toast-content {

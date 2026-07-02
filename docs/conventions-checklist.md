@@ -15,6 +15,7 @@ Tracks gaps between documentation and code, and agentic development setup status
 | `.cursor/commands/` (fix tests, Sonar, coverage, structure review) | Done |
 | `readme.mdc` (keep README features current) | Done |
 | `issues-ux.mdc` (Nielsen heuristics + corporate UI) | Done |
+| `docs/ui-elements-gallery.md` | Done |
 | Legacy `.cursor/rules/vo-naming-pattern.mdc` | Replaced by `issues-http-contract.mdc` |
 | Legacy `.cursor/rules/always-write-tests.mdc` | Replaced by `issues-model.mdc` § TDD + `issues-tests.mdc` |
 

@@ -10,7 +10,6 @@
                 </button>
             </div>
         </div>
-        {{ filter.name }}
         <div class="body">
             <div class="sub-header">
                 <div>ID</div>
@@ -33,7 +32,7 @@
                     <input type="checkbox" [checked]="filter.roles.indexOf('user') != -1"
                         (change)="toggleRole('user')" /> Usuário
                 </div>
-                <div>Actions</div>
+                <div>Ações</div>
             </div>
             @for (entry of users; track entry.id) {
             <div class="row {{ $even ? 'even' : 'odd' }}">
@@ -55,7 +54,7 @@
             }
         </div>
         @if (users.length == 0 ){
-        <div class="table empty">Nenhuma usuario encontrado...</div>
+        <div class="table empty">Nenhum usuário encontrado...</div>
         }
     </div>
 </div>

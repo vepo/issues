@@ -1,35 +1,35 @@
 <div class="centered">
     <form class="edit" [formGroup]="projectForm">
         @if (editMode) {
-        <h1 i18n>Editar Projeto</h1>
+        <h1 i18n>Editar projeto</h1>
         } @else {
-        <h1 i18n>Novo Project</h1>
+        <h1 i18n>Novo projeto</h1>
         }
         <mat-form-field class="form-field" appearance="fill">
-            <mat-label>Name</mat-label>
+            <mat-label i18n>Nome</mat-label>
             <input matInput formControlName="name" required />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="fill">
-            <mat-label>Processo</mat-label>
+            <mat-label i18n>Processo</mat-label>
             <mat-select formControlName="workflow">
-                <mat-option [value]="-1" disabled>Select a project workflow...</mat-option>
+                <mat-option [value]="-1" disabled i18n>Selecione um processo...</mat-option>
                 @for (workflow of workflows; track workflow.name) {
                     <mat-option [value]="workflow.id">{{workflow.name}}</mat-option>
                 }
             </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="fill">
-            <mat-label>Prefix</mat-label>
+            <mat-label i18n>Prefixo</mat-label>
             <input matInput formControlName="prefix" required />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="fill">
-            <mat-label>Description</mat-label>
+            <mat-label i18n>Descrição</mat-label>
             <textarea matInput formControlName="description" required></textarea>
         </mat-form-field>
         <div class="actions">
-            <button class="btn btn-cancel" matButton="filled" (click)="cancel()">Cancel</button>
-            <button class="btn btn-primary" [disabled]="this.projectForm.invalid" matButton="filled"
-                (click)="save()">Salvar</button>
+            <button class="btn btn-cancel" matButton="filled" (click)="cancel()" i18n>Cancelar</button>
+            <button class="btn" [disabled]="this.projectForm.invalid" matButton="filled"
+                (click)="save()" i18n>Salvar</button>
         </div>
     </form>
 </div>

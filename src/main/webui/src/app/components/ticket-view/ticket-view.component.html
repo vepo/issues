@@ -3,13 +3,17 @@
   <h1>
     #{{ ticket.identifier }} - {{ ticket.title }}
     <div class="actions">
-      <button matButton (click)="toggle()" class="btn">
+          <button class="btn" matButton (click)="toggle()">
         @if (isSubscribed()) {
-          <mat-icon fontIcon="notifications_off"></mat-icon>
-          Ignorar
+          <ng-container>
+            <mat-icon fontIcon="notifications_off"></mat-icon>
+            Ignorar
+          </ng-container>
         } @else {
-          <mat-icon fontIcon="notifications_active"></mat-icon>
-          Observar
+          <ng-container>
+            <mat-icon fontIcon="notifications_active"></mat-icon>
+            Observar
+          </ng-container>
         }
       </button>
     </div>
@@ -88,8 +92,9 @@
               (valueChange)="onCommentChange($event)">
             </app-rich-text-editor>
           </div>
-          <button 
-            class="btn" 
+          <button
+            class="btn"
+            matButton
             (click)="addComment()"
             [disabled]="!newComment.trim() || submittingComment">
             @if (submittingComment) {

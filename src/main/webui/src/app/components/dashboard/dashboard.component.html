@@ -109,7 +109,7 @@
               <!-- KPIs serão renderizados aqui -->
               @let kpiData = loadKpiData(widget) | async;
               @if (kpiData) {
-                <div class="dashboar table">
+                <div class="data-table">
                   <div class="header">
                     <div class="header-cell">Métrica</div>
                     <div class="header-cell">Valor</div>
@@ -138,7 +138,7 @@
               <!-- Tabela será renderizada aqui -->
               @let tableData = loadTableData(widget) | async;
                 @if (tableData) {
-                  <div class="dashboar table">
+                  <div class="data-table">
                     <div class="header">
                       @for (column of tableData.columns; track $index) {
                         <div class="header-cell">{{ column }}</div>

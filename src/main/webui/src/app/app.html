@@ -6,21 +6,19 @@
   </div>
   @if (isAuthenticated()) {
   <div>
-    <mat-form-field class="header-field" appearance="outline" subscriptSizing="dynamic">
-      <mat-label i18n>Buscar tickets</mat-label>
-      <input
-        matInput
-        [(ngModel)]="searchTerm"
-        (keydown)="onSearchKeydown($event)"
-        i18n-placeholder
-        placeholder="Pressione Enter para buscar"
-      />
-      <mat-icon matPrefix fontIcon="search"></mat-icon>
-    </mat-form-field>
+        <mat-form-field class="header-field" appearance="outline" subscriptSizing="dynamic">
+          <input
+            matInput
+            [(ngModel)]="searchTerm"
+            (keydown)="onSearchKeydown($event)"
+            i18n-placeholder
+            placeholder="Buscar tickets (Enter)"
+          />
+          <mat-icon matPrefix fontIcon="search"></mat-icon>
+        </mat-form-field>
   </div>
   <div>
     <mat-form-field class="header-field status-field" appearance="outline" subscriptSizing="dynamic">
-      <mat-label i18n>Status</mat-label>
       <mat-select [(ngModel)]="selectStatus" (ngModelChange)="onChange($event)" [compareWith]="compareStatus">
         @for (status of statuses; track status.id) {
           <mat-option [value]="status">{{ status.name | normalize }}</mat-option>

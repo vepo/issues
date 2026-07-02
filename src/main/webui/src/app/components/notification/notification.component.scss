@@ -1,3 +1,5 @@
+@use "../../../colors";
+
 .notification-container {
     display: table;
 
@@ -5,17 +7,18 @@
         display: table-row;
 
         &:first-child >* {
-            padding-top: 0.5rem;
+            padding-top: colors.$space-sm;
         }
 
         &:last-child >* {
-            padding-bottom: 0.5rem
+            padding-bottom: colors.$space-sm;
         }
 
         .notification-date {
             text-align: right;
             font-size: 0.9rem;
             font-style: italic;
+            color: colors.$text-muted;
         }
 
         >* {
@@ -24,20 +27,23 @@
         }
     }
 }
+
 .unread-box {
     display: inline-flex;
     transform: translate(-13px, -9px);
     margin-right: 0 !important;
     font-size: 0.9rem;
+
     .unread {
         width: 15px;
         height: 15px;
-        border-radius: 2px;
-        background-color: #BF0603;
-        color: white;
+        border-radius: 50%;
+        background-color: colors.$base-error-color;
+        color: colors.$surface-card;
         display: flex;
         vertical-align: baseline;
         margin: auto auto auto -10%;
+
         span {
             font-size: 0.8rem;
             transform: translateX(3px);

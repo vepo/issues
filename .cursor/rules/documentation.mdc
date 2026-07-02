@@ -20,6 +20,7 @@ alwaysApply: false
 |--------|--------|
 | New domain term or invariant | [domain-specification.md](../../docs/domain-specification.md) |
 | New/changed UI route | [feature-catalog.md](../../docs/feature-catalog.md) |
+| New/changed UI element (class, component, pattern) | [ui-elements-gallery.md](../../docs/ui-elements-gallery.md) |
 | Package, API surface, patterns | [ARCHITECTURE.md](../../ARCHITECTURE.md) |
 | Doc debt closed | [conventions-checklist.md](../../docs/conventions-checklist.md) |
 | New/changed user-facing feature | [README.md](../../README.md) § Features — see [readme.mdc](readme.mdc) |
@@ -29,8 +30,9 @@ alwaysApply: false
 
 1. **domain-specification** — vocabulary and rules
 2. **feature-catalog** — routes and click paths
-3. **ARCHITECTURE** — technical structure
-4. **README** — pitch and links
+3. **ui-elements-gallery** — reusable UI components and patterns
+4. **ARCHITECTURE** — technical structure
+5. **README** — pitch and links
 
 ## Quality bar
 

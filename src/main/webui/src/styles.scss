@@ -16,6 +16,13 @@ html {
     typography: Roboto,
     density: 0,
   ));
+
+  --mat-sys-primary: #{colors.$base-active-color};
+  --mat-sys-on-primary: #{colors.$surface-card};
+  --mat-sys-primary-container: #{colors.$base-secondary-bg-color};
+  --mat-sys-on-primary-container: #{colors.$base-secondary-color};
+  --mat-sys-tertiary: #{colors.$base-active-color};
+  --mat-sys-on-tertiary: #{colors.$surface-card};
 }
 
 :root {
@@ -40,7 +47,7 @@ body {
 }
 
 button.btn.mdc-button,
-button {
+a.btn.mdc-button {
   border: solid 1px colors.$base-active-color;
   border-radius: 4px;
   padding: colors.$space-sm colors.$space-lg;
@@ -100,6 +107,30 @@ button {
     border-color: colors.$text-muted;
     cursor: default;
     opacity: 0.6;
+  }
+}
+
+.main-header {
+  button.mat-mdc-button:not(.btn) {
+    background: colors.$header-button-bg;
+    border: 1px solid colors.$header-button-border;
+    color: colors.$surface-card;
+    border-radius: 4px;
+    padding: colors.$space-xs colors.$space-md;
+
+    .mdc-button__label,
+    .mat-icon {
+      color: colors.$surface-card;
+    }
+
+    &:hover {
+      background: colors.$header-button-hover-bg;
+      border-color: colors.$header-button-border;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
   }
 }
 
@@ -266,10 +297,22 @@ main {
 
     .mat-mdc-text-field-wrapper {
       background-color: colors.$surface-card;
+      border-radius: 4px;
     }
 
     .mat-mdc-form-field-subscript-wrapper {
       display: none;
+    }
+
+    .mat-mdc-floating-label,
+    .mdc-floating-label {
+      display: none;
+    }
+
+    .mat-mdc-form-field-infix {
+      min-height: 36px;
+      padding-top: 6px;
+      padding-bottom: 6px;
     }
 
     &.status-field {
@@ -681,6 +724,48 @@ span.labels {
     margin-right: colors.$space-sm;
     border-radius: 4px;
     font-size: 0.85rem;
+  }
+}
+
+div.data-table {
+  background-color: colors.$surface-card;
+  color: colors.$text-primary;
+  width: 100%;
+  border: 1px solid colors.$border-subtle;
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: 0.9rem;
+
+  .header {
+    display: flex;
+    font-weight: 600;
+    background-color: colors.$surface-toolbar;
+    border-bottom: 1px solid colors.$border-subtle;
+
+    .header-cell,
+    > div {
+      flex: 1;
+      padding: colors.$space-sm colors.$space-md;
+    }
+  }
+
+  .body {
+    .row {
+      display: flex;
+
+      > div {
+        flex: 1;
+        padding: colors.$space-sm colors.$space-md;
+      }
+
+      &.even {
+        background-color: colors.$surface-card;
+      }
+
+      &.odd {
+        background-color: colors.$surface-muted;
+      }
+    }
   }
 }
 

@@ -8,6 +8,15 @@ alwaysApply: false
 
 Every UI/UX change MUST be reviewed against Nielsen's 10 usability heuristics before merge.
 
+## UI Elements Gallery (mandatory)
+
+**Before creating or changing any UI element**, read [docs/ui-elements-gallery.md](../../docs/ui-elements-gallery.md):
+
+1. Find an existing element to reuse (class, Material component, behavior).
+2. Match documented **properties**, **style** (tokens/classes), and **behavior**.
+3. If no element fits, add the new element to the gallery in the same PR.
+4. Do not introduce ad-hoc buttons, colors, or form patterns outside the gallery.
+
 ## Checklist (per screen or flow)
 
 | # | Heuristic | Issues application |
@@ -15,7 +24,7 @@ Every UI/UX change MUST be reviewed against Nielsen's 10 usability heuristics be
 | 1 | **Visibility of system status** | Loading/disabled during submit; notification badge; kanban drop feedback; toasts |
 | 2 | **Match system / real world** | Domain terms from [domain-specification.md](../../docs/domain-specification.md); PT-BR labels; familiar tracker patterns (Kanban, ticket ID) |
 | 3 | **User control & freedom** | Cancel/close on dialogs; back navigation; logout; avoid `disableClose` unless required |
-| 4 | **Consistency & standards** | Material + shared classes in `styles.scss`; same button hierarchy; no one-off hex colours |
+| 4 | **Consistency & standards** | Gallery elements + `styles.scss`; same button hierarchy; no one-off hex colours |
 | 5 | **Error prevention** | `mat-form-field` validation; confirm destructive actions |
 | 6 | **Recognition over recall** | Visible nav, status filter, project cards — minimise memory load |
 | 7 | **Flexibility & efficiency** | Header search; Enter on search; role-based menu shortcuts |
@@ -25,7 +34,7 @@ Every UI/UX change MUST be reviewed against Nielsen's 10 usability heuristics be
 
 ## Corporate visual language
 
-Tokens: `src/main/webui/src/colors.scss` and `src/main/webui/src/styles.scss`.
+Tokens: `src/main/webui/src/colors.scss` and `src/main/webui/src/styles.scss`. Full element mapping: [ui-elements-gallery.md](../../docs/ui-elements-gallery.md).
 
 | Role | Token / pattern |
 |------|-----------------|
@@ -41,11 +50,12 @@ Tokens: `src/main/webui/src/colors.scss` and `src/main/webui/src/styles.scss`.
 
 ## Before finishing a UI change
 
-1. Walk the Nielsen checklist for the affected flow.
-2. Extend `colors.scss` / `styles.scss` — avoid scattered hex in component SCSS.
-3. Verify mobile (`@media max-width: 750px` in `styles.scss`).
-4. Run affected `*.spec.ts` when behaviour changes.
-5. Update [feature-catalog.md](../../docs/feature-catalog.md) when routes or labels change.
+1. Confirm gallery compliance (reuse or extend [ui-elements-gallery.md](../../docs/ui-elements-gallery.md)).
+2. Walk the Nielsen checklist for the affected flow.
+3. Extend `colors.scss` / `styles.scss` — avoid scattered hex in component SCSS.
+4. Verify mobile (`@media max-width: 750px` in `styles.scss`).
+5. Run affected `*.spec.ts` when behaviour changes.
+6. Update [feature-catalog.md](../../docs/feature-catalog.md) when routes or labels change.
 
 ## Related
 

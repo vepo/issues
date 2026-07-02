@@ -39,6 +39,25 @@ $space-md: 1rem;    // 16px
 $space-lg: 1.5rem;  // 24px
 $space-xl: 2rem;    // 32px
 
+// Semantic feedback (toasts)
+$semantic-success-bg: #E8F5E9;
+$semantic-success-text: #1B5E20;
+$semantic-success-border: #2E7D32;
+$semantic-error-bg: #FFEBEE;
+$semantic-error-text: #B71C1C;
+$semantic-error-border: #C62828;
+$semantic-warning-bg: #FFF8E1;
+$semantic-warning-text: #E65100;
+$semantic-warning-border: #F9A825;
+$semantic-info-bg: #E3F2FD;
+$semantic-info-text: #0D47A1;
+$semantic-info-border: #1565C0;
+
 // Elevation
 $shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
 $shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+// Header chrome on navy background
+$header-button-bg: rgba(255, 255, 255, 0.12);
+$header-button-border: rgba(255, 255, 255, 0.35);
+$header-button-hover-bg: rgba(255, 255, 255, 0.2);

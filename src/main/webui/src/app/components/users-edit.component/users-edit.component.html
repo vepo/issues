@@ -1,30 +1,30 @@
 <div class="centered">
   <form class="edit" [formGroup]="userForm">
     @if (editMode) {
-    <h1>Edit User</h1>
+    <h1 i18n>Editar usuário</h1>
     } @else {
-    <h1>Create User</h1>
+    <h1 i18n>Novo usuário</h1>
     }
     <mat-form-field class="form-field" appearance="fill">
-      <mat-label>Name</mat-label>
+      <mat-label i18n>Nome</mat-label>
       <input matInput formControlName="name" required />
     </mat-form-field>
     <mat-form-field class="form-field" appearance="fill">
-      <mat-label>Username</mat-label>
+      <mat-label i18n>Usuário</mat-label>
       <input matInput formControlName="username" required />
     </mat-form-field>
     <mat-form-field class="form-field" appearance="fill">
-      <mat-label>Email</mat-label>
+      <mat-label i18n>E-mail</mat-label>
       <input matInput formControlName="email" required />
     </mat-form-field>
     <section>
-      <mat-checkbox aria-label="Adminstrator"    [checked]="isRoleSelected('admin')"           (change)="toggle('admin')">Adminstrator</mat-checkbox>
-      <mat-checkbox aria-label="Project Manager" [checked]="isRoleSelected('project-manager')" (change)="toggle('project-manager')">Project Manager</mat-checkbox>
-      <mat-checkbox aria-label="User"            [checked]="isRoleSelected('user')"            (change)="toggle('user')">User</mat-checkbox>
+      <mat-checkbox aria-label="Administrador" [checked]="isRoleSelected('admin')" (change)="toggle('admin')" i18n>Administrador</mat-checkbox>
+      <mat-checkbox aria-label="Gerente de projetos" [checked]="isRoleSelected('project-manager')" (change)="toggle('project-manager')" i18n>Gerente de projetos</mat-checkbox>
+      <mat-checkbox aria-label="Usuário" [checked]="isRoleSelected('user')" (change)="toggle('user')" i18n>Usuário</mat-checkbox>
     </section>
     <div class="actions">
-       <button class="btn btn-cancel" matButton="filled" (click)="cancel()">Cancel</button>
-       <button class="btn btn-primary" [disabled]="this.userForm.invalid" matButton="filled" (click)="save()">Salvar</button>
+       <button class="btn btn-cancel" matButton="filled" (click)="cancel()" i18n>Cancelar</button>
+       <button class="btn" [disabled]="this.userForm.invalid" matButton="filled" (click)="save()" i18n>Salvar</button>
     </div>
   </form>
 </div>

@@ -16,7 +16,7 @@
                 <div class="left-aligned">Nome</div>
                 <div class="left-aligned">Descrição</div>
                 <div class="left-aligned">Prefixo</div>
-                <div>Actions</div>
+                <div>Ações</div>
             </div>
             @for (entry of projects; track entry.id) {
             <div class="row {{ $even ? 'even' : 'odd' }}">
@@ -33,7 +33,7 @@
             }
         </div>
         @if (projects.length == 0 ){
-        <div class="table empty">Nenhuma projeto encontrado...</div>
+        <div class="table empty">Nenhum projeto encontrado...</div>
         }
     </div>
 </div>

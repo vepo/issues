@@ -7,6 +7,7 @@ Read these before changing code or tests:
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Stack, packages, patterns, API map, naming, feature workflow |
 | [docs/domain-specification.md](docs/domain-specification.md) | Ubiquitous language, bounded contexts, invariants |
 | [docs/feature-catalog.md](docs/feature-catalog.md) | UI routes and navigation paths |
+| [docs/ui-elements-gallery.md](docs/ui-elements-gallery.md) | UI element catalog — properties, style, behavior |
 | [docs/conventions-checklist.md](docs/conventions-checklist.md) | Doc debt and agent setup status |
 | [.cursor/rules/](.cursor/rules/) | Four pillars + file-scoped detail |
 | [.cursor/agents/](.cursor/agents/) | Project subagents (specialized behaviour) |
@@ -44,7 +45,7 @@ No content is duplicated across pillars — each hub links to file-scoped rules 
 | [issues-jpa.mdc](.cursor/rules/issues-jpa.mdc) | `*Repository.java` | EntityManager queries |
 | [issues-tests.mdc](.cursor/rules/issues-tests.mdc) | `src/test/**` | REST Assured, Given, ArchUnit, domain narrative |
 | [issues-angular.mdc](.cursor/rules/issues-angular.mdc) | `src/main/webui/**` | Components, services, Material |
-| [issues-ux.mdc](.cursor/rules/issues-ux.mdc) | `src/main/webui/**` | Nielsen heuristics, corporate UI standards |
+| [issues-ux.mdc](.cursor/rules/issues-ux.mdc) | `src/main/webui/**` | Nielsen heuristics, gallery gate, corporate UI |
 | [issues-test-failure-diagnosis.mdc](.cursor/rules/issues-test-failure-diagnosis.mdc) | `src/test/**` | Failure classification and reports |
 | [documentation.mdc](.cursor/rules/documentation.mdc) | `docs/**`, `README.md` | User-facing docs maintenance |
 | [readme.mdc](.cursor/rules/readme.mdc) | always on | README features, stack, quick start |
