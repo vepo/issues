@@ -15,7 +15,7 @@
     </header>
   }
 
-  <form class="edit" [formGroup]="projectForm">
+  <form class="edit page-panel" [formGroup]="projectForm">
     <mat-form-field class="form-field" appearance="outline">
       <mat-label i18n>Nome</mat-label>
       <input matInput formControlName="name" required />
@@ -38,7 +38,7 @@
       <textarea matInput formControlName="description" required rows="4"></textarea>
     </mat-form-field>
     <div class="actions form-actions">
-      <button class="btn btn-cancel" matButton="filled" type="button" (click)="cancel()" i18n>Cancelar</button>
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()" i18n>Cancelar</button>
       <button class="btn" [disabled]="projectForm.invalid" matButton="filled" type="button" (click)="save()" i18n
         >Salvar</button
       >

@@ -26,7 +26,7 @@ import dev.vepo.issues.ticket.TicketResponse;
 import dev.vepo.issues.user.Role;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
-import dev.vepo.issues.workflow.StatusEndpoint.StatusResponse;
+import dev.vepo.issues.workflow.StatusResponse;
 import dev.vepo.issues.workflow.WorkflowRepository;
 import dev.vepo.issues.workflow.WorkflowResponse;
 import dev.vepo.issues.workflow.WorkflowStatus;

@@ -77,7 +77,6 @@ export class CreateTicketModalComponent implements OnInit {
       title: this.ticketForm.value.title!,
       description: this.ticketForm.value.description!,
       categoryId: this.ticketForm.value.categoryId!,
-      authorId: this.authorId,
       projectId: this.ticketForm.value.projectId!
     };
     this.ticketService.createTicket(req)

@@ -32,7 +32,7 @@
     .widgets-panel {
       width: 250px;
       border: 1px solid colors.$border-subtle;
-      border-radius: 4px;
+      border-radius: colors.$radius-none;
       padding: colors.$space-md;
       background: colors.$surface-toolbar;
       
@@ -48,11 +48,12 @@
           margin-bottom: colors.$space-sm;
           background: colors.$surface-card;
           border: 1px solid colors.$border-subtle;
-          border-radius: 4px;
+          border-radius: colors.$radius-none;
           cursor: move;
+          transition: border-color 0.15s ease;
 
           &:hover {
-            box-shadow: colors.$shadow-card-hover;
+            border-color: colors.$base-active-color;
           }
         }
       }
@@ -68,13 +69,13 @@
         min-height: 500px;
         padding: colors.$space-md;
         border: 1px solid colors.$border-subtle;
-        border-radius: 4px;
+        border-radius: colors.$radius-none;
         background: colors.$surface-toolbar;
 
         .widget {
           background: colors.$surface-card;
           border: 1px solid colors.$border-subtle;
-          border-radius: 4px;
+          border-radius: colors.$radius-none;
           overflow: hidden;
           box-shadow: colors.$shadow-card;
 
@@ -122,8 +123,9 @@
 
 .cdk-drag-preview {
   box-sizing: border-box;
-  border-radius: 4px;
-  box-shadow: colors.$shadow-card-hover;
+  border-radius: colors.$radius-none;
+  box-shadow: colors.$shadow-card;
+  border: 1px solid colors.$base-active-color;
 }
 
 .cdk-drag-placeholder {

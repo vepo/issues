@@ -1,33 +1,23 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { WorkflowApi } from '../generated/api/workflow.service';
+import { WorkflowResponse } from '../generated/model/workflowResponse';
 
-export interface WorkflowTranstion {
-  from: string;
-  to: string;
-}
-export interface Workflow {
-  id: number;
-  name: string;
-  start: string;
-  statuses: string[];
-  transitions:  WorkflowTranstion[];
-}
+import { asLoadedArray, Loaded } from '../core/required-types';
+
+export type Workflow = Loaded<WorkflowResponse>;
 
 @Injectable({
   providedIn: 'root'
 })
 export class WorkflowService {
-  private readonly httpClient = inject(HttpClient);
-
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly api = inject(WorkflowApi);
 
   findAll(): Observable<Workflow[]> {
-    return this.httpClient.get<Workflow[]>(`${this.API_URL}/workflows`);
+    return this.api.listWorkflows().pipe(map(asLoadedArray));
   }
 
-  findById(workflowId: number): Observable<Workflow> {
-    return this.httpClient.get<Workflow>(`${this.API_URL}/workflows/${workflowId}`);
+  findById(workflowId: number): Observable<Workflow | undefined> {
+    return this.findAll().pipe(map(workflows => workflows.find(w => w.id === workflowId)));
   }
-
 }

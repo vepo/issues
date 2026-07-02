@@ -46,22 +46,24 @@
             />
           </div>
           <div class="role-filters">
-            <label>
-              <input type="checkbox" [checked]="filter.roles.indexOf('admin') !== -1" (change)="toggleRole('admin')" />
-              <span i18n>Administrador</span>
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                [checked]="filter.roles.indexOf('project-manager') !== -1"
-                (change)="toggleRole('project-manager')"
-              />
-              <span i18n>Gerente de projetos</span>
-            </label>
-            <label>
-              <input type="checkbox" [checked]="filter.roles.indexOf('user') !== -1" (change)="toggleRole('user')" />
-              <span i18n>Usuário</span>
-            </label>
+            <mat-checkbox
+              [checked]="filter.roles.indexOf('admin') !== -1"
+              (change)="toggleRole('admin')"
+              i18n>
+              Administrador
+            </mat-checkbox>
+            <mat-checkbox
+              [checked]="filter.roles.indexOf('project-manager') !== -1"
+              (change)="toggleRole('project-manager')"
+              i18n>
+              Gerente de projetos
+            </mat-checkbox>
+            <mat-checkbox
+              [checked]="filter.roles.indexOf('user') !== -1"
+              (change)="toggleRole('user')"
+              i18n>
+              Usuário
+            </mat-checkbox>
           </div>
           <div></div>
         </div>

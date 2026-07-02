@@ -25,14 +25,14 @@ describe('CreateTicketModalComponent', () => {
     let router: jasmine.SpyObj<Router>;
 
     const mockProjects: Project[] = [
-        { id: 1, name: 'Project 1', prefix: 'PRJ1', description: 'Desc 1' },
-        { id: 2, name: 'Project 2', prefix: 'PRJ2', description: 'Desc 2' }
+        { id: 1, name: 'Project 1', prefix: 'PRJ1', description: 'Desc 1', workflow: 'W1' } as Project,
+        { id: 2, name: 'Project 2', prefix: 'PRJ2', description: 'Desc 2', workflow: 'W2' } as Project
     ];
 
     const mockCategories: Category[] = [
-        { id: 1, name: 'Bug' },
-        { id: 2, name: 'Feature' },
-        { id: 3, name: 'Improvement' }
+        { id: 1, name: 'Bug', color: '#f00' } as Category,
+        { id: 2, name: 'Feature', color: '#0f0' } as Category,
+        { id: 3, name: 'Improvement', color: '#00f' } as Category
     ];
 
     beforeEach(waitForAsync(() => {

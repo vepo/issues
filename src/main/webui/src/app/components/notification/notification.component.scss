@@ -39,7 +39,7 @@
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  border-radius: 999px;
+  border-radius: colors.$radius-none;
   background-color: colors.$base-error-color;
   color: colors.$surface-card;
   font-size: 0.65rem;
@@ -47,4 +47,11 @@
   line-height: 16px;
   text-align: center;
   pointer-events: none;
+}
+
+.menu-empty {
+  padding: colors.$space-md colors.$space-lg;
+  color: colors.$text-muted;
+  font-size: 0.875rem;
+  text-align: center;
 }

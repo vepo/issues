@@ -16,18 +16,19 @@ describe('KanbanComponent', () => {
   let mockProjectsService: jasmine.SpyObj<ProjectsService>;
   let mockTicketService: jasmine.SpyObj<TicketService>;
 
-  const mockProject: Project = {
+  const mockProject = {
     id: 1,
     name: 'Test Project',
     description: 'Test Description',
-    prefix: 'PRJ'
-  };
+    prefix: 'PRJ',
+    workflow: 'Waterfall'
+  } as Project;
 
   const mockStatuses: ProjectStatus[] = [
-    { id: 1, name: 'To Do', moveable: [2] },
-    { id: 2, name: 'In Progress', moveable: [1, 3, 4] },
-    { id: 3, name: 'Blocked', moveable: [2] },
-    { id: 4, name: 'Done', moveable: [2] }
+    { id: 1, name: 'To Do', moveable: [2], start: false } as ProjectStatus,
+    { id: 2, name: 'In Progress', moveable: [1, 3, 4], start: false } as ProjectStatus,
+    { id: 3, name: 'Blocked', moveable: [2], start: false } as ProjectStatus,
+    { id: 4, name: 'Done', moveable: [2], start: false } as ProjectStatus
   ];
 
   const mockTickets: Ticket[] = [
@@ -55,7 +56,7 @@ describe('KanbanComponent', () => {
     }
   ];
 
-  const mockWorkflow: ProjectWorkflow = {
+  const mockWorkflow = {
     id: 1,
     name: "Waterfall",
     statuses: mockStatuses.map(s => s.name),
@@ -68,7 +69,7 @@ describe('KanbanComponent', () => {
       { from: "Blocked", to: "In Progress" },
       { from: "Done", to: "In Progress" }
     ]
-  };
+  } as ProjectWorkflow;
 
   beforeEach(waitForAsync(() => {
     mockProjectsService = jasmine.createSpyObj('ProjectsService', ['findWorkflowByProjectId']);

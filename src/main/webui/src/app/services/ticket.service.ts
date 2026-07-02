@@ -1,136 +1,80 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { TicketApi } from '../generated/api/ticket.service';
+import { ProjectApi } from '../generated/api/project.service';
+import { CommentRequest } from '../generated/model/commentRequest';
+import { CommentResponse } from '../generated/model/commentResponse';
+import { CreateTicketRequest } from '../generated/model/createTicketRequest';
+import { MoveTicketRequest } from '../generated/model/moveTicketRequest';
+import { SubscribeTicketRequest } from '../generated/model/subscribeTicketRequest';
+import { TicketExpandedResponse } from '../generated/model/ticketExpandedResponse';
+import { TicketHistoryResponse } from '../generated/model/ticketHistoryResponse';
+import { TicketResponse } from '../generated/model/ticketResponse';
+import { asLoaded, asLoadedArray, Loaded } from '../core/required-types';
 
-export interface Ticket {
-  id: number;
-  identifier: string;
-  title: string;
-  description: string;
-  category?: number;
-  author: number;
-  assignee?: number;
-  project: number;
-  status: number;
-}
-
-export interface TicketUser {
-  id: number;
-  username: string;
-  name: string;
-  email: string;
-}
-
-export interface TicketHistory {
-  description: string;
-  user: TicketUser;
-  timestamp: number;
-}
-
-export interface TicketProject {
-  id: number;
-  name: string;
-}
-
-export interface Comment {
-  id: number;
-  author: TicketUser;
-  content: string;
-  createdAt: number;
-  isHtml?: boolean;
-}
-
-export interface CreateCommentRequest {
-  content: string;
-}
-
-export interface TicketExpanded {
-  id: number;
-  identifier: string;
-  title: string;
-  description: string;
-  category: string;
-  author: TicketUser;
-  assignee?: TicketUser;
-  subscribers: TicketUser[];
-  project: TicketProject;
-  status: string;
-  history: TicketHistory[];
-}
-
-export interface CreateTicketRequest {
-  title: string;
-  description: string;
-  categoryId: number;
-  authorId: number;
-  assigneeId?: number;
-  projectId: number;
-}
+export type Ticket = Loaded<TicketResponse>;
+export type TicketExpanded = Loaded<TicketExpandedResponse>;
+export type Comment = Loaded<CommentResponse>;
+export type TicketHistory = Loaded<TicketHistoryResponse>;
+export type CreateCommentRequest = CommentRequest;
+export type { CreateTicketRequest };
 
 @Injectable({
   providedIn: 'root'
 })
 export class TicketService {
-  private http = inject(HttpClient);
-
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly api = inject(TicketApi);
+  private readonly projectApi = inject(ProjectApi);
 
   findByProjectId(projectId: number): Observable<Ticket[]> {
-    return this.http.get<Ticket[]>(`/api/projects/${projectId}/tickets`);
+    return this.projectApi.listProjectTickets(projectId).pipe(map(asLoadedArray));
   }
 
   findById(ticketId: number): Observable<Ticket> {
-    return this.http.get<Ticket>(`/api/tickets/${ticketId}`);
+    return this.api.findTicketById(ticketId).pipe(map(asLoaded));
   }
 
   findExpandedById(ticketId: number): Observable<TicketExpanded> {
-    return this.http.get<TicketExpanded>(`/api/tickets/${ticketId}/expanded`);
+    return this.api.findExpandedTicketByIdentifier(String(ticketId)).pipe(map(asLoaded));
   }
 
   findExpandedByIdentifier(ticketIdentifier: string): Observable<TicketExpanded> {
-    return this.http.get<TicketExpanded>(`/api/tickets/${ticketIdentifier}/expanded`);
+    return this.api.findExpandedTicketByIdentifier(ticketIdentifier).pipe(map(asLoaded));
   }
 
   search(term: string, status: number): Observable<Ticket[]> {
-    return this.http.get<Ticket[]>(`${this.API_URL}/tickets/search`, {
-      params: {
-        term: term,
-        statusId: status
-      }
-    });
+    return this.api.searchTickets(status, term).pipe(map(asLoadedArray));
   }
 
   move(ticketId: number, toStatus: number): Observable<Ticket> {
-    return this.http.post<Ticket>(`/api/tickets/${ticketId}/move`, { to: toStatus });
+    return this.api.moveTicket(ticketId, { to: toStatus } as MoveTicketRequest).pipe(map(asLoaded));
   }
 
   createTicket(request: CreateTicketRequest): Observable<Ticket> {
-    return this.http.post<Ticket>(`${this.API_URL}/tickets`, request);
+    return this.api.createTicket(request).pipe(map(asLoaded));
   }
 
-  getTicket(id: string) {
-    return this.http.get<any>(`/api/tickets/${id}`);
+  getTicket(id: string): Observable<Ticket> {
+    return this.api.findTicketById(Number(id)).pipe(map(asLoaded));
   }
 
-  getTicketHistory(id: string) {
-    return this.http.get<any[]>(`/api/tickets/${id}/history`);
+  getTicketHistory(id: string): Observable<TicketHistory[]> {
+    return this.api.getTicketHistory(Number(id)).pipe(map(asLoadedArray));
   }
 
   getComments(ticketId: number): Observable<Comment[]> {
-    return this.http.get<Comment[]>(`/api/tickets/${ticketId}/comments`);
+    return this.api.listComments(ticketId).pipe(map(asLoadedArray));
   }
 
   addComment(ticketId: number, request: CreateCommentRequest): Observable<Comment> {
-    return this.http.post<Comment>(`/api/tickets/${ticketId}/comments`, request);
+    return this.api.addComment(ticketId, request).pipe(map(asLoaded));
   }
 
   addSubscription(ticketId: number, userId: number): Observable<TicketExpanded> {
-    return this.http.put<TicketExpanded>(`/api/tickets/${ticketId}/subscribe`, {
-      subscriberId: userId
-    });
+    return this.api.subscribeTicket(ticketId, { subscriberId: userId } as SubscribeTicketRequest).pipe(map(asLoaded));
   }
 
   removeSubscription(ticketId: number, userId: number): Observable<TicketExpanded> {
-    return this.http.delete<TicketExpanded>(`/api/tickets/${ticketId}/subscribe/${userId}`);
+    return this.api.unsubscribeTicket(ticketId, userId).pipe(map(asLoaded));
   }
 }

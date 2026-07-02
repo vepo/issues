@@ -1,5 +1,5 @@
 ---
-description: Nielsen usability heuristics and corporate UI standards for Issues SPA
+description: Nielsen usability heuristics and flat UI design standards for Issues SPA
 globs: "src/main/webui/**"
 alwaysApply: false
 ---
@@ -28,13 +28,39 @@ Every UI/UX change MUST be reviewed against Nielsen's 10 usability heuristics be
 | 5 | **Error prevention** | `mat-form-field` validation; confirm destructive actions |
 | 6 | **Recognition over recall** | Visible nav, status filter, project cards — minimise memory load |
 | 7 | **Flexibility & efficiency** | Header search; Enter on search; role-based menu shortcuts |
-| 8 | **Aesthetic & minimalist** | Corporate palette in `colors.scss`; content over decoration; clear hierarchy |
+| 8 | **Aesthetic & minimalist** | Flat UI principles below; content over decoration; clear hierarchy |
 | 9 | **Error recovery** | `.error` messages; toasts; empty states with next-step guidance |
 | 10 | **Help & documentation** | Footer OpenAPI link; empty states; tooltips where labels are ambiguous |
 
-## Corporate visual language
+## Flat UI design language
 
-Tokens: `src/main/webui/src/colors.scss` and `src/main/webui/src/styles.scss`. Full element mapping: [ui-elements-gallery.md](../../docs/ui-elements-gallery.md).
+Issues follows **flat UI design** — the style popularized by Microsoft's Metro design language (Windows Phone, 2010) and continued in [Microsoft Fluent Design](https://www.microsoft.design/). Flat design favours clarity and function over ornamental depth; it is the baseline for enterprise and productivity apps.
+
+Reference: [microsoft.design](https://www.microsoft.design/)
+
+### Principles → Issues implementation
+
+| Flat UI principle | Issues application |
+|-------------------|-------------------|
+| **Simple, minimal interfaces** | `.page` scaffold, ample whitespace (`$space-*`), no decorative chrome; one primary action per screen region |
+| **Clean sans-serif typography** | Roboto; hierarchy via size, weight, and color (`.page-title`, `.page-subtitle`, `$text-*`) — not via ornament |
+| **Bold, vibrant colors** | Navy chrome (`$base-background-color`), primary blue (`$base-active-color`), semantic reds/greens for errors/success |
+| **Flat iconography** | Material Icons — geometric, line-based; icon-only header actions (menu, notifications) |
+| **Simple buttons** | Solid fills (`.btn`), light shadow only where needed; square corners (`$radius-none`); no gradients or bevels |
+| **Minimal illustrations** | `.empty-state` with text guidance; avoid stock art or heavy graphics in prod UI |
+| **Mobile-ready layouts** | Responsive header wrap, `@media max-width: 750px` rules in `styles.scss` |
+
+### What “flat” means here
+
+Flat UI is **not** only square corners. It is a full visual system:
+
+- **No skeuomorphism** — no faux textures, inset shadows, or 3D button effects
+- **No heavy elevation** — use `$shadow-card` sparingly; no card “lift” on hover
+- **Typography carries hierarchy** — headings, subtitles, and muted metadata replace visual clutter
+- **Color blocks define regions** — navy header/footer, white panels, muted page background
+- **Square geometry** — `$radius-none` on buttons, fields, cards, and chrome (Metro-influenced)
+
+Tokens and classes: `src/main/webui/src/colors.scss`, `src/main/webui/src/styles.scss`. Element mapping: [ui-elements-gallery.md](../../docs/ui-elements-gallery.md).
 
 | Role | Token / pattern |
 |------|-----------------|
@@ -44,18 +70,20 @@ Tokens: `src/main/webui/src/colors.scss` and `src/main/webui/src/styles.scss`. F
 | Destructive | `.btn-cancel` / `$base-error-color` |
 | Page background | `$surface-page` |
 | Cards / panels | `$surface-card` + `$shadow-card` |
+| Shape | `$radius-none` (square corners) |
 
-**Do:** restrained neutrals, 4px radius, Roboto, muted table zebra, accessible focus rings.  
-**Don't:** ad-hoc Bootstrap blues, pink/red row alternation, coral focus rings, playful card lift, personal branding in prod chrome.
+**Do:** flat surfaces, solid button fills, Roboto, restrained shadows, accessible focus rings, whitespace.  
+**Don't:** gradients, glossy effects, heavy drop shadows, playful hover lift, pill/circular chrome (unless gallery explicitly adds an exception), ad-hoc hex outside `colors.scss`.
 
 ## Before finishing a UI change
 
 1. Confirm gallery compliance (reuse or extend [ui-elements-gallery.md](../../docs/ui-elements-gallery.md)).
 2. Walk the Nielsen checklist for the affected flow.
-3. Extend `colors.scss` / `styles.scss` — avoid scattered hex in component SCSS.
-4. Verify mobile (`@media max-width: 750px` in `styles.scss`).
-5. Run affected `*.spec.ts` when behaviour changes.
-6. Update [feature-catalog.md](../../docs/feature-catalog.md) when routes or labels change.
+3. Confirm flat UI principles (table above) — especially typography hierarchy and minimal ornament.
+4. Extend `colors.scss` / `styles.scss` — avoid scattered hex in component SCSS.
+5. Verify mobile (`@media max-width: 750px` in `styles.scss`).
+6. Run affected `*.spec.ts` when behaviour changes.
+7. Update [feature-catalog.md](../../docs/feature-catalog.md) when routes or labels change.
 
 ## Related
 

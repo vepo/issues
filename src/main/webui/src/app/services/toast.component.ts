@@ -48,25 +48,22 @@ import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/co
       max-width: 400px;
       margin-bottom: 12px;
       padding: 16px;
-      border-radius: 4px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-radius: 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: all 0.3s ease;
-      transform: translateY(-20px);
+      transition: opacity 0.2s ease;
       opacity: 0;
       pointer-events: none;
     }
 
     .toast.show {
-      transform: translateY(0);
       opacity: 1;
       pointer-events: all;
     }
 
     .toast.hide {
-      transform: translateY(-20px);
       opacity: 0;
       pointer-events: none;
     }

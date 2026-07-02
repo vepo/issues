@@ -1,24 +1,16 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { UserApi } from '../generated/api/user.service';
+import { CreateUserRequest } from '../generated/model/createUserRequest';
+import { UserResponse } from '../generated/model/userResponse';
 
-export interface User {
-  id: number;
-  username: string;
-  name: string;
-  email: string;
-  roles: string[];
-}
+import { asLoaded, asLoadedArray, Loaded } from '../core/required-types';
+
+export type User = Loaded<UserResponse>;
+export type UpdateOrCreateUserRequest = CreateUserRequest;
 
 export interface UserSearchFilter {
   name: string;
-  email: string;
-  roles: string[];
-}
-
-export interface UpdateOrCreateUserRequest {
-  name: string;
-  username: string;
   email: string;
   roles: string[];
 }
@@ -35,44 +27,21 @@ export function emptyFilter(): UserSearchFilter {
   providedIn: 'root'
 })
 export class UsersService {
-  private readonly http = inject(HttpClient);
-
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly api = inject(UserApi);
 
   findById(userId: number): Observable<User> {
-    return this.http.get<User>(`${this.API_URL}/users/${userId}`);
+    return this.api.findUserById(userId).pipe(map(asLoaded));
   }
 
   create(user: UpdateOrCreateUserRequest): Observable<User> {
-    return this.http.post<User>(`${this.API_URL}/users`, user);
+    return this.api.createUser(user).pipe(map(asLoaded));
   }
 
   update(userId: number, user: UpdateOrCreateUserRequest): Observable<User> {
-    return this.http.post<User>(`${this.API_URL}/users/${userId}`, user);
+    return this.api.updateUser(userId, user).pipe(map(asLoaded));
   }
 
   search(filter?: UserSearchFilter): Observable<User[]> {
-    let params = new HttpParams();
-
-    if (filter) {
-      Object.keys(filter).forEach(key => {
-        const value = filter[key as keyof UserSearchFilter];
-
-        // Skip null, undefined, empty string, or empty array
-        if (value !== null && value !== undefined && value !== '' &&
-          !(Array.isArray(value) && value.length === 0)) {
-
-          // Handle array values by joining them or adding multiple params
-          if (Array.isArray(value)) {
-            console.debug("Appending query array", value);
-            value.forEach(item => params = params.append(key, item));
-          } else {
-            params = params.append(key, value.toString());
-          }
-        }
-      });
-    }
-
-    return this.http.get<User[]>(`${this.API_URL}/users/search`, { params: params });
+    return this.api.searchUsers(filter?.email, filter?.name, filter?.roles).pipe(map(asLoadedArray));
   }
 }

@@ -1,31 +1,27 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { ProjectApi } from '../generated/api/project.service';
+import { WorkflowApi } from '../generated/api/workflow.service';
+import { ProjectStatusResponse } from '../generated/model/projectStatusResponse';
+import { StatusResponse } from '../generated/model/statusResponse';
 
-export interface ProjectStatus {
-  id: number;
-  name: string;
-  moveable: number[];
-}
+import { asLoadedArray, Loaded } from '../core/required-types';
 
-export interface Status {
-  id: number;
-  name: string;
-}
+export type ProjectStatus = Loaded<ProjectStatusResponse>;
+export type Status = Loaded<StatusResponse>;
 
 @Injectable({
   providedIn: 'root'
 })
 export class StatusService {
-  private readonly httpClient = inject(HttpClient);
-
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly projectApi = inject(ProjectApi);
+  private readonly workflowApi = inject(WorkflowApi);
 
   findProjectsStatuses(projectId: number): Observable<ProjectStatus[]> {
-    return this.httpClient.get<ProjectStatus[]>(`${this.API_URL}/projects/${projectId}/status`);
+    return this.projectApi.listProjectStatuses(projectId).pipe(map(asLoadedArray));
   }
 
   findAll(): Observable<Status[]> {
-    return this.httpClient.get<ProjectStatus[]>(`${this.API_URL}/status/`);
+    return this.workflowApi.listStatuses().pipe(map(asLoadedArray));
   }
 }

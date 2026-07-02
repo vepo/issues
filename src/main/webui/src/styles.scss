@@ -26,10 +26,6 @@ html {
 }
 
 :root {
-  @include mat.form-field-overrides((
-    filled-input-text-placeholder-color: colors.$text-muted,
-  ));
-
   @include mat.button-overrides((
     filled-container-color: colors.$base-active-color,
     filled-label-text-color: colors.$surface-card,
@@ -37,12 +33,35 @@ html {
     outlined-outline-color: colors.$base-secondary-color,
     outlined-label-text-color: colors.$base-secondary-color,
     outlined-disabled-outline-color: colors.$border-default,
+    filled-container-shape: colors.$radius-none,
+    outlined-container-shape: colors.$radius-none,
+    text-container-shape: colors.$radius-none,
+    protected-container-shape: colors.$radius-none,
   ));
+
+  @include mat.form-field-overrides((
+    filled-input-text-placeholder-color: colors.$text-muted,
+    outlined-container-shape: colors.$radius-none,
+    filled-container-shape: colors.$radius-none,
+  ));
+}
+
+@mixin flat-corners {
+  border-radius: colors.$radius-none;
+}
+
+@mixin flat-hover-border {
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: colors.$base-active-color;
+  }
 }
 
 @mixin focus-ring {
   outline: 2px solid colors.$focus-ring-color;
   outline-offset: 2px;
+  border-radius: colors.$radius-none;
 }
 
 body {
@@ -56,7 +75,7 @@ body {
 }
 
 .mat-mdc-button-base.btn {
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
 
   &:not(:last-child) {
     margin-right: colors.$space-sm;
@@ -114,7 +133,7 @@ body {
     font-size: 1.125rem;
     letter-spacing: 0.02em;
     padding: colors.$space-xs colors.$space-sm;
-    border-radius: 4px;
+    border-radius: colors.$radius-none;
     flex-shrink: 0;
     transition: background-color 0.15s ease;
 
@@ -147,15 +166,14 @@ body {
     max-width: 420px;
     flex: 1 1 240px;
     background: colors.$surface-card;
-    border-radius: 999px;
+    border-radius: colors.$radius-none;
     padding: 3px 3px 3px colors.$space-md;
     border: 1px solid rgba(255, 255, 255, 0.25);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: colors.$shadow-card;
+    transition: border-color 0.15s ease;
 
     &:focus-within {
       border-color: colors.$base-active-color;
-      box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.25);
     }
 
     &__leading {
@@ -196,7 +214,7 @@ body {
       width: 36px;
       height: 36px;
       border: none;
-      border-radius: 50%;
+      border-radius: colors.$radius-none;
       background: colors.$base-active-color;
       color: colors.$surface-card;
       cursor: pointer;
@@ -226,7 +244,7 @@ body {
     height: 40px;
     background: rgba(255, 255, 255, 0.12);
     border: 1px solid colors.$header-button-border;
-    border-radius: 999px;
+    border-radius: colors.$radius-none;
     padding: 0 colors.$space-md;
 
     select {
@@ -268,6 +286,7 @@ body {
 
   .btn-icon-header.mat-mdc-icon-button {
     --mdc-icon-button-icon-size: 24px;
+    border-radius: colors.$radius-none;
     color: colors.$surface-card;
 
     .mat-icon {
@@ -307,7 +326,7 @@ a {
 
   &:focus-visible {
     @include focus-ring;
-    border-radius: 2px;
+    border-radius: colors.$radius-none;
   }
 }
 
@@ -315,7 +334,7 @@ input,
 select {
   box-sizing: border-box;
   border: solid 1px colors.$border-default;
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
   background-color: colors.$surface-card;
   padding: colors.$space-xs colors.$space-xl colors.$space-xs colors.$space-sm;
   color: colors.$text-primary;
@@ -469,7 +488,7 @@ main {
 .page-panel {
   background: colors.$surface-card;
   border: 1px solid colors.$border-subtle;
-  border-radius: 8px;
+  border-radius: colors.$radius-none;
   box-shadow: colors.$shadow-card;
   padding: colors.$space-lg;
 
@@ -487,8 +506,8 @@ main {
 
 .auth-card {
   background: colors.$surface-card;
-  border-radius: 8px;
-  box-shadow: colors.$shadow-card-hover;
+  border-radius: colors.$radius-none;
+  box-shadow: colors.$shadow-card;
   border: 1px solid colors.$border-subtle;
   overflow: hidden;
 
@@ -526,6 +545,11 @@ main {
 
     mat-form-field {
       width: 100%;
+    }
+
+    p.text-muted {
+      margin: 0 0 colors.$space-md;
+      line-height: 1.5;
     }
   }
 }
@@ -595,7 +619,17 @@ main {
   width: 100%;
   padding: colors.$space-xs colors.$space-sm;
   font-size: 0.875rem;
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
+  border: 1px solid colors.$border-default;
+  background: colors.$surface-card;
+  color: colors.$text-primary;
+  box-sizing: border-box;
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border-color: colors.$focus-ring-color;
+  }
 }
 
 .role-filters {
@@ -605,12 +639,17 @@ main {
   font-size: 0.8rem;
   text-align: left;
 
-  label {
+  label,
+  .mat-mdc-checkbox {
     display: flex;
     align-items: center;
     gap: colors.$space-xs;
     cursor: pointer;
     color: colors.$text-primary;
+  }
+
+  .mat-mdc-checkbox .mdc-label {
+    font-size: 0.8rem;
   }
 }
 
@@ -627,12 +666,34 @@ main {
   padding: colors.$space-lg;
   background: colors.$surface-card;
   border: 1px solid colors.$border-subtle;
-  border-radius: 8px;
+  border-radius: colors.$radius-none;
   box-shadow: colors.$shadow-card;
-  transition: box-shadow 0.15s ease;
+  @include flat-hover-border;
 
-  &:hover {
-    box-shadow: colors.$shadow-card-hover;
+  &--interactive {
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  .identifier {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: colors.$base-active-color;
+
+    a {
+      color: colors.$base-active-color;
+    }
+  }
+
+  .metadata {
+    margin: 0;
+    font-size: 0.85rem;
+    color: colors.$text-muted;
   }
 
   &__title {
@@ -664,7 +725,7 @@ main {
   font-style: italic;
   background: colors.$surface-muted;
   border: 1px dashed colors.$border-subtle;
-  border-radius: 8px;
+  border-radius: colors.$radius-none;
 }
 
 .text-muted {
@@ -688,8 +749,34 @@ main {
     background-color: colors.$surface-card;
     flex: 1;
     min-width: 250px;
-    border-radius: 4px;
+    border-radius: colors.$radius-none;
     box-shadow: colors.$shadow-card;
+  }
+}
+
+.filter-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: colors.$space-md colors.$space-xl;
+  padding: colors.$space-md colors.$space-lg;
+  margin-bottom: colors.$space-lg;
+  background: colors.$surface-toolbar;
+  border: 1px solid colors.$border-subtle;
+
+  &__item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: colors.$space-sm;
+    font-size: 0.9rem;
+  }
+
+  &__label {
+    font-weight: 600;
+    color: colors.$text-secondary;
+  }
+
+  &__value {
+    color: colors.$text-primary;
   }
 }
 
@@ -701,10 +788,15 @@ main {
   color: colors.$text-secondary;
   margin: 0 auto colors.$space-sm auto;
   max-width: 300px;
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
 
   .card {
     display: table-row;
+    box-shadow: none;
+    min-width: 0;
+    border: none;
+    padding: 0;
+    background: transparent;
 
     &:hover {
       background-color: colors.$surface-muted;
@@ -734,7 +826,7 @@ main {
   border: solid 1px colors.$border-subtle;
   min-width: 250px;
   word-break: break-word;
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
   box-shadow: colors.$shadow-card;
 
   &:not(:last-child) {
@@ -745,7 +837,8 @@ main {
 
   &.cdk-drag-preview {
     box-sizing: border-box;
-    box-shadow: colors.$shadow-card-hover;
+    box-shadow: colors.$shadow-card;
+    border: 1px solid colors.$base-active-color;
     background: colors.$surface-card;
     opacity: 0.95;
     cursor: grabbing;
@@ -758,7 +851,7 @@ main {
   }
 
   &:hover:not(.empty):not(.cdk-drag-preview) {
-    box-shadow: colors.$shadow-card-hover;
+    border-color: colors.$base-active-color;
   }
 
   .title {
@@ -789,7 +882,7 @@ main {
     border-style: dashed;
 
     &:hover {
-      box-shadow: colors.$shadow-card;
+      border-color: colors.$border-default;
     }
   }
 }
@@ -807,7 +900,7 @@ main {
     display: flex;
     flex-direction: column;
     border: 1px solid colors.$border-subtle;
-    border-radius: 4px;
+    border-radius: colors.$radius-none;
     box-shadow: colors.$shadow-card;
     flex-grow: 1;
     flex-basis: 0;
@@ -843,7 +936,7 @@ main {
         color: colors.$text-muted;
         background: colors.$surface-muted;
         padding: 2px colors.$space-sm;
-        border-radius: 999px;
+        border-radius: colors.$radius-none;
       }
     }
 
@@ -857,7 +950,7 @@ main {
 
       .card {
         cursor: grab;
-        transition: box-shadow 0.15s ease;
+        transition: border-color 0.15s ease;
 
         &.empty {
           font-style: italic;
@@ -874,13 +967,13 @@ main {
 }
 
 .modal {
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
 
   .header {
     background-color: colors.$base-background-color;
     color: colors.$surface-card;
     padding: colors.$space-md colors.$space-xl;
-    border-radius: 4px 4px 0 0;
+    border-radius: colors.$radius-none;
 
     h1,
     h2,
@@ -923,7 +1016,7 @@ form {
 }
 
 .mat-mdc-dialog-panel {
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
 }
 
 .cdk-overlay-pane {
@@ -953,7 +1046,7 @@ form {
   padding: colors.$space-sm colors.$space-xl;
   background-color: colors.$base-background-color;
   color: colors.$surface-card;
-  border-radius: 4px 4px 0 0;
+  border-radius: colors.$radius-none;
 
   h1,
   h2,
@@ -1003,7 +1096,7 @@ form {
       padding: 0 colors.$space-xl;
       min-height: 2.4rem;
       font-size: 0.85rem;
-      border-radius: 0;
+      border-radius: colors.$radius-none;
 
       &:hover {
         background-color: colors.$base-secondary-bg-color;
@@ -1098,7 +1191,7 @@ span.labels {
     color: colors.$base-secondary-color;
     padding: colors.$space-xs colors.$space-sm;
     margin-right: colors.$space-sm;
-    border-radius: 4px;
+    border-radius: colors.$radius-none;
     font-size: 0.85rem;
   }
 }
@@ -1108,7 +1201,7 @@ div.data-table {
   color: colors.$text-primary;
   width: 100%;
   border: 1px solid colors.$border-subtle;
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
   overflow: hidden;
   font-size: 0.9rem;
 
@@ -1149,7 +1242,7 @@ div.table {
   background-color: colors.$base-background-color;
   color: colors.$surface-card;
   width: 100%;
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
   overflow: hidden;
 
   &.empty {
@@ -1224,13 +1317,12 @@ div.table {
 }
 
 form.edit {
-  background-color: colors.$surface-card;
   max-width: 720px;
   margin: 0 auto;
-  padding: colors.$space-xl;
-  border-radius: 8px;
-  box-shadow: colors.$shadow-card;
-  border: 1px solid colors.$border-subtle;
+
+  &.page-panel {
+    padding: colors.$space-xl;
+  }
 
   h1 {
     margin-top: 0;
@@ -1252,9 +1344,97 @@ form.edit {
   }
 }
 
+.widget-loading {
+  padding: colors.$space-md;
+  text-align: center;
+  color: colors.$text-muted;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+.comments-section {
+  .comment-form {
+    background: colors.$surface-muted;
+    padding: colors.$space-lg;
+    border-radius: colors.$radius-none;
+    margin-bottom: colors.$space-xl;
+    border: 1px solid colors.$border-subtle;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: colors.$space-md;
+      color: colors.$text-primary;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
+
+  .comments-list {
+    h3 {
+      margin-bottom: colors.$space-md;
+      color: colors.$text-primary;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .loading {
+      padding: colors.$space-xl;
+      text-align: center;
+      color: colors.$text-muted;
+      font-style: italic;
+      background: colors.$surface-muted;
+      border: 1px dashed colors.$border-subtle;
+      border-radius: colors.$radius-none;
+    }
+
+    .comment {
+      background: colors.$surface-card;
+      border: 1px solid colors.$border-subtle;
+      border-radius: colors.$radius-none;
+      padding: colors.$space-md;
+      margin-bottom: colors.$space-md;
+
+      .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: colors.$space-sm;
+        padding-bottom: colors.$space-sm;
+        border-bottom: 1px solid colors.$border-subtle;
+
+        .comment-author {
+          font-weight: 600;
+          color: colors.$base-active-color;
+        }
+
+        .comment-date {
+          font-size: 0.8rem;
+          color: colors.$text-muted;
+        }
+      }
+
+      .comment-content {
+        color: colors.$text-primary;
+        line-height: 1.5;
+      }
+    }
+  }
+}
+
 .toast-container {
   position: fixed;
   z-index: 9999;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+// Flat UI — square corners on Material surfaces not covered by theme overrides
+.mat-mdc-icon-button,
+.mat-mdc-menu-panel,
+.mat-mdc-dialog-surface,
+.mat-mdc-select-panel,
+.mdc-checkbox__background,
+.mat-mdc-snack-bar-container,
+.mat-mdc-option {
+  border-radius: colors.$radius-none !important;
 }

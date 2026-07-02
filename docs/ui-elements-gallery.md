@@ -4,7 +4,27 @@ Canonical catalog of every reusable UI element in the Angular SPA (`src/main/web
 
 **Governance:** Before adding or changing any UI element, read this document. Reuse an existing element with the documented properties, style, and behavior. If nothing fits, extend the gallery in the same PR.
 
-Related: [feature-catalog.md](feature-catalog.md) (routes), [colors.scss](../src/main/webui/src/colors.scss) (tokens), [styles.scss](../src/main/webui/src/styles.scss) (global classes), [issues-ux.mdc](../.cursor/rules/issues-ux.mdc) (Nielsen checklist).
+Related: [feature-catalog.md](feature-catalog.md) (routes), [colors.scss](../src/main/webui/src/colors.scss) (tokens), [styles.scss](../src/main/webui/src/styles.scss) (global classes), [issues-ux.mdc](../.cursor/rules/issues-ux.mdc) (Nielsen + flat UI).
+
+---
+
+## Flat UI design principles
+
+Issues uses **flat UI design** — minimal ornament, bold color blocks, and typography-driven hierarchy. The approach draws from Microsoft's Metro design language (2010) and modern [Fluent Design](https://www.microsoft.design/) guidance for productivity software.
+
+| Principle | Gallery expression |
+|-----------|-------------------|
+| **Simple, minimal interfaces** | `.page` / `.page-panel` layout; whitespace via `$space-*`; no decorative borders or textures |
+| **Clean sans-serif typography** | Roboto; `.page-title` / `.page-subtitle`; hierarchy by size, weight, color — not by frames |
+| **Bold, vibrant colors** | Navy chrome (`$base-background-color`), primary blue actions (`$base-active-color`), semantic feedback colors |
+| **Flat iconography** | Material Icons — geometric, scalable; `.btn-icon-header` for header actions |
+| **Simple buttons** | `.btn` solid fills, `$radius-none` corners, light `$shadow-card` only on panels — not on every button |
+| **Minimal illustrations** | `.empty-state` text panels; no hero imagery in app chrome |
+| **Mobile-ready** | Header wraps; reduced margins at `max-width: 750px` |
+
+**Anti-patterns (not flat):** gradients, glossy/glass effects, heavy drop shadows, card lift or shadow growth on hover, skeuomorphic controls, pill/circular chrome unless explicitly added to this gallery.
+
+**Hover pattern:** use `border-color` change (`flat-hover-border` mixin) — not increased `box-shadow`.
 
 ---
 
@@ -25,7 +45,9 @@ Related: [feature-catalog.md](feature-catalog.md) (routes), [colors.scss](../src
 | `$text-primary` | `#1A2332` | Headings, body |
 | `$text-secondary` | `#5A6472` | Descriptions, metadata |
 | `$text-muted` | `#8A929E` | Placeholders, empty hints |
-| `$shadow-card` | `0 1px 3px rgba(0,0,0,.08)` | Cards, columns |
+| `$shadow-card` | `0 1px 2px rgba(0,0,0,.06)` | Light elevation on panels only |
+| `$shadow-toast` | `0 1px 3px rgba(0,0,0,.1)` | Toast feedback |
+| `$radius-none` | `0` | Square corners — Metro-influenced flat geometry |
 | `$space-sm` / `$space-md` / `$space-lg` | 8 / 16 / 24 px | Spacing grid |
 
 Material theme CSS variables are aligned to `$base-active-color` in `styles.scss`.
@@ -41,12 +63,12 @@ Material theme CSS variables are aligned to `$base-active-color` in `styles.scss
 | **Location** | `app/app.html` |
 | **Visibility** | Always; search/status/create only when authenticated |
 
-**Style:** Navy background (`$base-background-color`), white text, flex row, wraps on mobile.
+**Style:** Navy background (`$base-background-color`), white text, flex row, flat rectangular controls, wraps on mobile.
 
 **Layout (left → right):**
-- **Brand** (`.brand`) — ticket icon + "Issues" wordmark → `/` (replaces "Início" text link)
-- **Search** (`.search-bar`) — pill input + circular search button (authenticated)
-- **Status** (`.toolbar-select`) — pill dropdown on navy chrome
+- **Brand** (`.brand`) — ticket icon + "Issues" wordmark → `/`
+- **Search** (`.search-bar`) — flat rectangular input + square submit button (authenticated)
+- **Status** (`.toolbar-select`) — flat rectangular dropdown on navy chrome
 - **Novo** — compact primary button
 - **Actions** (`.header-actions`) — notification icon + hamburger menu icon
 
@@ -77,7 +99,7 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 
 | Property | Value |
 |----------|-------|
-| **Style** | `$base-active-color` fill, white label/icon, 4px radius |
+| **Style** | `$base-active-color` solid fill, white label/icon, `$radius-none`, no gradient |
 | **Hover** | `$base-active-hover-color` |
 | **Disabled** | Gray, 60% opacity |
 | **Focus** | 2px `$focus-ring-color` outline |
@@ -96,19 +118,28 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 
 | Property | Value |
 |----------|-------|
-| **Style** | `$base-error-color` fill |
+| **Style** | `$base-error-color` solid fill |
+| **Use** | Irreversible or high-risk actions only |
 
-**Used in:** create-ticket modal, user/project edit forms.
+**Used in:** flows that need explicit destructive emphasis (not routine dialog dismiss).
 
-### 2.4 Header icon button (`.btn-icon-header`)
+### 2.4 Dismiss / back (`.btn-secondary` + `outlined`)
+
+| Property | Value |
+|----------|-------|
+| **Use** | Cancel on edit forms, close modals, back navigation |
+
+**Used in:** create-ticket modal, user/project edit, password reset, login secondary actions.
+
+### 2.5 Header icon button (`.btn-icon-header`)
 
 | Property | Value |
 |----------|-------|
 | **Directive** | `matIconButton` |
-| **Style** | White icon on navy; circular hover |
+| **Style** | White icon on navy; flat square hover (`$radius-none`) |
 | **Used in** | Hamburger menu, notification bell |
 
-### 2.5 Brand link (`.brand`)
+### 2.6 Brand link (`.brand`)
 
 | Property | Value |
 |----------|-------|
@@ -116,15 +147,15 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 | **Style** | White wordmark; subtle underline when `brand-active` on home |
 | **Behavior** | `routerLink="/"` |
 
-### 2.6 Primary / secondary / cancel
+### 2.7 Primary / secondary / cancel
 
 | Class | `matButton` variant |
 |-------|---------------------|
-| `.btn` | `"filled"` — corporate primary via `mat.button-overrides` |
-| `.btn-secondary` | `"outlined"` |
-| `.btn-cancel` | `"filled"` with red CSS custom properties |
+| `.btn` | `"filled"` — primary via `mat.button-overrides` |
+| `.btn-secondary` | `"outlined"` — dismiss, back, secondary navigation |
+| `.btn-cancel` | `"filled"` with red CSS custom properties — destructive only |
 
-### 2.7 Tab button (`.tab-button`)
+### 2.8 Tab button (`.tab-button`)
 
 | Property | Value |
 |----------|-------|
@@ -132,7 +163,7 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 | **Style** | Borderless; active = bottom border `$base-active-color` |
 | **Behavior** | Toggles `activeTab` (`history` \| `comments`); no route change |
 
-### 2.8 Icon-only remove (`.btn-remove`)
+### 2.9 Icon-only remove (`.btn-remove`)
 
 Dashboard widget header; borderless, muted text, red on hover.
 
@@ -140,11 +171,12 @@ Dashboard widget header; borderless, muted text, red on hover.
 
 ## 3. Form controls
 
-### 3.1 Standard field (`mat-form-field.form-field`, `appearance="fill"`)
+### 3.1 Standard field (`mat-form-field.form-field`, `appearance="outline"`)
 
 | Property | Value |
 |----------|-------|
 | **Width** | 100% in forms |
+| **Style** | Flat outline field; `$radius-none` via Material theme overrides |
 | **Validation** | `mat-error` below field; red `$base-error-color` |
 | **Behavior** | Reactive (`formControlName`) or template-driven (`ngModel`) |
 
@@ -154,8 +186,8 @@ Dashboard widget header; borderless, muted text, red on hover.
 
 | Property | Value |
 |----------|-------|
-| **Markup** | `form` with leading icon, `input[type="search"]`, circular `.search-bar__action` submit |
-| **Style** | White pill (`border-radius: 999px`), shadow, focus ring on `:focus-within` |
+| **Markup** | `form` with leading icon, `input[type="search"]`, square `.search-bar__action` submit |
+| **Style** | White flat bar, light shadow, focus ring on `:focus-within`; `$radius-none` |
 | **Behavior** | Submit button or implicit form submit → `/search` with query params |
 
 ### 3.3 Header toolbar select (`.toolbar-select`)
@@ -203,7 +235,7 @@ Standard wrapper for every authenticated route.
 | `.page-header` | Flex row: title block + `.page-header__actions` |
 | `.page-title` | H1 — primary screen title |
 | `.page-subtitle` | Muted one-line context |
-| `.page-panel` | White card panel with shadow (tables, tabs, forms) |
+| `.page-panel` | White flat panel; light `$shadow-card`; tables, tabs, forms |
 | `.page-panel--flush` | Panel without inner padding (embedded tables) |
 
 **Used in:** home, kanban, search, users, projects, ticket view, dashboard, edit forms.
@@ -266,7 +298,11 @@ Dashed muted panel with centered italic copy — search, lists, password-reset s
 
 **Used in:** kanban tickets, legacy layouts.
 
-### 4.11 Parameters summary (`.parameters-box`)
+### 4.11 Filter summary (`.filter-summary`)
+
+Flat toolbar showing active search criteria (term, status). Replaces legacy `.parameters-box` on search results.
+
+### 4.12 Parameters summary (`.parameters-box`) — legacy
 
 Table layout showing active search filters (term, status). Muted toolbar background.
 
@@ -399,23 +435,35 @@ Wrapped in `.page.page--wide` with standard `.page-header`. Inner `.page-panel` 
 
 ---
 
-## 13. Live review findings (2026-07-02, `http://localhost:8080/`)
+## 13. Style review findings
 
-Issues observed in running dev environment and code audit:
+### 2026-07-02 — flat UI pass
 
 | Area | Finding | Status |
 |------|---------|--------|
-| Theme | M3 default primary clashed with corporate palette | Fixed — `mat.button-overrides` + CSS vars |
-| Buttons | `matButton` without variant rendered text buttons; custom CSS fought Material | Fixed — `matButton="filled"` / `"outlined"` |
-| Header | `mat-form-field` too tall on navy chrome | Fixed — `.toolbar-search` / `.toolbar-select` |
-| Header chrome | Menu/notification buttons low contrast on navy | Fixed — `.btn-header` outlined variant |
-| Nav active | Bright blue pill on Início | Fixed — subtle white overlay |
-| Users list | Debug `{{ filter.name }}` leaked in template | Fixed |
-| Dashboard | Typo class `dashboar table` broke widget tables | Fixed → `.data-table` |
-| i18n | English labels on user/project forms | Fixed → PT-BR |
-| Users filters | Native inputs vs Material elsewhere | Documented tech debt |
-| Password reset page | Stub `PasswordResetComponent` | Open — route exists, minimal UI |
-| Workflows / account routes | Linked in menu, routes may be missing | Open — verify `app.routes.ts` |
+| Corners | All surfaces use `$radius-none` | ✅ |
+| Hover | Project cards / kanban cards used shadow growth on hover | Fixed — border highlight |
+| Search bar | Heavy drop shadow + glow focus ring | Fixed — light shadow, border focus |
+| Auth card | Used `$shadow-card-hover` at rest | Fixed — `$shadow-card` |
+| Edit forms | `form.edit` duplicated `page-panel` styles | Fixed — `edit page-panel` combo |
+| Create ticket cancel | `outlined` variant inconsistent with gallery | Fixed — `filled` + `.btn-cancel` |
+| Password reset SCSS | Legacy `form` border conflicted with `.auth-card` | Fixed — removed |
+| Toasts | Slide animation + heavy shadow | Fixed — opacity fade, light shadow |
+| Dashboard widgets | Shadow hover on palette items | Fixed — border highlight |
+| Users filters | Native `.filter-input` missing explicit border | Fixed |
+| Users filters | Native inputs vs Material elsewhere | Open — tech debt |
+
+### Earlier audit (2026-07-02)
+
+| Area | Finding | Status |
+|------|---------|--------|
+| Theme | M3 default primary clashed with flat UI palette | Fixed |
+| Buttons | `matButton` variant inconsistency | Fixed |
+| Header | Toolbar controls replaced tall `mat-form-field` | Fixed |
+| Users list | Debug template leak | Fixed |
+| Dashboard | Typo `dashboar table` | Fixed |
+| Password reset page | Stub component | Open |
+| Workflows / account routes | Menu links may lack routes | Open |
 
 ---
 

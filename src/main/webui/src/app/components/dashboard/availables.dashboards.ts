@@ -1,7 +1,11 @@
-import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { ChartData } from "chart.js";
-import { catchError, delay, Observable, of, retry, retryWhen, startWith, timer } from "rxjs";
+import { catchError, map, Observable, of, retry, startWith, timer } from "rxjs";
+import { DashboardApi } from "../../generated/api/dashboard.service";
+import { DashboardType } from "../../generated/model/dashboardType";
+import { KpiDataResponse } from "../../generated/model/kpiDataResponse";
+import { PieChartDataResponse } from "../../generated/model/pieChartDataResponse";
+import { TableDataResponse } from "../../generated/model/tableDataResponse";
 
 
 export interface DataSupplier {
@@ -42,8 +46,7 @@ export interface KpiData {
 
 @Injectable({ providedIn: 'root' })
 export class AvailablesDashboards {
-    private readonly httpClient = inject(HttpClient);
-    private readonly API_URL = 'http://localhost:8080/api/projects';
+    private readonly dashboardApi = inject(DashboardApi);
 
     public all: DashboardWidget[] = [{
         id: 'tickets-by-day',
@@ -81,8 +84,10 @@ export class AvailablesDashboards {
     }];
 
     public loadPieData(chart: DashboardWidget, projectId: number): Observable<PieChartData> {
-        return this.httpClient.get<PieChartData>(`${this.API_URL}/${projectId}/dashboard/pie/${chart.id}`)
-                              .pipe(retry(1), 
+        return this.dashboardApi.loadPieDashboard(this.toDashboardType(chart.id), projectId)
+                              .pipe(
+                                    map(response => this.toPieChartData(response)),
+                                    retry(1), 
                                     startWith(this.getLoadingPieChartData()),
                                     catchError(error =>{
                                         console.log("Error requesting data", error);
@@ -103,8 +108,10 @@ export class AvailablesDashboards {
     }
 
     public loadKpiData(chart: DashboardWidget, projectId: number): Observable<KpiData> {
-        return this.httpClient.get<KpiData>(`${this.API_URL}/${projectId}/dashboard/kpi/${chart.id}`)
-                              .pipe(retry(1), 
+        return this.dashboardApi.loadKpiDashboard(this.toDashboardType(chart.id), projectId)
+                              .pipe(
+                                    map(response => this.toKpiData(response)),
+                                    retry(1), 
                                     startWith(this.getLoadingKpiChartData()),
                                     catchError(error =>{
                                         console.log("Error requesting data", error);
@@ -125,8 +132,10 @@ export class AvailablesDashboards {
     }
 
     public loadTableData(chart: DashboardWidget, projectId: number): Observable<TableChartData> {
-        return this.httpClient.get<TableChartData>(`${this.API_URL}/${projectId}/dashboard/table/${chart.id}`)
-                              .pipe(retry(1), 
+        return this.dashboardApi.loadTableDashboard(this.toDashboardType(chart.id), projectId)
+                              .pipe(
+                                    map(response => this.toTableChartData(response)),
+                                    retry(1), 
                                     startWith(this.getLoadingTableChartData()),
                                     catchError(error =>{
                                         console.log("Error requesting data", error);
@@ -144,6 +153,35 @@ export class AvailablesDashboards {
                                         }
                                     })
                                 );
+    }
+
+    private toDashboardType(widgetId: string): DashboardType {
+        return widgetId.replaceAll('-', '_').toUpperCase() as DashboardType;
+    }
+
+    private toPieChartData(response: PieChartDataResponse): PieChartData {
+        return {
+            labels: response.labels ?? [],
+            datasets: (response.datasets ?? []).map(dataset => ({
+                data: dataset.data ?? [],
+                backgroundColor: dataset.colors,
+                label: dataset.label
+            }))
+        };
+    }
+
+    private toKpiData(response: KpiDataResponse): KpiData {
+        return {
+            total: response.total ?? 0,
+            perStatus: new Map(Object.entries(response.perStatus ?? {}))
+        };
+    }
+
+    private toTableChartData(response: TableDataResponse): TableChartData {
+        return {
+            columns: response.columns ?? [],
+            rows: (response.rows ?? []).map(row => ({ data: row.data ?? [] }))
+        };
     }
 
     private getLoadingPieChartData(): PieChartData {

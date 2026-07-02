@@ -1,76 +1,50 @@
-import { Injectable, NgZone, inject } from "@angular/core";
-import { Observable, Subject } from "rxjs";
-import { ServerSideEventsClient } from "./sse.client";
-import { HttpClient } from "@angular/common/http";
+import { Injectable, NgZone, inject } from '@angular/core';
+import { map, Observable, Subject } from 'rxjs';
+import { NotificationApi } from '../generated/api/notification.service';
+import { UserNotificationEvent } from '../generated/model/userNotificationEvent';
+import { UpdateNotificationStatusReadRequest } from '../generated/model/updateNotificationStatusReadRequest';
+import { asLoaded, Loaded } from '../core/required-types';
+import { ServerSideEventsClient } from './sse.client';
 
-export interface UserNotification {
-    id: number;
-    type: string;
-    read: boolean;
-    ticketId: number;
-    content: string;
-    timestamp: number;
-}
+export type UserNotification = Loaded<UserNotificationEvent>;
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class NotificationService {
-    private readonly zone = inject(NgZone);
-    private readonly httpClient = inject(HttpClient);
-    private readonly sseClient = inject(ServerSideEventsClient);
+  private readonly zone = inject(NgZone);
+  private readonly api = inject(NotificationApi);
+  private readonly sseClient = inject(ServerSideEventsClient);
+  private readonly eventSubject = new Subject<UserNotification>();
 
-    private readonly API_URL: string = 'http://localhost:8080/api/notifications';
-    private readonly eventSubject = new Subject<UserNotification>();
+  connect(channel?: string): void {
+    this.disconnect();
+    const url = channel ? `/api/notifications/register?channel=${channel}` : '/api/notifications/register';
+    this.sseClient.connect(url).subscribe(data => {
+      if (data) {
+        this.zone.run(() => this.eventSubject.next(data.data as UserNotification));
+      }
+    });
+  }
 
-    /**
-     * Connect to SSE stream with optional channel parameter
-     */
-    public connect(channel?: string): void {
-        // Close eCloseaxisting connection if any
-        this.disconnect();
-        // Build URL with query parameters
-        const url = channel ? `${this.API_URL}/register?channel=${channel}` :`${this.API_URL}/register`;
-        console.log("Connecting with: ", url);
-        this.sseClient.connect(url).subscribe(data => {
-            if (data) {
-                console.log(data);
-                this.zone.run(() => this.eventSubject.next(data.data as UserNotification));
-            }
-        })
-    }
+  listen(): Observable<UserNotification> {
+    return this.eventSubject.asObservable();
+  }
 
-    /**
-     * Listen for all events
-     */
-    public listen(): Observable<UserNotification> {
-        return this.eventSubject.asObservable();
-    }
+  markAsRead(id: number): Observable<UserNotification> {
+    return this.api.updateNotificationRead(id, { read: true } as UpdateNotificationStatusReadRequest).pipe(map(asLoaded));
+  }
 
-    public markAsRead(id: number): Observable<UserNotification> {
-        return this.httpClient.post<UserNotification>(`${this.API_URL}/${id}/read`, {
-            read: true
-        });
-    }
+  markAsUnread(id: number): Observable<UserNotification> {
+    return this.api.updateNotificationRead(id, { read: false } as UpdateNotificationStatusReadRequest).pipe(map(asLoaded));
+  }
 
-    public markAsUnread(id: number): Observable<UserNotification> {
-        return this.httpClient.post<UserNotification>(`${this.API_URL}/${id}/read`, {
-            read: false
-        });
-    }
+  disconnect(): void {
+    this.sseClient.close();
+  }
 
-    /**
-     * Disconnect from SSE
-     */
-    public disconnect(): void {
-        this.sseClient.close();
-    }
-
-    /**
-     * Reconnect with optional new channel
-     */
-    public reconnect(channel?: string): void {
-        this.disconnect();
-        this.connect(channel);
-    }
+  reconnect(channel?: string): void {
+    this.disconnect();
+    this.connect(channel);
+  }
 }

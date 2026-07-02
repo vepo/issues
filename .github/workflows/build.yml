@@ -36,9 +36,14 @@ jobs:
       - name: Setup Angular CLI
         working-directory: src/main/webui
         run: npm install -g @angular/cli
+      - name: Run backend tests and export OpenAPI
+        run: mvn -B test
       - name: Install Frontend packages
         working-directory: src/main/webui
         run: npm install
+      - name: Generate API client
+        working-directory: src/main/webui
+        run: npm run generate:api
       - name: Run Angular tests
         working-directory: src/main/webui
         run: ng test --no-watch --code-coverage --browsers=ChromeHeadless

@@ -2,7 +2,7 @@
 
 .rich-text-editor {
   border: 1px solid colors.$border-subtle;
-  border-radius: 4px;
+  border-radius: colors.$radius-none;
   background: colors.$surface-card;
   font-family: inherit;
 
@@ -23,12 +23,12 @@
       color: colors.$text-secondary;
     }
 
-    border-radius: 4px 4px 0 0;
+    border-radius: colors.$radius-none;
 
     .toolbar-btn {
       background: colors.$surface-card;
       border: 1px solid colors.$border-subtle;
-      border-radius: 4px;
+      border-radius: colors.$radius-none;
       padding: colors.$space-xs colors.$space-sm;
       margin-right: colors.$space-xs;
       cursor: pointer;

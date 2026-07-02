@@ -1,4 +1,5 @@
 /target/
+src/main/webui/src/app/generated/
 *.class
 *.log
 *.iml

@@ -18,7 +18,7 @@ Legend: ✅ Compliant · ⚠️ Partial · ❌ Gap · **Fix** = action taken or 
 | 5 | Error prevention | ✅ | Form validation on create/edit flows |
 | 6 | Recognition over recall | ✅ | Project cards, visible nav, status filter in header |
 | 7 | Flexibility & efficiency | ⚠️ | Header search + Enter; role chips on users; no keyboard shortcuts doc |
-| 8 | Aesthetic & minimalist | ✅ | Corporate navy/blue palette, reduced visual noise |
+| 8 | Aesthetic & minimalist | ✅ | Flat UI (Metro/Fluent-influenced): bold color blocks, typography hierarchy, minimal ornament |
 | 9 | Help users recover from errors | ⚠️ | `mat-error` on forms; password-reset-request error branch still silent |
 | 10 | Help & documentation | ⚠️ | Footer OpenAPI link; no in-app help beyond empty states |
 
@@ -204,12 +204,13 @@ Legend: ✅ Compliant · ⚠️ Partial · ❌ Gap · **Fix** = action taken or 
 
 ## Cross-cutting improvements (this pass)
 
-1. **Uniform page scaffold** — `.page`, `.page-header`, `.page-title`, `.page-subtitle`, `.page-panel` on all routes.
-2. **Auth screens** — `.page-auth` + `.auth-card` for login and password flows.
-3. **Button hierarchy** — primary `filled` + `.btn`, secondary `outlined` + `.btn-secondary` / `.btn-cancel`.
-4. **Form fields** — `appearance="outline"` on auth, edit, and create-ticket forms.
-5. **Empty states** — `.empty-state` with dashed border and muted copy.
-6. **Kanban** — column count badges for status visibility.
+1. **Flat UI design system** — Metro/Fluent-influenced: minimal ornament, bold color blocks, typography hierarchy, `$radius-none` geometry (see [ui-elements-gallery.md](ui-elements-gallery.md) § Flat UI).
+2. **Uniform page scaffold** — `.page`, `.page-header`, `.page-title`, `.page-subtitle`, `.page-panel` on all routes.
+3. **Auth screens** — `.page-auth` + `.auth-card` for login and password flows.
+4. **Button hierarchy** — primary `filled` + `.btn`, secondary `outlined` + `.btn-secondary` / `.btn-cancel`.
+5. **Form fields** — `appearance="outline"` on auth, edit, and create-ticket forms.
+6. **Empty states** — `.empty-state` with dashed border and muted copy.
+7. **Kanban** — column count badges for status visibility.
 
 ---
 

@@ -12,7 +12,6 @@ import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.co
 @Component({
   selector: 'app-ticket-view',
   templateUrl: './ticket-view.component.html',
-  styleUrls: ['./ticket-view.component.scss'],
   imports: [DatePipe, NormalizePipe, FormsModule, RichTextEditorComponent, MatButtonModule, MatIconModule]
 })
 export class TicketViewComponent implements OnInit {

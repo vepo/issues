@@ -10,28 +10,31 @@
   }
 </button>
 <mat-menu #notifications="matMenu" class="menu-panel notifications">
+  @if (events.length === 0) {
+    <div class="menu-empty" i18n>Nenhuma notificação</div>
+  }
   @for (event of events; track $index) {
-  <button mat-menu-item (click)="navigate(event)">
-    <div class="notification-container">
-      <div class="notification-item">
-        <div class="icon">
-          @if (event.read) {
-          <mat-icon fontIcon="mark_email_read"></mat-icon>
-          } @else {
-          <mat-icon fontIcon="email"></mat-icon>
-          }
+    <button mat-menu-item (click)="navigate(event)">
+      <div class="notification-container">
+        <div class="notification-item">
+          <div class="icon">
+            @if (event.read) {
+              <mat-icon fontIcon="mark_email_read"></mat-icon>
+            } @else {
+              <mat-icon fontIcon="email"></mat-icon>
+            }
+          </div>
+          <div class="content">
+            <span>{{ event.content }}</span>
+          </div>
         </div>
-        <div class="content">
-          <span>{{ event.content }}</span>
+        <div class="notification-item">
+          <div>&nbsp;</div>
+          <div class="notification-date">
+            {{ event.timestamp | date: 'dd/MM/yyyy HH:mm' }}
+          </div>
         </div>
       </div>
-      <div class="notification-item">
-        <div>&nbsp;</div>
-        <div class="notification-date">
-          {{ event.timestamp | date: 'dd/MM/yyyy HH:mm' }}
-        </div>
-      </div>
-    </div>
-  </button>
+    </button>
   }
 </mat-menu>

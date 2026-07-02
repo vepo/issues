@@ -15,7 +15,7 @@
     </header>
   }
 
-  <form class="edit" [formGroup]="userForm">
+  <form class="edit page-panel" [formGroup]="userForm">
     <mat-form-field class="form-field" appearance="outline">
       <mat-label i18n>Nome</mat-label>
       <input matInput formControlName="name" required />
@@ -36,7 +36,7 @@
       <mat-checkbox [checked]="isRoleSelected('user')" (change)="toggle('user')" i18n>Usuário</mat-checkbox>
     </section>
     <div class="actions form-actions">
-      <button class="btn btn-cancel" matButton="filled" type="button" (click)="cancel()" i18n>Cancelar</button>
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()" i18n>Cancelar</button>
       <button class="btn" [disabled]="userForm.invalid" matButton="filled" type="button" (click)="save()" i18n
         >Salvar</button
       >

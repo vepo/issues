@@ -1,0 +1,314 @@
+package dev.vepo.issues.ticket;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dev.vepo.issues.categories.CategoryRepository;
+import dev.vepo.issues.notifications.NotificationEvent;
+import dev.vepo.issues.project.ProjectRepository;
+import dev.vepo.issues.ticket.comments.Comment;
+import dev.vepo.issues.ticket.comments.CommentRequest;
+import dev.vepo.issues.ticket.comments.CommentResponse;
+import dev.vepo.issues.ticket.history.TicketHistory;
+import dev.vepo.issues.ticket.history.TicketHistoryService;
+import dev.vepo.issues.user.User;
+import dev.vepo.issues.user.UserRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
+
+@ApplicationScoped
+public class TicketService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TicketService.class);
+    private static final Predicate<String> IS_NUMBER = Pattern.compile("\\d+").asMatchPredicate();
+
+    private final TicketRepository repository;
+    private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
+    private final CategoryRepository categoryRepository;
+    private final TicketHistoryService historyService;
+    private final Event<NotificationEvent> notificationEmitter;
+
+    @Inject
+    public TicketService(TicketRepository repository,
+                         UserRepository userRepository,
+                         ProjectRepository projectRepository,
+                         CategoryRepository categoryRepository,
+                         TicketHistoryService historyService,
+                         Event<NotificationEvent> notificationEmitter) {
+        this.repository = repository;
+        this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
+        this.categoryRepository = categoryRepository;
+        this.historyService = historyService;
+        this.notificationEmitter = notificationEmitter;
+    }
+
+    public List<TicketResponse> listAll(String status) {
+        if (Objects.nonNull(status) && IS_NUMBER.test(status)) {
+            return repository.findByStatusId(Long.parseLong(status))
+                             .map(TicketResponse::load)
+                             .toList();
+        } else if (Objects.nonNull(status) && !status.isBlank()) {
+            return repository.findByStatusName(status)
+                             .map(TicketResponse::load)
+                             .toList();
+        }
+        return repository.findAll()
+                         .map(TicketResponse::load)
+                         .toList();
+    }
+
+    public List<TicketResponse> search(String term, long statusId) {
+        return repository.search(Optional.ofNullable(term)
+                                         .filter(Predicate.not(String::isBlank))
+                                         .map(String::trim)
+                                         .map(s -> s.split("\\s+"))
+                                         .orElseGet(() -> new String[] {}),
+                                 statusId)
+                         .map(TicketResponse::load)
+                         .toList();
+    }
+
+    public List<TicketResponse> findByProjectId(long projectId) {
+        return repository.findByProjectId(projectId)
+                         .map(TicketResponse::load)
+                         .toList();
+    }
+
+    public TicketResponse findById(long id) {
+        return TicketResponse.load(requireTicket(id));
+    }
+
+    @Transactional
+    public TicketExpandedResponse findExpandedById(long id) {
+        return TicketExpandedResponse.load(requireTicket(id), loadHistory(id));
+    }
+
+    @Transactional
+    public TicketExpandedResponse findExpandedByIdentifier(String identifier) {
+        var ticket = requireTicketByIdentifier(identifier);
+        return TicketExpandedResponse.load(ticket, loadHistory(ticket.getId()));
+    }
+
+    @Transactional
+    public TicketResponse create(CreateTicketRequest request, String authorUsername) {
+        var project = projectRepository.findById(request.projectId())
+                                       .orElseThrow(() -> projectNotFound(request.projectId()));
+        var author = requireUserByUsername(authorUsername);
+        var projectTickets = repository.countProjectTickets(request.projectId());
+        var ticket = new Ticket("%s-%03d".formatted(project.getPrefix(), projectTickets + 1),
+                                request.title(),
+                                request.description(),
+                                categoryRepository.findById(request.categoryId())
+                                                  .orElseThrow(() -> categoryNotFound(request.categoryId())),
+                                author,
+                                null,
+                                project,
+                                project.getWorkflow().getStart());
+        repository.save(ticket);
+        historyService.logTicketCreated(ticket, author);
+        return TicketResponse.load(ticket);
+    }
+
+    @Transactional
+    public TicketResponse update(long id, UpdateTicketRequest request, String username) {
+        var entity = requireTicket(id);
+        var changes = new StringBuilder();
+        var hasChanges = false;
+
+        if (!entity.getTitle().equals(request.title())) {
+            changes.append("title");
+            hasChanges = true;
+        }
+        if (!entity.getDescription().equals(request.description())) {
+            if (hasChanges) {
+                changes.append(", ");
+            }
+            changes.append("description");
+            hasChanges = true;
+        }
+        var newCategory = categoryRepository.findById(request.categoryId())
+                                            .orElseThrow(() -> categoryNotFound(request.categoryId()));
+        if (!entity.getCategory().equals(newCategory)) {
+            if (hasChanges) {
+                changes.append(", ");
+            }
+            changes.append("category");
+            hasChanges = true;
+        }
+
+        entity.setTitle(request.title());
+        entity.setDescription(request.description());
+        entity.setCategory(newCategory);
+        entity.setUpdatedAt(LocalDateTime.now());
+
+        var user = requireUserByUsername(username);
+        if (hasChanges) {
+            historyService.logTicketUpdated(entity, user, changes.toString());
+        }
+        return TicketResponse.load(entity);
+    }
+
+    @Transactional
+    public TicketResponse updateAssignee(long id, UpdateAssigneeRequest request, String username) {
+        var entity = requireTicket(id);
+        var newAssignee = requireUserById(request.assigneeId());
+        var fromAssignee = entity.getAssignee() != null ? entity.getAssignee().getName() : null;
+        var toAssignee = newAssignee.getName();
+
+        entity.setAssignee(newAssignee);
+        entity.setUpdatedAt(LocalDateTime.now());
+
+        var user = requireUserByUsername(username);
+        historyService.logAssigneeChanged(entity, user, fromAssignee, toAssignee);
+        return TicketResponse.load(entity);
+    }
+
+    @Transactional
+    public void delete(long id, String username) {
+        var ticket = requireTicket(id);
+        var user = requireUserByUsername(username);
+        historyService.logTicketDeleted(ticket, user);
+        repository.delete(id);
+    }
+
+    public List<CommentResponse> listComments(long id) {
+        return repository.findCommentsByTicketId(id)
+                         .map(CommentResponse::load)
+                         .toList();
+    }
+
+    @Transactional
+    public CommentResponse addComment(long id, CommentRequest request, String username) {
+        var ticket = requireTicket(id);
+        var user = requireUserByUsername(username);
+        var comment = repository.saveComment(new Comment(ticket, user, request.content()));
+        historyService.logCommentAdded(ticket, user);
+        return CommentResponse.load(comment);
+    }
+
+    @Transactional
+    public TicketResponse moveTicket(long id, MoveTicketRequest request, String username) {
+        logger.debug("Moving ticket to a new status! ticketId={}, request={}", id, request);
+        var ticket = requireTicket(id);
+
+        if (Objects.isNull(request) || Objects.isNull(request.to())) {
+            throw new BadRequestException("Destino não informado");
+        }
+        var to = ticket.getProject()
+                       .getWorkflow()
+                       .getStatuses()
+                       .stream()
+                       .filter(s -> Objects.equals(s.getId(), request.to()))
+                       .findFirst()
+                       .orElseThrow(() -> new BadRequestException("Stage not defined in project! stageId=%d".formatted(request.to())));
+        if (ticket.getProject()
+                  .getWorkflow()
+                  .getTransitions()
+                  .stream()
+                  .noneMatch(t -> t.getTo().equals(to) && t.getFrom().equals(ticket.getStatus()))) {
+            throw new BadRequestException("New stage not acceptable by workflow! stageId=%d".formatted(request.to()));
+        }
+
+        var fromStatus = ticket.getStatus().getName();
+        var toStatus = to.getName();
+        ticket.setStatus(to);
+
+        var user = requireUserByUsername(username);
+        historyService.logStatusChanged(ticket, user, fromStatus, toStatus);
+        logger.info("Enviando evento CDI!");
+        notificationEmitter.fireAsync(new NotificationEvent(ticket.getId(),
+                                                            "ticket-moved",
+                                                            "Ticket %s mudou de status! %s alterou de %s para %s".formatted(ticket.getIdentifier(),
+                                                                                                                            username,
+                                                                                                                            fromStatus,
+                                                                                                                            toStatus)));
+        return TicketResponse.load(ticket);
+    }
+
+    public List<TicketHistoryResponse> getHistory(long id) {
+        return repository.findHistoryByTicketId(id)
+                         .map(TicketHistoryResponse::load)
+                         .toList();
+    }
+
+    @Transactional
+    public TicketExpandedResponse subscribe(long id, SubscribeTicketRequest request) {
+        var ticket = requireTicket(id);
+        ticket.getSubscribers()
+              .add(requireUserById(request.subscriberId()));
+        return TicketExpandedResponse.load(repository.save(ticket), loadHistory(id));
+    }
+
+    @Transactional
+    public TicketExpandedResponse unsubscribe(long id, long subscriberId) {
+        var ticket = requireTicket(id);
+        ticket.getSubscribers()
+              .removeIf(user -> subscriberId == user.getId());
+        return TicketExpandedResponse.load(repository.save(ticket), loadHistory(id));
+    }
+
+    public List<Ticket> findTicketsByProjectId(long projectId) {
+        return repository.findByProjectId(projectId).toList();
+    }
+
+    private List<TicketHistory> loadHistory(long id) {
+        return repository.findHistoryByTicketId(id).toList();
+    }
+
+    private Ticket requireTicket(long id) {
+        return repository.findById(id)
+                         .orElseThrow(() -> ticketNotFound(id));
+    }
+
+    private Ticket requireTicketByIdentifier(String identifier) {
+        return repository.findByIdentifier(identifier)
+                         .orElseThrow(() -> ticketNotFound(identifier));
+    }
+
+    private User requireUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                             .orElseThrow(() -> userNotFound(username));
+    }
+
+    private User requireUserById(long userId) {
+        return userRepository.findById(userId)
+                             .orElseThrow(() -> userNotFound(userId));
+    }
+
+    private NotFoundException ticketNotFound(long ticketId) {
+        return new NotFoundException("Ticket does not found! ticketId=%d".formatted(ticketId));
+    }
+
+    private NotFoundException ticketNotFound(String ticketIdentifier) {
+        return new NotFoundException("Ticket does not found! ticketIdentifier=%s".formatted(ticketIdentifier));
+    }
+
+    private NotFoundException userNotFound(long userId) {
+        return new NotFoundException("User does not found! userId=%d".formatted(userId));
+    }
+
+    private NotFoundException userNotFound(String username) {
+        return new NotFoundException("User does not found! username=%s".formatted(username));
+    }
+
+    private NotFoundException projectNotFound(long projectId) {
+        return new NotFoundException("Project does not found! projectId=%d".formatted(projectId));
+    }
+
+    private NotFoundException categoryNotFound(long categoryId) {
+        return new NotFoundException("Category does not found! categoryId=%d".formatted(categoryId));
+    }
+}

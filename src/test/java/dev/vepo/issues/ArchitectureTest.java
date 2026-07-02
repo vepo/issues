@@ -1,6 +1,7 @@
 package dev.vepo.issues;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -17,6 +19,8 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.persistence.EntityManager;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PATCH;
@@ -62,13 +66,27 @@ class ArchitectureTest {
                     }
                     return;
                 }
-                System.out.println("Checking method: " + method.getFullName());
-                System.out.println("Return type: " + method.getRawReturnType().getName());
                 if (!method.getRawReturnType().getClass().isInstance(Response.class) &&
                         !(method.getRawReturnType().getName().endsWith("Response") || method.getRawReturnType().getName().endsWith("Event"))) {
                     events.add(SimpleConditionEvent.violated(method, "Method %s does not return Response or Event".formatted(method.getFullName())));
                 }
 
+            }
+        };
+    }
+
+    private static ArchCondition<JavaClass> declareExactlyOneHttpMethod() {
+        return new ArchCondition<JavaClass>("declare exactly one HTTP method") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                var httpMethods = item.getMethods()
+                                      .stream()
+                                      .filter(m -> m.isAnnotatedWith(GET.class) || m.isAnnotatedWith(POST.class) || m.isAnnotatedWith(PUT.class)
+                                              || m.isAnnotatedWith(PATCH.class) || m.isAnnotatedWith(DELETE.class))
+                                      .count();
+                if (httpMethods != 1) {
+                    events.add(SimpleConditionEvent.violated(item, "Class %s declares %d HTTP methods".formatted(item.getName(), httpMethods)));
+                }
             }
         };
     }
@@ -110,7 +128,7 @@ class ArchitectureTest {
     }
 
     @Test
-    @DisplayName("Verify that Request and Response classes are records and accessed only by Resources or other Requests/Responses")
+    @DisplayName("Verify that Request and Response classes are records and accessed only by Endpoints or other Requests/Responses")
     void verifySuffixRequestAndResponse() {
         classes().that()
                  .haveSimpleNameEndingWith("Request")
@@ -119,9 +137,11 @@ class ArchitectureTest {
                  .andShould()
                  .onlyBeAccessed()
                  .byClassesThat()
-                 .haveSimpleNameEndingWith("Resource")
+                 .haveSimpleNameEndingWith("Endpoint")
                  .orShould()
                  .haveSimpleNameEndingWith("Request")
+                 .orShould()
+                 .haveSimpleNameEndingWith("Service")
                  .check(importedClasses);
 
         classes().that()
@@ -131,9 +151,45 @@ class ArchitectureTest {
                  .andShould()
                  .onlyBeAccessed()
                  .byClassesThat()
-                 .haveSimpleNameEndingWith("Resource")
+                 .haveSimpleNameEndingWith("Endpoint")
                  .orShould()
                  .haveSimpleNameEndingWith("Response")
+                 .orShould()
+                 .haveSimpleNameEndingWith("Service")
                  .check(importedClasses);
+    }
+
+    @Test
+    @DisplayName("Every endpoint class is secured with @DenyAll")
+    void verifyEndpointsAreSecured() {
+        classes().that()
+                 .haveSimpleNameEndingWith("Endpoint")
+                 .should()
+                 .beAnnotatedWith(DenyAll.class)
+                 .check(importedClasses);
+    }
+
+    @Test
+    @DisplayName("Every endpoint class declares exactly one HTTP method")
+    void verifyOneHttpMethodPerEndpoint() {
+        classes().that()
+                 .haveSimpleNameEndingWith("Endpoint")
+                 .should(declareExactlyOneHttpMethod())
+                 .check(importedClasses);
+    }
+
+    @Test
+    @DisplayName("Only repositories and dev setup use EntityManager")
+    void verifyEntityManagerUsedOnlyInRepositories() {
+        var repositoryOrDevSetup = DescribedPredicate.<JavaClass>describe(
+                                                                          "repository or DatabaseDevSetup",
+                                                                          javaClass -> javaClass.getSimpleName().endsWith("Repository")
+                                                                                  || javaClass.getSimpleName().equals("DatabaseDevSetup"));
+
+        noClasses().that(DescribedPredicate.not(repositoryOrDevSetup))
+                   .should()
+                   .accessClassesThat()
+                   .areAssignableTo(EntityManager.class)
+                   .check(importedClasses);
     }
 }

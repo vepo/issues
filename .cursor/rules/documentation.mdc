@@ -21,6 +21,7 @@ alwaysApply: false
 | New domain term or invariant | [domain-specification.md](../../docs/domain-specification.md) |
 | New/changed UI route | [feature-catalog.md](../../docs/feature-catalog.md) |
 | New/changed UI element (class, component, pattern) | [ui-elements-gallery.md](../../docs/ui-elements-gallery.md) |
+| Flat UI / visual language change | [ui-elements-gallery.md](../../docs/ui-elements-gallery.md) § Flat UI + [issues-ux.mdc](issues-ux.mdc) |
 | Package, API surface, patterns | [ARCHITECTURE.md](../../ARCHITECTURE.md) |
 | Doc debt closed | [conventions-checklist.md](../../docs/conventions-checklist.md) |
 | New/changed user-facing feature | [README.md](../../README.md) § Features — see [readme.mdc](readme.mdc) |

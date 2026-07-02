@@ -11,7 +11,7 @@ alwaysApply: false
 Before any template, style, or interaction change:
 
 1. Read [docs/ui-elements-gallery.md](../../docs/ui-elements-gallery.md) — reuse documented elements; extend the gallery when adding new ones.
-2. Apply [issues-ux.mdc](issues-ux.mdc) — Nielsen heuristics checklist and corporate visual language.
+2. Apply [issues-ux.mdc](issues-ux.mdc) — Nielsen heuristics checklist and flat UI design language.
 
 ## Structure
 

@@ -19,7 +19,7 @@ export class KanbanComponent implements OnInit {
   private readonly ticketService = inject(TicketService);
 
   statuses: ProjectStatus[] = [];
-  project: Project = { id: -1, name: '', prefix: '', description: '' };
+  project: Project = { id: -1, name: '', prefix: '', description: '', workflow: '' } as Project;
   tickets: Ticket[] = [];
   workflow?: ProjectWorkflow;
 

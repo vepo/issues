@@ -1,60 +1,39 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { ProjectApi } from '../generated/api/project.service';
+import { CreateProjectRequest } from '../generated/model/createProjectRequest';
+import { ProjectResponse } from '../generated/model/projectResponse';
+import { WorkflowResponse } from '../generated/model/workflowResponse';
 
-export interface Project {
-  id: number;
-  name: string;
-  prefix: string;
-  description: string;
-}
+import { asLoaded, asLoadedArray, Loaded } from '../core/required-types';
 
-export interface WorkflowTransition {
-  from: string;
-  to: string;
-}
-
-export interface ProjectWorkflow {
-  id: number;
-  name: string;
-  statuses: string[];
-  start: string;
-  transitions: WorkflowTransition[];
-}
-
-export interface CreateOrUpdateProjectRequest {
-  name: string;
-  prefix: string;
-  description: string;
-  workflowId: number;
-}
+export type Project = Loaded<ProjectResponse>;
+export type CreateOrUpdateProjectRequest = CreateProjectRequest;
+export type ProjectWorkflow = Loaded<WorkflowResponse>;
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProjectsService {
-  private readonly http = inject(HttpClient);
-
-  private readonly API_URL = 'http://localhost:8080/api/projects';
+  private readonly api = inject(ProjectApi);
 
   findById(projectId: number): Observable<Project> {
-    return this.http.get<Project>(`${this.API_URL}/${projectId}`);
+    return this.api.findProjectById(projectId).pipe(map(asLoaded));
   }
 
   findAll(): Observable<Project[]> {
-    return this.http.get<Project[]>(`${this.API_URL}`);
+    return this.api.listProjects().pipe(map(asLoadedArray));
   }
 
   create(request: CreateOrUpdateProjectRequest): Observable<Project> {
-    return this.http.post<Project>(`${this.API_URL}`, request);
+    return this.api.createProject(request).pipe(map(asLoaded));
   }
 
-
   update(projectId: number, request: CreateOrUpdateProjectRequest): Observable<Project> {
-    return this.http.post<Project>(`${this.API_URL}/${projectId}`, request);
+    return this.api.updateProject(projectId, request).pipe(map(asLoaded));
   }
 
   findWorkflowByProjectId(projectId: number): Observable<ProjectWorkflow> {
-    return this.http.get<ProjectWorkflow>(`${this.API_URL}/${projectId}/workflow`);
+    return this.api.findProjectWorkflow(projectId).pipe(map(asLoaded));
   }
 }

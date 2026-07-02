@@ -1,31 +1,26 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
-
-
-export interface AuthResponse {
-  token: string;
-}
-
-export interface RecoveryResponse {
-  message: string;
-}
+import { AuthApi } from '../generated/api/auth.service';
+import { LoginRequest } from '../generated/model/loginRequest';
+import { LoginResponse } from '../generated/model/loginResponse';
+import { ResetPasswordRequest } from '../generated/model/resetPasswordRequest';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly api = inject(AuthApi);
   private readonly tokenKey = 'jwt_token';
-  private readonly API_URL = 'http://localhost:8080/api';
 
   login(email: string, password: string) {
-    return this.http.post<AuthResponse>(`${this.API_URL}/auth/login`, { email, password })
-                    .pipe(tap(res => {
-                                if (res.token) this.saveToken(res.token);
-                          }));
+    return this.api.login({ email, password } as LoginRequest)
+                   .pipe(tap(res => {
+                     if (res.token) {
+                       this.saveToken(res.token);
+                     }
+                   }));
   }
 
   recoverPassword(credential: string) {
-      return this.http.post<RecoveryResponse>(`${this.API_URL}/auth/recovery`, { credential });
+    return this.api.resetPassword({ credential } as ResetPasswordRequest);
   }
 
   saveToken(token: string) {
@@ -38,25 +33,27 @@ export class AuthService {
 
   getAuthUserId(): number {
     const token = this.getToken();
-    if (!token) throw new Error("Invalid token!");
+    if (!token) {
+      throw new Error('Invalid token!');
+    }
     const payload = JSON.parse(atob(token.split('.')[1]));
     if (!payload.id) {
-      throw new Error("Invalid token!");
+      throw new Error('Invalid token!');
     }
     return payload.id;
   }
 
   getRoles(): string[] {
     const token = this.getToken();
-    if (!token) return [];
+    if (!token) {
+      return [];
+    }
     const payload = JSON.parse(atob(token.split('.')[1]));
-    console.debug('JWT Roles:', payload.groups);
     return payload.groups || [];
   }
 
   hasRole(role: string): boolean {
-    return this.getRoles()
-               .includes(role);
+    return this.getRoles().includes(role);
   }
 
   logout() {
@@ -66,4 +63,6 @@ export class AuthService {
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
-} 
+}
+
+export type AuthResponse = LoginResponse;
