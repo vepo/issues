@@ -13,9 +13,9 @@ Follow `.cursor/rules/documentation.mdc` and `.cursor/rules/issues-model.mdc`.
 2. Update in **complexity order**:
    - `docs/domain-specification.md` (vocabulary and invariants)
    - `docs/feature-catalog.md` (routes and click paths)
+   - `README.md` § Features, tech stack, quick start — see [readme.mdc](../rules/readme.mdc)
    - `ARCHITECTURE.md` (structure, API map, known gaps)
    - `docs/conventions-checklist.md` (close doc debt rows)
-   - `README.md` only if badges or entry points changed
 3. Cross-link; avoid duplicating large blocks.
 
 ## Output

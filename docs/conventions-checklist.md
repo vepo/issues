@@ -13,6 +13,8 @@ Tracks gaps between documentation and code, and agentic development setup status
 | `.cursor/rules/` (pillars + file-scoped) | Done |
 | `.cursor/agents/` (TDD + domain + docs) | Done |
 | `.cursor/commands/` (fix tests, Sonar, coverage, structure review) | Done |
+| `readme.mdc` (keep README features current) | Done |
+| `issues-ux.mdc` (Nielsen heuristics + corporate UI) | Done |
 | Legacy `.cursor/rules/vo-naming-pattern.mdc` | Replaced by `issues-http-contract.mdc` |
 | Legacy `.cursor/rules/always-write-tests.mdc` | Replaced by `issues-model.mdc` § TDD + `issues-tests.mdc` |
 

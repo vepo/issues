@@ -41,6 +41,7 @@ Bounded context rules: [issues-bounded-contexts.mdc](issues-bounded-contexts.mdc
 |---------|--------|
 | New domain terms or invariants | [domain-specification.md](../../docs/domain-specification.md) |
 | New/changed UI route or flow | [feature-catalog.md](../../docs/feature-catalog.md) |
+| New/changed user-facing capability | [README.md](../../README.md) § Features — [readme.mdc](readme.mdc) |
 | Structure, API surface, known gaps | [ARCHITECTURE.md](../../ARCHITECTURE.md) §13 |
 | User-facing docs | [documentation.mdc](documentation.mdc) |
 

@@ -1,12 +1,44 @@
+// Corporate palette — Issues issue tracker
+
+// Chrome
 $base-background-color: #023164;
 $base-background-color-light: #03458C;
-$base-contrast-color: #FC4D4A;
-$base-highlight-color: #A00603;
-$base-active-color: #446DF6;
-$base-error-color: #BF0603;
-$base-error-active-color: #A00603;
 
-$base-secondary-bg-color: #ECF0FE;
-$base-secondary-color: #01172F;
-$base-secondary-bg-active-color: #C5D1FC;
-$base-secondary-active-color: #01172F;
+// Primary actions and links
+$base-active-color: #1565C0;
+$base-active-hover-color: #0D47A1;
+$base-contrast-color: #1565C0;
+$base-highlight-color: #0D47A1;
+
+// Secondary actions
+$base-secondary-bg-color: #E8EEF4;
+$base-secondary-color: #023164;
+$base-secondary-bg-active-color: #D0DCE8;
+$base-secondary-active-color: #023164;
+
+// Semantic
+$base-error-color: #C62828;
+$base-error-active-color: #B71C1C;
+
+// Surfaces and text
+$surface-page: #F5F6F8;
+$surface-card: #FFFFFF;
+$surface-muted: #FAFAFA;
+$surface-toolbar: #F0F2F5;
+$border-subtle: #E0E3E8;
+$border-default: #C5CAD3;
+$text-primary: #1A2332;
+$text-secondary: #5A6472;
+$text-muted: #8A929E;
+$focus-ring-color: #1565C0;
+
+// Spacing scale (8px grid)
+$space-xs: 0.25rem; // 4px
+$space-sm: 0.5rem;  // 8px
+$space-md: 1rem;    // 16px
+$space-lg: 1.5rem;  // 24px
+$space-xl: 2rem;    // 32px
+
+// Elevation
+$shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.1);

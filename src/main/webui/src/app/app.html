@@ -1,23 +1,36 @@
 <header class="main-header">
   <div>
     <nav>
-      <a routerLink="/" i18n>Início</a>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" i18n>Início</a>
     </nav>
   </div>
   @if (isAuthenticated()) {
   <div>
-    <input type="text" i18n-placeholder placeholder="Buscar tickets..." [(ngModel)]="searchTerm" (keydown)="onSearchKeydown($event)" class="search-input" />
+    <mat-form-field class="header-field" appearance="outline" subscriptSizing="dynamic">
+      <mat-label i18n>Buscar tickets</mat-label>
+      <input
+        matInput
+        [(ngModel)]="searchTerm"
+        (keydown)="onSearchKeydown($event)"
+        i18n-placeholder
+        placeholder="Pressione Enter para buscar"
+      />
+      <mat-icon matPrefix fontIcon="search"></mat-icon>
+    </mat-form-field>
   </div>
   <div>
-    <select [(ngModel)]="selectStatus" (ngModelChange)="onChange($event)">
-      @for(status of statuses; track status.name) {
-        <option [ngValue]="status">{{status.name | normalize }}</option>
-      }
-    </select>
+    <mat-form-field class="header-field status-field" appearance="outline" subscriptSizing="dynamic">
+      <mat-label i18n>Status</mat-label>
+      <mat-select [(ngModel)]="selectStatus" (ngModelChange)="onChange($event)" [compareWith]="compareStatus">
+        @for (status of statuses; track status.id) {
+          <mat-option [value]="status">{{ status.name | normalize }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
   </div>
   <div>
     <button class="btn" matButton (click)="openCreateTicketDialog()">
-      <mat-icon fontIcon="assignment"></mat-icon><span i18n>Novo</span>
+      <mat-icon fontIcon="assignment"></mat-icon><span i18n>Novo ticket</span>
     </button>
   </div>
   }
@@ -37,7 +50,7 @@
       <button mat-menu-item *role="'admin'" [routerLink]="'/users'">
         <mat-icon fontIcon="group"></mat-icon><span i18n>Usuários</span>
       </button>
-      <div class="divider"  *role="'project-manager'"></div>
+      <div class="divider" *role="'project-manager'"></div>
       <button mat-menu-item *role="'project-manager'" [routerLink]="'/workflows'">
         <mat-icon fontIcon="handyman"></mat-icon><span i18n>Processos</span>
       </button>
@@ -48,12 +61,13 @@
       <button mat-menu-item (click)="logout()">
         <mat-icon fontIcon="logout"></mat-icon><span i18n>Sair</span>
       </button>
-    </mat-menu>    
+    </mat-menu>
   </div>
   } @else {
   <div class="user-menu">
     <button matButton [routerLink]="'/login'">
-      <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="login"></mat-icon> <span i18n>Acessar</span>
+      <mat-icon aria-hidden="false" aria-label="Entrar" fontIcon="login"></mat-icon>
+      <span i18n>Acessar</span>
     </button>
   </div>
   }
@@ -62,12 +76,6 @@
   <router-outlet />
 </main>
 <footer class="main-footer">
-  <div i18n>
-    © 2025 Issues. Todos os direitos reservados.
-  </div>
-  <div><a href="/openapi" target="_blank" i18n>Documentação</a></div>
-  <div class="grow-space"></div>
-  <div>
-    <span i18n>Desenvolvido por</span>&nbsp;<a href="https://vepo.dev" target="_blank">Victor Osório</a>
-  </div>
+  <div i18n>© 2026 Issues. Todos os direitos reservados.</div>
+  <div><a href="/openapi" target="_blank" i18n>Documentação da API</a></div>
 </footer>

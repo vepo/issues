@@ -29,7 +29,7 @@ Read these before changing code or tests:
 | 3. Coding quality | [issues-quality.mdc](.cursor/rules/issues-quality.mdc) | Finish gate, ReadLints, `mvn verify`, standards index |
 | 4. Platform usage | [issues-platform.mdc](.cursor/rules/issues-platform.mdc) | Java 21, Quarkus, Angular, approved libraries, tooling boundaries |
 
-Additional always-on rules: [issues-core.mdc](.cursor/rules/issues-core.mdc), [domain-model.mdc](.cursor/rules/domain-model.mdc), [issues-layered-architecture.mdc](.cursor/rules/issues-layered-architecture.mdc), [issues-bounded-contexts.mdc](.cursor/rules/issues-bounded-contexts.mdc), [static-analysis.mdc](.cursor/rules/static-analysis.mdc), [development-experience.mdc](.cursor/rules/development-experience.mdc), [feature-catalog.mdc](.cursor/rules/feature-catalog.mdc).
+Additional always-on rules: [issues-core.mdc](.cursor/rules/issues-core.mdc), [domain-model.mdc](.cursor/rules/domain-model.mdc), [issues-layered-architecture.mdc](.cursor/rules/issues-layered-architecture.mdc), [issues-bounded-contexts.mdc](.cursor/rules/issues-bounded-contexts.mdc), [static-analysis.mdc](.cursor/rules/static-analysis.mdc), [development-experience.mdc](.cursor/rules/development-experience.mdc), [feature-catalog.mdc](.cursor/rules/feature-catalog.mdc), [readme.mdc](.cursor/rules/readme.mdc) (keep README features and quick start current).
 
 No content is duplicated across pillars — each hub links to file-scoped rules for detail.
 
@@ -44,8 +44,10 @@ No content is duplicated across pillars — each hub links to file-scoped rules 
 | [issues-jpa.mdc](.cursor/rules/issues-jpa.mdc) | `*Repository.java` | EntityManager queries |
 | [issues-tests.mdc](.cursor/rules/issues-tests.mdc) | `src/test/**` | REST Assured, Given, ArchUnit, domain narrative |
 | [issues-angular.mdc](.cursor/rules/issues-angular.mdc) | `src/main/webui/**` | Components, services, Material |
+| [issues-ux.mdc](.cursor/rules/issues-ux.mdc) | `src/main/webui/**` | Nielsen heuristics, corporate UI standards |
 | [issues-test-failure-diagnosis.mdc](.cursor/rules/issues-test-failure-diagnosis.mdc) | `src/test/**` | Failure classification and reports |
 | [documentation.mdc](.cursor/rules/documentation.mdc) | `docs/**`, `README.md` | User-facing docs maintenance |
+| [readme.mdc](.cursor/rules/readme.mdc) | always on | README features, stack, quick start |
 | [dev-import-sql-safety.mdc](.cursor/rules/dev-import-sql-safety.mdc) | `dev-import.sql`, migrations | Safe dev seed changes |
 
 ## Project subagents (`.cursor/agents/`)

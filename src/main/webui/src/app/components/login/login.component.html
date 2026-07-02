@@ -9,7 +9,7 @@
             <input matInput [(ngModel)]="email" name="email" required />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="fill">
-            <mat-label i18n>Password</mat-label>
+            <mat-label i18n>Senha</mat-label>
             <input matInput name="password" [(ngModel)]="password" [type]="hide() ? 'password' : 'text'" required />
             <mat-icon matSuffix (click)="clickEvent($event)">
                 {{hide() ? 'visibility_off' : 'visibility'}}

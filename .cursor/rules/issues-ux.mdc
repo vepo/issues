@@ -1,0 +1,53 @@
+---
+description: Nielsen usability heuristics and corporate UI standards for Issues SPA
+globs: "src/main/webui/**"
+alwaysApply: false
+---
+
+# UI/UX — Nielsen heuristics
+
+Every UI/UX change MUST be reviewed against Nielsen's 10 usability heuristics before merge.
+
+## Checklist (per screen or flow)
+
+| # | Heuristic | Issues application |
+|---|-----------|-------------------|
+| 1 | **Visibility of system status** | Loading/disabled during submit; notification badge; kanban drop feedback; toasts |
+| 2 | **Match system / real world** | Domain terms from [domain-specification.md](../../docs/domain-specification.md); PT-BR labels; familiar tracker patterns (Kanban, ticket ID) |
+| 3 | **User control & freedom** | Cancel/close on dialogs; back navigation; logout; avoid `disableClose` unless required |
+| 4 | **Consistency & standards** | Material + shared classes in `styles.scss`; same button hierarchy; no one-off hex colours |
+| 5 | **Error prevention** | `mat-form-field` validation; confirm destructive actions |
+| 6 | **Recognition over recall** | Visible nav, status filter, project cards — minimise memory load |
+| 7 | **Flexibility & efficiency** | Header search; Enter on search; role-based menu shortcuts |
+| 8 | **Aesthetic & minimalist** | Corporate palette in `colors.scss`; content over decoration; clear hierarchy |
+| 9 | **Error recovery** | `.error` messages; toasts; empty states with next-step guidance |
+| 10 | **Help & documentation** | Footer OpenAPI link; empty states; tooltips where labels are ambiguous |
+
+## Corporate visual language
+
+Tokens: `src/main/webui/src/colors.scss` and `src/main/webui/src/styles.scss`.
+
+| Role | Token / pattern |
+|------|-----------------|
+| Chrome (header, footer) | `$base-background-color` |
+| Primary action | `$base-active-color` + `.btn` |
+| Secondary action | `.btn-secondary` |
+| Destructive | `.btn-cancel` / `$base-error-color` |
+| Page background | `$surface-page` |
+| Cards / panels | `$surface-card` + `$shadow-card` |
+
+**Do:** restrained neutrals, 4px radius, Roboto, muted table zebra, accessible focus rings.  
+**Don't:** ad-hoc Bootstrap blues, pink/red row alternation, coral focus rings, playful card lift, personal branding in prod chrome.
+
+## Before finishing a UI change
+
+1. Walk the Nielsen checklist for the affected flow.
+2. Extend `colors.scss` / `styles.scss` — avoid scattered hex in component SCSS.
+3. Verify mobile (`@media max-width: 750px` in `styles.scss`).
+4. Run affected `*.spec.ts` when behaviour changes.
+5. Update [feature-catalog.md](../../docs/feature-catalog.md) when routes or labels change.
+
+## Related
+
+- Angular structure: [issues-angular.mdc](issues-angular.mdc)
+- Click paths: [feature-catalog.md](../../docs/feature-catalog.md)

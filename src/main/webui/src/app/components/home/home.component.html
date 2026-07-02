@@ -6,7 +6,7 @@
     <div class="box">
       @if (projects.length == 0) {
       <div class="card empty" i18n>
-        Nenhum projeto...
+        Nenhum projeto disponível. Entre em contato com o administrador.
       </div>  
       }
       @for (project of projects; track project.name) {
@@ -17,7 +17,7 @@
           <mat-icon fontIcon="view_kanban"></mat-icon><span i18n>Kanban</span>
         </button>
         <button class="btn" matButton [routerLink]="['/project', project.id, 'dashboard']">
-          <mat-icon fontIcon="query_stats"></mat-icon><span i18n>Dasboard</span>
+          <mat-icon fontIcon="query_stats"></mat-icon><span i18n>Painel</span>
         </button>
       </div>
       }

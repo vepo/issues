@@ -6,6 +6,10 @@ alwaysApply: false
 
 # Angular conventions
 
+## UI/UX gate
+
+Before any template, style, or interaction change, apply [issues-ux.mdc](issues-ux.mdc) — Nielsen heuristics checklist and corporate visual language.
+
 ## Structure
 
 - Components: `src/app/components/<feature>/` — `*.component.ts`, `*.html`, `*.scss`.

@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { AppComponent } from './app';
@@ -12,14 +13,17 @@ describe('App', () => {
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let authService: jasmine.SpyObj<AuthService>;
   beforeEach(async () => {
-    statusService = jasmine.createSpyObj('StatusService', ['findProjectsStatuses']);
+    statusService = jasmine.createSpyObj('StatusService', ['findAll']);
+    statusService.findAll.and.returnValue(of([]));
     projectsService = jasmine.createSpyObj('ProjectsService', ['findById']);
     activatedRoute = jasmine.createSpyObj('ActivatedRoute', ['navigate']);
     activatedRoute.queryParams = of({});
     authService = jasmine.createSpyObj('AuthService', ['login', 'isLoggedIn']);
+    authService.isLoggedIn.and.returnValue(false);
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
+        provideAnimations(),
         { provide: StatusService, useValue: statusService },
         { provide: ProjectsService, useValue: projectsService },
         { provide: ActivatedRoute, useValue: activatedRoute },

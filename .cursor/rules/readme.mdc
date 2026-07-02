@@ -1,0 +1,52 @@
+---
+description: Keep README.md features, stack, and quick start in sync with the product
+alwaysApply: true
+---
+
+# README maintenance
+
+[README.md](../../README.md) is the **public face** of Issues — the first doc visitors and agents read. Keep it accurate whenever user-visible capabilities or onboarding change.
+
+## When to update README.md
+
+| Trigger | Action in README |
+|---------|------------------|
+| New user-facing feature shipped | Add bullet under the correct **Features** subsection |
+| Feature removed or renamed | Update or remove the matching bullet |
+| Tech stack change (framework, DB, auth) | Update **Tech stack** table |
+| Dev startup or URLs change | Update **Quick start** commands and links |
+| New dev persona in `dev-import.sql` | Update dev login table |
+| Project name or Sonar badges change | Update title and badge URLs |
+| New top-level doc agents should know | Add row to **Documentation** table |
+
+## What belongs in README vs other docs
+
+| README | Elsewhere |
+|--------|-----------|
+| One-line pitch, tech stack, quick start | — |
+| Feature bullets (what the product does) | [feature-catalog.md](../../docs/feature-catalog.md) for routes, roles, click paths |
+| Doc index links | Full detail in linked docs |
+| Dev login table (summary) | Full personas in feature-catalog |
+
+Do **not** duplicate route tables or API signatures in README — link to [feature-catalog.md](../../docs/feature-catalog.md) and [ARCHITECTURE.md](../../ARCHITECTURE.md).
+
+## Feature bullet format
+
+- Group under existing subsections (`Tickets & workflow`, `Projects & administration`, `Views & analytics`, `Notifications & email`, `Authentication`) or add a new subsection if needed.
+- Start with **bold term** — short description.
+- Use domain language from [domain-specification.md](../../docs/domain-specification.md).
+
+## Finish checklist
+
+Before marking a feature task **done** when behaviour is user-visible:
+
+1. Update [feature-catalog.md](../../docs/feature-catalog.md) (routes and steps).
+2. Update README **Features** section (capability bullet).
+3. Update [domain-specification.md](../../docs/domain-specification.md) if vocabulary changed.
+
+## Related
+
+- Agent index: [AGENTS.md](../../AGENTS.md)
+- Feature routes: [feature-catalog.mdc](feature-catalog.mdc)
+- General docs: [documentation.mdc](documentation.mdc)
+- Docs sync subagent: [docs-sync.md](../agents/docs-sync.md)

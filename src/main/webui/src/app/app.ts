@@ -2,9 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { MatSelectModule } from '@angular/material/select';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { CreateTicketModalComponent } from './components/create-ticket-modal/create-ticket-modal.component';
 import { NotificationComponent } from './components/notification/notification.component';
@@ -15,8 +18,22 @@ import { Status, StatusService } from './services/status.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, FormsModule, NormalizePipe, MatButtonModule, MatDialogModule,
-    NotificationComponent, MatIconModule, MatMenuModule, RoleDirective],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    FormsModule,
+    NormalizePipe,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    NotificationComponent,
+    MatIconModule,
+    MatMenuModule,
+    RoleDirective
+  ],
   templateUrl: './app.html'
 })
 export class AppComponent implements OnInit {
@@ -26,14 +43,18 @@ export class AppComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
 
-  anyStatus: Status = { id: -1, name: "Todos" };
+  anyStatus: Status = { id: -1, name: 'Todos' };
   title = 'issues';
   searchTerm: string = '';
   statuses: Status[] = [this.anyStatus];
   selectStatus: Status = this.anyStatus;
 
+  compareStatus = (first: Status, second: Status): boolean => first?.id === second?.id;
+
   onSearchKeydown(event: KeyboardEvent) {
-    this.goToSearch(this.searchTerm.trim(), this.selectStatus);
+    if (event.key === 'Enter') {
+      this.goToSearch(this.searchTerm.trim(), this.selectStatus);
+    }
   }
 
   goToSearch(term: string, status: Status) {
