@@ -1,0 +1,40 @@
+---
+description: Angular SPA conventions for Issues frontend
+globs: "src/main/webui/**"
+alwaysApply: false
+---
+
+# Angular conventions
+
+## Structure
+
+- Components: `src/app/components/<feature>/` — `*.component.ts`, `*.html`, `*.scss`.
+- Services: `src/app/services/*.service.ts` — `providedIn: 'root'`.
+- Resolvers: `src/app/resolvers/*.resolver.ts`.
+- Routes: `src/app/app.routes.ts`.
+
+## HTTP
+
+- API calls through dedicated services (e.g. `ticket.service.ts`), not directly from components.
+- Attach JWT via `auth.interceptor.ts`.
+- Prefer environment/config for API base URL over scattering `localhost:8080` (tech debt: centralize when touching).
+
+## UI library
+
+- Angular Material for form controls, dialogs, navigation.
+- Chart.js via ng2-charts for dashboard widgets.
+
+## Tests
+
+- `*.spec.ts` alongside source; Karma/Jasmine.
+- Mock HTTP with `HttpClientTestingModule` in service tests.
+- Test component behaviour, not implementation details.
+
+## Naming
+
+- Selectors: `app-<kebab-case>` prefix.
+- Component class: `XxxComponent`; service: `XxxService`.
+
+## Domain language
+
+- UI labels should match [docs/domain-specification.md](../../docs/domain-specification.md) — Ticket, Project, Kanban, not generic "Item" or "Record".

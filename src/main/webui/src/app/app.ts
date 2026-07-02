@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   anyStatus: Status = { id: -1, name: "Todos" };
-  title = 'morphoboard';
+  title = 'issues';
   searchTerm: string = '';
   statuses: Status[] = [this.anyStatus];
   selectStatus: Status = this.anyStatus;

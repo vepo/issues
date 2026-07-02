@@ -1,0 +1,25 @@
+---
+description: Java import order and formatter alignment
+globs: "**/*.java"
+alwaysApply: true
+---
+
+# Format and imports
+
+## Formatter
+
+- Project config: [formatter.xml](../../formatter.xml)
+- Apply: `mvn formatter:format`
+
+## Import order
+
+1. `java.*`
+2. `jakarta.*` / `javax.*`
+3. Third-party (alphabetical)
+4. `dev.vepo.issues.*`
+
+## Rules
+
+- No unused imports.
+- No fully qualified names in code except name collisions.
+- Run `ReadLints` on edited Java files before finishing.

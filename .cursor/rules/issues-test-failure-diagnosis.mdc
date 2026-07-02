@@ -1,0 +1,48 @@
+---
+description: Classify test failures and write reports under reports/
+globs:
+  - 'src/test/**'
+  - 'target/surefire-reports/**'
+alwaysApply: false
+---
+
+# Test failure diagnosis
+
+When tests fail during development or via [fix_tests.md](../commands/fix_tests.md):
+
+## 1. Collect evidence
+
+- Surefire report: `target/surefire-reports/*.txt`
+- Console stack trace from `mvn test -Dtest=Class#method`
+
+## 2. Classify
+
+| Type | Signs | Action |
+|------|-------|--------|
+| Production bug | Wrong status, missing validation | Fix `src/main` |
+| Test bug | Wrong assertion, stale fixture | Fix test |
+| Data/setup | Missing seed, wrong `Given` | Fix test data |
+| Environment | DB, port, Quinoa | Fix config or document prerequisite |
+
+## 3. Fix one root cause at a time
+
+- Re-run single test: `mvn test -Dtest=ClassName#methodName`
+- Then class, then full `mvn test`
+
+## 4. Report template
+
+After fixing, write `reports/{NNN}-test-failure-{Class}-{method}-{timestamp}.md`:
+
+```markdown
+# Test failure report
+
+- **Test:** ClassName#methodName
+- **Root cause:** (one sentence)
+- **Fix:** (files changed)
+- **Verify:** mvn test -Dtest=... (pass)
+```
+
+## Rules
+
+- Domain spec wins over test expectation when behaviour is specified.
+- Never `@Disabled` or `Thread.sleep()` as fixes.

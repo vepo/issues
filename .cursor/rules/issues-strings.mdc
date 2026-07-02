@@ -1,0 +1,26 @@
+---
+description: String building — formatted and StringBuilder
+globs: "src/main/java/**/*.java"
+alwaysApply: false
+---
+
+# String building
+
+## Prefer
+
+1. `String.formatted(...)` or `"template %s".formatted(arg)` for simple interpolation.
+2. `StringBuilder` for loops or many append operations.
+
+## Avoid
+
+- `+` concatenation in production code (except trivial compile-time constants).
+
+```java
+// ✅
+var message = "Ticket %s moved to %s".formatted(identifier, statusName);
+
+// ❌
+var message = "Ticket " + identifier + " moved to " + statusName;
+```
+
+Test code may use either when readability is better.

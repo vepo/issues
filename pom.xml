@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>dev.vepo</groupId>
-    <artifactId>morpho-board</artifactId>
+    <artifactId>issues</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -16,7 +16,7 @@
         <quarkus.java.version>21</quarkus.java.version>
         
         <sonar.organization>vepo-github</sonar.organization>
-        <sonar.projectKey>vepo_morpho-board</sonar.projectKey>
+        <sonar.projectKey>vepo_issues</sonar.projectKey>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
         <sonar.coverage.jacoco.xmlReportPaths>

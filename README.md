@@ -1,6 +1,8 @@
-# Morpho Board
+# Issues
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vepo_morpho-board&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=vepo_morpho-board) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=vepo_morpho-board&metric=coverage)](https://sonarcloud.io/summary/new_code?id=vepo_morpho-board) 
+Agent entry point: [AGENTS.md](AGENTS.md) · Architecture: [ARCHITECTURE.md](ARCHITECTURE.md) · Domain language: [docs/domain-specification.md](docs/domain-specification.md)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vepo_issues&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=vepo_issues) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=vepo_issues&metric=coverage)](https://sonarcloud.io/summary/new_code?id=vepo_issues) 
 
 
 ## Vídeos
@@ -29,4 +31,4 @@
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=vepo/morpho-board&type=date&legend=top-left)](https://www.star-history.com/#vepo/morpho-board&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=vepo/issues&type=date&legend=top-left)](https://www.star-history.com/#vepo/issues&type=date&legend=top-left)

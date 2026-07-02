@@ -1,0 +1,41 @@
+---
+description: Keep dev-import.sql valid across Flyway schema changes
+globs: src/main/resources/dev-import.sql,src/main/resources/db/migration/*.sql
+alwaysApply: false
+---
+
+# dev-import.sql — schema change safety
+
+[`dev-import.sql`](../../src/main/resources/dev-import.sql) runs on **every** `%dev` startup via [`DatabaseDevSetup`](../../src/main/java/dev/vepo/issues/infra/DatabaseDevSetup.java), after Flyway applies migrations. **Any schema change must not break that script** — treat migration + `dev-import.sql` as one deliverable.
+
+## Protected baseline
+
+Dev personas used in tests and manual exploration:
+
+| Asset | Why |
+|-------|-----|
+| `admin@issues.vepo.dev` | Admin role, user CRUD tests |
+| `pm@issues.vepo.dev` | Project manager, project CRUD |
+| `user@issues.vepo.dev` | Default ticket workflows |
+| Sample project with prefix `ISS` | Kanban and ticket identifier tests |
+
+Do not delete these users or the primary sample project without updating tests and [feature-catalog.md](../../docs/feature-catalog.md).
+
+## When you change the schema (Flyway)
+
+Work through this list **in the same PR** as the migration:
+
+1. **Reset section** — Extend TRUNCATE/DELETE in FK-safe order for tables dev seed repopulates.
+2. **Seed section** — New `NOT NULL` columns or FKs require matching INSERT values.
+3. **Verify** — Restart `mvn quarkus:dev` and confirm `DatabaseDevSetup` runs without SQL errors.
+
+## TRUNCATE CASCADE trap
+
+PostgreSQL `TRUNCATE parent CASCADE` truncates every table with an FK to `parent`. Clear inbound FKs first, then delete children; never assume CASCADE stops at intended tables.
+
+## Quick checklist
+
+- [ ] Reset section covers new dev-populated tables
+- [ ] Inserts satisfy new NOT NULL and FK constraints
+- [ ] Protected dev personas still exist after reset
+- [ ] `%dev` startup completes with `dev-import.sql` executing successfully

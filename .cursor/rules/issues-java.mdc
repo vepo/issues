@@ -1,0 +1,41 @@
+---
+description: Java endpoint, repository, and entity conventions
+globs: "**/*.java"
+alwaysApply: false
+---
+
+# Java conventions
+
+## Import order
+
+1. `java.*` / `javax.*` / `jakarta.*`
+2. `io.quarkus.*`
+3. Third-party
+4. `dev.vepo.issues.*`
+
+## Style
+
+- Formatting: [issues-format-imports.mdc](issues-format-imports.mdc) — `formatter.xml`, no unused imports.
+- String building: [issues-strings.mdc](issues-strings.mdc) — `.formatted()` first; no `+` concatenation in production code.
+- **Type names:** PascalCase classes, records, enums.
+
+## `var`
+
+- Prefer `var` when the RHS type is clear. Keep explicit types on fields and public API signatures.
+
+## Logging
+
+- SLF4J only — never `System.out`.
+- One static logger per class: `LoggerFactory.getLogger(MyClass.class)`.
+- Parameterized messages; pass exception as last arg on `error`.
+- Do not log passwords or JWT tokens.
+
+## Entities
+
+- `jakarta.persistence`; table prefix `tb_`; `Long` ids.
+- Lazy associations by default; fetch in queries when needed for responses.
+
+## Exceptions
+
+- Domain errors: `IssuesException` in `infra`.
+- Map to HTTP via `IssuesWebExceptionMapper` / `IssuesServerExceptionMapper`.

@@ -1,0 +1,63 @@
+---
+description: Pillar 1 — domain model, architecture, packages, TDD vocabulary
+alwaysApply: true
+---
+
+# Building the model
+
+Canonical references: [ARCHITECTURE.md](../../ARCHITECTURE.md), [docs/domain-specification.md](../../docs/domain-specification.md).
+
+## Before any change
+
+1. Read **domain specification** (Ubiquitous Language) for ticket, workflow, project, or notification work.
+2. Read **ARCHITECTURE.md** §5 (package layout), §11 (naming), §12 (feature workflow).
+3. Follow patterns in the package you edit.
+
+## Domain vocabulary in code and tests
+
+- Use domain terms: `Ticket`, `Workflow`, `Transition`, `Subscriber`, `Identifier` — not `Data`, `ItemDTO`, `stateFlag`.
+- Test names: `shouldMoveTicketWhenTransitionIsValid()` — full narrative in [issues-tests.mdc](issues-tests.mdc).
+
+## Package placement
+
+| Change | Package |
+|--------|---------|
+| Auth, JWT, login | `auth` |
+| Users, roles | `user` |
+| Projects | `project` |
+| Workflows, statuses, transitions | `workflow` |
+| Tickets, comments, history | `ticket`, `ticket.*` |
+| Categories | `categories` |
+| SSE notifications | `notifications` |
+| Dashboard widgets | `dashboards` |
+| Email | `mailer` |
+| Cross-cutting HTTP/errors | `infra` |
+
+Bounded context rules: [issues-bounded-contexts.mdc](issues-bounded-contexts.mdc).
+
+## After model-affecting changes
+
+| Trigger | Update |
+|---------|--------|
+| New domain terms or invariants | [domain-specification.md](../../docs/domain-specification.md) |
+| New/changed UI route or flow | [feature-catalog.md](../../docs/feature-catalog.md) |
+| Structure, API surface, known gaps | [ARCHITECTURE.md](../../ARCHITECTURE.md) §13 |
+| User-facing docs | [documentation.mdc](documentation.mdc) |
+
+## Feature workflow
+
+Domain spec → correct package → **create tests** (TDD below) → tiered runs ([issues-testing.mdc](issues-testing.mdc)) → `mvn verify` ([issues-quality.mdc](issues-quality.mdc)).
+
+## TDD — development guidance
+
+Default for new behaviour: write a failing test before `src/main` changes. Delegate to [`.cursor/agents/`](../agents/) or invoke by name (`tdd-red`, `tdd-green`, `tdd-refactor`).
+
+| Phase | Subagent | Goal | Allowed | Forbidden |
+|-------|----------|------|---------|-----------|
+| **Red** | `tdd-red` | **Create** a failing test | New/updated test; domain-named methods | Production `src/main` changes |
+| **Green** | `tdd-green` | Minimal code to pass | Smallest `src/main` diff | New tests; refactors; scope creep |
+| **Refactor** | `tdd-refactor` | Improve design, tests green | Rename, extract, dedupe | Behaviour change |
+
+**Cycle:** Red (must fail) → Green (must pass) → Refactor → `mvn test` → repeat.
+
+Test layout: [issues-tests.mdc](issues-tests.mdc). Running tests: [issues-testing.mdc](issues-testing.mdc).

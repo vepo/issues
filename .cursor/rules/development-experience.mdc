@@ -1,0 +1,32 @@
+---
+description: Dev seed data and local explorability for every feature
+alwaysApply: true
+---
+
+# Development experience
+
+## Dev seed data
+
+- `src/main/resources/dev-import.sql` — sample users, projects, workflows, tickets.
+- Loaded in dev via `DatabaseDevSetup` when `%dev.quarkus.flyway.clean-at-start=true`.
+- Personas: see [docs/feature-catalog.md](../../docs/feature-catalog.md) § Dev personas.
+
+## Every feature must be explorable locally
+
+After adding a user-facing feature:
+
+1. Ensure dev seed or `Given` builders cover the happy path.
+2. Verify in `mvn quarkus:dev` — login as a dev persona and click through the flow.
+3. Update [docs/feature-catalog.md](../../docs/feature-catalog.md) with route and steps.
+
+## Dev commands
+
+```bash
+mvn quarkus:dev     # API :8080, Angular dev server :4200 via Quinoa
+```
+
+OpenAPI: `http://localhost:8080/openapi`
+
+## Safe changes to dev-import.sql
+
+Follow [dev-import-sql-safety.mdc](dev-import-sql-safety.mdc) when editing seed data.

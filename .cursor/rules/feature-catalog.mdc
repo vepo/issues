@@ -1,0 +1,26 @@
+---
+description: Keep feature-catalog.md in sync when routes or menu change
+alwaysApply: true
+---
+
+# Feature catalog maintenance
+
+[docs/feature-catalog.md](../../docs/feature-catalog.md) is the **canonical UI feature index**.
+
+## When to update
+
+| Trigger | Action |
+|---------|--------|
+| New Angular route | Add row with route, roles, happy-path steps |
+| Route removed or renamed | Update or remove row |
+| New menu entry or navigation path | Update step counts |
+| New dev persona in `dev-import.sql` | Update Dev personas table |
+
+## Do not duplicate
+
+Link to [ARCHITECTURE.md](../../ARCHITECTURE.md) for technical API detail. Feature catalog is for **click paths** and **roles**, not endpoint signatures.
+
+## Related
+
+- Agent index: [AGENTS.md](../../AGENTS.md)
+- Domain terms for UI labels: [domain-specification.md](../../docs/domain-specification.md)

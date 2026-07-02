@@ -1,0 +1,46 @@
+---
+description: Pillar 3 — coding standards, finish gate
+alwaysApply: true
+---
+
+# Coding quality and standards
+
+## Finish gate (before marking done)
+
+1. **Mid-task:** tiered tests per [issues-testing.mdc](issues-testing.mdc).
+2. **Backend scope:** affected `*Test` classes pass.
+3. **Full suite:** `mvn verify` — same as [`.github/workflows/build.yml`](../../.github/workflows/build.yml) backend portion.
+4. **Frontend scope:** `npm test` in `src/main/webui` when Angular files changed.
+5. **IDE:** `ReadLints` on edited paths — fix **new** warnings.
+
+Skip gates for docs-only, `.mdc`-only, or comment-only edits.
+
+## What to fix
+
+- Compile errors and test failures from `verify`.
+- New linter issues in touched files.
+- Smells you introduced: dead code, swallowed exceptions, `System.out` — see [issues-java.mdc](issues-java.mdc).
+
+Pre-existing issues elsewhere: fix only if trivial; no scope creep.
+
+## Do not finish while
+
+- `mvn verify` fails on backend changes you made.
+- New linter problems in files you changed.
+- Failing tests remain in touched code.
+
+## Standards (file-scoped detail)
+
+| Topic | Rule |
+|-------|------|
+| Java style, logging, `var`, streams | [issues-java.mdc](issues-java.mdc) |
+| Imports and formatting | [issues-format-imports.mdc](issues-format-imports.mdc) |
+| String building | [issues-strings.mdc](issues-strings.mdc) |
+| HTTP Request/Response records | [issues-http-contract.mdc](issues-http-contract.mdc) |
+| Layered architecture | [issues-layered-architecture.mdc](issues-layered-architecture.mdc) |
+| JPA / repositories | [issues-jpa.mdc](issues-jpa.mdc) |
+| Angular conventions | [issues-angular.mdc](issues-angular.mdc) |
+
+## Report to user
+
+Briefly note: tests run, `verify` result, linter status.

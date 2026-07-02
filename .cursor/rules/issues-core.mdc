@@ -1,0 +1,48 @@
+---
+description: Core Issues conventions (Quarkus REST + Angular SPA)
+alwaysApply: true
+---
+
+# Issues — core rules
+
+Follow [ARCHITECTURE.md](../../ARCHITECTURE.md) and existing code in the same package.
+
+## Stack
+
+- Quarkus REST + Hibernate ORM + PostgreSQL + Flyway.
+- Angular SPA via Quinoa (`src/main/webui/`).
+- JWT auth (SmallRye JWT); API base path `/api`.
+
+## Endpoints
+
+- `@ApplicationScoped` + `@Path`; suffix `*Endpoint`.
+- Constructor injection for repositories and services.
+- HTTP body types: Java `record`, suffix `Request` / `Response` — [issues-http-contract.mdc](issues-http-contract.mdc).
+- Response mapping: static `load()` factory on `*Response` records.
+- Security: `@DenyAll` on class + `@RolesAllowed` on methods for protected resources.
+
+## Data access
+
+- Repositories: `EntityManager` directly; `Optional` for single results; `@Transactional` on mutating methods — [issues-jpa.mdc](issues-jpa.mdc).
+- Non-trivial domain logic: `@ApplicationScoped` `*Service` (e.g. `TicketHistoryService`, `MailerService`).
+- Cross-cutting notifications: CDI events + SSE in `notifications`.
+
+## Frontend
+
+- Services in `src/main/webui/src/app/services/` — HTTP calls to `/api`.
+- Components by feature folder under `components/`.
+- Auth: `auth.guard.ts`, `auth.interceptor.ts` for Bearer token.
+
+## Never
+
+- `System.out.println` — use SLF4J.
+- Raw `VO`/`DTO` suffix on HTTP types.
+- Hardcode new API paths in multiple Angular files — centralize in services.
+
+## When adding a feature
+
+ARCHITECTURE.md §12 — domain spec → package → tests → endpoint → Angular service/component → feature catalog.
+
+## When fixing a test
+
+Understand failure first; fix production code or test data via `Given`. Do not weaken assertions.

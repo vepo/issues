@@ -1,6 +1,0 @@
----
-description: Always write unit tests
-globs: 
-alwaysApply: false
----
-- For each functionality, write an Unit Tests

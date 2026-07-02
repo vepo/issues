@@ -41,14 +41,14 @@ describe('UsersEditComponent', () => {
       id: 1,
       name: 'name',
       username: 'username',
-      email: 'name@morpho.io',
+      email: 'name@issues.vepo.dev',
       roles:['USER']
     }));
     mockUsersService.update.and.returnValue(of({
       id: 1,
       name: 'name',
       username: 'username',
-      email: 'name@morpho.io',
+      email: 'name@issues.vepo.dev',
       roles:['USER']
     }));
 

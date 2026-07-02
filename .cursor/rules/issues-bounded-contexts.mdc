@@ -1,0 +1,39 @@
+---
+description: Modular monolith bounded contexts and dependency rules
+alwaysApply: true
+---
+
+# Bounded contexts (modular monolith)
+
+Single Maven module; logical boundaries in `dev.vepo.issues.*`. Full table: [docs/domain-specification.md](../../docs/domain-specification.md) §Bounded contexts.
+
+## Context map
+
+| Context | Packages |
+|---------|----------|
+| Platform | `infra` |
+| Identity & access | `auth`, `user` |
+| Project administration | `project` |
+| Workflow configuration | `workflow` |
+| Ticket management | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business` |
+| Classification | `categories` |
+| Notifications | `notifications` |
+| Analytics | `dashboards` |
+| Email | `mailer` |
+
+## Dependency rules
+
+- Feature packages **may depend on** packages listed in the domain spec for that row.
+- **`infra`** must not contain domain logic — only cross-cutting HTTP, errors, dev setup.
+- **`..*Repository`** must not depend on `..*Endpoint` ([issues-layered-architecture.mdc](issues-layered-architecture.mdc)).
+- Cross-context reactions (notify on ticket move): CDI events or services in the owning context — not direct repository access across unrelated packages.
+
+## Enforcement
+
+`ArchitectureTest` enforces Request/Response naming and record usage. Extend with bounded-context ArchUnit rules when package boundaries stabilize.
+
+## When adding a feature
+
+1. Place code in the correct context package.
+2. Update domain spec if new vocabulary.
+3. Do not add domain imports to `infra` beyond what cross-cutting requires.

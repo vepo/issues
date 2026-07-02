@@ -2,13 +2,13 @@
 
 ## Overview
 
-This document describes the implementation of a comprehensive History Log system for all ticket changes in the Morpho Board application. The implementation includes a business layer for centralized history logging and covers all ticket operations.
+This document describes the implementation of a comprehensive History Log system for all ticket changes in the Issues application. The implementation includes a business layer for centralized history logging and covers all ticket operations.
 
 ## Architecture Changes
 
 ### 1. Business Layer Creation
 
-**New Package**: `dev.vepo.morphoboard.ticket.business`
+**New Package**: `dev.vepo.issues.ticket.business`
 
 **New Service**: `TicketHistoryService`
 - Centralized service for all history logging operations

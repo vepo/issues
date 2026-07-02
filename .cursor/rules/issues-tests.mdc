@@ -1,0 +1,54 @@
+---
+description: Backend test conventions — QuarkusTest, REST Assured, Given, ArchUnit
+globs: "src/test/**"
+alwaysApply: false
+---
+
+# Test conventions
+
+## Annotations
+
+- `@QuarkusTest` on REST integration tests.
+- Plain JUnit for unit tests (e.g. `TicketHistoryServiceTest`, `ArchitectureTest`).
+
+## REST Assured
+
+- Test HTTP via REST Assured against `@QuarkusTest` running app.
+- Authenticate with JWT from login endpoint or test helpers when needed.
+
+## Given builder
+
+- `Given` in `src/test/java/dev/vepo/issues/Given.java` — seed users, projects, tickets.
+- Prefer `Given` over duplicating SQL in each test.
+- Call cleanup when tests mutate shared state (if extended).
+
+## Domain narrative
+
+- Method names: `shouldMoveTicketWhenTransitionIsValid()`.
+- Structure: given context → when action → then assertion on domain outcome.
+- Meaningful assertions — not `isNotNull()` alone.
+
+## Architecture tests
+
+- Run `ArchitectureTest` when adding/changing `*Request`/`*Response` or endpoints.
+
+## Forbidden
+
+- `@Disabled` to hide failures.
+- `Thread.sleep()` — use Awaitility for async/SSE if needed.
+- Weakening assertions to force green.
+
+## Example
+
+```java
+@Test
+void shouldCreateTicketWithProjectPrefixIdentifier() {
+    var project = Given.aProjectWithPrefix("ISS");
+    var response = given()
+        .body(new CreateTicketRequest(project.id(), "Title", "Desc", null))
+        .when().post("/api/tickets")
+        .then().statusCode(200)
+        .extract().as(TicketResponse.class);
+    assertThat(response.identifier()).startsWith("ISS-");
+}
+```

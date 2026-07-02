@@ -1,7 +1,0 @@
----
-description: Avoid VO, DTO suffix
-globs: 
-alwaysApply: false
----
-- DO NOT USE 'VO' as prefix for class name.
-- Use 'Request'/'Response' as prefix, it it is used for HTTP 

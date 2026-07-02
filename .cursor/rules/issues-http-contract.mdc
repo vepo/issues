@@ -1,0 +1,39 @@
+---
+description: HTTP Request/Response record conventions; no VO/DTO suffix
+globs:
+  - 'src/main/java/**/*Endpoint.java'
+  - 'src/main/java/**/*Request.java'
+  - 'src/main/java/**/*Response.java'
+alwaysApply: false
+---
+
+# HTTP contract
+
+Enforced by `ArchitectureTest` (ArchUnit).
+
+## Naming
+
+- **Request** — HTTP body or complex input: `CreateTicketRequest`, `MoveTicketRequest`.
+- **Response** — HTTP output: `TicketResponse`, `TicketExpandedResponse`.
+- **Never** use `VO`, `DTO`, or `Vo` prefix/suffix.
+
+## Shape
+
+- All `*Request` and `*Response` types MUST be Java `record`.
+- Endpoint public methods return `*Response`, `List<*Response>`, `Set<*Response>`, `Response`, or SSE `Event`.
+- Endpoint body parameters (non-path/query) MUST be `*Request` records.
+
+## Mapping
+
+- Response records expose static factory: `TicketResponse.load(Ticket ticket)`.
+- Nested response records allowed inside endpoints when local to that endpoint.
+
+## Examples
+
+```java
+public record CreateTicketRequest(long projectId, String title, String description, Long categoryId) {}
+
+public record TicketResponse(long id, String identifier, String title) {
+    public static TicketResponse load(Ticket ticket) { ... }
+}
+```

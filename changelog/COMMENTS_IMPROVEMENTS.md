@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este documento descreve as melhorias implementadas na funcionalidade de comentários do Morpho Board, incluindo a correção de bugs e a implementação de um Rich Text Editor customizado.
+Este documento descreve as melhorias implementadas na funcionalidade de comentários do Issues, incluindo a correção de bugs e a implementação de um Rich Text Editor customizado.
 
 ## Problemas Identificados e Soluções
 

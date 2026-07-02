@@ -10,7 +10,7 @@ This project is currently in active development and does not have any official r
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in this project, please report it by opening a new issue in our [GitHub Issues](https://github.com/vepo/morpho-board/issues) page.
+If you discover a security vulnerability in this project, please report it by opening a new issue in our [GitHub Issues](https://github.com/vepo/issues/issues) page.
 
 ### What to include in your report:
 - A clear description of the vulnerability

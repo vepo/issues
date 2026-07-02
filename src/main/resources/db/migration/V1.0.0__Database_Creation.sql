@@ -147,4 +147,4 @@ CREATE TABLE tb_password_reset_tokens (
 
 
 -- Usuário com apenas a role ADMIN
-INSERT INTO tb_users (username, name, email, encoded_password, roles) VALUES ('admin', 'System Administrator', 'sysadmin@morpho-board.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{ADMIN}');
+INSERT INTO tb_users (username, name, email, encoded_password, roles) VALUES ('admin', 'System Administrator', 'sysadmin@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{ADMIN}');

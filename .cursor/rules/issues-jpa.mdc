@@ -1,0 +1,30 @@
+---
+description: JPA EntityManager repository conventions
+globs: "*Repository.java"
+alwaysApply: false
+---
+
+# JPA / repositories
+
+## Pattern
+
+- `@ApplicationScoped` class named `XxxRepository`.
+- Inject `EntityManager` — **only** in repository classes.
+- `@Transactional` on mutating methods (`persist`, `merge`, `delete`, bulk updates).
+
+## Queries
+
+1. **Criteria API** — dynamic filters (search, optional params).
+2. **JPQL** — static queries with named parameters.
+3. **Native SQL** — last resort; document why in a brief comment.
+
+## Results
+
+- Single entity: return `Optional<Xxx>`.
+- Lists: return `List<Xxx>`; apply ordering in query.
+- Exclude soft-deleted tickets in search/list queries (`deleted = false`).
+
+## Never
+
+- Business rules in repository (workflow validation belongs in endpoint/service).
+- Fire CDI events from repository.

@@ -1,0 +1,57 @@
+---
+description: Layered architecture — Endpoint, Service, Repository responsibilities
+alwaysApply: true
+---
+
+# Layered architecture
+
+Follow [ARCHITECTURE.md](../../ARCHITECTURE.md) §6. Dependencies flow **downward only**:
+
+```
+*Endpoint  →  *Service (when needed)  →  *Repository  →  database
+```
+
+## *Endpoint — HTTP boundary
+
+- `@ApplicationScoped` + `@Path`; handle requests, auth gates, status codes, JSON serialization.
+- Map path/query/body to domain calls; return `*Response` records.
+- **May** inject `*Repository` for trivial read-only lookups with no business rules.
+- **Must** inject `*Service` when logic spans entities, enforces invariants, fires CDI events, or coordinates writes.
+
+## *Service — business logic
+
+- `@ApplicationScoped`; name `XxxService`.
+- Orchestrate repositories, apply domain rules, fire events.
+- **Inject** `*Repository`; **never** `EntityManager` directly.
+- **Never** depend on `*Endpoint` or JAX-RS types.
+
+## *Repository — persistence
+
+- One per entity; `@ApplicationScoped`; name `XxxRepository`.
+- `EntityManager` **only** here; queries and persistence only — **no** business rules or HTTP concerns.
+- **Never** inject `*Service` or `*Endpoint`.
+
+## When adding a feature
+
+1. Entity (if new table) + Flyway migration.
+2. `XxxRepository`.
+3. `XxxService` when logic is non-trivial.
+4. `XxxEndpoint` with `*Request`/`*Response` records.
+5. Angular service + component if user-facing.
+
+## Violations — refactor toward layers
+
+```java
+// ❌ Endpoint with audit logging inline
+@POST
+public TicketResponse create(CreateTicketRequest request) {
+    ticketRepository.persist(ticket);
+    historyRepository.persist(new TicketHistory(...));
+}
+
+// ✅ Endpoint delegates to service
+@POST
+public TicketResponse create(CreateTicketRequest request) {
+    return ticketHistoryService.createTicket(request);
+}
+```

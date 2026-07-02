@@ -1,0 +1,56 @@
+---
+description: Run local static analysis and fix new issues before finishing a task
+alwaysApply: true
+---
+
+# Static analysis — finish checklist
+
+Before marking a coding task **done**, run **local** checks only (no SonarCloud tokens required for the gate).
+
+## When to run
+
+- After production or test code changes (Java, SQL migrations, TypeScript you edited).
+- Skip for docs-only, `.mdc` rules-only, or comment-only edits.
+
+## Required commands
+
+Primary gate — align with [`.github/workflows/build.yml`](../../.github/workflows/build.yml):
+
+```bash
+mvn verify
+```
+
+When Angular files changed, also run:
+
+```bash
+cd src/main/webui && npm test -- --no-watch --browsers=ChromeHeadless
+```
+
+Formatting (optional, faster feedback):
+
+```bash
+mvn formatter:format
+```
+
+## IDE diagnostics
+
+On changed source files, run `ReadLints` and fix **new** errors and warnings in paths you touched.
+
+## What to fix
+
+1. Compile errors and test failures from `verify`.
+2. Formatting violations — `formatter.xml` via [issues-format-imports.mdc](issues-format-imports.mdc).
+3. **New** linter warnings in edited files.
+4. Obvious smells you introduced — align with [issues-java.mdc](issues-java.mdc) and [issues-core.mdc](issues-core.mdc).
+
+Pre-existing issues in unrelated files: fix only if trivial; do not scope-creep.
+
+## Do not finish while
+
+- `mvn verify` fails on your branch.
+- Linter reports new problems in files you changed.
+- You knowingly left failing tests in touched code.
+
+## Report to the user
+
+When wrapping up, briefly note: `verify` (pass / fail fixed), formatter (ok / applied), linter (clean / issues fixed).

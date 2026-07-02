@@ -1,0 +1,64 @@
+---
+description: Pillar 2 — tiered test execution, impact map, failure workflow
+alwaysApply: true
+---
+
+# Testing
+
+Run the **smallest scope that catches your regression** after substantive edits. Full gate: `mvn verify` once before marking done — see [issues-quality.mdc](issues-quality.mdc).
+
+## Tiered ladder
+
+| When | Command |
+|------|---------|
+| Trivial / compile-only edit | Skip until next substantive change |
+| One backend package edited | Single test class or `mvn test -Dtest=ClassName` |
+| REST endpoint changed | Related `*EndpointTest` + `ArchitectureTest` if DTOs changed |
+| Angular component/service changed | `cd src/main/webui && npm test -- --include='**/affected.spec.ts'` |
+| Task done (backend) | `mvn verify` |
+| Task done (full-stack) | `mvn verify` + Angular tests (CI runs both) |
+
+```bash
+# All backend tests
+mvn test
+
+# Single test
+mvn test -Dtest=TicketEndpointTest#methodName
+
+# Architecture rules
+mvn test -Dtest=ArchitectureTest
+
+# Frontend (headless)
+cd src/main/webui && npm test -- --no-watch --browsers=ChromeHeadless
+
+# Dev mode (manual)
+mvn quarkus:dev
+```
+
+## Impact map
+
+| You changed | Run |
+|-------------|-----|
+| `ticket/*` | `TicketEndpointTest`, `TicketHistoryServiceTest` |
+| `auth/*`, `user/*` | `AuthenticationEndpointTest`, `UserEndpointTest` |
+| `project/*` | `ProjectEndpointTest` |
+| `workflow/*` | `WorkflowEndpointTest` |
+| `*Request`/`*Response` records | `ArchitectureTest` + affected endpoint tests |
+| Angular service | Matching `*.service.spec.ts` |
+| Angular component | Matching `*.component.spec.ts` |
+
+Detail: [issues-tests.mdc](issues-tests.mdc).
+
+TDD development guidance: [issues-model.mdc](issues-model.mdc) § TDD.
+
+## When tests fail
+
+1. Re-run smallest repro — [issues-test-failure-diagnosis.mdc](issues-test-failure-diagnosis.mdc).
+2. Do not loop full `mvn verify` per fix.
+3. After green: one report under `reports/` per that rule.
+
+## Infra to reuse
+
+- `Given` builder in `src/test/java/dev/vepo/issues/Given.java` for seed users, projects, tickets.
+- REST Assured with `@QuarkusTest` — not ad-hoc HTTP clients in tests.
+- No `Thread.sleep()` — use Awaitility if async timing is needed.

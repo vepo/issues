@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este documento descreve a implementação do suporte a comentários na página de visualização de ticket do Morpho Board. A implementação inclui um sistema de abas para separar o histórico de alterações dos comentários, mantendo o padrão visual da aplicação.
+Este documento descreve a implementação do suporte a comentários na página de visualização de ticket do Issues. A implementação inclui um sistema de abas para separar o histórico de alterações dos comentários, mantendo o padrão visual da aplicação.
 
 ## Funcionalidades Implementadas
 
