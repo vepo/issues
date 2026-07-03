@@ -24,6 +24,7 @@ describe('KanbanComponent', () => {
     description: 'Test Description',
     prefix: 'PRJ',
     workflow: { id: 1, name: 'Waterfall' },
+    owner: { id: 1, name: 'Owner', email: 'owner@issues.vepo.dev' },
     ticketTemplate: { enabled: false },
     phaseTemplate: { deliverables: [] },
   } as Project;

@@ -8,8 +8,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+import java.util.UUID;
+
+import dev.vepo.issues.Given;
+import dev.vepo.issues.auth.PasswordEncoder;
 import dev.vepo.issues.project.ProjectResponse;
 import dev.vepo.issues.project.ProjectTestFixtures;
+import dev.vepo.issues.user.Role;
+import dev.vepo.issues.user.User;
+import dev.vepo.issues.user.UserRepository;
 import dev.vepo.issues.workflow.WorkflowResponse;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -206,5 +214,55 @@ class UpdateProjectEndpointTest {
                .body("ticketTemplate.enabled", is(false))
                .body("ticketTemplate.title", equalTo(null))
                .body("ticketTemplate.categoryId", equalTo(null));
+    }
+
+    @Test
+    @DisplayName("Project owner can transfer ownership to another project manager")
+    void shouldTransferProjectOwnership() {
+        var suffix = UUID.randomUUID().toString().substring(0, 6);
+        var createdProject = given().header(pmAuthenticatedHeader)
+                                    .accept(ContentType.JSON)
+                                    .when()
+                                    .contentType(ContentType.JSON)
+                                    .body("""
+                                          {
+                                              "name": "Transfer Project %s",
+                                              "description": "Ownership transfer test.",
+                                              "prefix": "TR%s",
+                                              "workflowId": %d
+                                          }""".formatted(suffix, suffix.substring(0, 2), workflow.id()))
+                                    .post("/api/projects")
+                                    .then()
+                                    .statusCode(201)
+                                    .extract()
+                                    .as(ProjectResponse.class);
+
+        var newOwnerId = Given.transaction(() -> {
+            var email = "new-owner-" + suffix + "@issues.vepo.dev";
+            return Given.inject(UserRepository.class)
+                        .save(new User("pm-" + suffix,
+                                       "New Owner",
+                                       email,
+                                       Given.inject(PasswordEncoder.class).hashPassword("password"),
+                                       Set.of(Role.PROJECT_MANAGER)))
+                        .getId();
+        });
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Transfer Project %s",
+                         "description": "Ownership transfer test.",
+                         "prefix": "TR%s",
+                         "workflowId": %d,
+                         "ownerId": %d
+                     }""".formatted(suffix, suffix.substring(0, 2), workflow.id(), newOwnerId))
+               .post("/api/projects/" + createdProject.id())
+               .then()
+               .statusCode(201)
+               .body("owner.id", is(newOwnerId.intValue()));
     }
 }

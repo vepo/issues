@@ -17,7 +17,9 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(ProjectPaths.BASE)
 @ApplicationScoped
@@ -37,7 +39,7 @@ public class ListProjectsEndpoint {
     @GET
     @RolesAllowed({ Role.PROJECT_MANAGER_ROLE, Role.ADMIN_ROLE, Role.USER_ROLE })
     @Operation(operationId = "listProjects", summary = "List all projects")
-    public List<ProjectResponse> listAll() {
-        return projectService.listAll();
+    public List<ProjectResponse> listAll(@Context SecurityContext securityContext) {
+        return projectService.listAll(securityContext.getUserPrincipal().getName());
     }
 }

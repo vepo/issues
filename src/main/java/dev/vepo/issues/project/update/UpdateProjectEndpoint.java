@@ -19,7 +19,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(ProjectPaths.BASE)
 @ApplicationScoped
@@ -41,7 +43,9 @@ public class UpdateProjectEndpoint {
     @ResponseStatus(201)
     @RolesAllowed(Role.PROJECT_MANAGER_ROLE)
     @Operation(operationId = "updateProject", summary = "Update a project")
-    public ProjectResponse update(@PathParam("projectId") Long projectId, @Valid CreateProjectRequest request) {
-        return projectService.update(projectId, request);
+    public ProjectResponse update(@PathParam("projectId") Long projectId,
+                                  @Valid CreateProjectRequest request,
+                                  @Context SecurityContext securityContext) {
+        return projectService.update(projectId, request, securityContext.getUserPrincipal().getName());
     }
 }

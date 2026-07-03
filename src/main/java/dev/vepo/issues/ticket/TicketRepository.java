@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -144,6 +146,96 @@ public class TicketRepository {
                               WHERE t.deleted = false AND t.phase.id = :phaseId
                               """, Ticket.class)
                  .setParameter("phaseId", phaseId)
+                 .getResultStream();
+    }
+
+    public Stream<Ticket> findOpenTicketsInProjects(Collection<Long> projectIds) {
+        if (projectIds == null || projectIds.isEmpty()) {
+            return Stream.empty();
+        }
+        return em.createQuery("""
+                              SELECT t FROM Ticket t
+                              WHERE t.deleted = false
+                              AND t.project.id IN :projectIds
+                              AND NOT EXISTS (
+                                  SELECT 1 FROM WorkflowFinishStatus fs
+                                  WHERE fs.id.workflowId = t.project.workflow.id
+                                  AND fs.id.statusId = t.status.id
+                              )
+                              ORDER BY t.updatedAt DESC
+                              """, Ticket.class)
+                 .setParameter("projectIds", projectIds)
+                 .getResultStream();
+    }
+
+    public Stream<Ticket> findOpenAssignedTicketsInProjects(long assigneeId, Collection<Long> projectIds) {
+        if (projectIds == null || projectIds.isEmpty()) {
+            return Stream.empty();
+        }
+        return em.createQuery("""
+                              SELECT t FROM Ticket t
+                              WHERE t.deleted = false
+                              AND t.assignee.id = :assigneeId
+                              AND t.project.id IN :projectIds
+                              AND NOT EXISTS (
+                                  SELECT 1 FROM WorkflowFinishStatus fs
+                                  WHERE fs.id.workflowId = t.project.workflow.id
+                                  AND fs.id.statusId = t.status.id
+                              )
+                              ORDER BY t.updatedAt DESC
+                              """, Ticket.class)
+                 .setParameter("assigneeId", assigneeId)
+                 .setParameter("projectIds", projectIds)
+                 .getResultStream();
+    }
+
+    public long countOpenAssignedTickets(long projectId, long userId) {
+        return em.createQuery("""
+                              SELECT COUNT(t) FROM Ticket t
+                              WHERE t.deleted = false
+                              AND t.project.id = :projectId
+                              AND t.assignee.id = :userId
+                              AND NOT EXISTS (
+                                  SELECT 1 FROM WorkflowFinishStatus fs
+                                  WHERE fs.id.workflowId = t.project.workflow.id
+                                  AND fs.id.statusId = t.status.id
+                              )
+                              """, Long.class)
+                 .setParameter("projectId", projectId)
+                 .setParameter("userId", userId)
+                 .getSingleResult();
+    }
+
+    public Stream<Ticket> findOpenAssignedTickets(long projectId, long userId) {
+        return findOpenAssignedTicketsInProjects(userId, Collections.singleton(projectId));
+    }
+
+    public Stream<TicketHistory> findRecentStatusChangesInProjects(Collection<Long> projectIds) {
+        if (projectIds == null || projectIds.isEmpty()) {
+            return Stream.empty();
+        }
+        return em.createQuery("""
+                              SELECT h FROM TicketHistory h
+                              WHERE h.action = dev.vepo.issues.ticket.history.TicketHistoryAction.STATUS_CHANGED
+                              AND h.ticket.deleted = false
+                              AND h.ticket.project.id IN :projectIds
+                              ORDER BY h.timestamp DESC, h.id DESC
+                              """, TicketHistory.class)
+                 .setParameter("projectIds", projectIds)
+                 .getResultStream();
+    }
+
+    public Stream<Comment> findRecentCommentsInProjects(Collection<Long> projectIds) {
+        if (projectIds == null || projectIds.isEmpty()) {
+            return Stream.empty();
+        }
+        return em.createQuery("""
+                              SELECT c FROM Comment c
+                              WHERE c.ticket.deleted = false
+                              AND c.ticket.project.id IN :projectIds
+                              ORDER BY c.createdAt DESC, c.id DESC
+                              """, Comment.class)
+                 .setParameter("projectIds", projectIds)
                  .getResultStream();
     }
 

@@ -7,10 +7,12 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Login | `/login` | public | Open app → enter email/password → submit → redirect home |
 | Password reset request | `/login/reset-password` | public | Login → "Forgot password" → enter email → submit |
 | Password reset confirm | `/login/reset-password/:token` | public | Open email link → enter new password twice → submit → login |
-| Home | `/` | authenticated | Login → land on home |
+| Home | `/` | authenticated | Login → land on personal hub: **Tickets atuais**, **Tickets atribuídos**, **Atividade** (static snapshot) |
+| Project hub | `/projects/:projectId` | authenticated (project member or admin) | Home → click project name → hub with **Kanban**, **Painel**; owner PM or admin also see **Editar** and **Alocação** |
+| Project allocation | `/projects/:projectId/allocation` | project owner PM, admin | Project hub → **Alocação** → list members → add user → remove (blocked when member has open assigned tickets; UI lists those tickets) |
 | Account settings | `/account/settings` | authenticated | Menu → Conta → view profile → change password (current + new) or use recovery link |
-| Kanban board | `/project/:projectId/kanban` | authenticated | Home → select project → view columns by status → drag/move ticket; **filter by phase** (all / active / unplanned / **pick any phase**); phase badge on cards |
-| Project dashboard | `/project/:projectId/dashboard` | authenticated | Home → select project → dashboard shows default widgets on first visit; Editar layout to customize |
+| Kanban board | `/project/:projectId/kanban` | authenticated (project member or admin) | Project hub → **Kanban** → view columns by status → drag/move ticket; **filter by phase** (all / active / unplanned / **pick any phase**); phase badge on cards |
+| Project dashboard | `/project/:projectId/dashboard` | authenticated (project member or admin) | Project hub → **Painel** → dashboard shows default widgets on first visit; Editar layout to customize |
 | Version catalog | `/project/:projectId/versions` | authenticated | Kanban → Versões → list SemVer labels → open changelog |
 | Create version | `/project/:projectId/versions/new` | project-manager, admin | Versões → Nova versão → enter SemVer label + description → save |
 | Version detail / changelog | `/project/:projectId/versions/:versionId` | authenticated | Versões → select version → view grouped changelog (Planejado / Entregue / Via fase); PM can edit label |
@@ -26,9 +28,9 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | User list | `/users` | admin | Menu → users → list |
 | Create user | `/users/new` | admin | Users → new → fill form → save |
 | Edit user | `/users/:userId` | admin | Users → select user → edit → save |
-| Project list | `/projects` | project-manager+ | Menu → projects → list |
-| Create project | `/projects/new` | project-manager | Projects → new → fill form (optional ticket template) → save |
-| Edit project | `/projects/:projectId` | project-manager | Projects → select project → edit template/workflow/**phase template** → save |
+| Project list | `/projects` | project-manager, admin | Menu → projects → list (scoped: owned projects for PM; all for admin) |
+| Create project | `/projects/new` | project-manager | Projects → new → fill form (optional ticket template; creator becomes owner and member) → save |
+| Edit project | `/projects/:projectId/edit` | project owner PM, admin | Project hub → **Editar** → update fields and **owner** (admin or current owner) → save |
 | Workflow list | `/workflows` | project-manager, admin | Menu → Administração → Processos → list workflows → Editar |
 | Create workflow | `/workflows/new` | project-manager, admin | Workflows → Novo processo → status table + transitions table → save |
 | Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, start status, transitions (status names fixed) |

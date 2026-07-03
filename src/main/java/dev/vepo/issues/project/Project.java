@@ -1,6 +1,7 @@
 package dev.vepo.issues.project;
 
 import dev.vepo.issues.ticket.TicketPriority;
+import dev.vepo.issues.user.User;
 import dev.vepo.issues.workflow.Workflow;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -40,6 +41,10 @@ public class Project {
     @JoinColumn(name = "workflow_id", nullable = false)
     private Workflow workflow;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
     @Column(name = "ticket_template_enabled", nullable = false)
     private boolean ticketTemplateEnabled;
 
@@ -65,11 +70,12 @@ public class Project {
 
     public Project() {}
 
-    public Project(String prefix, String name, String description, Workflow workflow) {
+    public Project(String prefix, String name, String description, Workflow workflow, User owner) {
         this.prefix = prefix;
         this.name = name;
         this.description = description;
         this.workflow = workflow;
+        this.owner = owner;
         this.ticketTemplateEnabled = false;
     }
 
@@ -111,6 +117,14 @@ public class Project {
 
     public void setWorkflow(Workflow workflow) {
         this.workflow = workflow;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public boolean isTicketTemplateEnabled() {

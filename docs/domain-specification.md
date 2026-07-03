@@ -178,7 +178,11 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | **Recent tickets** | Table of latest tickets. | `recent-tickets` |
 | **Performance KPI** | Summary metrics for project throughput. | `performance-kpi` |
 | **Search** | Full-text ticket search across projects. | `/search`, `GET /tickets/search` |
-| **Home screen** | Post-login hub at `/` with **Tickets atuais**, **Tickets atribuídos**, and **Atividade**. | `home.component`; not the project picker |
+| **Query language** | Issues-native **plain text** search syntax, parsed with **ANTLR**; inspired by Jira JQL — **not JQL-compatible**; field predicates over tickets and comments. | `POST /tickets/search/query`; `TicketQuery.g4` — *planned (ticket-search v2)* |
+| **Saved query** | Named, persisted query text owned by a user; shareable via stable URL slug; optional **show at home** flag. | `tb_saved_queries`; `/search/q/:slug`, `/search/queries` — *planned (ticket-search v2)* |
+| **Show at home** (saved query) | When enabled on edit, owned saved query renders as a ticket table section on the home screen. | Home `/` — *planned (ticket-search v2)* |
+| **Clone saved query** | Non-owner copies another user's saved query into a new owned query (required before edit). | `POST …/saved-queries/{id}/clone` — *planned (ticket-search v2)* |
+| **Home screen** | Post-login hub at `/` with **Tickets atuais**, **Tickets atribuídos**, **Atividade**, and owned **saved query** sections. | `home.component`; not the project picker |
 | **Tickets atuais** (home) | All open (non-finished) tickets in the user's scope: member projects, or all projects for admin/project-manager. | Home section |
 | **Tickets atribuídos** (home) | Open tickets in scope where the current user is **assignee**. | Home section |
 | **Home activity** | Static snapshot of recent comments and status changes on tickets in scope; loaded once per visit (no SSE). | Home **Atividade** section |
@@ -216,6 +220,10 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 27. **Home scope** — `user` role: home lists and activity include **member** projects only. **Project owner:** owned projects. **Admin:** all projects.
 28. **Project hub access** — any **project member** (and admin) may open the project hub and navigate to Kanban and dashboard; project edit and allocation require project owner or admin.
 29. **Ticket search** — global across projects for any authenticated user; not filtered by membership.
+30. **Saved query ownership** — each saved query has exactly one **owner**; only the owner may update or delete. Non-owners must **clone** another user's query before editing. — *planned (ticket-search v2)*
+31. **Show at home** — optional per saved query (`show_at_home`); when enabled, the owner's query appears as a home section (one section per flagged query; snapshot per visit). — *planned (ticket-search v2)*
+32. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter. — *planned (ticket-search v2)*
+33. **Search indexing** — PostgreSQL **`tsvector` + GIN** indexes support text search on ticket and comment fields at scale. — *planned (ticket-search v2)*
 
 ---
 

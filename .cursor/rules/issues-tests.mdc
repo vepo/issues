@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Test conventions
 
-Part of [development-process.mdc](development-process.mdc) phase 4. Every approved task must have corresponding tests listed in the feature changelog **Test coverage** table before the entry is marked `done`.
+Part of [development-process.mdc](development-process.mdc) phase 5. Every approved task must have corresponding tests listed in the feature changelog **Test coverage** table before the entry is marked `done`.
 
 ## Annotations
 

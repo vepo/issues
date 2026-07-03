@@ -16,7 +16,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(ProjectPaths.BASE)
 @ApplicationScoped
@@ -37,7 +39,7 @@ public class FindProjectByIdEndpoint {
     @Path("{projectId}")
     @RolesAllowed({ Role.PROJECT_MANAGER_ROLE, Role.ADMIN_ROLE, Role.USER_ROLE })
     @Operation(operationId = "findProjectById", summary = "Find project by ID")
-    public ProjectResponse findById(@PathParam("projectId") long projectId) {
-        return projectService.findById(projectId);
+    public ProjectResponse findById(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) {
+        return projectService.findById(projectId, securityContext.getUserPrincipal().getName());
     }
 }

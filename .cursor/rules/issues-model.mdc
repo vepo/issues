@@ -9,8 +9,8 @@ Canonical references: [ARCHITECTURE.md](../../ARCHITECTURE.md), [docs/domain-spe
 
 ## Before any change
 
-1. **Development process** — follow [development-process.mdc](development-process.mdc): feature analysis → task break → user approval → TDD. **No `src/main` or `src/test` changes before approval.**
-2. **Feature analysis** — create or update `feature/<feature-slug>.md` per [change-request-analysis.mdc](change-request-analysis.mdc); maintain **Wireframe** and **Feature checklist**.
+1. **Development process** — follow [development-process.mdc](development-process.mdc): feature analysis → architecture design → task break → user approval → TDD. **No `src/main` or `src/test` changes before approval.**
+2. **Feature analysis** — create or update `feature/<feature-slug>.md` per [change-request-analysis.mdc](change-request-analysis.mdc); maintain **Wireframe**, **Feature checklist**, and **Architecture** ([architecture-design.mdc](architecture-design.mdc)).
 3. Read **domain specification** (Ubiquitous Language) for ticket, workflow, project, or notification work.
 4. Read **ARCHITECTURE.md** §5 (package layout), §11 (naming), §12 (feature workflow).
 5. Follow patterns in the package you edit.
@@ -49,13 +49,13 @@ Bounded context rules: [issues-bounded-contexts.mdc](issues-bounded-contexts.mdc
 
 ## Feature workflow
 
-[development-process.mdc](development-process.mdc): feature analysis → task break → **explicit task approval** → TDD (per approved task) → tiered runs ([issues-testing.mdc](issues-testing.mdc)) → **Feature checklist recheck** → `mvn verify` ([issues-quality.mdc](issues-quality.mdc)).
+[development-process.mdc](development-process.mdc): feature analysis → architecture design → task break → **explicit task approval** → TDD (per approved task) → tiered runs ([issues-testing.mdc](issues-testing.mdc)) → **Feature checklist recheck** → `mvn verify` ([issues-quality.mdc](issues-quality.mdc)).
 
-**Answering Q*n* is not approval.** After open questions are resolved, stop and wait for the user to approve task IDs before editing `src/main` or `src/test`.
+**Answering FQ/AQ is not approval.** After open questions are resolved, stop and wait for the user to approve task IDs before editing `src/main` or `src/test`.
 
-## TDD — mandatory in phase 4
+## TDD — mandatory in phase 5
 
-**Required** for every approved task. Write a failing test before `src/main` changes. The changelog **Test coverage** checklist must be complete and the **Feature checklist** rechecked before marking the entry `done` — see [development-process.mdc](development-process.mdc) § Phase 4.
+**Required** for every approved task. Write a failing test before `src/main` changes. The changelog **Test coverage** checklist must be complete and the **Feature checklist** rechecked before marking the entry `done` — see [development-process.mdc](development-process.mdc) § Phase 5.
 
 Delegate to [`.cursor/agents/`](../agents/) or invoke by name (`tdd-red`, `tdd-green`, `tdd-refactor`).
 

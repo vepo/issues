@@ -8,8 +8,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Category } from '../../services/category.service';
-import { CreateOrUpdateProjectRequest, ProjectsService } from '../../services/projects.service';
+import { CreateOrUpdateProjectRequest, Project, ProjectsService } from '../../services/projects.service';
+import { User, UsersService } from '../../services/users.service';
 import { Workflow } from '../../services/workflow.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-project-edit.component',
@@ -19,6 +21,8 @@ import { Workflow } from '../../services/workflow.service';
 export class ProjectEditComponent implements OnInit, OnDestroy {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly projectsService = inject(ProjectsService);
+  private readonly usersService = inject(UsersService);
+  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   private templateEnabledSubscription?: Subscription;
@@ -27,6 +31,8 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
   projectId: number | null = null;
   workflows: Workflow[] = [];
   categories: Category[] = [];
+  projectManagers: User[] = [];
+  showOwnerPicker = false;
   readonly priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
 
   projectForm = new FormGroup({
@@ -41,6 +47,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
     templatePriority: new FormControl<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('MEDIUM'),
     phaseTemplateObjective: new FormControl(''),
     phaseTemplateDeliverables: new FormControl(''),
+    ownerId: new FormControl<number | null>(null),
   });
 
   ngOnInit(): void {
@@ -56,11 +63,19 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
 
       if (project) {
         const template = project.ticketTemplate;
+        const owner = (project as Project & { owner?: { id: number } }).owner;
+        this.showOwnerPicker = this.canPickOwner(owner?.id);
+        if (this.showOwnerPicker) {
+          this.usersService.search({ name: '', email: '', roles: ['project-manager'] }).subscribe(users => {
+            this.projectManagers = users;
+          });
+        }
         this.projectForm.patchValue({
           name: project.name,
           description: project.description ?? '',
           prefix: project.prefix,
           workflow: project.workflow?.id ?? -1,
+          ownerId: owner?.id ?? null,
           templateEnabled: template?.enabled ?? false,
           templateTitle: template?.title ?? '',
           templateDescription: template?.description ?? '',
@@ -79,7 +94,18 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
   }
 
   cancel(): void {
+    if (this.projectId) {
+      void this.router.navigate(['/', 'projects', this.projectId]);
+      return;
+    }
     void this.router.navigate(['/', 'projects']);
+  }
+
+  canPickOwner(currentOwnerId?: number): boolean {
+    if (this.authService.hasRole('admin')) {
+      return true;
+    }
+    return currentOwnerId != null && currentOwnerId === this.authService.getAuthUserId();
   }
 
   save(): void {
@@ -98,6 +124,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
       templatePriority,
       phaseTemplateObjective,
       phaseTemplateDeliverables,
+      ownerId,
     } = this.projectForm.value;
 
     if (!name || !description || !prefix || workflow == null || workflow < 1) {
@@ -127,11 +154,12 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
         objective: phaseTemplateObjective?.trim() || undefined,
         deliverables,
       },
+      ownerId: ownerId ?? undefined,
     };
 
     if (this.projectId) {
       this.projectsService.update(this.projectId, request)
-        .subscribe(() => void this.router.navigate(['/', 'projects']));
+        .subscribe(() => void this.router.navigate(['/', 'projects', this.projectId]));
     } else {
       this.projectsService.create(request)
         .subscribe(() => void this.router.navigate(['/', 'projects']));

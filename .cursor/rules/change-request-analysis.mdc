@@ -5,9 +5,11 @@ alwaysApply: true
 
 # Feature analysis (phase 1)
 
-Part of the mandatory [development-process.mdc](development-process.mdc). **Do not write production or test code** until phases 1–3 are complete for the current changelog entry.
+Part of the mandatory [development-process.mdc](development-process.mdc). **Do not write production or test code** until phases 1–4 are complete for the current changelog entry.
 
-**Answering open questions (Q*n*) updates the feature doc only** — it is not development approval. **Each answer triggers a mandatory impact review** — see [development-process.mdc](development-process.mdc) § Impact review when answering open questions.
+**Answering feature questions (FQ*n*) updates the feature doc only** — it is not development approval. **Each answer triggers a mandatory impact review** — see [development-process.mdc](development-process.mdc) § Impact review when answering open questions.
+
+After phase 1, **every feature change** proceeds to phase 2 (architecture design) — [architecture-design.mdc](architecture-design.mdc).
 
 Template: [feature/README.md](../../feature/README.md).
 
@@ -19,6 +21,8 @@ Template: [feature/README.md](../../feature/README.md).
 | Refactor touching multiple packages or bounded contexts | Yes |
 | Bug fix with cross-feature side effects | Yes — append changelog entry |
 | Typo, comment-only, formatter, docs-only (no behaviour) | No — exempt from full process |
+
+When feature analysis is required, **architecture design (phase 2) is also required** — no exceptions.
 
 ## Process
 
@@ -58,51 +62,58 @@ Kebab-case slug, stable for the lifetime of the capability. Re-run step 0 if the
 
 - Bounded contexts and packages ([issues-bounded-contexts.mdc](issues-bounded-contexts.mdc))
 - **Wireframe** — `## Wireframe` section with layouts for every UI route, dialog, shell widget, or email template; revise on scope change
-- API / OpenAPI / Angular surfaces
-- Schema (`V1.0.0__Database_Creation.sql`), seed data, migrations
+- API / OpenAPI / Angular surfaces (high level — detailed design in phase 2 **Architecture**)
+- Schema (`V1.0.0__Database_Creation.sql`), seed data, migrations (high level)
 - Tests and docs to update
-- Risks (optional bullets) and **Open questions** table (`Q1`, `Q2`, … with status `open` | `answered` | `not valid` and **Answer** column)
+- Risks (optional bullets) and **Feature questions (FQ*n***)** table with status `open` | `answered` | `not valid` and **Answer** column
 
-**When a question is answered:** run impact review per [development-process.mdc](development-process.mdc) § Impact review when answering open questions — refresh this Impact section, changelog cross-impacts, Risks, **Wireframe**, **Feature checklist**, tasks, and domain spec; add new **Q*n*** if the answer surfaces gaps.
+**Architecture questions (AQ*n***)** belong in phase 2 — do not mix product scope into the AQ table or technical trade-offs into the FQ table.
+
+**When a feature question is answered:** run impact review per [development-process.mdc](development-process.mdc) § Impact review when answering open questions — refresh Impact, changelog cross-impacts, Risks, **Wireframe**, **Feature checklist**, and domain spec; add new **FQ*n*** or **AQ*n*** if the answer surfaces gaps.
 
 Increment **Feature version** when adding a changelog entry; assign the next sequential **Version** to that entry.
 
 ### 3. Changelog — one entry per discrete change request (append; do not rewrite history)
 
 - **Change name** — short title (e.g. `Add ticket CSV export`)
-- **Status** — `planned` (then `tasks-ready` → `approved` → `in-progress` → `done` per [development-process.mdc](development-process.mdc))
+- **Status** — `planned` (then `architecture-ready` → `tasks-ready` → `approved` → `in-progress` → `done` per [development-process.mdc](development-process.mdc))
 - **Impact on other features** — list affected capabilities, routes, or contexts; write `None identified` when isolated
 - **Feature checklist** — start in phase 1 on the changelog entry (**FC1**, **FC2**, …); verifiable scope, behaviour, wireframe, and doc criteria — see [development-process.mdc](development-process.mdc) § Phase 1 and § Feature checklist recheck
-- **Wireframe** — top-level `## Wireframe` on the feature doc; guides phase 4 UI implementation
+- **Wireframe** — top-level `## Wireframe` on the feature doc; guides phase 5 UI implementation
 
-Phases 2–4 (task break, approval, TDD) continue in the same changelog entry — see [development-process.mdc](development-process.mdc). **Order is mandatory:** task break before approval; approval before any `src/main` or `src/test` edit.
+Phases 2–5 (architecture design, task break, approval, TDD) continue in the same changelog entry — see [development-process.mdc](development-process.mdc). **Order is mandatory:** architecture design before task break; task break before approval; approval before any `src/main` or `src/test` edit.
 
 ## Allowed edits by phase
 
 | Phase | Status | May edit |
 |-------|--------|----------|
-| 1 | `planned` | `feature/*.md`, `docs/**`, domain spec (incl. **Wireframe**, initial **Feature checklist**) |
-| 1 (Q answered) | `planned` or `tasks-ready` | Same — **not** application source |
-| 2 | `tasks-ready` | `feature/*.md` (Feature checklist, Tasks, Test coverage) |
-| 3 | `approved` | `feature/*.md` (Development approval line) |
-| 4 | `in-progress` / `done` | `src/main/**`, `src/test/**`, `src/main/webui/**`, docs |
+| 1 | `planned` | `feature/*.md`, `docs/**`, domain spec (incl. **Wireframe**, initial **Feature checklist**, **FQ*n*** table) |
+| 1 (FQ answered) | `planned`, `architecture-ready`, or `tasks-ready` | Same — **not** application source |
+| 2 | `planned` → `architecture-ready` | `feature/*.md` (**Architecture**, **AQ*n*** table, Impact, domain spec) — [architecture-design.mdc](architecture-design.mdc) |
+| 3 | `tasks-ready` | `feature/*.md` (Feature checklist, Tasks, Test coverage) |
+| 4 | `approved` | `feature/*.md` (Development approval line) |
+| 5 | `in-progress` / `done` | `src/main/**`, `src/test/**`, `src/main/webui/**`, docs |
 
 ## Order with other gates
 
 ```
-Feature analysis → domain spec review → task break → development approved → TDD → verify
+Feature analysis → architecture design → domain spec review → task break → development approved → TDD → verify
 ```
 
-Domain checklist: [domain-model.mdc](domain-model.mdc). TDD: [issues-model.mdc](issues-model.mdc).
+Domain checklist: [domain-model.mdc](domain-model.mdc). Architecture: [architecture-design.mdc](architecture-design.mdc). TDD: [issues-model.mdc](issues-model.mdc).
 
-## During implementation (phase 4 only)
+## During implementation (phase 5 only)
 
 - Mark changelog entry status through the lifecycle (`approved` → `in-progress` → `done`).
-- Check off **Tasks** and **Test coverage** items as completed; update **Feature checklist** as criteria are verified; keep **Wireframe** in sync when UI changes.
-- **Before `done`:** run mandatory **Feature checklist recheck** — see [development-process.mdc](development-process.mdc) § Phase 4.
+- Check off **Tasks** and **Test coverage** items as completed; update **Feature checklist** as criteria are verified; keep **Wireframe** and **Architecture** in sync when scope changes.
+- **Before `done`:** run mandatory **Feature checklist recheck** — see [development-process.mdc](development-process.mdc) § Phase 5.
 - **Working code invariant:** fix or revert before stopping; never mark `done` on red — see [development-process.mdc](development-process.mdc) § Working code invariant.
 - If scope grows, add tasks and obtain new approval — do not expand silently.
 
 ## After implementation
 
 Close the loop in the same changelog entry (**Implementation notes**, tests run). User-facing doc updates remain in [documentation.mdc](documentation.mdc) — do not duplicate route tables in feature docs.
+
+## Legacy open questions
+
+Existing feature docs may use undifferentiated **Q*n***. Treat them as **FQ*n*** until the doc is updated. Split or renumber into **FQ*n*** / **AQ*n*** when editing that feature file.

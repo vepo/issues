@@ -83,6 +83,17 @@
       </mat-form-field>
     </section>
 
+    @if (editMode && showOwnerPicker) {
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>Responsável do projeto</mat-label>
+        <mat-select formControlName="ownerId">
+          @for (manager of projectManagers; track manager.id) {
+            <mat-option [value]="manager.id">{{ manager.name }} ({{ manager.email }})</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
     <div class="actions form-actions">
       <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()" i18n>Cancelar</button>
       <button class="btn" [disabled]="projectForm.invalid" matButton="filled" type="button" (click)="save()" i18n

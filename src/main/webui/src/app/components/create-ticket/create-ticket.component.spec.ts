@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { ProjectsService } from '../../services/projects.service';
 import { TicketService } from '../../services/ticket.service';
+import { PhaseService } from '../../services/phase.service';
 import { CreateTicketComponent } from './create-ticket.component';
 
 describe('CreateTicketComponent', () => {
@@ -14,6 +15,9 @@ describe('CreateTicketComponent', () => {
   beforeEach(async () => {
     ticketService = jasmine.createSpyObj('TicketService', ['createTicket']);
     router = jasmine.createSpyObj('Router', ['navigate']);
+
+    const phaseService = jasmine.createSpyObj('PhaseService', ['list']);
+    phaseService.list.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [CreateTicketComponent],
@@ -28,6 +32,7 @@ describe('CreateTicketComponent', () => {
                 prefix: 'ISS',
                 description: '',
                 workflow: { id: 1, name: 'Agile' },
+                owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
                 ticketTemplate: {
                   enabled: true,
                   title: 'New work item',
@@ -35,6 +40,7 @@ describe('CreateTicketComponent', () => {
                   categoryId: 2,
                   priority: 'MEDIUM',
                 },
+                phaseTemplate: { deliverables: [] },
               }],
               categories: [{ id: 2, name: 'Bug', color: 'red' }],
               project: {
@@ -43,6 +49,7 @@ describe('CreateTicketComponent', () => {
                 prefix: 'ISS',
                 description: '',
                 workflow: { id: 1, name: 'Agile' },
+                owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
                 ticketTemplate: {
                   enabled: true,
                   title: 'New work item',
@@ -50,6 +57,7 @@ describe('CreateTicketComponent', () => {
                   categoryId: 2,
                   priority: 'MEDIUM',
                 },
+                phaseTemplate: { deliverables: [] },
               },
             }),
             snapshot: { paramMap: { get: () => '1' } },
@@ -58,6 +66,7 @@ describe('CreateTicketComponent', () => {
         { provide: TicketService, useValue: ticketService },
         { provide: Router, useValue: router },
         { provide: ProjectsService, useValue: jasmine.createSpyObj('ProjectsService', ['findById']) },
+        { provide: PhaseService, useValue: phaseService },
       ],
     }).compileComponents();
 

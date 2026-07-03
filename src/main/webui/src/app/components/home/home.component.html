@@ -1,37 +1,119 @@
-<div class="page">
+<div class="page home-hub">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Projetos</h1>
-      <p class="page-subtitle" i18n>Selecione um projeto para abrir o quadro ou o painel</p>
+      <h1 class="page-title" i18n>Início</h1>
+      <p class="page-subtitle" i18n>Seus tickets e atividade recente nos projetos em que participa</p>
     </div>
   </header>
 
-  @if (isAuthenticated()) {
-    @if (projects.length === 0) {
-      <div class="empty-state" i18n>
-        Nenhum projeto disponível. Entre em contato com o administrador.
+  <div class="home-hub__tickets">
+    <section class="home-hub__section">
+      <h2 class="home-section__title" i18n>Tickets atuais</h2>
+      <div class="page-panel page-panel--flush home-hub__panel">
+        <div class="data-table data-table--cols-home-tickets">
+          <div class="header">
+            <div class="header-cell" i18n>ID</div>
+            <div class="header-cell" i18n>Título</div>
+            <div class="header-cell" i18n>Projeto</div>
+            <div class="header-cell" i18n>Status</div>
+            <div class="header-cell" i18n>Prioridade</div>
+            <div class="header-cell" i18n>Atualizado</div>
+          </div>
+          <div class="body">
+            @for (ticket of currentTickets; track ticket.id) {
+              <div class="row {{ $even ? 'even' : 'odd' }}">
+                <div>
+                  <a [routerLink]="['/ticket', ticket.identifier]">{{ ticket.identifier }}</a>
+                </div>
+                <div>{{ ticket.title }}</div>
+                <div>
+                  <a [routerLink]="['/projects', ticket.projectId]">{{ ticket.projectName }}</a>
+                </div>
+                <div>{{ ticket.status }}</div>
+                <div>{{ ticket.priority }}</div>
+                <div>{{ ticket.updatedAt | date: 'short' }}</div>
+              </div>
+            }
+          </div>
+          @if (currentTickets.length === 0) {
+            <div class="data-table--empty" i18n>Nenhum ticket aberto nos seus projetos.</div>
+          }
+        </div>
       </div>
-    } @else {
-      <div class="project-grid">
-        @for (project of projects; track project.id) {
-          <article class="project-card">
-            <h2 class="project-card__title">{{ project.name }}</h2>
-            <p class="project-card__description" [title]="project.description">
-              {{ project.description | trim:120 }}
-            </p>
-            <div class="project-card__actions">
-              <button class="btn" matButton="filled" [routerLink]="['/project', project.id, 'kanban']">
-                <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
-                <span i18n>Kanban</span>
-              </button>
-              <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'dashboard']">
-                <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
-                <span i18n>Painel</span>
-              </button>
-            </div>
-          </article>
-        }
+    </section>
+
+    <section class="home-hub__section">
+      <h2 class="home-section__title" i18n>Tickets atribuídos</h2>
+      <div class="page-panel page-panel--flush home-hub__panel">
+        <div class="data-table data-table--cols-home-tickets">
+          <div class="header">
+            <div class="header-cell" i18n>ID</div>
+            <div class="header-cell" i18n>Título</div>
+            <div class="header-cell" i18n>Projeto</div>
+            <div class="header-cell" i18n>Status</div>
+            <div class="header-cell" i18n>Prioridade</div>
+            <div class="header-cell" i18n>Atualizado</div>
+          </div>
+          <div class="body">
+            @for (ticket of assignedTickets; track ticket.id) {
+              <div class="row {{ $even ? 'even' : 'odd' }}">
+                <div>
+                  <a [routerLink]="['/ticket', ticket.identifier]">{{ ticket.identifier }}</a>
+                </div>
+                <div>{{ ticket.title }}</div>
+                <div>
+                  <a [routerLink]="['/projects', ticket.projectId]">{{ ticket.projectName }}</a>
+                </div>
+                <div>{{ ticket.status }}</div>
+                <div>{{ ticket.priority }}</div>
+                <div>{{ ticket.updatedAt | date: 'short' }}</div>
+              </div>
+            }
+          </div>
+          @if (assignedTickets.length === 0) {
+            <div class="data-table--empty" i18n>Nenhum ticket aberto atribuído a você.</div>
+          }
+        </div>
       </div>
-    }
-  }
+    </section>
+  </div>
+
+  <section class="home-hub__section home-activity">
+    <h2 class="home-section__title" i18n>Atividade</h2>
+    <div class="page-panel page-panel--flush home-hub__panel home-hub__panel--activity">
+      @if (activity.length > 0) {
+        <div class="activity-feed">
+          @for (item of activity; track activityTrack(item)) {
+            <article class="activity-item">
+              <div class="activity-item__icon" aria-hidden="true">
+                <mat-icon [fontIcon]="item.type === 'COMMENT' ? 'chat_bubble_outline' : 'swap_horiz'"></mat-icon>
+              </div>
+              <div class="activity-item__body">
+                <header class="activity-item__header">
+                  <span class="activity-item__actor">{{ item.actorName }}</span>
+                  <span class="activity-item__summary">
+                    @if (item.type === 'COMMENT') {
+                      <span i18n>comentou em</span>
+                    } @else {
+                      <span i18n>alterou status em</span>
+                    }
+                    <a [routerLink]="['/ticket', item.ticketIdentifier]">{{ item.ticketIdentifier }}</a>
+                    — {{ item.projectName }}
+                  </span>
+                  <time class="activity-item__date">{{ item.occurredAt | date: 'medium' }}</time>
+                </header>
+                @if (item.type === 'COMMENT') {
+                  <div class="activity-item__comment" [innerHTML]="item.summary"></div>
+                } @else {
+                  <div class="activity-item__change">{{ item.summary }}</div>
+                }
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="data-table--empty" i18n>Nenhuma atividade recente nos seus projetos.</div>
+      }
+    </div>
+  </section>
 </div>

@@ -9,9 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ProjectMembersService } from '../../services/project-members.service';
 import { Category, CategoryService } from '../../services/category.service';
 import { ProjectStatus, StatusService } from '../../services/status.service';
-import { User, UsersService } from '../../services/users.service';
+import { User } from '../../services/users.service';
 import { Comment, CreateCommentRequest, TicketExpanded, TicketService, UpdateTicketRequest } from '../../services/ticket.service';
 import { Version, VersionService } from '../../services/version.service';
 import { Phase, PhaseService } from '../../services/phase.service';
@@ -41,8 +42,8 @@ export class TicketViewComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly ticketService = inject(TicketService);
   private readonly authService = inject(AuthService);
+  private readonly membersService = inject(ProjectMembersService);
   private readonly categoryService = inject(CategoryService);
-  private readonly usersService = inject(UsersService);
   private readonly statusService = inject(StatusService);
   private readonly versionService = inject(VersionService);
   private readonly phaseService = inject(PhaseService);
@@ -82,17 +83,32 @@ export class TicketViewComponent implements OnInit {
       this.categories = categories;
       this.populateEditForm();
     });
-    this.usersService.search().subscribe(users => this.users = users);
 
     this.route.data.subscribe(({ ticket }) => {
       this.ticket = ticket;
       if (this.ticket) {
+        this.loadProjectMembers();
         this.loadComments();
         this.loadProjectStatuses();
         this.loadProjectVersions();
         this.loadAssignablePhases();
         this.populateEditForm();
       }
+    });
+  }
+
+  loadProjectMembers(): void {
+    if (!this.ticket?.project?.id) {
+      return;
+    }
+    this.membersService.listMembers(this.ticket.project.id).subscribe(members => {
+      this.users = members.map(member => ({
+        id: member.id,
+        name: member.name,
+        email: member.email,
+        username: member.email,
+        roles: []
+      }));
     });
   }
 

@@ -1,62 +1,74 @@
 ---
-description: Mandatory agentic development process — feature analysis, task break, approval, TDD
+description: Mandatory agentic development process — feature analysis, architecture design, task break, approval, TDD
 alwaysApply: true
 ---
 
 # Development process (mandatory)
 
-**No production or test code** until phases 1–3 are complete for the current changelog entry. Template: [feature/README.md](../../feature/README.md). Analysis detail: [change-request-analysis.mdc](change-request-analysis.mdc).
+**No production or test code** until phases 1–4 are complete for the current changelog entry. Template: [feature/README.md](../../feature/README.md). Feature analysis: [change-request-analysis.mdc](change-request-analysis.mdc). Architecture design: [architecture-design.mdc](architecture-design.mdc).
 
 ## Strict phase gate
 
-Phases are **sequential and mandatory**. Never skip phase 2 or phase 3.
+Phases are **sequential and mandatory**. Never skip phase 2, phase 3, or phase 4.
 
 ```
-planned → tasks-ready → approved → in-progress → done
-          (task break)  (explicit     (TDD only)
-                         task approval)
+planned → architecture-ready → tasks-ready → approved → in-progress → done
+(feature)  (architecture)      (task break)  (explicit     (TDD only)
+                                            task approval)
 ```
 
 | Action | Phase | Allowed edits |
 |--------|-------|----------------|
-| Feature analysis, open questions | 1 | `feature/*.md`, `docs/**`, domain spec |
-| Answer **Q*n*** in chat or feature doc | 1 (still) | `feature/*.md`, `docs/**` only — **not** `src/main/**`, `src/test/**`, `src/main/webui/**` |
-| Task break (Tasks + Test coverage + Feature checklist) | 2 | `feature/*.md` |
-| User approves task IDs | 3 | `feature/*.md` (record approval) |
-| TDD implementation | 4 | `src/main/**`, `src/test/**`, `src/main/webui/**`, docs as needed |
+| Feature analysis, feature questions (**FQ*n***) | 1 | `feature/*.md`, `docs/**`, domain spec |
+| Architecture design, architecture questions (**AQ*n***) | 2 | `feature/*.md`, `docs/**`, domain spec, ARCHITECTURE.md |
+| Answer **FQ*n*** or **AQ*n*** in chat or feature doc | 1 or 2 (still) | `feature/*.md`, `docs/**`, ARCHITECTURE.md only — **not** `src/main/**`, `src/test/**`, `src/main/webui/**` |
+| Task break (Tasks + Test coverage + Feature checklist) | 3 | `feature/*.md` |
+| User approves task IDs | 4 | `feature/*.md` (record approval) |
+| TDD implementation | 5 | `src/main/**`, `src/test/**`, `src/main/webui/**`, docs as needed |
+
+### Open question kinds
+
+| Kind | Prefix | Phase | Decides |
+|------|--------|-------|---------|
+| **Feature question** | **FQ*n*** | 1 | Product scope, UX, wireframe, domain rules, user-visible behaviour |
+| **Architecture question** | **AQ*n*** | 2 | Packages, layers, API shape, schema, cross-context integration, technical trade-offs |
+
+Legacy undifferentiated **Q*n*** in existing feature docs are treated as **FQ*n*** until updated.
 
 ### Answering open questions ≠ development approval
 
-**Forbidden:** starting phase 4 because the user answered **Q1**, **Q2**, chose an option, said "yes"/"big-bang", or clarified scope. Those actions only update the **Open questions** table (status `answered`, **Answer** column) — they do **not** authorize coding.
+**Forbidden:** starting phase 5 because the user answered **FQ1**, **AQ2**, chose an option, said "yes"/"big-bang", or clarified scope. Those actions only update the relevant questions table (status `answered`, **Answer** column) — they do **not** authorize coding.
 
 ### Impact review when answering open questions (mandatory)
 
-Every time the user answers **Q*n*** (in chat or in the feature doc), the agent **must** run an **impact review** before treating analysis as complete:
+Every time the user answers **FQ*n*** or **AQ*n*** (in chat or in the feature doc), the agent **must** run an **impact review** before treating analysis as complete:
 
-1. **Record** the answer in the Open questions table (`answered` or `not valid`).
+1. **Record** the answer in the correct table (`answered` or `not valid`).
 2. **Re-read and update** the feature doc:
    - Top-level **Impact** table (bounded contexts, API, UI, schema, tests, docs)
    - Changelog **Impact on other features**
    - **Scope** sections and **Risks**
-   - **Wireframe** — revise layouts, regions, and Excalidraw link when UI scope or **Q*n*** answers change
+   - **Wireframe** — revise when **FQ*n*** answers change UI scope or layout
+   - **Architecture** — revise when **AQ*n*** or footprint-changing **FQ*n*** answers change technical design
    - **Feature checklist** — add, revise, or remove **FC*n*** rows when scope or decisions change
    - **Tasks** and **Test coverage** if the footprint grew, split, or shifted
    - [domain-specification.md](../../docs/domain-specification.md) when vocabulary or invariants change ([domain-model.mdc](domain-model.mdc))
-3. **May open new questions** — answers often reveal gaps; add **Q*n+1**, **Q*n+2**, … with status `open` and note which answer triggered each (e.g. "Opened by **Q1**").
+   - [ARCHITECTURE.md](../../ARCHITECTURE.md) §13 when the system map or API surface changes
+3. **May open new questions** — answers often reveal gaps; add **FQ*n+1** or **AQ*n+1** with status `open` and note which answer triggered each (e.g. "Opened by **FQ1**", "Opened by **AQ2**").
 4. **Present** impact deltas and any new **open** questions to the user; do not assume silence means approval.
-5. If new **blocking** questions remain `open`, refresh tasks if needed; **stop** for phase 3 — answering questions is still not development approval.
+5. If new **blocking** questions remain `open`, refresh tasks if needed; **stop** for phase 4 — answering questions is still not development approval.
 
-**Does not replace task break:** impact review may happen during phase 1 or after partial answers while status is `planned` or `tasks-ready`; it does not authorize `src/main` or `src/test` edits.
+**Does not replace task break:** impact review may happen during phases 1–3 while status is `planned`, `architecture-ready`, or `tasks-ready`; it does not authorize `src/main` or `src/test` edits.
 
-After all blocking questions are `answered` or `not valid`:
+After all blocking **FQ*n*** and **AQ*n*** are `answered` or `not valid`:
 
-1. Ensure phase 2 is complete (**Wireframe** current for UI scope, **Tasks** + **Test coverage** exist; status `tasks-ready`).
+1. Ensure phase 3 is complete (**Wireframe** current for UI scope, **Architecture** current, **Tasks** + **Test coverage** exist; status `tasks-ready`).
 2. **Stop.** Present the task list again.
-3. Wait for **explicit task approval** (phase 3) before any implementation file.
+3. Wait for **explicit task approval** (phase 4) before any implementation file.
 
-**Counts as approval (phase 3):** "Approve T1–T8", "Go ahead with T1, T2, T5", "Start development — tasks T1–T6", "Authorized: T3".
+**Counts as approval (phase 4):** "Approve T1–T8", "Go ahead with T1, T2, T5", "Start development — tasks T1–T6", "Authorized: T3".
 
-**Does not count as approval:** answering Q*n*, picking rollout strategy, "yes" to a design question, "do the analysis", "implement it" without naming task IDs, silence after Q answers.
+**Does not count as approval:** answering FQ/AQ, picking rollout strategy, "yes" to a design question, "do the analysis", "implement it" without naming task IDs, silence after question answers.
 
 If the user says "implement it" after analysis but has not approved tasks, respond with the task table and ask which IDs to approve.
 
@@ -74,49 +86,64 @@ If the user says "implement it" after analysis but has not approved tasks, respo
 
 **Forbidden:** marking `done` with failing tests; leaving compile errors; `@Disabled` or weakened assertions to fake green; handing off broken `src/main` or `src/test` without fixing or reverting.
 
-## Four phases
+## Five phases
 
 ```
-1. Feature analysis  →  2. Task break  →  3. Development approved  →  4. Development (TDD)
+1. Feature analysis  →  2. Architecture design  →  3. Task break  →  4. Development approved  →  5. Development (TDD)
 ```
 
 | Phase | Agent may | Agent must not |
 |-------|-----------|----------------|
-| **1. Feature analysis** | Create/extend `feature/<slug>.md`, **Wireframe**, domain spec, resolve open questions in doc only | Write `src/main/**`, `src/test/**`, `src/main/webui/**` |
-| **2. Task break** | Extend **Feature checklist**; confirm **Wireframe**; add **Tasks** and **Test coverage**; set status `tasks-ready`; present tasks, FC list, and wireframe | Start implementation; skip to phase 4 |
-| **3. Development approved** | Record approval line with task IDs; set status `approved` | Implement; treat Q answers as approval |
-| **4. Development** | TDD on **approved tasks only**; implement UI per **Wireframe**; mark tasks, tests, and FC rows done; **recheck Feature checklist** before `done` | Skip tests; skip FC recheck; deviate from wireframe without doc update; implement unapproved tasks; bypass Red phase; **end with broken code** |
+| **1. Feature analysis** | Create/extend `feature/<slug>.md`, **Wireframe**, domain spec, resolve **FQ*n*** in doc only | Write `src/main/**`, `src/test/**`, `src/main/webui/**`; skip architecture design |
+| **2. Architecture design** | Add **Architecture** section; resolve **AQ*n***; validate layers, packages, schema, API; set `architecture-ready` | Start implementation; skip to phase 3 without **Architecture** section |
+| **3. Task break** | Extend **Feature checklist**; confirm **Wireframe** and **Architecture**; add **Tasks** and **Test coverage**; set status `tasks-ready`; present tasks, FC list, wireframe, architecture | Start implementation; skip to phase 5 |
+| **4. Development approved** | Record approval line with task IDs; set status `approved` | Implement; treat FQ/AQ answers as approval |
+| **5. Development** | TDD on **approved tasks only**; implement UI per **Wireframe** and backend per **Architecture**; mark tasks, tests, and FC rows done; **recheck Feature checklist** before `done` | Skip tests; skip FC recheck; deviate from wireframe/architecture without doc update; implement unapproved tasks; bypass Red phase; **end with broken code** |
 
 ## Phase 1 — Feature analysis
 
 Required when: new behaviour, API, UI route, schema, multi-package refactor, or bug fix with cross-feature impact. Not required: typo, comment-only, formatter, docs-only.
 
+**Every feature change that requires phase 1 also requires phase 2 (architecture design).**
+
 1. Resolve `<feature-slug>` — [change-request-analysis.mdc](change-request-analysis.mdc) §0.
-2. Create or extend `feature/<feature-slug>.md` with Summary, **Wireframe** (when the feature has UI surfaces — routes, dialogs, shell widgets, or email templates), Impact, Risks, and a new **Changelog** entry (`status: planned`).
-3. **Build the Feature checklist** on the changelog entry — numbered **FC1**, **FC2**, … from Scope, Decisions, **Wireframe**, Impact (API/UI/schema), docs deliverables, and cross-feature obligations. Include at least one **FC*n*** row verifying UI matches **Wireframe** when UI is in scope. Update when scope shifts; cite **Q*n***, scope ids (e.g. S2), or Impact rows in **Source**.
+2. Create or extend `feature/<feature-slug>.md` with Summary, **Wireframe** (when the feature has UI surfaces), Impact, Risks, and a new **Changelog** entry (`status: planned`).
+3. **Build the Feature checklist** on the changelog entry — numbered **FC1**, **FC2**, … from Scope, Decisions, **Wireframe**, Impact (API/UI/schema), docs deliverables, and cross-feature obligations. Include at least one **FC*n*** row verifying UI matches **Wireframe** when UI is in scope. Cite **FQ*n***, scope ids (e.g. S2), or Impact rows in **Source**.
 4. Read [domain-specification.md](../../docs/domain-specification.md); update Ubiquitous Language and invariants **before code** if vocabulary or rules change ([domain-model.mdc](domain-model.mdc)).
-5. Track **Open questions** in the numbered table; ask the user when product decisions are needed; set status `answered` with the decision in **Answer**. Cite **Q*n*** elsewhere. **After each answer:** run mandatory **impact review** (see [development-process.mdc](development-process.mdc) § Impact review when answering open questions) — update Impact, Risks, **Feature checklist**, tasks if needed, domain spec when vocabulary changes; new **Q*n*** may be opened. Answering questions updates the feature doc only — then proceed to phase 2 if needed, then **stop for phase 3**. Phase 2 blocked while blocking questions remain `open`.
+5. Track **feature questions (FQ*n***)** in the numbered table; ask the user when product decisions are needed; set status `answered` with the decision in **Answer**. Cite **FQ*n*** elsewhere. **After each answer:** run mandatory **impact review**. Phase 2 blocked while blocking **FQ*n*** remain `open`.
 
-**Exit criteria:** changelog entry exists with complete Impact, an initial **Feature checklist**, and **Wireframe** current for UI scope (or explicitly N/A); domain spec current; blocking questions `answered` or `not valid`. **No code.**
+**Exit criteria:** changelog entry exists with complete Impact, an initial **Feature checklist**, and **Wireframe** current for UI scope (or explicitly N/A); domain spec current; blocking **FQ*n*** are `answered` or `not valid`. **No code.** Proceed to phase 2.
 
-## Phase 2 — Task break
+## Phase 2 — Architecture design
 
-Break the changelog entry into **small, independently verifiable tasks** (backend entity, endpoint, service, Angular component, etc.).
+Mandatory for every changelog entry that completed phase 1. Detail: [architecture-design.mdc](architecture-design.mdc).
+
+1. Add or extend `## Architecture` on the feature doc — packages, layers, API, schema, cross-context integration, tests.
+2. Track **architecture questions (AQ*n***)** for technical decisions; run **impact review** after each answer.
+3. Validate against [issues-layered-architecture.mdc](issues-layered-architecture.mdc), [issues-bounded-contexts.mdc](issues-bounded-contexts.mdc), and [issues-flyway.mdc](issues-flyway.mdc).
+4. Set changelog **Status:** `architecture-ready`. **Stop — do not task-break while blocking AQ*n* remain open.**
+
+**Exit criteria:** **Architecture** section complete; blocking **AQ*n*** are `answered` or `not valid`; status `architecture-ready`. **No code.** Proceed to phase 3.
+
+## Phase 3 — Task break
+
+Break the changelog entry into **small, independently verifiable tasks** (backend entity, endpoint, service, Angular component, etc.). Tasks must align with the **Architecture** section.
 
 Add to the changelog entry:
 
-- **Feature checklist** — extend **FC*n*** if task break reveals missing scope criteria; every Scope section, **Wireframe** screen, and docs row in Impact should map to at least one FC row.
-- **Wireframe** — confirm every in-scope route/dialog appears; add screens discovered during task break.
+- **Feature checklist** — extend **FC*n*** if task break reveals missing scope criteria; every Scope section, **Wireframe** screen, **Architecture** decision, and docs row in Impact should map to at least one FC row.
+- **Wireframe** — confirm every in-scope route/dialog appears.
+- **Architecture** — confirm every endpoint, entity, and service appears in tasks.
 - **Tasks** — numbered checklist (`T1`, `T2`, …) with one clear deliverable each.
 - **Test coverage** — checklist mapping each task (or group) to tests that must exist before `done`.
 
-Set changelog **Status:** `tasks-ready`. Present the task list, **Feature checklist**, and **Wireframe** to the user. **Stop — do not implement.**
+Set changelog **Status:** `tasks-ready`. Present the task list, **Feature checklist**, **Wireframe**, and **Architecture** to the user. **Stop — do not implement.**
 
-**Exit criteria:** every deliverable has a task; **Feature checklist** covers scope, wireframe, and doc obligations; **Wireframe** matches scope; test coverage plan exists; status is `tasks-ready`. Awaiting phase 3.
+**Exit criteria:** every deliverable has a task; **Feature checklist** covers scope, wireframe, architecture, and doc obligations; test coverage plan exists; status is `tasks-ready`. Awaiting phase 4.
 
-## Phase 3 — Development approved
+## Phase 4 — Development approved
 
-**Stop and wait for the user.** Present tasks again if they just answered open questions. User must **explicitly approve task IDs** — answering **Q*n*** is not approval.
+**Stop and wait for the user.** Present tasks again if they just answered open questions. User must **explicitly approve task IDs** — answering **FQ*n*** or **AQ*n*** is not approval.
 
 Record in the changelog entry:
 
@@ -128,20 +155,20 @@ Set changelog **Status:** `approved`.
 
 Implement **only** approved task IDs. If scope grows, add tasks and obtain a new approval — do not expand silently.
 
-**Exit criteria:** explicit user approval with listed task IDs recorded in the feature doc. **Still no `src/main` or `src/test` edits until phase 4 begins.**
+**Exit criteria:** explicit user approval with listed task IDs recorded in the feature doc. **Still no `src/main` or `src/test` edits until phase 5 begins.**
 
-## Phase 4 — Development (TDD)
+## Phase 5 — Development (TDD)
 
-**Precondition:** changelog **Status** is `approved` with **Development approval** line listing task IDs. If status is only `tasks-ready` or questions were just answered, **do not enter phase 4**.
+**Precondition:** changelog **Status** is `approved` with **Development approval** line listing task IDs. If status is only `tasks-ready` or questions were just answered, **do not enter phase 5**.
 
 Set changelog **Status:** `in-progress`. For **each approved task**, in order:
 
-1. **Consult Wireframe** — re-read the screen(s) this task touches; if implementation diverges, update **Wireframe** and **FC*n*** first (or obtain scope approval).
+1. **Consult Wireframe and Architecture** — re-read the screen(s) and technical design this task touches; if implementation diverges, update docs and **FC*n*** first (or obtain scope approval).
 2. **Red** — failing test(s) for that task's behaviour ([issues-model.mdc](issues-model.mdc) § TDD; optional `tdd-red` subagent).
-3. **Green** — minimal production code to pass (`tdd-green`); UI tasks must match **Wireframe** regions and labels.
+3. **Green** — minimal production code to pass (`tdd-green`); UI tasks must match **Wireframe**; backend tasks must match **Architecture**.
 4. **Refactor** — cleanup with tests green (`tdd-refactor`).
 5. Mark task checkbox done; mark matching **Test coverage** items done; mark **Feature checklist** rows done only when the criterion is verified in code or docs.
-6. When scope grows mid-implementation, add **Wireframe** screens, **FC*n*** rows, and matching tasks; obtain approval for new task IDs before implementing.
+6. When scope grows mid-implementation, add **Wireframe** screens, **Architecture** updates, **FC*n*** rows, and matching tasks; obtain approval for new task IDs before implementing.
 
 **Coverage rule:** the feature changelog entry is not `done` until every item in **Test coverage** is checked and tiered tests pass ([issues-testing.mdc](issues-testing.mdc)). A feature without tests for new behaviour is incomplete.
 
@@ -164,7 +191,8 @@ If 3 or 4 fail, remain **`in-progress`**, fix or revert until green — do not m
 
 | Status | Meaning |
 |--------|---------|
-| `planned` | Analysis in progress or not started |
+| `planned` | Feature analysis in progress or not started |
+| `architecture-ready` | Architecture design complete; ready for task break |
 | `tasks-ready` | Tasks and test plan written; awaiting approval |
 | `approved` | User approved specific tasks; no code yet |
 | `in-progress` | TDD implementation underway — **must leave repo working** at session end |
@@ -174,18 +202,20 @@ If 3 or 4 fail, remain **`in-progress`**, fix or revert until green — do not m
 
 | User request | Agent action |
 |--------------|--------------|
-| "Implement X" (no feature doc) | Phase 1 → phase 2 → **stop**; ask which tasks to approve |
-| Feature doc exists, no tasks | Phase 2 → **stop**; ask which tasks to approve |
+| "Implement X" (no feature doc) | Phase 1 → phase 2 → phase 3 → **stop**; ask which tasks to approve |
+| Feature doc exists, no architecture section | Phase 2 → phase 3 → **stop**; ask which tasks to approve |
+| Architecture done, no tasks | Phase 3 → **stop**; ask which tasks to approve |
 | Tasks exist, status `tasks-ready` | Present tasks; **do not code** |
-| User answers Q1, Q2, … only | **Impact review** (update Impact, Risks, **Wireframe**, tasks, domain spec); record answers; add new **Q*n*** if gaps found; re-present tasks; **do not code** |
-| "Approve T1–T3" / "Go ahead with T1–T8" | Phase 4 with TDD on those tasks only |
+| User answers FQ/AQ only | **Impact review** (update Impact, Risks, **Wireframe**, **Architecture**, tasks, domain spec); record answers; add new questions if gaps found; re-present tasks; **do not code** |
+| "Approve T1–T3" / "Go ahead with T1–T8" | Phase 5 with TDD on those tasks only |
 | "Implement it" (no task IDs) | Present task table; ask which IDs to approve — **do not code** |
-| "Just fix it quickly" | Still require phases 1–3 unless exempt; **still must end green** |
+| "Just fix it quickly" | Still require phases 1–4 unless exempt; **still must end green** |
 | "Stop here" / session limit | `in-progress` + notes; fix or revert until `mvn verify` passes |
 
 ## Related rules
 
-- Analysis template: [change-request-analysis.mdc](change-request-analysis.mdc)
+- Feature analysis: [change-request-analysis.mdc](change-request-analysis.mdc)
+- Architecture design: [architecture-design.mdc](architecture-design.mdc)
 - Domain gate: [domain-model.mdc](domain-model.mdc)
 - TDD cycle: [issues-model.mdc](issues-model.mdc) § TDD
 - Test conventions: [issues-tests.mdc](issues-tests.mdc)

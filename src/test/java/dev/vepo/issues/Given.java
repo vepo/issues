@@ -19,6 +19,7 @@ import dev.vepo.issues.auth.PasswordEncoder;
 import dev.vepo.issues.categories.Category;
 import dev.vepo.issues.categories.CategoryRepository;
 import dev.vepo.issues.project.Project;
+import dev.vepo.issues.project.ProjectMemberRepository;
 import dev.vepo.issues.project.ProjectRepository;
 import dev.vepo.issues.project.ProjectResponse;
 import dev.vepo.issues.ticket.TicketRepository;
@@ -163,26 +164,46 @@ public class Given {
                                       .as(ProjectResponse[].class);
         if (existingProjects.length > 0 && Stream.of(existingProjects)
                                                  .anyMatch(p -> "Test Project".equals(p.name()))) {
-            return Stream.of(existingProjects)
-                         .filter(p -> "Test Project".equals(p.name()))
-                         .findFirst()
-                         .orElseThrow();
+            var project = Stream.of(existingProjects)
+                                .filter(p -> "Test Project".equals(p.name()))
+                                .findFirst()
+                                .orElseThrow();
+            addProjectMember(project.id(), "user@issues.vepo.dev");
+            return project;
         }
-        return given().when()
-                      .contentType("application/json")
-                      .header(authenticatedProjectManager())
-                      .body("""
-                            {
-                                "name": "Test Project",
-                                "description": "This is a test project.",
-                                "prefix": "PRJ%d",
-                                "workflowId": %d
-                            }""".formatted(SEQUENCE.incrementAndGet(), workflow.id()))
-                      .post("/api/projects")
-                      .then()
-                      .statusCode(201)
-                      .extract()
-                      .as(ProjectResponse.class);
+        var project = given().when()
+                             .contentType("application/json")
+                             .header(authenticatedProjectManager())
+                             .body("""
+                                   {
+                                       "name": "Test Project",
+                                       "description": "This is a test project.",
+                                       "prefix": "PRJ%d",
+                                       "workflowId": %d
+                                   }""".formatted(SEQUENCE.incrementAndGet(), workflow.id()))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(ProjectResponse.class);
+        addProjectMember(project.id(), "user@issues.vepo.dev");
+        return project;
+    }
+
+    public static void addProjectMember(long projectId, String email) {
+        addProjectMember(projectId, userIdByEmail(email));
+    }
+
+    public static void addProjectMember(long projectId, long userId) {
+        transaction(() -> {
+            var memberRepository = inject(ProjectMemberRepository.class);
+            if (memberRepository.isMember(projectId, userId)) {
+                return;
+            }
+            var project = inject(ProjectRepository.class).findById(projectId).orElseThrow();
+            var user = inject(UserRepository.class).findById(userId).orElseThrow();
+            memberRepository.addMember(project, user);
+        });
     }
 
     public static WorkflowResponse simpleWorkflow() {

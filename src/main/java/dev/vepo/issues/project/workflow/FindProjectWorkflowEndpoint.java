@@ -16,7 +16,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(ProjectPaths.BASE)
 @ApplicationScoped
@@ -37,7 +39,7 @@ public class FindProjectWorkflowEndpoint {
     @Path("{projectId}/workflow")
     @RolesAllowed({ Role.PROJECT_MANAGER_ROLE, Role.ADMIN_ROLE, Role.USER_ROLE })
     @Operation(operationId = "findProjectWorkflow", summary = "Get project workflow")
-    public WorkflowResponse findWorkflow(@PathParam("projectId") long projectId) {
-        return projectService.findWorkflow(projectId);
+    public WorkflowResponse findWorkflow(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) {
+        return projectService.findWorkflow(projectId, securityContext.getUserPrincipal().getName());
     }
 }

@@ -4,8 +4,6 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,19 +52,53 @@ class ListProjectsEndpointTest {
     }
 
     @Test
-    @DisplayName("Project listing should return the created project")
-    void anyoneCanListProjects() {
-        Stream.of(userAuthenticatedHeader, pmAuthenticatedHeader)
-              .forEach(header -> given().header(header)
-                                        .accept(ContentType.JSON)
-                                        .when()
-                                        .get("/api/projects")
-                                        .then()
-                                        .statusCode(200)
-                                        .body("$.size()", greaterThanOrEqualTo(1))
-                                        .body("find { it.name == 'Test Project' }.name", is("Test Project"))
-                                        .body("find { it.name == 'Test Project' }.description", is("This is a test project."))
-                                        .body("find { it.name == 'Test Project' }.workflow.id", is((int) workflow.id()))
-                                        .body("find { it.name == 'Test Project' }.workflow.name", is(workflow.name())));
+    @DisplayName("Project listing is scoped to membership for users and ownership for PMs")
+    void projectListingRespectsMembershipScope() {
+        var suffix = java.util.UUID.randomUUID().toString().substring(0, 6);
+        var projectName = "Scoped Project " + suffix;
+        var createdProject = given().header(pmAuthenticatedHeader)
+                                    .accept(ContentType.JSON)
+                                    .when()
+                                    .contentType(ContentType.JSON)
+                                    .body("""
+                                          {
+                                              "name": "%s",
+                                              "description": "This is a test project.",
+                                              "prefix": "SP%s",
+                                              "workflowId": %d
+                                          }""".formatted(projectName, suffix.substring(0, 2), workflow.id()))
+                                    .post("/api/projects")
+                                    .then()
+                                    .statusCode(201)
+                                    .extract()
+                                    .jsonPath();
+
+        var projectId = createdProject.getLong("id");
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects")
+               .then()
+               .statusCode(200)
+               .body("find { it.id == %d }.name".formatted(projectId), is(projectName));
+
+        given().header(userAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects")
+               .then()
+               .statusCode(200)
+               .body("find { it.id == %d }".formatted(projectId), org.hamcrest.Matchers.nullValue());
+
+        dev.vepo.issues.Given.addProjectMember(projectId, "user@issues.vepo.dev");
+
+        given().header(userAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects")
+               .then()
+               .statusCode(200)
+               .body("find { it.id == %d }.name".formatted(projectId), is(projectName));
     }
 }

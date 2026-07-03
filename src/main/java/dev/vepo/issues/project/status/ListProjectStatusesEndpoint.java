@@ -18,7 +18,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(ProjectPaths.BASE)
 @ApplicationScoped
@@ -39,7 +41,8 @@ public class ListProjectStatusesEndpoint {
     @Path("{projectId}/status")
     @RolesAllowed({ Role.PROJECT_MANAGER_ROLE, Role.ADMIN_ROLE, Role.USER_ROLE })
     @Operation(operationId = "listProjectStatuses", summary = "List project workflow statuses")
-    public List<ProjectStatusResponse> listStatuses(@PathParam("projectId") long projectId) {
-        return projectService.listStatuses(projectId);
+    public List<ProjectStatusResponse> listStatuses(@PathParam("projectId") long projectId,
+                                                    @Context SecurityContext securityContext) {
+        return projectService.listStatuses(projectId, securityContext.getUserPrincipal().getName());
     }
 }

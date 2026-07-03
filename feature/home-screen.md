@@ -1,7 +1,7 @@
 # Home screen
 
 **Feature version:** 1  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** 2026-07-03  
 **Source:** [GitHub issue #3](https://github.com/vepo/issues/issues/3) — *Criar página inicial que exiba os tickets atuais*
 
@@ -325,7 +325,9 @@ Reviewed after **Q1–Q18** answers. Scope: home hub + **project membership** + 
 ### Personal work hub + project membership — 2026-07-03
 
 **Version:** 1  
-**Status:** tasks-ready
+**Status:** done
+
+**Development approval:** approved 2026-07-03 — tasks: T1, T2, T3, T4, T5, T6, T6b, T7, T8, T9, T10, T11, T12, T13, T14, T15
 
 **Description:** Issue #3 — home shows tickets atuais, tickets atribuídos, and atividade; add project membership and enforce assignee ∈ members.
 
@@ -340,7 +342,7 @@ Reviewed after **Q1–Q18** answers. Scope: home hub + **project membership** + 
 | [kanban-board](kanban-board.md) | Entry via project hub; member access |
 | [project-dashboard](project-dashboard.md) | Entry via project hub; member access |
 | [phase-management](phase-management.md) | Member access on project routes |
-| [ticket-search](ticket-search.md) | **None** (**Q16**) |
+| [ticket-search](ticket-search.md) | **v2 cross-impact** — owned saved queries with **show at home** render as home sections ([ticket-search](ticket-search.md) S3); search scope unchanged (**Q16**) |
 | [notifications](notifications.md) | **None** — home not SSE (**Q7**) |
 | [user-management](user-management.md) | Users are allocation targets; no user CRUD change |
 | [ui-design-system](ui-design-system.md) | Reuse `.activity-feed`, `.data-table`, `.page`; document home + allocation |
@@ -350,57 +352,55 @@ Reviewed after **Q1–Q18** answers. Scope: home hub + **project membership** + 
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | M:N project membership + `owner_id` on project | S1 | ☐ |
-| FC2 | Assignee must be project member (create, assign, import) | S1 | ☐ |
-| FC3 | Allocation page matches **Wireframe**; remove guard (**Q13**) | S1b, Wireframe | ☐ |
-| FC4 | Project hub matches **Wireframe** (**Q15**) | S1c, Wireframe | ☐ |
-| FC5 | Home hub matches **Wireframe** — no project grid (**Q5**) | S5, Wireframe | ☐ |
-| FC6 | Tickets atuais — open tickets in scoped projects (**Q1**) | S2 | ☐ |
-| FC7 | Tickets atribuídos — open assignee tickets (**Q2**) | S3 | ☐ |
-| FC8 | Atividade — comments + status changes, static (**Q3**, **Q4**) | S4 | ☐ |
-| FC9 | Access rules per S6 (**Q9**, **Q12**, **Q16**) | S6 | ☐ |
-| FC10 | Owner transfer on edit (**Q17**, **Q18**) | S1, Wireframe | ☐ |
-| FC11 | `domain-specification.md` — membership, home terms | Impact / Docs | ☐ |
-| FC12 | `feature-catalog.md` — home, hub, allocation paths | Impact / Docs | ☐ |
-| FC13 | `README.md` — home hub, allocation | Impact / Docs | ☐ |
-| FC14 | `dev-import.sql` — owners, memberships (**Q14**) | T14 | ☐ |
+| FC1 | M:N project membership + `owner_id` on project | S1 | ☑ |
+| FC2 | Assignee must be project member (create, assign, import) | S1 | ☑ |
+| FC3 | Allocation page matches **Wireframe**; remove guard (**Q13**) | S1b, Wireframe | ☑ |
+| FC4 | Project hub matches **Wireframe** (**Q15**) | S1c, Wireframe | ☑ |
+| FC5 | Home hub matches **Wireframe** — no project grid (**Q5**) | S5, Wireframe | ☑ |
+| FC6 | Tickets atuais — open tickets in scoped projects (**Q1**) | S2 | ☑ |
+| FC7 | Tickets atribuídos — open assignee tickets (**Q2**) | S3 | ☑ |
+| FC8 | Atividade — comments + status changes, static (**Q3**, **Q4**) | S4 | ☑ |
+| FC9 | Access rules per S6 (**Q9**, **Q12**, **Q16**) | S6 | ☑ |
+| FC10 | Owner transfer on edit (**Q17**, **Q18**) | S1, Wireframe | ☑ |
+| FC11 | `domain-specification.md` — membership, home terms | Impact / Docs | ☑ |
+| FC12 | `feature-catalog.md` — home, hub, allocation paths | Impact / Docs | ☑ |
+| FC13 | `README.md` — home hub, allocation | Impact / Docs | ☑ |
+| FC14 | `dev-import.sql` — owners, memberships (**Q14**) | T14 | ☑ |
 
 #### Tasks (phase 2)
 
 | ID | Task | Done |
 |----|------|------|
-| T1 | Flyway: `tb_project_members` + `tb_projects.owner_id` + JPA (`ProjectMember`, `Project.owner`) | ☐ |
-| T2 | `ProjectMemberRepository` — members by project, projects by user, membership checks, open tickets by assignee | ☐ |
-| T3 | `ProjectService` — owner on create; **owner transfer** (**Q17**); members; owner/admin update guard | ☐ |
-| T4 | Member endpoints + open-assigned-tickets for allocation (**Q13**) + tests | ☐ |
-| T5 | Enforce assignee ∈ members (create, assign, import) + tests | ☐ |
-| T6 | Filter `listProjects` — member / owned / admin scopes (**Q9**, **Q12**) | ☐ |
-| T6b | Access rules: hub (member+admin); edit/allocation (owner+admin); kanban/dashboard (member+admin) | ☐ |
-| T7 | `GET` home tickets atuais + test | ☐ |
-| T8 | `GET` home tickets atribuídos + test | ☐ |
-| T9 | `GET` home activity + test | ☐ |
-| T10 | Redesign `home.component`; project column → hub; `home.service` + resolver | ☐ |
-| T11 | **Allocation** page — members, remove guard, open-tickets list (**Q13**) | ☐ |
-| T12 | **Project hub** + **edit** (owner picker for admin/current owner per **Q17**); split routes (**Q15**) | ☐ |
-| T13 | Assignee pickers → project members only | ☐ |
-| T14 | `dev-import.sql` — owners, memberships, backfill (**Q14**) | ☐ |
-| T15 | Docs: domain-spec, feature-catalog, README, ui-elements-gallery | ☐ |
+| T1 | Flyway: `tb_project_members` + `tb_projects.owner_id` + JPA (`ProjectMember`, `Project.owner`) | ☑ |
+| T2 | `ProjectMemberRepository` — members by project, projects by user, membership checks, open tickets by assignee | ☑ |
+| T3 | `ProjectService` — owner on create; **owner transfer** (**Q17**); members; owner/admin update guard | ☑ |
+| T4 | Member endpoints + open-assigned-tickets for allocation (**Q13**) + tests | ☑ |
+| T5 | Enforce assignee ∈ members (create, assign, import) + tests | ☑ |
+| T6 | Filter `listProjects` — member / owned / admin scopes (**Q9**, **Q12**) | ☑ |
+| T6b | Access rules: hub (member+admin); edit/allocation (owner+admin); kanban/dashboard (member+admin) | ☑ |
+| T7 | `GET` home tickets atuais + test | ☑ |
+| T8 | `GET` home tickets atribuídos + test | ☑ |
+| T9 | `GET` home activity + test | ☑ |
+| T10 | Redesign `home.component`; project column → hub; `home.service` + resolver | ☑ |
+| T11 | **Allocation** page — members, remove guard, open-tickets list (**Q13**) | ☑ |
+| T12 | **Project hub** + **edit** (owner picker for admin/current owner per **Q17**); split routes (**Q15**) | ☑ |
+| T13 | Assignee pickers → project members only | ☑ |
+| T14 | `dev-import.sql` — owners, memberships, backfill (**Q14**) | ☑ |
+| T15 | Docs: domain-spec, feature-catalog, README, ui-elements-gallery | ☑ |
 
 #### Test coverage (phase 2)
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | `ProjectMemberEndpointTest` (+ open-tickets list) | T4 | ☐ |
-| TC2 | Assignee ∉ member rejected (create, assign, import) | T5 | ☐ |
-| TC3 | `ListProjectsEndpointTest` — member / owned / admin | T6 | ☐ |
-| TC4 | `UpdateProjectEndpointTest` — owner transfer (admin + owner); hub access | T3, T6b, T12 | ☐ |
-| TC5 | `HomeTicketsEndpointTest` | T7, T8 | ☐ |
-| TC6 | `HomeActivityEndpointTest` | T9 | ☐ |
-| TC7 | `home.component.spec.ts` | T10 | ☐ |
-| TC8 | `project-allocation.component.spec.ts` | T11 | ☐ |
-| TC9 | `project-hub.component.spec.ts` (or projects view) | T12 | ☐ |
-| TC10 | `ArchitectureTest` | New Request/Response records | ☐ |
+| TC1 | `ProjectMemberEndpointTest` (+ open-tickets list) | T4 | ☑ |
+| TC2 | Assignee ∉ member rejected (create, assign, import) | T5 | ☑ |
+| TC3 | `ListProjectsEndpointTest` — member / owned / admin | T6 | ☑ |
+| TC4 | `UpdateProjectEndpointTest` — owner transfer (admin + owner); hub access | T3, T6b, T12 | ☑ |
+| TC5 | `HomeEndpointTest` (current + assigned tickets) | T7, T8 | ☑ |
+| TC6 | `HomeEndpointTest` (activity) | T9 | ☑ |
+| TC7 | `home.component.spec.ts` | T10 | ☑ |
+| TC8 | `project-allocation.component.spec.ts` | T11 | ☑ |
+| TC9 | `project-hub.component.spec.ts` (or projects view) | T12 | ☑ |
+| TC10 | `ArchitectureTest` | New Request/Response records | ☑ |
 
-**Development approval:** pending
-
-**Implementation notes:** (pending)
+**Implementation notes:** Backend membership + home APIs; Angular home hub, project hub, allocation; routes split at `/projects/:id/edit`. `mvn verify` and `npm run build` + `npm test` green (2026-07-03).

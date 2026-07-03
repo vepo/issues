@@ -28,7 +28,7 @@ export class KanbanComponent implements OnInit {
   private readonly phaseService = inject(PhaseService);
 
   statuses: ProjectStatus[] = [];
-  project: Project = { id: -1, name: '', prefix: '', description: '', workflow: { id: -1, name: '' }, ticketTemplate: { enabled: false }, phaseTemplate: { deliverables: [] } };
+  project: Project = { id: -1, name: '', prefix: '', description: '', workflow: { id: -1, name: '' }, owner: { id: -1, name: '', email: '' }, ticketTemplate: { enabled: false }, phaseTemplate: { deliverables: [] } };
   tickets: Ticket[] = [];
   workflow?: ProjectWorkflow;
   phases: Phase[] = [];

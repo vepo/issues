@@ -34,7 +34,7 @@ Follow [ARCHITECTURE.md](../../ARCHITECTURE.md) §6. Dependencies flow **downwar
 
 ## When adding a feature
 
-Complete [development-process.mdc](development-process.mdc) phases 1–3 before coding. Phase 4 (TDD), in order:
+Complete [development-process.mdc](development-process.mdc) phases 1–4 before coding. Phase 5 (TDD), in order:
 
 1. Entity (if new table) + Flyway baseline change per [issues-flyway.mdc](issues-flyway.mdc).
 2. `XxxRepository`.

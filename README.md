@@ -67,7 +67,9 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 ### Projects & administration
 
-- **Projects** — name, prefix, description, assigned workflow, and optional **ticket template** (default title, description, category, priority for new tickets)
+- **Projects** — name, prefix, description, assigned workflow, **project owner** (PM role), **project members**, and optional **ticket template** (default title, description, category, priority for new tickets)
+- **Project allocation** — dedicated page to add/remove members; removal blocked while member has open assigned tickets
+- **Project hub** — member landing page with links to Kanban and dashboard (replaces project grid on home)
 - **Workflow builder** — create workflows with statuses and transitions (`/workflows` UI + API)
 - **Categories admin** — list and create ticket categories (`/categories`, admin)
 - **User management** — CRUD for users and role assignment (admin)
@@ -75,6 +77,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 ### Views & analytics
 
+- **Home hub** — personal work view: open tickets in your projects, tickets assigned to you, and recent activity (comments + status changes)
 - **Kanban board** — columns by workflow status; move tickets between stages
 - **Project dashboard** — charts (tickets by day, status, priority), recent tickets table, performance KPIs
 - **Global search** — full-text ticket search across projects

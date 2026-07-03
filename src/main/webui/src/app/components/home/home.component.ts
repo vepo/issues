@@ -1,34 +1,37 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { Project, ProjectsService } from '../../services/projects.service';
-import { TrimPipe } from '../pipes/trim.pipe';
+import { forkJoin } from 'rxjs';
+import { HomeActivity, HomeService, HomeTicket } from '../../services/home.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  imports: [CommonModule, RouterModule, FormsModule, TrimPipe, MatIconModule, MatButtonModule],
+  styleUrl: './home.component.scss',
+  imports: [CommonModule, RouterModule, DatePipe, MatIconModule],
   standalone: true
 })
 export class HomeComponent implements OnInit {
-  private readonly projectsService = inject(ProjectsService);
-  private readonly authService = inject(AuthService);
+  private readonly homeService = inject(HomeService);
 
-  projects: Project[] = [];
+  currentTickets: HomeTicket[] = [];
+  assignedTickets: HomeTicket[] = [];
+  activity: HomeActivity[] = [];
 
-  ngOnInit() {
-    this.projectsService.findAll().subscribe({
-      next: (projects) => {
-        this.projects = projects;
-      }
+  ngOnInit(): void {
+    forkJoin({
+      current: this.homeService.listCurrentTickets(),
+      assigned: this.homeService.listAssignedTickets(),
+      activity: this.homeService.listActivity()
+    }).subscribe(({ current, assigned, activity }) => {
+      this.currentTickets = current;
+      this.assignedTickets = assigned;
+      this.activity = activity;
     });
   }
 
-  isAuthenticated(): boolean {
-    return this.authService.isLoggedIn();
+  activityTrack(item: HomeActivity): string {
+    return `${item.type}-${item.ticketId}-${item.occurredAt}`;
   }
-} 
+}

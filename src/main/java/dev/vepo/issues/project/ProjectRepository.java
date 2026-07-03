@@ -1,5 +1,6 @@
 package dev.vepo.issues.project;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -20,7 +21,35 @@ public class ProjectRepository {
     }
 
     public Stream<Project> findAll() {
-        return em.createQuery("FROM Project", Project.class)
+        return em.createQuery("FROM Project ORDER BY name", Project.class)
+                 .getResultStream();
+    }
+
+    public List<Long> findAllIds() {
+        return em.createQuery("SELECT p.id FROM Project p", Long.class)
+                 .getResultList();
+    }
+
+    public Stream<Long> findOwnedProjectIds(long userId) {
+        return em.createQuery("SELECT p.id FROM Project p WHERE p.owner.id = :userId", Long.class)
+                 .setParameter("userId", userId)
+                 .getResultStream();
+    }
+
+    public Stream<Project> findOwnedByUserId(long userId) {
+        return em.createQuery("FROM Project p WHERE p.owner.id = :userId ORDER BY p.name", Project.class)
+                 .setParameter("userId", userId)
+                 .getResultStream();
+    }
+
+    public Stream<Project> findByMemberUserId(long userId) {
+        return em.createQuery("""
+                              SELECT p FROM Project p
+                              JOIN ProjectMember m ON m.project = p
+                              WHERE m.user.id = :userId
+                              ORDER BY p.name
+                              """, Project.class)
+                 .setParameter("userId", userId)
                  .getResultStream();
     }
 

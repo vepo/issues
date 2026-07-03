@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import dev.vepo.issues.Given;
 import dev.vepo.issues.ticket.TicketTestFixtures;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -73,6 +74,28 @@ class ImportTicketsEndpointTest {
                .body("created", hasSize(1))
                .body("errors", hasSize(0))
                .body("created[0].assignee", equalTo((int) dev.vepo.issues.Given.userIdByEmail("user@issues.vepo.dev")));
+    }
+
+    @Test
+    @DisplayName("Should report assignee who is not a project member as import error")
+    void shouldRejectAssigneeWhoIsNotProjectMember() throws IOException {
+        Given.user("outsider-import@issues.vepo.dev");
+        var importId = uploadCsv("""
+                                 Title,Description,Category,Assignee
+                                 Outsider ticket title,Outsider ticket description,%s,outsider-import@issues.vepo.dev
+                                 """.formatted(fixtures.bug().getName()));
+
+        applyDefaultMapping(importId);
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .accept(ContentType.JSON)
+               .when()
+               .post("/api/projects/%d/tickets/import/%d/execute".formatted(fixtures.project().id(), importId))
+               .then()
+               .statusCode(200)
+               .body("created", hasSize(0))
+               .body("errors", hasSize(1))
+               .body("errors[0].message", equalTo("Assignee must be a member of the project"));
     }
 
     @Test

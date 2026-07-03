@@ -8,6 +8,8 @@ import { LoginComponent } from './components/login/login.component';
 import { PasswordResetRequestComponent } from './components/password-reset-request/password-reset-request.component';
 import { PasswordResetComponent } from './components/password-reset/password-reset.component';
 import { ProjectEditComponent } from './components/project-edit.component/project-edit.component';
+import { ProjectAllocationComponent } from './components/projects/project-allocation.component';
+import { ProjectHubComponent } from './components/projects/project-hub.component';
 import { ProjectsViewComponent } from './components/projects-view.component/projects-view.component';
 import { SearchTicketsComponent } from './components/search-tickets/search-tickets.component';
 import { TicketViewComponent } from './components/ticket-view/ticket-view.component';
@@ -206,13 +208,29 @@ export const routes: Routes = [
   },
   {
     path: 'projects/:projectId',
+    component: ProjectHubComponent,
+    resolve: {
+      project: projectResolver
+    },
+    canActivate: [authGuard]
+  },
+  {
+    path: 'projects/:projectId/edit',
     component: ProjectEditComponent,
     resolve: {
       project: projectResolver,
       workflows: workflowsResolver,
       categories: categoriesResolver
     },
-    canActivate: [authGuard, roleGuard(['project-manager'])]
+    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])]
+  },
+  {
+    path: 'projects/:projectId/allocation',
+    component: ProjectAllocationComponent,
+    resolve: {
+      project: projectResolver
+    },
+    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])]
   },
   {
     path: 'workflows',

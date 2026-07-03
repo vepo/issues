@@ -1,0 +1,99 @@
+---
+description: Phase 2 — architecture design after feature analysis (part of development process)
+alwaysApply: true
+---
+
+# Architecture design (phase 2)
+
+Part of the mandatory [development-process.mdc](development-process.mdc). **Every feature change** that requires feature analysis also requires architecture design before task break. **Do not write production or test code** until phases 1–4 are complete for the current changelog entry.
+
+**Answering architecture questions (AQ*n*) updates the feature doc only** — it is not development approval. **Each answer triggers a mandatory impact review** — see [development-process.mdc](development-process.mdc) § Impact review when answering open questions.
+
+Canonical references: [ARCHITECTURE.md](../../ARCHITECTURE.md), [issues-layered-architecture.mdc](issues-layered-architecture.mdc), [issues-bounded-contexts.mdc](issues-bounded-contexts.mdc).
+
+## When required
+
+| Trigger | Architecture design required |
+|---------|------------------------------|
+| Any change that triggers feature analysis ([change-request-analysis.mdc](change-request-analysis.mdc) § When required) | **Yes** — mandatory |
+| Typo, comment-only, formatter, docs-only (no behaviour) | No — exempt with feature analysis |
+
+**No feature change skips architecture design.** If feature analysis applies, architecture design applies.
+
+## Preconditions
+
+- Phase 1 (feature analysis) exit criteria met for the changelog entry.
+- Blocking **feature questions (FQ*n*)** are `answered` or `not valid`.
+- Changelog **Status:** `planned` (or `architecture-ready` if revisiting design after scope change).
+
+## Process
+
+### 1. Add or extend `## Architecture` on the feature doc
+
+Document the technical design for the current changelog entry. Minimum areas:
+
+| Area | Document |
+|------|----------|
+| Bounded contexts | Which contexts participate; dependency direction ([issues-bounded-contexts.mdc](issues-bounded-contexts.mdc)) |
+| Packages / layers | Concrete packages; Endpoint → Service → Repository map per operation |
+| API surface | Paths, HTTP verbs, Request/Response record names, auth roles |
+| Schema / persistence | Tables, columns, FKs, indexes; Flyway baseline changes |
+| Cross-context integration | CDI events, shared services — no repository calls across unrelated contexts |
+| Frontend integration | Angular routes, services, API codegen impact |
+| Tests | Endpoint tests, ArchUnit boundaries, Angular specs affected |
+
+Revise when **AQ*n*** answers or **FQ*n*** answers change the technical footprint.
+
+### 2. Track architecture questions (AQ*n*)
+
+Use **AQ1**, **AQ2**, … for decisions about **how** to implement — not product scope (those are **FQ*n*** in phase 1).
+
+| Kind | Prefix | Examples |
+|------|--------|----------|
+| Feature question | **FQ*n*** | Scope, UX, domain rules, wireframe, roles visible to users |
+| Architecture question | **AQ*n*** | Package placement, service vs endpoint logic, schema shape, event vs direct call, API naming, query strategy |
+
+Status: `open` | `answered` | `not valid`. Cite **AQ*n*** in Tasks, **Feature checklist**, and **Architecture** section.
+
+**When a question is answered:** run impact review per [development-process.mdc](development-process.mdc) § Impact review when answering open questions — refresh **Architecture**, Impact (packages/API/schema), **Feature checklist**, tasks, and [ARCHITECTURE.md](../../ARCHITECTURE.md) §13 when the system map changes.
+
+### 3. Validate against architecture rules
+
+Before exiting phase 2, confirm:
+
+1. **Layered architecture** — one HTTP operation per `*Endpoint`; business logic in `*Service`; persistence in `*Repository` ([issues-layered-architecture.mdc](issues-layered-architecture.mdc)).
+2. **Bounded contexts** — dependencies flow as allowed in [docs/domain-specification.md](../../docs/domain-specification.md); no cross-context repository access.
+3. **HTTP contract** — Request/Response records; no VO/DTO suffix ([issues-http-contract.mdc](issues-http-contract.mdc)).
+4. **Schema** — pre-production edits in `V1.0.0__Database_Creation.sql` only ([issues-flyway.mdc](issues-flyway.mdc)).
+5. **Domain spec** — vocabulary and invariants from phase 1 still align; update domain spec if architecture reveals gaps.
+
+### 4. Set status and stop
+
+Set changelog **Status:** `architecture-ready`. Present the **Architecture** section and any open **AQ*n*** to the user. **Stop — proceed to task break (phase 3) only when blocking AQ*n* are resolved.**
+
+## Exit criteria
+
+- `## Architecture` section complete for the changelog entry.
+- Layer and package map defined for every new/changed operation.
+- Blocking **AQ*n*** are `answered` or `not valid`.
+- Domain spec and Impact tables reflect architecture decisions.
+- Changelog **Status:** `architecture-ready`. **No code.**
+
+## Allowed edits
+
+| Phase | Status | May edit |
+|-------|--------|----------|
+| 2 | `planned` → `architecture-ready` | `feature/*.md` (**Architecture**, AQ table, Impact, domain spec, **Feature checklist**) |
+| 2 (AQ answered) | `planned`, `architecture-ready`, or `tasks-ready` | Same — **not** application source |
+
+## Order with other gates
+
+```
+Feature analysis → architecture design → task break → development approved → TDD → verify
+```
+
+Feature questions first (**FQ*n***), then architecture questions (**AQ*n***), then tasks. Domain spec: [domain-model.mdc](domain-model.mdc). TDD: [issues-model.mdc](issues-model.mdc) § TDD (phase 5).
+
+## Legacy open questions
+
+Existing feature docs may use undifferentiated **Q*n***. Treat them as **FQ*n*** until the doc is updated. Split or renumber into **FQ*n*** / **AQ*n*** when editing that feature file.

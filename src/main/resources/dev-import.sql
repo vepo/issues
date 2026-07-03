@@ -103,14 +103,18 @@ BEGIN
     INSERT INTO tb_workflow_finish_statuses (workflow_id, status_id, outcome) VALUES (support_id, done_id, 'DONE');
     INSERT INTO tb_workflow_finish_statuses (workflow_id, status_id, outcome) VALUES (support_id, cancel_id, 'CANCELED');
 
-    INSERT INTO tb_projects (name, description, prefix, workflow_id,
+    INSERT INTO tb_projects (name, description, prefix, workflow_id, owner_id,
                              ticket_template_enabled, ticket_template_title,
                              ticket_template_description, ticket_template_category_id, ticket_template_priority)
-    VALUES ('Issues', 'MVP Issues', 'ISS', agile_id,
+    VALUES ('Issues', 'MVP Issues', 'ISS', agile_id, user_cto_id,
             TRUE, 'New work item',
             'Describe the change or defect using the sections below.',
             bug_id, 'MEDIUM')
     RETURNING id INTO proj_issues_id;
+
+    INSERT INTO tb_project_members (project_id, user_id)
+    SELECT proj_issues_id, u.id FROM tb_users u
+    WHERE u.username IN ('cto-boss', 'senior', 'junior', 'proj-leader', 'project-boss', 'tech-lead');
 
     INSERT INTO tb_versions (project_id, label, description)
     VALUES (proj_issues_id, '1.0.0', 'MVP inicial')

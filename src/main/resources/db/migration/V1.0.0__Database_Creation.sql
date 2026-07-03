@@ -43,6 +43,7 @@ CREATE TABLE tb_projects (
     description TEXT,
     prefix      VARCHAR(15) NOT NULL,
     workflow_id BIGINT NOT NULL,
+    owner_id    BIGINT NOT NULL,
     ticket_template_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     ticket_template_title VARCHAR(255),
     ticket_template_description TEXT,
@@ -51,7 +52,14 @@ CREATE TABLE tb_projects (
     phase_template_objective TEXT,
 
     CONSTRAINT tb_project_UK UNIQUE (name),
-    CONSTRAINT tb_project_workflow_FK FOREIGN KEY (workflow_id) REFERENCES tb_workflows
+    CONSTRAINT tb_project_workflow_FK FOREIGN KEY (workflow_id) REFERENCES tb_workflows,
+    CONSTRAINT tb_project_owner_FK FOREIGN KEY (owner_id) REFERENCES tb_users
+);
+
+CREATE TABLE tb_project_members (
+    project_id BIGINT NOT NULL REFERENCES tb_projects,
+    user_id    BIGINT NOT NULL REFERENCES tb_users,
+    PRIMARY KEY (project_id, user_id)
 );
 
 CREATE TABLE tb_project_phase_deliverable_templates (

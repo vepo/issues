@@ -18,7 +18,9 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(ProjectPaths.BASE)
 @ApplicationScoped
@@ -39,7 +41,7 @@ public class CreateProjectEndpoint {
     @ResponseStatus(201)
     @RolesAllowed(Role.PROJECT_MANAGER_ROLE)
     @Operation(operationId = "createProject", summary = "Create a project")
-    public ProjectResponse create(@Valid CreateProjectRequest request) {
-        return projectService.create(request);
+    public ProjectResponse create(@Valid CreateProjectRequest request, @Context SecurityContext securityContext) {
+        return projectService.create(request, securityContext.getUserPrincipal().getName());
     }
 }

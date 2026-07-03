@@ -3,8 +3,6 @@ package dev.vepo.issues.project.find;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,18 +60,34 @@ class FindProjectByIdEndpointTest {
                                     .extract()
                                     .as(ProjectResponse.class);
 
-        // Test that both user and PM can access it
-        Stream.of(userAuthenticatedHeader, pmAuthenticatedHeader)
-              .forEach(header -> given().header(header)
-                                        .accept(ContentType.JSON)
-                                        .when()
-                                        .get("/api/projects/" + createdProject.id())
-                                        .then()
-                                        .statusCode(200)
-                                        .body("id", is((int) createdProject.id()))
-                                        .body("name", is("Test Project For Get"))
-                                        .body("description", is("This is a test project for get by ID."))
-                                        .body("workflow.id", is((int) workflow.id())));
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/" + createdProject.id())
+               .then()
+               .statusCode(200)
+               .body("id", is((int) createdProject.id()))
+               .body("name", is("Test Project For Get"));
+
+        given().header(userAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/" + createdProject.id())
+               .then()
+               .statusCode(403);
+
+        dev.vepo.issues.Given.addProjectMember(createdProject.id(), "user@issues.vepo.dev");
+
+        given().header(userAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/" + createdProject.id())
+               .then()
+               .statusCode(200)
+               .body("id", is((int) createdProject.id()))
+               .body("name", is("Test Project For Get"))
+               .body("description", is("This is a test project for get by ID."))
+               .body("workflow.id", is((int) workflow.id()));
     }
 
     @Test

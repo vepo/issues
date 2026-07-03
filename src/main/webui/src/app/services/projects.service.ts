@@ -8,7 +8,7 @@ import { WorkflowResponse } from '../generated/model/workflowResponse';
 import { asLoaded, asLoadedArray, Loaded } from '../core/required-types';
 
 export type Project = Loaded<ProjectResponse>;
-export type CreateOrUpdateProjectRequest = CreateProjectRequest;
+export type CreateOrUpdateProjectRequest = CreateProjectRequest & { ownerId?: number };
 export type ProjectWorkflow = Loaded<WorkflowResponse>;
 
 @Injectable({

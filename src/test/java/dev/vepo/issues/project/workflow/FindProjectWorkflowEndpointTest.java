@@ -3,8 +3,6 @@ package dev.vepo.issues.project.workflow;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -62,16 +60,25 @@ class FindProjectWorkflowEndpointTest {
                                     .extract()
                                     .as(ProjectResponse.class);
 
-        // Test that both user and PM can access the workflow
-        Stream.of(userAuthenticatedHeader, pmAuthenticatedHeader)
-              .forEach(header -> given().header(header)
-                                        .accept(ContentType.JSON)
-                                        .when()
-                                        .get("/api/projects/" + createdProject.id() + "/workflow")
-                                        .then()
-                                        .statusCode(200)
-                                        .body("id", is((int) workflow.id()))
-                                        .body("name", is(workflow.name())));
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/" + createdProject.id() + "/workflow")
+               .then()
+               .statusCode(200)
+               .body("id", is((int) workflow.id()))
+               .body("name", is(workflow.name()));
+
+        dev.vepo.issues.Given.addProjectMember(createdProject.id(), "user@issues.vepo.dev");
+
+        given().header(userAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/" + createdProject.id() + "/workflow")
+               .then()
+               .statusCode(200)
+               .body("id", is((int) workflow.id()))
+               .body("name", is(workflow.name()));
     }
 
     @Test

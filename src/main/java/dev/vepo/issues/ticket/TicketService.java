@@ -16,6 +16,8 @@ import dev.vepo.issues.phase.Phase;
 import dev.vepo.issues.phase.PhaseService;
 import dev.vepo.issues.phase.Version;
 import dev.vepo.issues.phase.VersionService;
+import dev.vepo.issues.project.ProjectAccessService;
+import dev.vepo.issues.project.ProjectMemberRepository;
 import dev.vepo.issues.project.ProjectRepository;
 import dev.vepo.issues.ticket.comments.Comment;
 import dev.vepo.issues.ticket.comments.CommentRequest;
@@ -47,6 +49,8 @@ public class TicketService {
     private final WorkflowRepository workflowRepository;
     private final VersionService versionService;
     private final PhaseService phaseService;
+    private final ProjectMemberRepository memberRepository;
+    private final ProjectAccessService projectAccessService;
     private final Event<NotificationEvent> notificationEmitter;
 
     @Inject
@@ -58,6 +62,8 @@ public class TicketService {
                          WorkflowRepository workflowRepository,
                          VersionService versionService,
                          PhaseService phaseService,
+                         ProjectMemberRepository memberRepository,
+                         ProjectAccessService projectAccessService,
                          Event<NotificationEvent> notificationEmitter) {
         this.repository = repository;
         this.userRepository = userRepository;
@@ -67,6 +73,8 @@ public class TicketService {
         this.workflowRepository = workflowRepository;
         this.versionService = versionService;
         this.phaseService = phaseService;
+        this.memberRepository = memberRepository;
+        this.projectAccessService = projectAccessService;
         this.notificationEmitter = notificationEmitter;
     }
 
@@ -99,7 +107,8 @@ public class TicketService {
     }
 
     @Transactional
-    public List<TicketResponse> findByProjectId(long projectId) {
+    public List<TicketResponse> findByProjectId(long projectId, String username) {
+        projectAccessService.requireView(projectId, username);
         return repository.findByProjectId(projectId)
                          .map(TicketResponse::load)
                          .toList();
@@ -199,6 +208,7 @@ public class TicketService {
     public TicketResponse updateAssignee(long id, UpdateAssigneeRequest request, String username) {
         var entity = requireTicket(id);
         var newAssignee = requireUserById(request.assigneeId());
+        requireAssigneeIsProjectMember(entity.getProject().getId(), newAssignee.getId());
         var fromAssignee = entity.getAssignee() != null ? entity.getAssignee().getName() : null;
         var toAssignee = newAssignee.getName();
 
@@ -359,6 +369,12 @@ public class TicketService {
 
     private NotFoundException categoryNotFound(long categoryId) {
         return new NotFoundException("Category does not found! categoryId=%d".formatted(categoryId));
+    }
+
+    private void requireAssigneeIsProjectMember(long projectId, long assigneeId) {
+        if (!memberRepository.isMember(projectId, assigneeId)) {
+            throw new BadRequestException("Assignee must be a member of the project");
+        }
     }
 
     private void applyFinishDate(Ticket ticket,

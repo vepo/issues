@@ -4,8 +4,6 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,16 +61,25 @@ class ListProjectStatusesEndpointTest {
                                     .extract()
                                     .as(ProjectResponse.class);
 
-        // Test that both user and PM can access the statuses
-        Stream.of(userAuthenticatedHeader, pmAuthenticatedHeader)
-              .forEach(header -> given().header(header)
-                                        .accept(ContentType.JSON)
-                                        .when()
-                                        .get("/api/projects/" + createdProject.id() + "/status")
-                                        .then()
-                                        .statusCode(200)
-                                        .body("$.size()", greaterThan(0))
-                                        .body("[0].name", is(workflow.start())));
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/" + createdProject.id() + "/status")
+               .then()
+               .statusCode(200)
+               .body("$.size()", greaterThan(0))
+               .body("[0].name", is(workflow.start()));
+
+        dev.vepo.issues.Given.addProjectMember(createdProject.id(), "user@issues.vepo.dev");
+
+        given().header(userAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/" + createdProject.id() + "/status")
+               .then()
+               .statusCode(200)
+               .body("$.size()", greaterThan(0))
+               .body("[0].name", is(workflow.start()));
     }
 
     @Test

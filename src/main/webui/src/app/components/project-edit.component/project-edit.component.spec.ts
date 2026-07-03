@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 import { ProjectsService } from '../../services/projects.service';
+import { UsersService } from '../../services/users.service';
 import { ProjectEditComponent } from './project-edit.component';
 
 describe('ProjectEditComponent', () => {
@@ -20,6 +22,9 @@ describe('ProjectEditComponent', () => {
           useValue: { data: of(routeData) },
         },
         { provide: ProjectsService, useValue: projectsService },
+        { provide: AuthService, useValue: { hasRole: () => true, getAuthUserId: () => 1 } },
+        { provide: UsersService, useValue: { search: () => of([]) } },
+        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ProjectEditComponent);
@@ -36,6 +41,7 @@ describe('ProjectEditComponent', () => {
           description: 'A test project',
           prefix: 'TP',
           workflow: { id: 1, name: 'Default Workflow' },
+          owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
           ticketTemplate: {
             enabled: true,
             title: 'Template title',
@@ -65,6 +71,7 @@ describe('ProjectEditComponent', () => {
         description: 'A test project',
         prefix: 'TP',
         workflow: { id: 1, name: 'Default Workflow' },
+        owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
         ticketTemplate: { enabled: true, title: 'Template title', description: 'Template description here', categoryId: 2, priority: 'HIGH' },
         phaseTemplate: { deliverables: [] },
       }));
@@ -127,6 +134,7 @@ describe('ProjectEditComponent', () => {
         description: 'Project description',
         prefix: 'NP',
         workflow: { id: 1, name: 'Default Workflow' },
+        owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
         ticketTemplate: {
           enabled: true,
           title: 'Default ticket title',

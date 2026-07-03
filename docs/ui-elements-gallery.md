@@ -286,11 +286,19 @@ Standard wrapper for every authenticated route.
 
 **Used in:** login, password-reset-request, password-reset.
 
-### 4.3 Project grid (`.project-grid` / `.project-card`)
+### 4.3 Home hub (`.home-hub`)
 
-Home page project picker — responsive grid of linked cards with Kanban/Dashboard actions.
+Personal work screen at `/` — two-column ticket tables (`.home-hub__tickets`) plus full-width activity feed. Ticket lists use `div.data-table.data-table--cols-home-tickets` inside `.home-hub__panel` (`max-height` + `overflow: auto`); activity uses `.activity-feed` in `.home-hub__panel--activity` with the same scroll pattern.
 
-### 4.4 Detail list (`.detail-list`)
+### 4.4 Project allocation
+
+Member table on `/projects/:projectId/allocation` — add via user select, remove with guard UI listing open assigned tickets when blocked.
+
+### 4.5 Project grid (`.project-grid` / `.project-card`) — legacy
+
+Former home project picker; retained in styles for reference. New navigation uses **project hub** instead.
+
+### 4.6 Detail list (`.detail-list`)
 
 Definition list for read-only ticket metadata (label / value rows).
 
@@ -392,7 +400,7 @@ Table layout showing active search filters (term, status). Muted toolbar backgro
 |----------|-------|
 | **Chrome** | Light gray header (`.header`); zebra rows in `.body` |
 | **Structure** | `.header-cell`, `.row.even` / `.row.odd`, `.cell-actions`, `.data-table--empty` |
-| **Modifiers** | `data-table--cols-id-name-color-actions` (categories grid columns) |
+| **Modifiers** | `data-table--cols-id-name-color-actions` (categories grid columns); `data-table--cols-home-tickets` (home ticket tables — ID, title, project, status, priority, updated) |
 
 **Used in:** users, projects, categories, workflows, versions, ticket history, dashboard widgets.
 

@@ -5,6 +5,7 @@ public record ProjectResponse(long id,
                               String prefix,
                               String description,
                               ProjectWorkflowResponse workflow,
+                              ProjectOwnerResponse owner,
                               TicketTemplateResponse ticketTemplate,
                               PhaseTemplateResponse phaseTemplate) {
 
@@ -15,6 +16,7 @@ public record ProjectResponse(long id,
                                    project.getDescription(),
                                    new ProjectWorkflowResponse(project.getWorkflow().getId(),
                                                                project.getWorkflow().getName()),
+                                   ProjectOwnerResponse.load(project.getOwner()),
                                    TicketTemplateResponse.load(project),
                                    PhaseTemplateResponse.load(project));
     }

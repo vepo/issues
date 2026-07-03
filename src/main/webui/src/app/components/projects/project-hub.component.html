@@ -1,0 +1,34 @@
+<div class="page">
+  <nav class="breadcrumb" aria-label="Navegação">
+    <a routerLink="/" i18n>Início</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <span class="breadcrumb__current">{{ project?.name }}</span>
+  </nav>
+
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">{{ project?.name }}</h1>
+      <p class="page-subtitle">{{ project?.description }}</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn" matButton="filled" [routerLink]="['/project', project?.id, 'kanban']">
+        <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
+        <span i18n>Kanban</span>
+      </a>
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'dashboard']">
+        <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
+        <span i18n>Painel</span>
+      </a>
+      @if (canManage()) {
+        <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', project?.id, 'edit']">
+          <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
+          <span i18n>Editar</span>
+        </a>
+        <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', project?.id, 'allocation']">
+          <mat-icon fontIcon="group" aria-hidden="true"></mat-icon>
+          <span i18n>Alocação</span>
+        </a>
+      }
+    </div>
+  </header>
+</div>
