@@ -73,3 +73,8 @@ $shell-padding-x: 1rem;
 $panel-padding: $space-lg;
 $table-cell-padding-x: $space-md;
 $table-cell-padding-y: $space-sm;
+
+// Toolbar / action-row controls (buttons, compact selects, filter chips)
+$control-height: 2.5rem; // 40px — aligns with Material button default
+$control-font-size: 0.875rem;
+$control-padding-x: 0.75rem;

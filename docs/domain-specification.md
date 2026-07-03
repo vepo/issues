@@ -87,9 +87,11 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
 | **Project** | Bounded scope for tickets: name, prefix, required description, assigned workflow. | `Project`, `tb_projects` |
+| **Project owner** | Single user accountable for a project; must have **project-manager** role; set at creation; may be **transferred** by admin or current owner on edit. | `Project.owner` / `tb_projects.owner_id` |
 | **Project member** | User assigned to a project; required to be eligible as ticket **assignee** on that project. | `tb_project_members`; M:N project ↔ user |
-| **Project allocation** | Admin UI to add or remove **project members** for a project. | `/projects/:projectId/allocation`; UI **Alocação** |
-| **Assigned project** | Project where the current user is a **project member**. | Scopes home screen and default project list for `user` role |
+| **Project allocation** | UI for project owner or admin to add or remove **project members**. | `/projects/:projectId/allocation`; UI **Alocação** |
+| **Project hub** | Read-only project landing: Kanban and dashboard entry; accessible to **members** and admin. | `/projects/:projectId` |
+| **Assigned project** | Project where the current user is a **project member**. | Scopes home and hub for `user` role |
 | **Project prefix** | Short uppercase code used in ticket identifiers (e.g. `ISS`). | `Project.prefix` |
 | **Workflow** | Named state machine: start status, allowed statuses, transitions. | `Workflow`, `tb_workflows` |
 | **Status** | Named step in a workflow (e.g. TODO, IN_PROGRESS, DONE). | `WorkflowStatus`, `tb_workflow_status` |
@@ -209,7 +211,11 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 22. **Phase/version history** — changes to phase, observed version, target version, and finish date on tickets are logged via `TicketHistoryService`.
 23. **Phase/version admin roles** — phase and version CRUD: `PROJECT_MANAGER` and `ADMIN`; version changelog read: any authenticated user.
 24. **Project membership** — a user must be a **project member** to be set as ticket **assignee** on that project.
-25. **Home scope** — `user` role: home lists and activity include only **assigned projects**. `admin` and `project-manager` roles: org-wide (all projects) on home.
+25. **Project owner** — each project has exactly one **project owner** with the project-manager role, assigned at creation. Only the project owner or an **admin** may update the project, manage allocation, or change project configuration. **Owner transfer:** admin or the current project owner may assign a new owner on edit; the new owner must have the project-manager role and need not already be a **project member** — they are added as a member when the transfer completes.
+26. **Member removal** — a **project member** cannot be removed while they are **assignee** on a non-finished ticket in that project; tickets must be reassigned first.
+27. **Home scope** — `user` role: home lists and activity include **member** projects only. **Project owner:** owned projects. **Admin:** all projects.
+28. **Project hub access** — any **project member** (and admin) may open the project hub and navigate to Kanban and dashboard; project edit and allocation require project owner or admin.
+29. **Ticket search** — global across projects for any authenticated user; not filtered by membership.
 
 ---
 
@@ -218,7 +224,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | Aggregate | Root | Consistency boundary |
 |-----------|------|---------------------|
 | User | `User` | Credentials, roles, profile |
-| Project | `Project` | Name, prefix, workflow assignment, phase template |
+| Project | `Project` | Name, prefix, workflow assignment, phase template, **owner**, **members** |
 | Workflow | `Workflow` | Statuses, transitions, phase start status, finish statuses |
 | Phase | `Phase` | Lifecycle, objective, deliverables, deliverable version |
 | Version | `Version` | SemVer label, changelog (derived) |

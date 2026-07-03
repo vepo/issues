@@ -26,17 +26,24 @@ html {
 }
 
 :root {
+  --issues-control-height: #{colors.$control-height};
+  --issues-control-font-size: #{colors.$control-font-size};
+
   @include mat.button-overrides((
     filled-container-color: colors.$base-active-color,
     filled-label-text-color: colors.$surface-card,
     filled-disabled-container-color: colors.$text-muted,
+    filled-container-height: colors.$control-height,
     outlined-outline-color: colors.$base-secondary-color,
     outlined-label-text-color: colors.$base-secondary-color,
     outlined-disabled-outline-color: colors.$border-default,
+    outlined-container-height: colors.$control-height,
     filled-container-shape: colors.$radius-none,
     outlined-container-shape: colors.$radius-none,
     text-container-shape: colors.$radius-none,
     protected-container-shape: colors.$radius-none,
+    protected-container-height: colors.$control-height,
+    text-container-height: colors.$control-height,
   ));
 
   @include mat.form-field-overrides((
@@ -76,6 +83,9 @@ body {
 
 .mat-mdc-button-base.btn {
   border-radius: colors.$radius-none;
+  min-height: colors.$control-height;
+  height: colors.$control-height;
+  font-size: colors.$control-font-size;
 
   .mdc-button__label {
     display: inline-flex;
@@ -476,6 +486,22 @@ main {
     align-items: center;
     gap: colors.$space-sm;
     flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+}
+
+.board-phase-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: colors.$space-xs;
+  flex-shrink: 0;
+
+  &__label {
+    font-size: colors.$control-font-size;
+    font-weight: 500;
+    color: colors.$text-secondary;
+    flex-shrink: 0;
+    line-height: colors.$control-height;
   }
 }
 
@@ -1127,6 +1153,55 @@ mat-form-field.form-field {
       padding: colors.$space-xs colors.$space-sm;
     }
   }
+
+  &.form-field--control {
+    width: auto;
+    min-width: 9rem;
+    max-width: 13rem;
+    margin: 0;
+    font-size: colors.$control-font-size;
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      height: colors.$control-height;
+      padding: 0 colors.$space-xs;
+    }
+
+    .mat-mdc-form-field-flex {
+      height: colors.$control-height;
+      align-items: center;
+    }
+
+    .mat-mdc-form-field-infix {
+      min-height: colors.$control-height;
+      height: colors.$control-height;
+      padding: 0 colors.$control-padding-x;
+      display: flex;
+      align-items: center;
+      width: auto;
+      border-top: 0;
+    }
+
+    &.mat-form-field-appearance-outline .mat-mdc-form-field-infix {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .mat-mdc-select-trigger {
+      min-height: colors.$control-height;
+      height: colors.$control-height;
+      padding: 0 colors.$space-xs;
+      font-size: colors.$control-font-size;
+    }
+
+    .mat-mdc-select-value,
+    .mat-mdc-select-min-line {
+      font-size: colors.$control-font-size;
+    }
+  }
 }
 
 form {
@@ -1322,10 +1397,6 @@ form {
   }
 }
 
-.board-toolbar {
-  margin-bottom: colors.$space-md;
-  max-width: 16rem;
-}
 
 .phase-badge {
   display: inline-flex;
@@ -1414,8 +1485,10 @@ form {
   border: 1px solid colors.$border-default;
   background: colors.$surface-card;
   color: colors.$text-primary;
-  padding: colors.$space-xs colors.$space-md;
-  font-size: 0.875rem;
+  min-height: colors.$control-height;
+  box-sizing: border-box;
+  padding: 0 colors.$control-padding-x;
+  font-size: colors.$control-font-size;
   font-family: inherit;
   cursor: pointer;
   line-height: 1.4;

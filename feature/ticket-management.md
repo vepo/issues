@@ -8,6 +8,36 @@
 
 Core ticket lifecycle: view and edit ticket fields, assign users, move status per workflow rules, soft-delete (admin/PM), add comments, audit history, subscribe/unsubscribe observers, and unified activity feed on ticket detail.
 
+## Wireframe
+
+**Guide:** layout reference for UI implementation — update when fields or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | ASCII below |
+| **Last updated** | 2026-07-03 |
+
+### Screen: `/ticket/:ticketIdentifier`
+
+| Region | Elements |
+|--------|----------|
+| Header | Identifier, title, status move, assignee, subscribe |
+| Fields | Project, category, priority, description (rich text), phase/versions when enabled |
+| Actions | Save, delete (admin/PM), transition buttons |
+| Comments | Add comment form + thread |
+| Atividade | Merged feed: comments + history (`.activity-feed`) |
+
+```
+┌────────────────────────────────────────────────────────┐
+│  PROJ-42  Title                    [Status ▼] [Assign] │
+├───────────────────────────────┬────────────────────────┤
+│  Fields + description         │  Comentários           │
+│  [ Salvar ] [ Excluir ]       │  [ new comment… ]      │
+├───────────────────────────────┴────────────────────────┤
+│  Atividade (comments + history)                        │
+└────────────────────────────────────────────────────────┘
+```
+
 ## Impact
 
 | Area | Effect |
@@ -49,5 +79,16 @@ Core ticket lifecycle: view and edit ticket fields, assign users, move status pe
 | Workflow configuration | Move validates against project workflow |
 | Project administration | Tickets scoped to project |
 | — | None identified beyond cross-context events |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Ticket detail matches **Wireframe** layout | Wireframe | ☑ |
+| FC2 | Workflow-validated status moves | Summary | ☑ |
+| FC3 | Comments and unified Atividade feed | Wireframe | ☑ |
+| FC4 | Subscribe/unsubscribe observers | Summary | ☑ |
+| FC5 | `domain-specification.md` — Ticket, Comment, History | Impact / Docs | ☑ |
+| FC6 | `feature-catalog.md` — Ticket detail row | Impact / Docs | ☑ |
 
 **Implementation notes:** `TicketHistoryService` logs CREATED, FIELD_CHANGED, STATUS_CHANGED, ASSIGNEE_CHANGED, SUBSCRIBED, UNSUBSCRIBED, DELETED; `ticket-view.component.ts` orchestrates detail UI.

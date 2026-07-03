@@ -8,6 +8,28 @@
 
 The Issues SPA already defines a flat UI design language ([docs/ui-elements-gallery.md](../docs/ui-elements-gallery.md), [colors.scss](../src/main/webui/src/colors.scss), [styles.scss](../src/main/webui/src/styles.scss)). In practice, screens diverge: duplicate CSS rules, undocumented template classes, component-local SCSS with hard-coded spacing, and incomplete i18n. This feature consolidates styling into **compatible global classes** so every element maps to the gallery and tokens — no ad-hoc padding or one-off patterns.
 
+## Wireframe
+
+**Guide:** cross-cutting visual contract — each screen follows [ui-elements-gallery.md](../docs/ui-elements-gallery.md) and flat UI tokens. Update when gallery patterns or touched screens change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | [ui-elements-gallery.md](../docs/ui-elements-gallery.md) — canonical element matrix |
+| **Last updated** | 2026-07-03 |
+
+### Pattern reference (all routes)
+
+| Pattern | Class / token | Screens |
+|---------|---------------|---------|
+| Page shell | `.page`, `.page-header`, `.page-panel` | All authenticated routes |
+| Tables | `div.data-table` (not `div.table`) | users, projects, categories, workflows, versions, home, allocation |
+| Buttons | `.btn`, `.btn-secondary`, `.btn-cancel` + `matButton` | Global |
+| Forms | `.form-field`, `form.edit` | ticket, project, workflow, account |
+| Activity | `.activity-feed` | ticket detail, home |
+| Filters | `.filter-chip`, `.filter-chip--active` | search, users, kanban |
+
+No single Excalidraw — implementation must match gallery § per screen when consolidating styles.
+
 ## Impact
 
 | Area | Effect |
@@ -209,6 +231,16 @@ Domain         .board, .column, .card, .project-grid, .project-card, .activity-f
 | Ticket management | `ticket-actions` toolbar styled; history labels PT |
 | Project dashboard | Widget SCSS thinned; tokens for padding |
 | — | No API or schema impact |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | All touched screens use gallery classes per **Wireframe** | Wireframe | ☑ |
+| FC2 | `div.table` removed; `div.data-table` standard | Q1, Wireframe | ☑ |
+| FC3 | Single `.filter-chip--active` pattern | Q2 | ☑ |
+| FC4 | `ui-elements-gallery.md` updated | T8 | ☑ |
+| FC5 | `npm run build` green | TC1 | ☑ |
 
 #### Tasks (phase 2)
 

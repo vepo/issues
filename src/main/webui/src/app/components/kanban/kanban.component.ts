@@ -9,10 +9,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Project, ProjectsService, ProjectWorkflow } from '../../services/projects.service';
 import { ProjectStatus } from '../../services/status.service';
 import { Ticket, TicketService } from '../../services/ticket.service';
-import { PhaseService } from '../../services/phase.service';
+import { Phase, PhaseService } from '../../services/phase.service';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 
-type PhaseFilter = 'all' | 'active' | 'unplanned';
+/** `all` | `unplanned` | `active` | `phase:{id}` */
+type PhaseFilterValue = string;
 
 @Component({
   selector: 'app-kanban',
@@ -30,7 +31,8 @@ export class KanbanComponent implements OnInit {
   project: Project = { id: -1, name: '', prefix: '', description: '', workflow: { id: -1, name: '' }, ticketTemplate: { enabled: false }, phaseTemplate: { deliverables: [] } };
   tickets: Ticket[] = [];
   workflow?: ProjectWorkflow;
-  phaseFilter: PhaseFilter = 'all';
+  phases: Phase[] = [];
+  phaseFilter: PhaseFilterValue = 'all';
   activePhaseId: number | null = null;
 
   ngOnInit(): void {
@@ -41,22 +43,41 @@ export class KanbanComponent implements OnInit {
       this.projectsService.findWorkflowByProjectId(Number(project.id))
                           .subscribe(workflow => this.workflow = workflow);
       this.phaseService.list(Number(project.id)).subscribe(phases => {
+        this.phases = phases;
         this.activePhaseId = phases.find(p => p.status === 'ACTIVE')?.id ?? null;
       });
     });
   }
 
-  visibleTickets(): Ticket[] {
-    switch (this.phaseFilter) {
-      case 'active':
-        return this.activePhaseId == null
-          ? []
-          : this.tickets.filter(ticket => ticket.phaseId === this.activePhaseId);
-      case 'unplanned':
-        return this.tickets.filter(ticket => ticket.phaseId == null);
-      default:
-        return this.tickets;
+  phaseFilterValue(phaseId: number): PhaseFilterValue {
+    return `phase:${phaseId}`;
+  }
+
+  statusLabel(status: Phase['status']): string {
+    switch (status) {
+      case 'PLANNED': return 'Planejada';
+      case 'ACTIVE': return 'Ativa';
+      case 'COMPLETED': return 'Concluída';
     }
+  }
+
+  visibleTickets(): Ticket[] {
+    if (this.phaseFilter === 'all') {
+      return this.tickets;
+    }
+    if (this.phaseFilter === 'unplanned') {
+      return this.tickets.filter(ticket => ticket.phaseId == null);
+    }
+    if (this.phaseFilter === 'active') {
+      return this.activePhaseId == null
+        ? []
+        : this.tickets.filter(ticket => ticket.phaseId === this.activePhaseId);
+    }
+    if (this.phaseFilter.startsWith('phase:')) {
+      const phaseId = Number(this.phaseFilter.slice('phase:'.length));
+      return this.tickets.filter(ticket => ticket.phaseId === phaseId);
+    }
+    return this.tickets;
   }
 
   fixLineBreak(ticket: Ticket): Ticket {

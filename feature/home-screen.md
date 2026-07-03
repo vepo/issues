@@ -11,7 +11,65 @@ Replace the current home page (`/`) — a project-picker grid — with a **perso
 
 Global shell (search, **Novo**, notifications, **Conta**) stays in `app.html` — not part of this feature body.
 
-Wireframe: [Excalidraw](https://excalidraw.com/#json=6adTLCItcTdo5lcRqsxnb,0FcpEQ91CMO62NRW6D-PQA).
+## Wireframe
+
+**Guide:** layout reference for UI implementation — update when Scope, routes, or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)). Phase 4 Angular work must match this section unless revised here first.
+
+| Field | Value |
+|-------|-------|
+| **Source** | [Excalidraw](https://excalidraw.com/#json=6adTLCItcTdo5lcRqsxnb,0FcpEQ91CMO62NRW6D-PQA) + ASCII below |
+| **Last updated** | 2026-07-03 |
+
+### Screen: `/` — personal work hub
+
+| Region | Elements |
+|--------|----------|
+| Row 1 (2 cols) | **Tickets atuais** table \| **Tickets atribuídos** table |
+| Row 2 (full) | **Atividade** feed (comments + status changes) |
+| Columns | Identifier (link), title, project (link to hub), status, priority, updated |
+| Empty states | Per-section guidance when no rows |
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Header (existing): brand | search | Novo | … | Conta   │
+├──────────────────────────┬──────────────────────────────┤
+│  Tickets atuais          │  Tickets atribuídos          │
+│  (open, scoped)          │  (assignee = me, open)       │
+├──────────────────────────┴──────────────────────────────┤
+│  Atividade (full width, static snapshot)                  │
+└─────────────────────────────────────────────────────────┘
+```
+
+Mobile: stack sections vertically. **No** project grid on home (**Q5**).
+
+### Screen: `/projects/:projectId` — project hub
+
+| Region | Elements |
+|--------|----------|
+| Header | Project name, description |
+| Actions | **Kanban**, **Painel**; **Editar** (owner PM/admin); **Alocação** (owner PM/admin) |
+
+```
+┌─────────────────────────────────────────────┐
+│  Project Alpha                              │
+│  Description text…                          │
+│  [ Kanban ] [ Painel ] [ Editar ] [ Alocação ] │
+└─────────────────────────────────────────────┘
+```
+
+### Screen: `/projects/:projectId/allocation`
+
+| Region | Elements |
+|--------|----------|
+| Member table | User name, email; **Remover** |
+| Guard UI | When remove blocked: list member's open assigned tickets (**Q13**) |
+| Actions | Add member(s) |
+
+### Screen: `/projects/:projectId/edit`
+
+| Region | Elements |
+|--------|----------|
+| Form | Project fields; **owner** picker (admin + current owner per **Q17**) |
 
 ## Decisions (from open questions)
 
@@ -30,6 +88,7 @@ Wireframe: [Excalidraw](https://excalidraw.com/#json=6adTLCItcTdo5lcRqsxnb,0FcpE
 | **Project hub** (**Q15**) | `/projects/:projectId` — view for **members** (all roles); links to Kanban and dashboard; edit/allocation only for owner PM or admin |
 | **Member removal** (**Q13**) | Forbid removing a member with **open** (non-finished) assigned tickets until reassigned; allocation UI shows that user's open assigned tickets |
 | **Search scope** (**Q16**) | **Unchanged** — global ticket search across all projects |
+| **Owner transfer** (**Q17**, **Q18**) | **Admin** or **current project owner** may reassign owner on edit; new owner must have `project-manager` role; **need not** be an existing member (**Q18**) — added as member on transfer |
 | **Header label** (**Q10**) | **No** change — **Novo** stays in header |
 | **Menu Conta** | Out of scope — already in header |
 
@@ -45,8 +104,9 @@ Exclude tickets in workflow **finish** statuses (`DONE` or `CANCELED` outcome) a
 |--------|------|
 | Model | M:N **Project** ↔ **User** (`tb_project_members` or equivalent) |
 | Cardinality | One user → many projects; one project → many members |
-| **Project owner** | Exactly one per project (`owner_id` on `tb_projects`); must have `project-manager` role; assigned at **create** (**Q12**, **Q14**) |
+| **Project owner** | Exactly one per project (`owner_id`); must have `project-manager` role; set at **create**; transferable by **admin** or **current owner** (**Q17**) |
 | Assignee rule | Ticket `assignee` must be a **member** of the ticket's project (create, update assignee, CSV import) |
+| Owner transfer | New owner must have `project-manager` role; **not** required to be a member beforehand (**Q18**); **auto-added** as member when transfer completes |
 | Home scope | **Admin:** all projects. **Project owner:** owned projects. **`user`:** member projects (**Q9** refined by **Q12**) |
 | Edit / allocation | **Project owner** or **admin** only — PM cannot edit projects they do not own (**Q12**) |
 | Membership admin | **Allocation** page (**Q11**); owner PM or admin |
@@ -116,17 +176,7 @@ Newest first; no row cap (**Q6**). Reuse `.activity-feed` patterns from ticket d
 
 ### S5 — Home layout
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Header (existing): brand | search | Novo | … | Conta │
-├──────────────────────────┬──────────────────────────────┤
-│  Tickets atuais          │  Tickets atribuídos          │
-├──────────────────────────┴──────────────────────────────┤
-│  Atividade (full width)                                 │
-└─────────────────────────────────────────────────────────┘
-```
-
-Mobile: stack sections. Remove project grid (**Q5**). Section-level loading states.
+See **Wireframe** § `/` — personal work hub. Section-level loading states.
 
 ### S6 — Project access enforcement
 
@@ -164,7 +214,7 @@ Reviewed after **Q1–Q16** answers. Scope: home hub + **project membership** + 
 | `DELETE /projects/{id}/members/{userId}` | Remove member — blocked if open assignee tickets (**Q13**) |
 | `GET /projects/{id}/members/{userId}/open-tickets` | Open assigned tickets for member (allocation UI) (**Q13**) |
 | `POST /projects` | Set **owner** at create (creator or explicit); owner + creator as members (**Q14**) |
-| `PUT /projects/{id}` | **Project owner** or admin only (**Q12**) |
+| `PUT /projects/{id}` | **Project owner** or admin; may update fields including **owner** transfer (**Q17**) |
 | `GET /home/tickets/current` | Tickets atuais |
 | `GET /home/tickets/assigned` | Tickets atribuídos |
 | `GET /home/activity` | Comments + status changes |
@@ -179,7 +229,7 @@ Reviewed after **Q1–Q16** answers. Scope: home hub + **project membership** + 
 |-------------------|--------|
 | `/` | Personal hub; no project grid (**Q5**) |
 | `/projects/:projectId` | **Project hub** — Kanban + Painel links; member view (**Q15**) |
-| `/projects/:projectId/edit` | Project edit — owner PM or admin (split from current edit route) |
+| `/projects/:projectId/edit` | Project edit — owner PM or admin; **owner** picker for admin and current owner (**Q17**) |
 | `/projects/:projectId/allocation` | Member allocation (**Q11**, **Q13** UI) |
 | Home ticket tables | Project column → project hub |
 | `app.routes.ts` | Hub vs edit routes; allocation; home resolver |
@@ -198,10 +248,10 @@ Reviewed after **Q1–Q16** answers. Scope: home hub + **project membership** + 
 | Membership API | `ProjectMemberEndpointTest` (TC1) |
 | Assignee rule | Create, assign, import rejection (TC2) |
 | Project list filter | `ListProjectsEndpointTest` (TC3) |
-| Project access guard | `FindProjectByIdEndpointTest` + kanban ticket list (TC9) |
-| Home APIs | `HomeTicketsEndpointTest`, `HomeActivityEndpointTest` (TC4, TC5) |
-| Angular | `home.component.spec.ts`, `project-allocation.component.spec.ts` (TC6, TC7) |
-| Contracts | `ArchitectureTest` (TC8) |
+| Project access guard | `FindProjectByIdEndpointTest`, `UpdateProjectEndpointTest` | TC4 |
+| Home APIs | `HomeTicketsEndpointTest`, `HomeActivityEndpointTest` | TC5, TC6 |
+| Angular | `home`, `project-allocation`, project hub specs | TC7–TC9 |
+| Contracts | `ArchitectureTest` | TC10 |
 
 ### Docs
 
@@ -233,6 +283,8 @@ Reviewed after **Q1–Q16** answers. Scope: home hub + **project membership** + 
 | **Q14** | Creator + owner auto-member; owner eligible as assignee |
 | **Q15** | **Project hub** page; refactor `/projects/:id` view vs edit |
 | **Q16** | Search unchanged — drop search filter task |
+| **Q17** | **Owner transfer** — admin + current owner; `ownerId` on update; edit UI owner picker |
+| **Q18** | New owner need not be member beforehand; auto-add on transfer |
 
 ### Risks
 
@@ -262,9 +314,10 @@ Reviewed after **Q1–Q16** answers. Scope: home hub + **project membership** + 
 | Q14 | Creator auto-added as member? | answered | **Yes.** Owner is also a member and may be ticket **assignee** |
 | Q15 | Navigation to Kanban without home grid? | answered | **Project hub** at `/projects/:projectId` — all **members**; Kanban + stats links; edit for owner PM/admin |
 | Q16 | Filter ticket search by membership? | answered | **No** — global search unchanged |
-| Q17 | Can **admin** (or owner) **transfer project owner** after creation? | open | Opened by **Q12** impact review |
+| Q17 | Can **admin** or owner **transfer project owner** after creation? | answered | **Yes** — **admin** and **current project owner** may reassign owner on edit; new owner must have `project-manager` role |
+| Q18 | Must the **new owner** already be a project **member** before transfer? | answered | **No** — not required beforehand; system **adds** new owner as member on transfer |
 
-**Gate:** resolve **Q17** before phase 3 approval (owner transfer affects edit UI and `CreateProjectRequest`).
+**Gate:** all open questions **answered** or **not valid** — ready for phase 3 task approval.
 
 ## Changelog
 
@@ -279,7 +332,7 @@ Reviewed after **Q1–Q16** answers. Scope: home hub + **project membership** + 
 
 | Feature / area | Impact |
 |----------------|--------|
-| [project-administration](project-administration.md) | **Owner** on create; hub vs edit routes; allocation; owner-scoped update |
+| [project-administration](project-administration.md) | Owner on create + **transfer** on edit (**Q17**); hub vs edit routes; allocation |
 | [ticket-management](ticket-management.md) | Assignee ∈ member; allocation open-tickets helper |
 | [create-ticket](create-ticket.md) | Assignee picker → members; project list scoped |
 | [ticket-import](ticket-import.md) | Assignee ∈ member validation |
@@ -292,41 +345,59 @@ Reviewed after **Q1–Q16** answers. Scope: home hub + **project membership** + 
 | [ui-design-system](ui-design-system.md) | Reuse `.activity-feed`, `.data-table`, `.page`; document home + allocation |
 | [authentication](authentication.md) | **None** — uses existing JWT roles for scope split (**Q9**) |
 
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | M:N project membership + `owner_id` on project | S1 | ☐ |
+| FC2 | Assignee must be project member (create, assign, import) | S1 | ☐ |
+| FC3 | Allocation page matches **Wireframe**; remove guard (**Q13**) | S1b, Wireframe | ☐ |
+| FC4 | Project hub matches **Wireframe** (**Q15**) | S1c, Wireframe | ☐ |
+| FC5 | Home hub matches **Wireframe** — no project grid (**Q5**) | S5, Wireframe | ☐ |
+| FC6 | Tickets atuais — open tickets in scoped projects (**Q1**) | S2 | ☐ |
+| FC7 | Tickets atribuídos — open assignee tickets (**Q2**) | S3 | ☐ |
+| FC8 | Atividade — comments + status changes, static (**Q3**, **Q4**) | S4 | ☐ |
+| FC9 | Access rules per S6 (**Q9**, **Q12**, **Q16**) | S6 | ☐ |
+| FC10 | Owner transfer on edit (**Q17**, **Q18**) | S1, Wireframe | ☐ |
+| FC11 | `domain-specification.md` — membership, home terms | Impact / Docs | ☐ |
+| FC12 | `feature-catalog.md` — home, hub, allocation paths | Impact / Docs | ☐ |
+| FC13 | `README.md` — home hub, allocation | Impact / Docs | ☐ |
+| FC14 | `dev-import.sql` — owners, memberships (**Q14**) | T14 | ☐ |
+
 #### Tasks (phase 2)
 
 | ID | Task | Done |
 |----|------|------|
-| T1 | Add `tb_project_members` to Flyway baseline + JPA entity (`ProjectMember` or M:N mapping) | ☐ |
-| T2 | `ProjectMemberRepository` — find members by project, projects by user, membership checks | ☐ |
-| T3 | `ProjectService` — add/remove/list members; include members in project responses where needed | ☐ |
-| T4 | Endpoints: list/add/remove project members (project-manager+ on owning project) + tests | ☐ |
-| T5 | Enforce assignee ∈ project members on create ticket, update assignee, CSV import + tests | ☐ |
-| T6 | Filter `listProjects` by membership; admin/PM see all (**Q9**) | ☐ |
-| T6b | Enforce membership on `GET /projects/{id}` and project-scoped ticket/workflow APIs; admin/PM bypass per **Q12** | ☐ |
-| T7 | `GET` home tickets atuais — open tickets in scope, exclude finish statuses + test | ☐ |
-| T8 | `GET` home tickets atribuídos — open tickets assignee=me in scope + test | ☐ |
-| T9 | `GET` home activity — comments + status changes in scope + test | ☐ |
-| T10 | Redesign `home.component` (S2–S5); remove project grid; `home.service` + resolver | ☐ |
-| T11 | **Project allocation** page — route, list/add/remove members, nav from projects (**Q11**) | ☐ |
-| T12 | Filter assignee pickers (create ticket, ticket detail, import) to project members | ☐ |
-| T13 | Update `dev-import.sql` with memberships + backfill assignees; creator auto-member per **Q14** | ☐ |
-| T14 | Docs: domain-spec, feature-catalog, README, ui-elements-gallery | ☐ |
-| T15 | User navigation to Kanban without home grid — per **Q15** (e.g. project column links on home tickets) | ☐ |
-| T16 | Ticket search project scope — only if **Q16** requires member filter | ☐ |
+| T1 | Flyway: `tb_project_members` + `tb_projects.owner_id` + JPA (`ProjectMember`, `Project.owner`) | ☐ |
+| T2 | `ProjectMemberRepository` — members by project, projects by user, membership checks, open tickets by assignee | ☐ |
+| T3 | `ProjectService` — owner on create; **owner transfer** (**Q17**); members; owner/admin update guard | ☐ |
+| T4 | Member endpoints + open-assigned-tickets for allocation (**Q13**) + tests | ☐ |
+| T5 | Enforce assignee ∈ members (create, assign, import) + tests | ☐ |
+| T6 | Filter `listProjects` — member / owned / admin scopes (**Q9**, **Q12**) | ☐ |
+| T6b | Access rules: hub (member+admin); edit/allocation (owner+admin); kanban/dashboard (member+admin) | ☐ |
+| T7 | `GET` home tickets atuais + test | ☐ |
+| T8 | `GET` home tickets atribuídos + test | ☐ |
+| T9 | `GET` home activity + test | ☐ |
+| T10 | Redesign `home.component`; project column → hub; `home.service` + resolver | ☐ |
+| T11 | **Allocation** page — members, remove guard, open-tickets list (**Q13**) | ☐ |
+| T12 | **Project hub** + **edit** (owner picker for admin/current owner per **Q17**); split routes (**Q15**) | ☐ |
+| T13 | Assignee pickers → project members only | ☐ |
+| T14 | `dev-import.sql` — owners, memberships, backfill (**Q14**) | ☐ |
+| T15 | Docs: domain-spec, feature-catalog, README, ui-elements-gallery | ☐ |
 
 #### Test coverage (phase 2)
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | `ProjectMemberEndpointTest` (or split add/list/remove) | T4 | ☐ |
-| TC2 | `UpdateAssigneeEndpointTest` + create/import — reject non-member assignee | T5 | ☐ |
-| TC3 | `ListProjectsEndpointTest` — membership filter + admin/PM bypass | T6 | ☐ |
-| TC4 | `FindProjectByIdEndpointTest` + project ticket list — membership deny/allow | T6b | ☐ |
-| TC5 | `HomeTicketsEndpointTest` (or split current/assigned) | T7, T8 | ☐ |
+| TC1 | `ProjectMemberEndpointTest` (+ open-tickets list) | T4 | ☐ |
+| TC2 | Assignee ∉ member rejected (create, assign, import) | T5 | ☐ |
+| TC3 | `ListProjectsEndpointTest` — member / owned / admin | T6 | ☐ |
+| TC4 | `UpdateProjectEndpointTest` — owner transfer (admin + owner); hub access | T3, T6b, T12 | ☐ |
+| TC5 | `HomeTicketsEndpointTest` | T7, T8 | ☐ |
 | TC6 | `HomeActivityEndpointTest` | T9 | ☐ |
-| TC7 | `home.component.spec.ts` | T10, T15 | ☐ |
+| TC7 | `home.component.spec.ts` | T10 | ☐ |
 | TC8 | `project-allocation.component.spec.ts` | T11 | ☐ |
-| TC9 | `SearchTicketsEndpointTest` — scope per **Q16** (if filter required) | T16 | ☐ |
+| TC9 | `project-hub.component.spec.ts` (or projects view) | T12 | ☐ |
 | TC10 | `ArchitectureTest` | New Request/Response records | ☐ |
 
 **Development approval:** pending

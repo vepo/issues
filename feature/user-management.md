@@ -8,6 +8,37 @@
 
 Administrators list, create, and edit users: name, email, password, and combinable roles (`user`, `admin`, `project-manager`). Supports assignee pickers and access control across the application.
 
+## Wireframe
+
+**Guide:** layout reference for UI implementation — update when user form or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | ASCII below |
+| **Last updated** | 2026-07-03 |
+
+### Screen: `/users`
+
+| Region | Elements |
+|--------|----------|
+| List | `.data-table`: name, email, roles; search/filter chips |
+| Actions | **Novo usuário** |
+
+### Screen: `/users/new` and `/users/:userId`
+
+| Region | Elements |
+|--------|----------|
+| Form | Name, email, password, role checkboxes |
+
+```
+┌─────────────────────────────────────────────┐
+│  Usuários                    [ Novo ]       │
+│  [search] [filter chips]                    │
+├─────────────────────────────────────────────┤
+│  Nome │ Email │ Papéis │ [Editar]           │
+└─────────────────────────────────────────────┘
+```
+
 ## Impact
 
 | Area | Effect |
@@ -44,5 +75,14 @@ Administrators list, create, and edit users: name, email, password, and combinab
 | Ticket management | Assignee references users |
 | All role-gated routes | Roles assigned here control access |
 | — | None identified |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | User list matches **Wireframe** | Wireframe | ☑ |
+| FC2 | Create/edit form with multi-role assignment | Wireframe | ☑ |
+| FC3 | Admin-only mutating endpoints | Summary | ☑ |
+| FC4 | `feature-catalog.md` — User rows | Impact / Docs | ☑ |
 
 **Implementation notes:** `users-view.component.ts`, `users-edit.component.ts`; `@RolesAllowed("admin")` on mutating endpoints.

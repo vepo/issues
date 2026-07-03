@@ -5,6 +5,25 @@
       <p class="page-subtitle" i18n>Quadro Kanban — arraste os tickets entre colunas</p>
     </div>
     <div class="page-header__actions">
+      <div class="board-phase-filter">
+        <span class="board-phase-filter__label" i18n>Fase</span>
+        <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
+          <mat-select
+            [value]="phaseFilter"
+            (selectionChange)="phaseFilter = $event.value"
+            i18n-aria-label
+            aria-label="Filtrar por fase">
+            <mat-option value="all" i18n>Todos</mat-option>
+            <mat-option value="active" i18n>Ativa</mat-option>
+            <mat-option value="unplanned" i18n>Sem fase</mat-option>
+            @for (phase of phases; track phase.id) {
+              <mat-option [value]="phaseFilterValue(phase.id)">
+                {{ phase.name }} ({{ statusLabel(phase.status) }})
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
       <a class="btn" matButton="filled" [routerLink]="['/project', project.id, 'tickets', 'new']">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
         <span i18n>Novo ticket</span>
@@ -27,17 +46,6 @@
       </button>
     </div>
   </header>
-
-  <div class="board-toolbar">
-    <mat-form-field class="form-field form-field--compact" appearance="outline">
-      <mat-label i18n>Filtrar por fase</mat-label>
-      <mat-select [value]="phaseFilter" (selectionChange)="phaseFilter = $event.value">
-        <mat-option value="all" i18n>Todos</mat-option>
-        <mat-option value="active" i18n>Fase ativa</mat-option>
-        <mat-option value="unplanned" i18n>Sem fase</mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
 
   <div class="board">
     @for (status of statuses; track status.id) {

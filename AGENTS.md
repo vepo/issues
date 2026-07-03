@@ -15,7 +15,7 @@ Read these before changing code or tests:
 
 **Not in production yet**: This project is not in production yet. There is no need to keep legacy or update any production environment. Schema changes: amend `V1.0.0__Database_Creation.sql` only — see [issues-flyway.mdc](.cursor/rules/issues-flyway.mdc).
 
-**Development process:** [development-process.mdc](.cursor/rules/development-process.mdc) — (1) feature analysis → (2) task break → (3) **explicit task approval** → (4) TDD. Answering open questions (**Q*n***) triggers a mandatory **impact review** (not step 3). No code before approved task IDs. **Never end with non-working code** — `mvn verify` green before stopping.
+**Development process:** [development-process.mdc](.cursor/rules/development-process.mdc) — (1) feature analysis → (2) task break → (3) **explicit task approval** → (4) TDD. Each feature doc has a **Wireframe** section (updated with scope) and each changelog entry maintains a **Feature checklist** (**FC*n***) **rechecked before `done`**. Answering open questions (**Q*n***) triggers a mandatory **impact review** (not step 3). No code before approved task IDs. **Never end with non-working code** — `mvn verify` green before stopping.
 
 **API codegen:** after backend endpoint changes, run `mvn test` then `cd src/main/webui && npm run generate:api`. Endpoints live in `{context}.{action}` subpackages — one HTTP method per class (e.g. `user.create.CreateUserEndpoint`).
 

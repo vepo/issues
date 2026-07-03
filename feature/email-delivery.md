@@ -8,6 +8,37 @@
 
 Transactional email via Quarkus Mailer and Qute templates: password reset links and ticket-change notifications to subscribers. Complements in-app notifications; no dedicated UI beyond flows that trigger email.
 
+## Wireframe
+
+**Guide:** email layout reference — update when templates or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | N/A — no dedicated UI page; Qute templates below |
+| **Last updated** | 2026-07-03 |
+
+### Template: `resetPassword.html`
+
+| Region | Content |
+|--------|---------|
+| Subject/body | Reset link with token; expiry note |
+| CTA | Link to `/login/reset-password/:token` |
+
+### Template: `notifyTicketChange.html`
+
+| Region | Content |
+|--------|---------|
+| Subject/body | Ticket identifier, change summary |
+| CTA | Link to ticket detail |
+
+```
+┌────────────────────────────────────┐
+│  Issues — alteração no ticket      │
+│  PROJ-42: status changed           │
+│  [ Abrir ticket ]                  │
+└────────────────────────────────────┘
+```
+
 ## Impact
 
 | Area | Effect |
@@ -44,5 +75,14 @@ Transactional email via Quarkus Mailer and Qute templates: password reset links 
 | Notifications | Parallel channel to SSE for same ticket events |
 | Ticket management | Ticket changes trigger subscriber emails |
 | — | None identified |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Password reset email matches **Wireframe** template | Wireframe | ☑ |
+| FC2 | Ticket change email matches **Wireframe** template | Wireframe | ☑ |
+| FC3 | Recovery flow sends email on request | Summary | ☑ |
+| FC4 | `domain-specification.md` — email terms | Impact / Docs | ☑ |
 
 **Implementation notes:** `MailerService.java`; Qute templates `resetPassword.html`, `notifyTicketChange.html`; `%dev` SMTP settings in `application.properties`.

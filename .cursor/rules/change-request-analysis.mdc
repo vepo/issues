@@ -57,12 +57,13 @@ Kebab-case slug, stable for the lifetime of the capability. Re-run step 0 if the
 ### 2. Impact — document scope before coding
 
 - Bounded contexts and packages ([issues-bounded-contexts.mdc](issues-bounded-contexts.mdc))
+- **Wireframe** — `## Wireframe` section with layouts for every UI route, dialog, shell widget, or email template; revise on scope change
 - API / OpenAPI / Angular surfaces
 - Schema (`V1.0.0__Database_Creation.sql`), seed data, migrations
 - Tests and docs to update
 - Risks (optional bullets) and **Open questions** table (`Q1`, `Q2`, … with status `open` | `answered` | `not valid` and **Answer** column)
 
-**When a question is answered:** run impact review per [development-process.mdc](development-process.mdc) § Impact review when answering open questions — refresh this Impact section, changelog cross-impacts, Risks, tasks, and domain spec; add new **Q*n*** if the answer surfaces gaps.
+**When a question is answered:** run impact review per [development-process.mdc](development-process.mdc) § Impact review when answering open questions — refresh this Impact section, changelog cross-impacts, Risks, **Wireframe**, **Feature checklist**, tasks, and domain spec; add new **Q*n*** if the answer surfaces gaps.
 
 Increment **Feature version** when adding a changelog entry; assign the next sequential **Version** to that entry.
 
@@ -71,6 +72,8 @@ Increment **Feature version** when adding a changelog entry; assign the next seq
 - **Change name** — short title (e.g. `Add ticket CSV export`)
 - **Status** — `planned` (then `tasks-ready` → `approved` → `in-progress` → `done` per [development-process.mdc](development-process.mdc))
 - **Impact on other features** — list affected capabilities, routes, or contexts; write `None identified` when isolated
+- **Feature checklist** — start in phase 1 on the changelog entry (**FC1**, **FC2**, …); verifiable scope, behaviour, wireframe, and doc criteria — see [development-process.mdc](development-process.mdc) § Phase 1 and § Feature checklist recheck
+- **Wireframe** — top-level `## Wireframe` on the feature doc; guides phase 4 UI implementation
 
 Phases 2–4 (task break, approval, TDD) continue in the same changelog entry — see [development-process.mdc](development-process.mdc). **Order is mandatory:** task break before approval; approval before any `src/main` or `src/test` edit.
 
@@ -78,9 +81,9 @@ Phases 2–4 (task break, approval, TDD) continue in the same changelog entry �
 
 | Phase | Status | May edit |
 |-------|--------|----------|
-| 1 | `planned` | `feature/*.md`, `docs/**`, domain spec |
+| 1 | `planned` | `feature/*.md`, `docs/**`, domain spec (incl. **Wireframe**, initial **Feature checklist**) |
 | 1 (Q answered) | `planned` or `tasks-ready` | Same — **not** application source |
-| 2 | `tasks-ready` | `feature/*.md` (Tasks, Test coverage) |
+| 2 | `tasks-ready` | `feature/*.md` (Feature checklist, Tasks, Test coverage) |
 | 3 | `approved` | `feature/*.md` (Development approval line) |
 | 4 | `in-progress` / `done` | `src/main/**`, `src/test/**`, `src/main/webui/**`, docs |
 
@@ -95,7 +98,8 @@ Domain checklist: [domain-model.mdc](domain-model.mdc). TDD: [issues-model.mdc](
 ## During implementation (phase 4 only)
 
 - Mark changelog entry status through the lifecycle (`approved` → `in-progress` → `done`).
-- Check off **Tasks** and **Test coverage** items as completed.
+- Check off **Tasks** and **Test coverage** items as completed; update **Feature checklist** as criteria are verified; keep **Wireframe** in sync when UI changes.
+- **Before `done`:** run mandatory **Feature checklist recheck** — see [development-process.mdc](development-process.mdc) § Phase 4.
 - **Working code invariant:** fix or revert before stopping; never mark `done` on red — see [development-process.mdc](development-process.mdc) § Working code invariant.
 - If scope grows, add tasks and obtain new approval — do not expand silently.
 

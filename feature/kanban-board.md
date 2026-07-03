@@ -8,6 +8,34 @@
 
 Project-scoped board view grouping tickets into columns by workflow status. Users drag or move tickets between columns; moves are validated against workflow transitions. Category colors display on cards.
 
+## Wireframe
+
+**Guide:** layout reference for UI implementation — update when columns, filters, or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | ASCII below |
+| **Last updated** | 2026-07-03 |
+
+### Screen: `/project/:projectId/kanban`
+
+| Region | Elements |
+|--------|----------|
+| Toolbar | **Novo ticket**, **Importar CSV**, phase filter, links to Fases/Versões/Painel |
+| Board | Columns per workflow status; draggable ticket cards |
+| Card | Identifier, title, category color, phase badge (when enabled) |
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Kanban — Project X    [Fase ▼]  Novo │ Importar │ Fases …   │
+├──────────┬──────────┬──────────┬──────────┬──────────────────┤
+│ To Do    │ Doing    │ Review   │ Done     │                  │
+│ ┌──────┐ │ ┌──────┐ │          │ ┌──────┐ │                  │
+│ │card  │ │ │card  │ │          │ │card  │ │                  │
+│ └──────┘ │ └──────┘ │          │ └──────┘ │                  │
+└──────────┴──────────┴──────────┴──────────┴──────────────────┘
+```
+
 ## Impact
 
 | Area | Effect |
@@ -46,5 +74,15 @@ Project-scoped board view grouping tickets into columns by workflow status. User
 | Project dashboard | Same project context |
 | Notifications | Move triggers subscriber alerts |
 | — | None identified |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Kanban board matches **Wireframe** | Wireframe | ☑ |
+| FC2 | Columns reflect workflow statuses | Summary | ☑ |
+| FC3 | Moves validated against transitions | Summary | ☑ |
+| FC4 | Category color on cards | Wireframe | ☑ |
+| FC5 | `feature-catalog.md` — Kanban row | Impact / Docs | ☑ |
 
 **Implementation notes:** `kanban.component.ts`; loads project tickets and statuses; delegates moves to `ticket.service`.

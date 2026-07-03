@@ -8,7 +8,7 @@ import { Ticket, TicketService } from '../../services/ticket.service';
 import { of } from 'rxjs';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import { ProjectStatus } from '../../services/status.service';
-import { PhaseService } from '../../services/phase.service';
+import { Phase, PhaseService } from '../../services/phase.service';
 
 describe('KanbanComponent', () => {
   let component: KanbanComponent;
@@ -126,6 +126,58 @@ describe('KanbanComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('visibleTickets', () => {
+    const mockPhases: Phase[] = [
+      {
+        id: 10,
+        projectId: 1,
+        name: 'Sprint A',
+        status: 'COMPLETED',
+        createdAt: '2026-01-01T00:00:00Z',
+        deliverables: [],
+      },
+      {
+        id: 20,
+        projectId: 1,
+        name: 'Sprint B',
+        status: 'ACTIVE',
+        createdAt: '2026-02-01T00:00:00Z',
+        deliverables: [],
+      },
+    ];
+
+    beforeEach(() => {
+      mockPhaseService.list.and.returnValue(of(mockPhases));
+      component.tickets = [
+        { ...mockTickets[0], phaseId: 10, phaseName: 'Sprint A' },
+        { ...mockTickets[1], phaseId: 20, phaseName: 'Sprint B' },
+        { ...mockTickets[0], id: 3, identifier: 'PRJ-003', phaseId: null, phaseName: null },
+      ] as Ticket[];
+      component.phases = mockPhases;
+      component.activePhaseId = 20;
+    });
+
+    it('should return all tickets when filter is all', () => {
+      component.phaseFilter = 'all';
+      expect(component.visibleTickets().length).toBe(3);
+    });
+
+    it('should return only active phase tickets', () => {
+      component.phaseFilter = 'active';
+      expect(component.visibleTickets().map(t => t.id)).toEqual([2]);
+    });
+
+    it('should return only unplanned tickets', () => {
+      component.phaseFilter = 'unplanned';
+      expect(component.visibleTickets().map(t => t.id)).toEqual([3]);
+    });
+
+    it('should return tickets for a selected phase', () => {
+      component.phaseFilter = 'phase:10';
+      expect(component.visibleTickets().map(t => t.id)).toEqual([1]);
+    });
   });
 
   // it('should initialize with data from route', () => {

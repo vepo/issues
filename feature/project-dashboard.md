@@ -8,6 +8,32 @@
 
 Per-project analytics page with configurable widget layout: pie charts (tickets by day, status, priority), recent tickets table, and performance KPIs. Default widgets shown on first visit; users customize via **Editar layout**.
 
+## Wireframe
+
+**Guide:** layout reference for UI implementation — update when widgets or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | ASCII below |
+| **Last updated** | 2026-07-03 |
+
+### Screen: `/project/:projectId/dashboard`
+
+| Region | Elements |
+|--------|----------|
+| Header | Project name; **Editar layout** toggle |
+| Grid | Draggable widget panels: pie charts, recent tickets table, KPI cards |
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Painel — Project X              [ Editar layout ]     │
+├──────────────────────┬─────────────────────────────────┤
+│  [Pie: por dia]      │  [Pie: por status]              │
+├──────────────────────┼─────────────────────────────────┤
+│  [Recent tickets]    │  [KPI performance]              │
+└──────────────────────┴─────────────────────────────────┘
+```
+
 ## Impact
 
 | Area | Effect |
@@ -48,5 +74,14 @@ Per-project analytics page with configurable widget layout: pie charts (tickets 
 | Ticket management | Recent tickets link to detail |
 | Project administration | Project must exist |
 | — | None identified |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Dashboard grid matches **Wireframe** | Wireframe | ☑ |
+| FC2 | Default widgets on first visit | Summary | ☑ |
+| FC3 | Editar layout toggles customization | Wireframe | ☑ |
+| FC4 | `feature-catalog.md` — Project dashboard row | Impact / Docs | ☑ |
 
 **Implementation notes:** `dashboard.component.ts`; `DashboardType` enum drives widget types; Chart.js visualizations.

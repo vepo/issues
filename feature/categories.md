@@ -8,6 +8,32 @@
 
 Administrators manage ticket categories: name and display color. Categories classify tickets on create, edit, Kanban cards, and imports. List is available to all authenticated users for pickers; admin CRUD at `/categories`.
 
+## Wireframe
+
+**Guide:** layout reference for UI implementation — update when category UI or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | ASCII below |
+| **Last updated** | 2026-07-03 |
+
+### Screen: `/categories`
+
+| Region | Elements |
+|--------|----------|
+| List | `.data-table`: name, color swatch |
+| Actions | **Nova categoria**; row **Editar** opens dialog |
+| Dialog | Name field; color picker |
+
+```
+┌─────────────────────────────────────────────┐
+│  Categorias              [ Nova categoria ]   │
+├─────────────────────────────────────────────┤
+│  ■ Bug    │ Editar                          │
+│  ■ Feature│ Editar                          │
+└─────────────────────────────────────────────┘
+```
+
 ## Impact
 
 | Area | Effect |
@@ -46,5 +72,14 @@ Administrators manage ticket categories: name and display color. Categories clas
 | Ticket import | Category column mapping |
 | Project administration | Template default category |
 | — | None identified |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Category list matches **Wireframe** | Wireframe | ☑ |
+| FC2 | Create/edit dialog with color picker | Wireframe | ☑ |
+| FC3 | Public list endpoint for pickers | Summary | ☑ |
+| FC4 | `feature-catalog.md` — Category list row | Impact / Docs | ☑ |
 
 **Implementation notes:** `categories-view.component.ts`; `ListCategoriesEndpoint` used by filters and ticket forms.

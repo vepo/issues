@@ -8,6 +8,39 @@
 
 Project managers and admins define workflows: name, start status, status list, and allowed transitions. Workflows are assigned to projects and govern ticket moves on Kanban and API. Edit flow allows name, start status, and transition changes; status names are fixed after create (partial update — see ARCHITECTURE §13).
 
+## Wireframe
+
+**Guide:** layout reference for UI implementation — update when workflow editor or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | ASCII below |
+| **Last updated** | 2026-07-03 |
+
+### Screen: `/workflows`
+
+| Region | Elements |
+|--------|----------|
+| List | Workflow name, start status; **Editar** per row |
+| Actions | **Novo processo** |
+
+### Screen: `/workflows/new` and `/workflows/:workflowId`
+
+| Region | Elements |
+|--------|----------|
+| Form | Name, start status |
+| Status table | `.inline-table` — status names (fixed on edit) |
+| Transitions table | From → To allowed moves |
+| Extensions | Phase start status; finish statuses (done/canceled) when enabled |
+
+```
+┌─────────────────────────────────────────────┐
+│  Processos                   [ Novo ]       │
+├─────────────────────────────────────────────┤
+│  Nome │ Status inicial │ [Editar]           │
+└─────────────────────────────────────────────┘
+```
+
 ## Impact
 
 | Area | Effect |
@@ -50,5 +83,14 @@ Project managers and admins define workflows: name, start status, status list, a
 | Create ticket | Initial status from workflow start status |
 | Ticket import | Status column must match workflow |
 | — | None identified |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Workflow list matches **Wireframe** | Wireframe | ☑ |
+| FC2 | Create/edit form with status + transition tables | Wireframe | ☑ |
+| FC3 | Start status and transitions govern ticket moves | Summary | ☑ |
+| FC4 | `feature-catalog.md` — Workflow rows | Impact / Docs | ☑ |
 
 **Implementation notes:** `workflow-form.component.ts`; `UpdateWorkflowEndpoint` partial update scope documented in ARCHITECTURE §13.

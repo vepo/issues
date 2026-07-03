@@ -52,8 +52,11 @@ Issues uses **flat UI design** — minimal ornament, bold color blocks, and typo
 | `$panel-padding` | `$space-lg` (24px) | `.page-panel`, `.comment-form`, `form.edit.page-panel` |
 | `$table-cell-padding-x` / `$table-cell-padding-y` | 16px / 8px | `.data-table`, `.inline-table` cells |
 | `$shell-padding-x` | `1rem` (16px) | Horizontal inset for header, footer, main, context bar — full-width chrome |
+| `$control-height` | `2.5rem` (40px) | `.btn`, `.form-field--control`, `.filter-chip` — toolbar / action rows |
+| `$control-font-size` | `0.875rem` | Label text on toolbar controls |
+| `$control-padding-x` | `0.75rem` | Horizontal padding on toolbar controls |
 
-Material theme CSS variables are aligned to `$base-active-color` in `styles.scss`.
+Material theme CSS variables are aligned to `$base-active-color` in `styles.scss`. Button and compact field heights use `$control-height` via Material overrides and `.form-field--control`.
 
 ---
 
@@ -117,6 +120,7 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 | Property | Value |
 |----------|-------|
 | **Style** | `$base-active-color` solid fill, white label/icon, `$radius-none`, no gradient |
+| **Height** | `$control-height` (40px) |
 | **Hover** | `$base-active-hover-color` |
 | **Disabled** | Gray, 60% opacity |
 | **Focus** | 2px `$focus-ring-color` outline |
@@ -199,6 +203,17 @@ Dashboard widget header; borderless, muted text, red on hover.
 | **Behavior** | Reactive (`formControlName`) or template-driven (`ngModel`) |
 
 **Used in:** login, password reset, create-ticket page, user edit, project edit.
+
+### 3.1a Toolbar control (`mat-form-field.form-field--control`, `appearance="outline"`)
+
+| Property | Value |
+|----------|-------|
+| **Height** | `$control-height` (40px) — same as `.btn` |
+| **Width** | Auto; `min-width` 9rem, `max-width` 13rem typical |
+| **Style** | Compact outline select/input; no subscript area |
+| **Used in** | Kanban phase filter in `.page-header__actions` |
+
+Pair with inline label (e.g. `.board-phase-filter__label`) in action rows — not for full-page forms.
 
 ### 3.2 Search bar (`.search-bar`)
 

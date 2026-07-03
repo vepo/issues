@@ -8,6 +8,35 @@
 
 Create new tickets globally (`/tickets/new`) or within a project (`/project/:projectId/tickets/new`). Project-scoped creation pre-fills the form from the optional **ticket template** when enabled. Auto-generates human-readable identifiers (`{prefix}-{seq}`) and initial workflow status.
 
+## Wireframe
+
+**Guide:** layout reference for UI implementation — update when form fields or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | ASCII below |
+| **Last updated** | 2026-07-03 |
+
+### Screen: `/tickets/new` and `/project/:projectId/tickets/new`
+
+| Region | Elements |
+|--------|----------|
+| Form | Project (global route only), title, description, category, priority, assignee, optional phase |
+| Actions | **Criar** primary; cancel |
+
+```
+┌─────────────────────────────────────────────┐
+│  Novo ticket                                │
+├─────────────────────────────────────────────┤
+│  Projeto [▼]  (hidden when project route)   │
+│  Título [………………………………]                     │
+│  Descrição [rich text]                      │
+│  Categoria │ Prioridade │ Responsável       │
+│  Fase [▼] optional                          │
+│  [ Criar ]  [ Cancelar ]                    │
+└─────────────────────────────────────────────┘
+```
+
 ## Impact
 
 | Area | Effect |
@@ -45,5 +74,14 @@ Create new tickets globally (`/tickets/new`) or within a project (`/project/:pro
 | Ticket management | New tickets appear in lists and detail |
 | Categories | Category picker uses category list |
 | — | None identified |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Create form matches **Wireframe** | Wireframe | ☑ |
+| FC2 | Project route pre-fills from ticket template | Summary | ☑ |
+| FC3 | Identifier auto-generated on create | Summary | ☑ |
+| FC4 | `feature-catalog.md` — Create ticket rows | Impact / Docs | ☑ |
 
 **Implementation notes:** `create-ticket.component.ts`, `ticket-form.component.ts`; identifier generation in create flow.

@@ -11,6 +11,62 @@ Introduce **phase** and **version** planning for projects: time-boxed **phases**
 
 This capability extends Issues beyond workflow status (Kanban columns) into release-oriented planning without prescribing Agile/Scrum process.
 
+## Wireframe
+
+**Guide:** layout reference for UI implementation — update when phase/version UI or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
+
+| Field | Value |
+|-------|-------|
+| **Source** | ASCII below |
+| **Last updated** | 2026-07-03 |
+
+### Screen: `/project/:projectId/phases`
+
+| Region | Elements |
+|--------|----------|
+| List | Phase name, status badge (planned/active/completed), dates |
+| Actions | **Nova fase** (PM); row → detail |
+
+### Screen: `/project/:projectId/phases/new` and `…/phases/:phaseId`
+
+| Region | Elements |
+|--------|----------|
+| Form | Name, date range, **Objetivo**, deliverables list, deliverable version |
+| PM actions | **Ativar** (planned), **Concluir** (active) |
+
+### Screen: `/project/:projectId/versions`
+
+| Region | Elements |
+|--------|----------|
+| List | SemVer label; row → changelog detail |
+| Actions | **Nova versão** (PM) |
+
+### Screen: `/project/:projectId/versions/:versionId`
+
+| Region | Elements |
+|--------|----------|
+| Header | Version label; PM edit label |
+| Changelog | Grouped sections: Planejado / Entregue / Via fase; sorted by finish date |
+
+### Extensions on existing screens
+
+| Screen | Added elements |
+|--------|----------------|
+| `/ticket/:id` | Phase, versão observada/alvo, data de conclusão |
+| `/workflows/:id` | Phase start status; finish statuses (done/canceled) |
+| `/project/:id/kanban` | Phase filter dropdown; phase badge on cards |
+| Ticket create | Optional **Fase** combobox (planned + active) |
+| Project edit | Phase template (objective + deliverables) |
+
+```
+Phases list                    Version changelog
+┌─────────────────────────┐    ┌────────────────────────────┐
+│ Fase A  [Ativa]         │    │ v1.2.0                     │
+│ Fase B  [Planejada]     │    │ Planejado │ Entregue │ …  │
+│ [ Nova fase ]           │    │ PROJ-1 …  │ PROJ-2 …     │
+└─────────────────────────┘    └────────────────────────────┘
+```
+
 ## Scope
 
 ### In scope (issue #6 + extensions)
@@ -362,6 +418,19 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 | Notifications | None identified |
 | Workflow | None identified (superseded by decisions entry below) |
 
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Phase lifecycle UI matches **Wireframe** | Wireframe | ☐ |
+| FC2 | Version catalog + changelog match **Wireframe** | Wireframe | ☐ |
+| FC3 | Workflow finish statuses + finish date | Slice 1 | ☑ |
+| FC4 | Version CRUD + observed/target on ticket | Slice 2 | ☑ |
+| FC5 | Phase CRUD, activate, complete | Slice 3 | ☑ |
+| FC6 | Project template + create-ticket phase + Kanban filter | Slice 4–5 | ☑ |
+| FC7 | `domain-specification.md` invariants 11–23 | V5 | ☑ |
+| FC8 | `feature-catalog.md` phase/version routes | Impact / Docs | ☑ |
+
 **Implementation notes:** _(pending — fill after each slice)_
 
 ### Version changelog — 2026-07-03
@@ -407,6 +476,13 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 **Description:** Updated `docs/domain-specification.md`, `ARCHITECTURE.md`, and bounded-context rules with phase/version vocabulary, workflow extensions, and invariants 11–23.
 
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Domain spec vocabulary and invariants 11–23 | Summary | ☑ |
+| FC2 | ARCHITECTURE.md package map updated | Summary | ☑ |
+
 **Implementation notes:** `docs/domain-specification.md`, `ARCHITECTURE.md` §5/§6/§7, `.cursor/rules/issues-bounded-contexts.mdc`
 
 ### Slice 1 — workflow finish + finish date — 2026-07-03
@@ -415,6 +491,14 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 **Status:** done
 
 **Description:** Workflow finish statuses (`DONE`/`CANCELED`), optional phase start status (schema + API), ticket `finished_at` on move, workflow editor UI, ticket detail **Data de conclusão**.
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Workflow editor finish statuses match **Wireframe** extension | Wireframe | ☑ |
+| FC2 | Ticket detail shows **Data de conclusão** when set | Wireframe | ☑ |
+| FC3 | `finished_at` set/cleared on done finish status moves | Summary | ☑ |
 
 **Implementation notes:** `FinishOutcome`, `WorkflowFinishStatus`, `WorkflowService`, `TicketService.moveTicket`, migration, `CreateWorkflowEndpointTest`, `MoveTicketEndpointTest`, workflow form, ticket view.
 
@@ -425,6 +509,14 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 **Description:** Version CRUD (SemVer), ticket observed/target version fields, grouped version changelog (Planejado / Entregue / Via fase), Angular version catalog and ticket detail selectors.
 
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Version list + detail match **Wireframe** | Wireframe | ☑ |
+| FC2 | Grouped changelog sections per **Wireframe** | Wireframe | ☑ |
+| FC3 | SemVer validation on version labels | Summary | ☑ |
+
 **Implementation notes:** `dev.vepo.issues.phase.*`, `phase.version.*` endpoints, `VersionEndpointTest`, `TicketPlanningFields`, `dev-import.sql` sample versions, `versions-view` / `version-detail` components, `version.service.ts`, feature catalog + README.
 
 ### Slice 3 — phase lifecycle — 2026-07-03
@@ -434,6 +526,14 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 **Description:** Phase CRUD with deliverables and deliverable version; activate (auto-complete previous + optional phase-start status move); complete; ticket phase assignment; **Via fase** changelog section.
 
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Phase list + detail match **Wireframe** | Wireframe | ☑ |
+| FC2 | Ativar / Concluir actions per lifecycle | Wireframe | ☑ |
+| FC3 | One active phase per project invariant | Summary | ☑ |
+
 **Implementation notes:** `Phase`, `PhaseDeliverable`, `PhaseService`, `phase.*` endpoints, `PhaseEndpointTest`, `phases-view` / `phase-detail` UI, ticket `planningFields.phaseId`, `dev-import.sql` sample phases.
 
 ### Slice 4 — templates & board — 2026-07-03
@@ -442,6 +542,14 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 **Status:** done
 
 **Description:** Project phase template (objective + deliverables); copy into new phases; optional phase on ticket create; Kanban phase filter and card badge.
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Project edit phase template per **Wireframe** | Wireframe | ☑ |
+| FC2 | Create-ticket optional **Fase** combobox | Wireframe | ☑ |
+| FC3 | Kanban phase filter + card badge | Wireframe | ☑ |
 
 **Implementation notes:** `ProjectPhaseDeliverableTemplate`, `PhaseTemplateRequest/Response`, `CreateTicketRequest.phaseId`, project edit UI, ticket-form phase combobox, kanban filter.
 
@@ -453,3 +561,22 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 2. ~~**Slice 2** — Version CRUD (SemVer), observed/target on ticket, version changelog.~~ — done (2026-07-03).
 3. ~~**Slice 3** — Phase lifecycle, activate/complete, deliverable version.~~ — done (2026-07-03).
 4. ~~**Slice 4** — Project templates, create-ticket phase combobox, Kanban filter.~~ — done (2026-07-03).
+5. ~~**Slice 5** — Kanban filter: select any phase by name.~~ — done (2026-07-03).
+
+### Slice 5 — Kanban phase picker — 2026-07-03
+
+**Version:** 10  
+**Status:** done
+
+**Description:** Extend Kanban **Filtrar por fase** dropdown with one option per project phase (name + status), so users can view tickets assigned to planned, active, or completed phases.
+
+**Impact on other features:** Kanban board only.
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Kanban phase dropdown lists every project phase | Wireframe | ☑ |
+| FC2 | Filter by phase id shows matching tickets | Summary | ☑ |
+
+**Implementation notes:** `kanban.component` — `phase:{id}` filter values; phase list from existing `PhaseService.list`.
