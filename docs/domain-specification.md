@@ -87,6 +87,9 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
 | **Project** | Bounded scope for tickets: name, prefix, required description, assigned workflow. | `Project`, `tb_projects` |
+| **Project member** | User assigned to a project; required to be eligible as ticket **assignee** on that project. | `tb_project_members`; M:N project ↔ user |
+| **Project allocation** | Admin UI to add or remove **project members** for a project. | `/projects/:projectId/allocation`; UI **Alocação** |
+| **Assigned project** | Project where the current user is a **project member**. | Scopes home screen and default project list for `user` role |
 | **Project prefix** | Short uppercase code used in ticket identifiers (e.g. `ISS`). | `Project.prefix` |
 | **Workflow** | Named state machine: start status, allowed statuses, transitions. | `Workflow`, `tb_workflows` |
 | **Status** | Named step in a workflow (e.g. TODO, IN_PROGRESS, DONE). | `WorkflowStatus`, `tb_workflow_status` |
@@ -173,6 +176,10 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | **Recent tickets** | Table of latest tickets. | `recent-tickets` |
 | **Performance KPI** | Summary metrics for project throughput. | `performance-kpi` |
 | **Search** | Full-text ticket search across projects. | `/search`, `GET /tickets/search` |
+| **Home screen** | Post-login hub at `/` with **Tickets atuais**, **Tickets atribuídos**, and **Atividade**. | `home.component`; not the project picker |
+| **Tickets atuais** (home) | All open (non-finished) tickets in the user's scope: member projects, or all projects for admin/project-manager. | Home section |
+| **Tickets atribuídos** (home) | Open tickets in scope where the current user is **assignee**. | Home section |
+| **Home activity** | Static snapshot of recent comments and status changes on tickets in scope; loaded once per visit (no SSE). | Home **Atividade** section |
 
 ---
 
@@ -201,6 +208,8 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 21. **Ticket create — no default phase** — new tickets have no phase unless the user selects one from **planned** and **active** phases in the create form.
 22. **Phase/version history** — changes to phase, observed version, target version, and finish date on tickets are logged via `TicketHistoryService`.
 23. **Phase/version admin roles** — phase and version CRUD: `PROJECT_MANAGER` and `ADMIN`; version changelog read: any authenticated user.
+24. **Project membership** — a user must be a **project member** to be set as ticket **assignee** on that project.
+25. **Home scope** — `user` role: home lists and activity include only **assigned projects**. `admin` and `project-manager` roles: org-wide (all projects) on home.
 
 ---
 

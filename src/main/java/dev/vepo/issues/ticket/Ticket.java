@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import dev.vepo.issues.categories.Category;
+import dev.vepo.issues.phase.Phase;
 import dev.vepo.issues.phase.Version;
 import dev.vepo.issues.project.Project;
 import dev.vepo.issues.user.User;
@@ -90,6 +91,10 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_version_id")
     private Version targetVersion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "phase_id")
+    private Phase phase;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -222,6 +227,14 @@ public class Ticket {
 
     public void setTargetVersion(Version targetVersion) {
         this.targetVersion = targetVersion;
+    }
+
+    public Phase getPhase() {
+        return phase;
+    }
+
+    public void setPhase(Phase phase) {
+        this.phase = phase;
     }
 
     public TicketPriority getPriority() {

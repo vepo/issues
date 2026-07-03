@@ -45,7 +45,7 @@
 
   <section class="page-panel">
     @if (isEditing) {
-      <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveTicket()">
+      <form class="edit" [formGroup]="editForm" (ngSubmit)="saveTicket()">
         <mat-form-field class="form-field" appearance="outline">
           <mat-label i18n>Título</mat-label>
           <input matInput formControlName="title" required />
@@ -72,6 +72,15 @@
           <mat-select formControlName="priority" required>
             @for (priority of priorities; track priority) {
               <mat-option [value]="priority">{{ priority }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Fase</mat-label>
+          <mat-select formControlName="phaseId">
+            <mat-option [value]="null" i18n>Nenhuma</mat-option>
+            @for (phase of assignablePhases; track phase.id) {
+              <mat-option [value]="phase.id">{{ phase.name }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -121,6 +130,10 @@
         @if (ticket.finishedAt) {
           <dt i18n>Data de conclusão</dt>
           <dd>{{ ticket.finishedAt | date: 'short' }}</dd>
+        }
+        @if (ticket.phaseName) {
+          <dt i18n>Fase</dt>
+          <dd>{{ ticket.phaseName }}</dd>
         }
         @if (ticket.targetVersionLabel) {
           <dt i18n>Versão planejada</dt>
@@ -174,7 +187,7 @@
       <button
         type="button"
         class="tab-button"
-        [class.active]="activeTab === 'history'"
+        [class.tab-button--active]="activeTab === 'history'"
         (click)="setActiveTab('history')"
         i18n>
         Histórico
@@ -182,7 +195,7 @@
       <button
         type="button"
         class="tab-button"
-        [class.active]="activeTab === 'comments'"
+        [class.tab-button--active]="activeTab === 'comments'"
         (click)="setActiveTab('comments')"
         i18n>
         Comentários

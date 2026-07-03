@@ -1,18 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TicketFormComponent } from './ticket-form.component';
+import { PhaseService } from '../../services/phase.service';
+import { of } from 'rxjs';
 
 describe('TicketFormComponent', () => {
   let component: TicketFormComponent;
   let fixture: ComponentFixture<TicketFormComponent>;
 
   beforeEach(async () => {
+    const phaseService = jasmine.createSpyObj('PhaseService', ['list']);
+    phaseService.list.and.returnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [TicketFormComponent],
+      providers: [{ provide: PhaseService, useValue: phaseService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TicketFormComponent);
     component = fixture.componentInstance;
-    component.projects = [{ id: 1, name: 'Issues', prefix: 'ISS', description: '', workflow: { id: 1, name: 'Agile' }, ticketTemplate: { enabled: false } }];
+    component.projects = [{ id: 1, name: 'Issues', prefix: 'ISS', description: '', workflow: { id: 1, name: 'Agile' }, ticketTemplate: { enabled: false }, phaseTemplate: { deliverables: [] } }];
     component.categories = [{ id: 2, name: 'Bug', color: 'red' }];
     fixture.detectChanges();
   });

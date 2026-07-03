@@ -49,7 +49,9 @@ Bounded context rules: [issues-bounded-contexts.mdc](issues-bounded-contexts.mdc
 
 ## Feature workflow
 
-[development-process.mdc](development-process.mdc): feature analysis → task break → development approved → TDD (per approved task) → tiered runs ([issues-testing.mdc](issues-testing.mdc)) → `mvn verify` ([issues-quality.mdc](issues-quality.mdc)).
+[development-process.mdc](development-process.mdc): feature analysis → task break → **explicit task approval** → TDD (per approved task) → tiered runs ([issues-testing.mdc](issues-testing.mdc)) → `mvn verify` ([issues-quality.mdc](issues-quality.mdc)).
+
+**Answering Q*n* is not approval.** After open questions are resolved, stop and wait for the user to approve task IDs before editing `src/main` or `src/test`.
 
 ## TDD — mandatory in phase 4
 

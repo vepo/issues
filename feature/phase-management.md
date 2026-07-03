@@ -1,7 +1,7 @@
 # Phase and version management
 
 **Feature version:** 5  
-**Status:** planned — domain spec updated 2026-07-03  
+**Status:** planned — domain spec updated 2026-07-03; slices 1–4 implemented 2026-07-03  
 **Requested:** 2026-07-03  
 **Tracking:** [GitHub issue #6 — Gerenciamento de Sprints](https://github.com/vepo/issues/issues/6)
 
@@ -425,7 +425,25 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 **Description:** Version CRUD (SemVer), ticket observed/target version fields, grouped version changelog (Planejado / Entregue / Via fase), Angular version catalog and ticket detail selectors.
 
-**Implementation notes:** `dev.vepo.issues.phase.*`, `phase.version.*` endpoints, `VersionEndpointTest`, `TicketVersionFields`, `dev-import.sql` sample versions, `versions-view` / `version-detail` components, `version.service.ts`, feature catalog + README.
+**Implementation notes:** `dev.vepo.issues.phase.*`, `phase.version.*` endpoints, `VersionEndpointTest`, `TicketPlanningFields`, `dev-import.sql` sample versions, `versions-view` / `version-detail` components, `version.service.ts`, feature catalog + README.
+
+### Slice 3 — phase lifecycle — 2026-07-03
+
+**Version:** 8  
+**Status:** done
+
+**Description:** Phase CRUD with deliverables and deliverable version; activate (auto-complete previous + optional phase-start status move); complete; ticket phase assignment; **Via fase** changelog section.
+
+**Implementation notes:** `Phase`, `PhaseDeliverable`, `PhaseService`, `phase.*` endpoints, `PhaseEndpointTest`, `phases-view` / `phase-detail` UI, ticket `planningFields.phaseId`, `dev-import.sql` sample phases.
+
+### Slice 4 — templates & board — 2026-07-03
+
+**Version:** 9  
+**Status:** done
+
+**Description:** Project phase template (objective + deliverables); copy into new phases; optional phase on ticket create; Kanban phase filter and card badge.
+
+**Implementation notes:** `ProjectPhaseDeliverableTemplate`, `PhaseTemplateRequest/Response`, `CreateTicketRequest.phaseId`, project edit UI, ticket-form phase combobox, kanban filter.
 
 ---
 
@@ -433,5 +451,5 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 1. ~~**Slice 1 TDD + implementation**~~ — done (2026-07-03).
 2. ~~**Slice 2** — Version CRUD (SemVer), observed/target on ticket, version changelog.~~ — done (2026-07-03).
-3. **Slice 3** — Phase lifecycle, activate/complete, deliverable version.
-4. **Slice 4** — Project templates, create-ticket phase combobox, Kanban filter.
+3. ~~**Slice 3** — Phase lifecycle, activate/complete, deliverable version.~~ — done (2026-07-03).
+4. ~~**Slice 4** — Project templates, create-ticket phase combobox, Kanban filter.~~ — done (2026-07-03).

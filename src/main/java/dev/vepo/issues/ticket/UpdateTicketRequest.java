@@ -7,4 +7,4 @@ public record UpdateTicketRequest(@NotNull @Size(min = 5, max = 255) String titl
                                   @NotNull @Size(min = 5, max = 1200) String description,
                                   @NotNull Long categoryId,
                                   @NotNull TicketPriority priority,
-                                  TicketVersionFields versionFields) {}
+                                  TicketPlanningFields planningFields) {}

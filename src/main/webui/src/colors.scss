@@ -68,3 +68,8 @@ $header-button-hover-bg: rgba(255, 255, 255, 0.2);
 
 // App shell alignment (GitHub-style: full-width chrome, content inset only)
 $shell-padding-x: 1rem;
+
+// Layout semantics (panels, tables)
+$panel-padding: $space-lg;
+$table-cell-padding-x: $space-md;
+$table-cell-padding-y: $space-sm;

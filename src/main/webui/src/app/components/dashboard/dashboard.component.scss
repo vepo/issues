@@ -83,13 +83,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px colors.$space-md;
+            padding: colors.$space-sm colors.$space-md;
             border-bottom: 1px solid colors.$border-subtle;
             background: colors.$surface-muted;
 
             h4 {
               margin: 0;
-              font-size: 14px;
+              font-size: 0.875rem;
             }
 
             .btn-remove {

@@ -5,7 +5,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import dev.vepo.issues.ticket.TicketPaths;
 import dev.vepo.issues.ticket.csvimport.CorrectImportRowRequest;
-import dev.vepo.issues.ticket.csvimport.ImportRowValidation;
+import dev.vepo.issues.ticket.csvimport.ImportRowValidationResponse;
 import dev.vepo.issues.ticket.csvimport.TicketImportService;
 import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
@@ -39,9 +39,9 @@ public class CorrectGlobalTicketImportRowEndpoint {
     @Path("/import/{importId}/rows/{rowId}")
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "correctGlobalTicketImportRow", summary = "Correct project or status on a global import preview row")
-    public ImportRowValidation correctRow(@PathParam("importId") long importId,
-                                          @PathParam("rowId") long rowId,
-                                          @Valid CorrectImportRowRequest request) {
+    public ImportRowValidationResponse correctRow(@PathParam("importId") long importId,
+                                                  @PathParam("rowId") long rowId,
+                                                  @Valid CorrectImportRowRequest request) {
         return ticketImportService.correctRow(null, importId, rowId, request);
     }
 }

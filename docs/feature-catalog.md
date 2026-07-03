@@ -9,15 +9,18 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Password reset confirm | `/login/reset-password/:token` | public | Open email link → enter new password twice → submit → login |
 | Home | `/` | authenticated | Login → land on home |
 | Account settings | `/account/settings` | authenticated | Menu → Conta → view profile → change password (current + new) or use recovery link |
-| Kanban board | `/project/:projectId/kanban` | authenticated | Home → select project → view columns by status → drag/move ticket; category color on cards |
+| Kanban board | `/project/:projectId/kanban` | authenticated | Home → select project → view columns by status → drag/move ticket; **filter by phase** (all / active / unplanned); phase badge on cards |
 | Project dashboard | `/project/:projectId/dashboard` | authenticated | Home → select project → dashboard shows default widgets on first visit; Editar layout to customize |
 | Version catalog | `/project/:projectId/versions` | authenticated | Kanban → Versões → list SemVer labels → open changelog |
 | Create version | `/project/:projectId/versions/new` | project-manager, admin | Versões → Nova versão → enter SemVer label + description → save |
 | Version detail / changelog | `/project/:projectId/versions/:versionId` | authenticated | Versões → select version → view grouped changelog (Planejado / Entregue / Via fase); PM can edit label |
-| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → edit fields (incl. planned/shipped version), assign, move status, delete (admin/PM), comments, observe |
+| Phase list | `/project/:projectId/phases` | authenticated | Kanban → Fases → list phases with status badges |
+| Create phase | `/project/:projectId/phases/new` | project-manager, admin | Fases → Nova fase → objective, deliverables, deliverable version → save |
+| Phase detail | `/project/:projectId/phases/:phaseId` | authenticated | Fases → select phase → edit; PM can **Ativar** (planned) or **Concluir** (active) |
+| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → edit fields (incl. phase, planned/shipped version), assign, move status, delete (admin/PM), comments, observe |
 | Ticket search | `/search` | authenticated | Menu → search → enter term → open ticket |
-| Create ticket | `/tickets/new` | authenticated | Header → Novo → select project → fill form → create |
-| Create ticket (project) | `/project/:projectId/tickets/new` | authenticated | Kanban → Novo ticket → form pre-filled from template → create |
+| Create ticket | `/tickets/new` | authenticated | Header → Novo → select project → fill form → optional **fase** → create |
+| Create ticket (project) | `/project/:projectId/tickets/new` | authenticated | Kanban → Novo ticket → form pre-filled from template → optional **fase** → create |
 | Import tickets (CSV, project) | `/project/:projectId/tickets/import` | authenticated | Kanban → Importar CSV → upload file → map columns → preview → import valid rows |
 | Import tickets (CSV, global) | `/tickets/import` | authenticated | Header **Importar** or user menu → Importar CSV → upload file → map project + columns → preview → import valid rows |
 | User list | `/users` | admin | Menu → users → list |
@@ -25,7 +28,7 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Edit user | `/users/:userId` | admin | Users → select user → edit → save |
 | Project list | `/projects` | project-manager+ | Menu → projects → list |
 | Create project | `/projects/new` | project-manager | Projects → new → fill form (optional ticket template) → save |
-| Edit project | `/projects/:projectId` | project-manager | Projects → select project → edit template/workflow → save |
+| Edit project | `/projects/:projectId` | project-manager | Projects → select project → edit template/workflow/**phase template** → save |
 | Workflow list | `/workflows` | project-manager, admin | Menu → Administração → Processos → list workflows → Editar |
 | Create workflow | `/workflows/new` | project-manager, admin | Workflows → Novo processo → status table + transitions table → save |
 | Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, start status, transitions (status names fixed) |

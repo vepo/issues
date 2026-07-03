@@ -51,6 +51,41 @@ class CreateTicketEndpointTest {
     }
 
     @Test
+    @DisplayName("It should be possible to create a ticket assigned to a phase")
+    void shouldCreateTicketWithPhaseAssignment() {
+        var phaseId = given().header(fixtures.pmAuthenticatedHeader())
+                             .accept(ContentType.JSON)
+                             .contentType(ContentType.JSON)
+                             .body("""
+                                   {
+                                       "name": "Fase para create ticket"
+                                   }""")
+                             .post("/api/projects/%d/phases".formatted(fixtures.project().id()))
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .path("id");
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "title": "Ticket in phase",
+                         "description": "Created with phase assignment.",
+                         "projectId": %d,
+                         "categoryId": %d,
+                         "phaseId": %d
+                     }""".formatted(fixtures.project().id(), fixtures.bug().getId(), phaseId))
+               .post("/api/tickets")
+               .then()
+               .statusCode(201)
+               .body("phaseId", equalTo(phaseId))
+               .body("phaseName", equalTo("Fase para create ticket"));
+    }
+
+    @Test
     @DisplayName("It should not be possible to create a ticket with an invalid project ID")
     void shouldNotCreateTicketWithInvalidProjectIdTest() {
         given().header(fixtures.pmAuthenticatedHeader())

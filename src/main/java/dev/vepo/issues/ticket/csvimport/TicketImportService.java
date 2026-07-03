@@ -139,18 +139,18 @@ public class TicketImportService {
     public PreviewTicketImportResponse preview(Long projectId, long importId) {
         var ticketImport = requireImport(projectId, importId);
         ensureMapped(ticketImport);
-        var validations = new ArrayList<ImportRowValidation>();
+        var validations = new ArrayList<ImportRowValidationResponse>();
 
         for (var row : importRowRepository.findByImportId(importId)) {
             validations.add(validateAndPersistRow(ticketImport, row));
         }
 
-        var validCount = (int) validations.stream().filter(ImportRowValidation::valid).count();
+        var validCount = (int) validations.stream().filter(ImportRowValidationResponse::valid).count();
         return new PreviewTicketImportResponse(validations, validCount, validations.size() - validCount);
     }
 
     @Transactional
-    public ImportRowValidation correctRow(Long projectId, long importId, long rowId, CorrectImportRowRequest request) {
+    public ImportRowValidationResponse correctRow(Long projectId, long importId, long rowId, CorrectImportRowRequest request) {
         var ticketImport = requireImport(projectId, importId);
         if (ticketImport.getStatus() == TicketImportStatus.COMPLETED) {
             throw new BadRequestException("Import already completed");
@@ -238,7 +238,7 @@ public class TicketImportService {
                                    projectName);
     }
 
-    private ImportRowValidation validateAndPersistRow(TicketImport ticketImport, TicketImportRow row) {
+    private ImportRowValidationResponse validateAndPersistRow(TicketImport ticketImport, TicketImportRow row) {
         var mapped = row.toMappedImportRow();
         List<String> errors;
         boolean valid;
@@ -251,7 +251,7 @@ public class TicketImportService {
             row.setValid(valid);
             row.setValidationErrorsJson(importJson.writeErrors(errors));
         }
-        return new ImportRowValidation(row.getId(), row.getRowNumber(), valid, mapped, List.copyOf(errors));
+        return new ImportRowValidationResponse(row.getId(), row.getRowNumber(), valid, mapped, List.copyOf(errors));
     }
 
     private List<String> collectValidationErrors(TicketImport ticketImport, MappedImportRow row) {

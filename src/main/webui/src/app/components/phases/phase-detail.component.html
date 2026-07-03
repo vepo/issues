@@ -1,0 +1,125 @@
+<div class="page">
+  <nav class="breadcrumb" aria-label="Navegação">
+    <a routerLink="/" i18n>Início</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <a [routerLink]="['/project', project?.id, 'kanban']">{{ project?.name }}</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <a [routerLink]="['/project', project?.id, 'phases']" i18n>Fases</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <span class="breadcrumb__current">{{ createMode ? 'Nova fase' : phase?.name }}</span>
+  </nav>
+
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">
+        @if (createMode) {
+          <ng-container i18n>Nova fase</ng-container>
+        } @else {
+          {{ phase?.name }}
+        }
+      </h1>
+      @if (!createMode && phase) {
+        <p class="page-subtitle">
+          <span class="status-badge">{{ statusLabel(phase.status) }}</span>
+          @if (phase.completedAt) {
+            <span i18n> — concluída em {{ phase.completedAt | date: 'short' }}</span>
+          }
+        </p>
+      }
+    </div>
+    @if (!createMode && canManage() && phase) {
+      <div class="page-header__actions">
+        @if (phase.status === 'PLANNED') {
+          <button class="btn" matButton="filled" type="button" [disabled]="isTransitioning" (click)="activate()">
+            <span i18n>Ativar fase</span>
+          </button>
+        }
+        @if (phase.status === 'ACTIVE') {
+          <button class="btn btn-secondary" matButton="outlined" type="button" [disabled]="isTransitioning" (click)="complete()">
+            <span i18n>Concluir fase</span>
+          </button>
+        }
+      </div>
+    }
+  </header>
+
+  @if (canManage()) {
+    <section class="page-panel">
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Nome</mat-label>
+          <input matInput formControlName="name" required />
+        </mat-form-field>
+        <mat-form-field class="form-field form-field--textarea" appearance="outline">
+          <mat-label i18n>Objetivo</mat-label>
+          <textarea matInput formControlName="objective" rows="3"></textarea>
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Data de início</mat-label>
+          <input matInput type="date" formControlName="startDate" />
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Data de fim</mat-label>
+          <input matInput type="date" formControlName="endDate" />
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Versão entregável</mat-label>
+          <mat-select formControlName="deliverableVersionId">
+            <mat-option [value]="null" i18n>Nenhuma</mat-option>
+            @for (version of versions; track version.id) {
+              <mat-option [value]="version.id">{{ version.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="form-section">
+          <h2 class="section-title" i18n>Entregáveis</h2>
+          @for (control of deliverablesArray().controls; track $index) {
+            <div class="form-row">
+              <mat-form-field class="form-field" appearance="outline">
+                <mat-label i18n>Entregável {{ $index + 1 }}</mat-label>
+                <input matInput [formControl]="$any(control)" />
+              </mat-form-field>
+              @if (deliverablesArray().length > 1) {
+                <button class="btn btn-secondary" matButton="outlined" type="button" (click)="removeDeliverable($index)">
+                  <mat-icon fontIcon="remove" aria-hidden="true"></mat-icon>
+                </button>
+              }
+            </div>
+          }
+          <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addDeliverable()">
+            <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+            <span i18n>Adicionar entregável</span>
+          </button>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn" matButton="filled" type="submit" [disabled]="form.invalid || isSaving">
+            <span i18n>{{ isSaving ? 'Salvando...' : (createMode ? 'Criar fase' : 'Salvar') }}</span>
+          </button>
+        </div>
+      </form>
+    </section>
+  } @else if (phase) {
+    <section class="page-panel">
+      <dl class="detail-list">
+        <dt i18n>Objetivo</dt>
+        <dd>{{ phase.objective || '—' }}</dd>
+        <dt i18n>Versão entregável</dt>
+        <dd>{{ phase.deliverableVersionLabel || '—' }}</dd>
+        <dt i18n>Entregáveis</dt>
+        <dd>
+          @if (phase.deliverables.length > 0) {
+            <ul>
+              @for (item of phase.deliverables; track item.id) {
+                <li>{{ item.text }}</li>
+              }
+            </ul>
+          } @else {
+            —
+          }
+        </dd>
+      </dl>
+    </section>
+  }
+</div>

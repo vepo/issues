@@ -42,6 +42,7 @@ public class ProjectService {
                                   request.description(),
                                   requireWorkflow(request.workflowId()));
         applyTicketTemplate(project, request.ticketTemplate());
+        applyPhaseTemplate(project, request.phaseTemplate());
         return ProjectResponse.load(repository.save(project));
     }
 
@@ -54,6 +55,7 @@ public class ProjectService {
                                                                   project.setDescription(request.description());
                                                                   project.setWorkflow(requireWorkflow(request.workflowId()));
                                                                   applyTicketTemplate(project, request.ticketTemplate());
+                                                                  applyPhaseTemplate(project, request.phaseTemplate());
                                                                   return project;
                                                               })
                                                               .orElseThrow(() -> projectNotFound(projectId))));
@@ -79,6 +81,30 @@ public class ProjectService {
     public Project requireProject(long projectId) {
         return repository.findById(projectId)
                          .orElseThrow(() -> projectNotFound(projectId));
+    }
+
+    private void applyPhaseTemplate(Project project, PhaseTemplateRequest template) {
+        if (template == null) {
+            project.setPhaseTemplateObjective(null);
+            project.getPhaseDeliverableTemplates().clear();
+            return;
+        }
+        project.setPhaseTemplateObjective(template.objective());
+        replacePhaseDeliverableTemplates(project, template.deliverables());
+    }
+
+    private void replacePhaseDeliverableTemplates(Project project, java.util.List<String> deliverables) {
+        project.getPhaseDeliverableTemplates().clear();
+        if (deliverables == null) {
+            return;
+        }
+        var order = 0;
+        for (var text : deliverables) {
+            if (text == null || text.isBlank()) {
+                continue;
+            }
+            project.getPhaseDeliverableTemplates().add(new ProjectPhaseDeliverableTemplate(project, order++, text.trim()));
+        }
     }
 
     private void applyTicketTemplate(Project project, TicketTemplateRequest template) {

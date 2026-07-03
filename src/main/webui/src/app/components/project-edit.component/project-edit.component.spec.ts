@@ -43,6 +43,7 @@ describe('ProjectEditComponent', () => {
             categoryId: 2,
             priority: 'HIGH',
           },
+          phaseTemplate: { deliverables: [] },
         },
         workflows: [{ id: 1, name: 'Default Workflow' }],
         categories: [{ id: 2, name: 'Bug', color: 'red' }],
@@ -65,6 +66,7 @@ describe('ProjectEditComponent', () => {
         prefix: 'TP',
         workflow: { id: 1, name: 'Default Workflow' },
         ticketTemplate: { enabled: true, title: 'Template title', description: 'Template description here', categoryId: 2, priority: 'HIGH' },
+        phaseTemplate: { deliverables: [] },
       }));
       component.save();
 
@@ -132,6 +134,7 @@ describe('ProjectEditComponent', () => {
           categoryId: 2,
           priority: 'MEDIUM',
         },
+        phaseTemplate: { deliverables: [] },
       }));
       component.projectForm.patchValue({
         name: 'New Project',

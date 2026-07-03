@@ -41,7 +41,7 @@ Follow [ARCHITECTURE.md](../../ARCHITECTURE.md) and existing code in the same pa
 
 ## When adding a feature
 
-[development-process.mdc](development-process.mdc) — feature analysis → task break → approval → TDD. Then ARCHITECTURE.md §12 — domain spec → package → tests → endpoint → Angular service/component → feature catalog.
+[development-process.mdc](development-process.mdc) — feature analysis → task break → **explicit task approval** → TDD. Answering open questions is not approval. Then ARCHITECTURE.md §12 — domain spec → package → tests → endpoint → Angular service/component → feature catalog.
 
 ## When fixing a test
 

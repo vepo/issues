@@ -21,8 +21,23 @@
         <mat-icon fontIcon="new_releases" aria-hidden="true"></mat-icon>
         <span i18n>Versões</span>
       </button>
+      <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'phases']">
+        <mat-icon fontIcon="timeline" aria-hidden="true"></mat-icon>
+        <span i18n>Fases</span>
+      </button>
     </div>
   </header>
+
+  <div class="board-toolbar">
+    <mat-form-field class="form-field form-field--compact" appearance="outline">
+      <mat-label i18n>Filtrar por fase</mat-label>
+      <mat-select [value]="phaseFilter" (selectionChange)="phaseFilter = $event.value">
+        <mat-option value="all" i18n>Todos</mat-option>
+        <mat-option value="active" i18n>Fase ativa</mat-option>
+        <mat-option value="unplanned" i18n>Sem fase</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
 
   <div class="board">
     @for (status of statuses; track status.id) {
@@ -51,6 +66,9 @@
                     <span class="category-badge__dot" [style.background-color]="ticket.categoryColor"></span>
                     {{ ticket.categoryName }}
                   </span>
+                }
+                @if (ticket.phaseName) {
+                  <span class="phase-badge">{{ ticket.phaseName }}</span>
                 }
               </div>
               <div class="title">{{ ticket.title }}</div>

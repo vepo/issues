@@ -70,6 +70,19 @@
       }
     </section>
 
+    <section class="form-section">
+      <h2 class="section-title" i18n>Template de fase</h2>
+      <p class="form-hint" i18n>Objetivo e entregáveis copiados para cada nova fase (editáveis por fase).</p>
+      <mat-form-field class="form-field form-field--textarea" appearance="outline">
+        <mat-label i18n>Objetivo padrão</mat-label>
+        <textarea matInput formControlName="phaseTemplateObjective" rows="3"></textarea>
+      </mat-form-field>
+      <mat-form-field class="form-field form-field--textarea" appearance="outline">
+        <mat-label i18n>Entregáveis padrão</mat-label>
+        <textarea matInput formControlName="phaseTemplateDeliverables" rows="4" placeholder="Um entregável por linha"></textarea>
+      </mat-form-field>
+    </section>
+
     <div class="actions form-actions">
       <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()" i18n>Cancelar</button>
       <button class="btn" [disabled]="projectForm.invalid" matButton="filled" type="button" (click)="save()" i18n

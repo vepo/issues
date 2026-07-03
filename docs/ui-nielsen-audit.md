@@ -14,7 +14,7 @@ Legend: ✅ Compliant · ⚠️ Partial · ❌ Gap · **Fix** = action taken or 
 | 1 | Visibility of system status | ⚠️ | Toasts, notification badge, kanban drag OK; some async widgets show generic "Carregando…" |
 | 2 | Match system / real world | ✅ | PT-BR, domain terms (Ticket, Projeto, Kanban) |
 | 3 | User control & freedom | ✅ | Dialog cancel, auth back links, logout in menu |
-| 4 | Consistency & standards | ✅ | Uniform `.page` layout, gallery buttons, outline fields |
+| 4 | Consistency & standards | ✅ | Gallery classes + tokens; single `data-table` and `filter-chip--active` |
 | 5 | Error prevention | ✅ | Form validation on create/edit flows |
 | 6 | Recognition over recall | ✅ | Project cards, visible nav, status filter in header |
 | 7 | Flexibility & efficiency | ⚠️ | Header search + Enter; role chips on users; no keyboard shortcuts doc |

@@ -39,6 +39,8 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
     templateDescription: new FormControl(''),
     templateCategoryId: new FormControl(-1),
     templatePriority: new FormControl<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('MEDIUM'),
+    phaseTemplateObjective: new FormControl(''),
+    phaseTemplateDeliverables: new FormControl(''),
   });
 
   ngOnInit(): void {
@@ -64,6 +66,8 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
           templateDescription: template?.description ?? '',
           templateCategoryId: template?.categoryId ?? -1,
           templatePriority: template?.priority ?? 'MEDIUM',
+          phaseTemplateObjective: project.phaseTemplate?.objective ?? '',
+          phaseTemplateDeliverables: (project.phaseTemplate?.deliverables ?? []).join('\n'),
         });
         this.updateTemplateValidators(template?.enabled ?? false);
       }
@@ -92,11 +96,18 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
       templateDescription,
       templateCategoryId,
       templatePriority,
+      phaseTemplateObjective,
+      phaseTemplateDeliverables,
     } = this.projectForm.value;
 
     if (!name || !description || !prefix || workflow == null || workflow < 1) {
       return;
     }
+
+    const deliverables = (phaseTemplateDeliverables ?? '')
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
 
     const request: CreateOrUpdateProjectRequest = {
       name,
@@ -112,6 +123,10 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
             priority: templatePriority ?? 'MEDIUM',
           }
         : { enabled: false },
+      phaseTemplate: {
+        objective: phaseTemplateObjective?.trim() || undefined,
+        deliverables,
+      },
     };
 
     if (this.projectId) {

@@ -10,7 +10,6 @@ import dev.vepo.issues.ticket.TicketResponse;
 import dev.vepo.issues.ticket.TicketService;
 import dev.vepo.issues.ticket.UpdateAssigneeRequest;
 import dev.vepo.issues.user.UserRepository;
-import dev.vepo.issues.workflow.WorkflowStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -46,7 +45,8 @@ public class TicketImportRowExecutor {
                                                                    row.description(),
                                                                    category.getId(),
                                                                    projectId,
-                                                                   row.priority()),
+                                                                   row.priority(),
+                                                                   null),
                                            username);
 
         if (row.assigneeEmail() != null) {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { CreateTicketRequest } from '../../services/ticket.service';
 import { Category } from '../../services/category.service';
 import { Project } from '../../services/projects.service';
+import { Phase, PhaseService } from '../../services/phase.service';
 
 export interface TicketFormValues {
   title: string;
@@ -29,6 +30,8 @@ export interface TicketFormDefaults {
   templateUrl: './ticket-form.component.html'
 })
 export class TicketFormComponent implements OnInit {
+  private readonly phaseService = inject(PhaseService);
+
   @Input() projects: Project[] = [];
   @Input() categories: Category[] = [];
   @Input() initialProjectId: number | null = null;
@@ -40,6 +43,7 @@ export class TicketFormComponent implements OnInit {
   @Output() projectSelected = new EventEmitter<number>();
 
   readonly priorities: CreateTicketRequest['priority'][] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+  assignablePhases: Phase[] = [];
 
   ticketForm = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(255)]),
@@ -47,6 +51,7 @@ export class TicketFormComponent implements OnInit {
     description: new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(1200)]),
     categoryId: new FormControl(-1, [Validators.required, Validators.min(1)]),
     priority: new FormControl<CreateTicketRequest['priority']>('MEDIUM', [Validators.required]),
+    phaseId: new FormControl<number | null>(null),
   });
 
   @Input()
@@ -74,6 +79,20 @@ export class TicketFormComponent implements OnInit {
     this.ticketForm.get('projectId')?.valueChanges.subscribe(projectId => {
       if (projectId != null && projectId > 0) {
         this.projectSelected.emit(projectId);
+        this.loadAssignablePhases(projectId);
+      } else {
+        this.assignablePhases = [];
+        this.ticketForm.patchValue({ phaseId: null });
+      }
+    });
+  }
+
+  private loadAssignablePhases(projectId: number): void {
+    this.phaseService.list(projectId).subscribe(phases => {
+      this.assignablePhases = phases.filter(p => p.status === 'PLANNED' || p.status === 'ACTIVE');
+      const currentPhaseId = this.ticketForm.value.phaseId;
+      if (currentPhaseId != null && !this.assignablePhases.some(p => p.id === currentPhaseId)) {
+        this.ticketForm.patchValue({ phaseId: null });
       }
     });
   }
@@ -99,11 +118,18 @@ export class TicketFormComponent implements OnInit {
       this.ticketForm.markAllAsTouched();
       return;
     }
-    const { title, description, categoryId, projectId, priority } = this.ticketForm.getRawValue();
+    const { title, description, categoryId, projectId, priority, phaseId } = this.ticketForm.getRawValue();
     if (!title || !description || categoryId == null || categoryId < 1 || projectId == null || projectId < 1 || !priority) {
       return;
     }
-    this.submitted.emit({ title, description, categoryId, projectId, priority });
+    this.submitted.emit({
+      title,
+      description,
+      categoryId,
+      projectId,
+      priority,
+      phaseId: phaseId ?? undefined,
+    });
   }
 
   cancel(): void {

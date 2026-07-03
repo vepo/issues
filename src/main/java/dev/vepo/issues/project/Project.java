@@ -2,16 +2,23 @@ package dev.vepo.issues.project;
 
 import dev.vepo.issues.ticket.TicketPriority;
 import dev.vepo.issues.workflow.Workflow;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_projects", uniqueConstraints = @jakarta.persistence.UniqueConstraint(name = "tb_project_UK", columnNames = "name"))
@@ -48,6 +55,13 @@ public class Project {
     @Enumerated(EnumType.STRING)
     @Column(name = "ticket_template_priority", length = 16)
     private TicketPriority ticketTemplatePriority;
+
+    @Column(name = "phase_template_objective", columnDefinition = "TEXT")
+    private String phaseTemplateObjective;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OrderBy("sortOrder ASC")
+    private List<ProjectPhaseDeliverableTemplate> phaseDeliverableTemplates = new ArrayList<>();
 
     public Project() {}
 
@@ -145,5 +159,21 @@ public class Project {
         this.ticketTemplateDescription = null;
         this.ticketTemplateCategoryId = null;
         this.ticketTemplatePriority = null;
+    }
+
+    public String getPhaseTemplateObjective() {
+        return phaseTemplateObjective;
+    }
+
+    public void setPhaseTemplateObjective(String phaseTemplateObjective) {
+        this.phaseTemplateObjective = phaseTemplateObjective;
+    }
+
+    public List<ProjectPhaseDeliverableTemplate> getPhaseDeliverableTemplates() {
+        return phaseDeliverableTemplates;
+    }
+
+    public void setPhaseDeliverableTemplates(List<ProjectPhaseDeliverableTemplate> phaseDeliverableTemplates) {
+        this.phaseDeliverableTemplates = phaseDeliverableTemplates;
     }
 }

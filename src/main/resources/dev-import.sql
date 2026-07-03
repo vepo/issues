@@ -11,6 +11,8 @@ DECLARE
     proj_issues_id INTEGER;
     ver_1_0_0_id   INTEGER;
     ver_1_1_0_id   INTEGER;
+    phase_mvp_id   INTEGER;
+    phase_next_id  INTEGER;
     open_id        INTEGER;
     info_id        INTEGER;
     analyse_id     INTEGER;
@@ -56,7 +58,7 @@ BEGIN
     INSERT INTO tb_workflow_status (name) VALUES ('BLOCKED')     RETURNING id INTO blocked_id;
     INSERT INTO tb_workflow_status (name) VALUES ('DONE')        RETURNING id INTO done_id;
 
-    INSERT INTO tb_workflows (name, start_id) VALUES ('Agile', todo_id) RETURNING id INTO agile_id;
+    INSERT INTO tb_workflows (name, start_id, phase_start_id) VALUES ('Agile', todo_id, progress_id) RETURNING id INTO agile_id;
 
     INSERT INTO tb_workflow_statuses (workflow_id, status_id) VALUES (agile_id, todo_id);
     INSERT INTO tb_workflow_statuses (workflow_id, status_id) VALUES (agile_id, progress_id);
@@ -117,6 +119,30 @@ BEGIN
     INSERT INTO tb_versions (project_id, label, description)
     VALUES (proj_issues_id, '1.1.0', 'Melhorias e estabilização')
     RETURNING id INTO ver_1_1_0_id;
+
+    INSERT INTO tb_phases (project_id, name, objective, status, deliverable_version_id, created_at, completed_at)
+    VALUES (proj_issues_id, 'MVP 1.0', 'Entregar o MVP inicial do Issues', 'COMPLETED', ver_1_0_0_id, NOW() - INTERVAL '30 days', NOW() - INTERVAL '7 days')
+    RETURNING id INTO phase_mvp_id;
+
+    INSERT INTO tb_phase_deliverables (phase_id, sort_order, text) VALUES
+        (phase_mvp_id, 0, 'Autenticação e usuários'),
+        (phase_mvp_id, 1, 'Tickets e workflow Kanban');
+
+    INSERT INTO tb_phases (project_id, name, objective, status, deliverable_version_id, created_at)
+    VALUES (proj_issues_id, 'Release 1.1', 'Melhorias e importação CSV', 'ACTIVE', ver_1_1_0_id, NOW() - INTERVAL '3 days')
+    RETURNING id INTO phase_next_id;
+
+    INSERT INTO tb_phase_deliverables (phase_id, sort_order, text) VALUES
+        (phase_next_id, 0, 'Importação CSV de tickets'),
+        (phase_next_id, 1, 'Gestão de fases e versões');
+
+    UPDATE tb_projects
+    SET phase_template_objective = 'Entregas incrementais do produto Issues'
+    WHERE id = proj_issues_id;
+
+    INSERT INTO tb_project_phase_deliverable_templates (project_id, sort_order, text) VALUES
+        (proj_issues_id, 0, 'Funcionalidades de ticket e workflow'),
+        (proj_issues_id, 1, 'Planejamento por fases e versões');
 
     INSERT INTO tb_tickets (identifier, title, description, author_id, project_id, category_id, status_id, created_at, updated_at) VALUES 
                            ('ISS-001',
@@ -322,8 +348,13 @@ BEGIN
     FROM tb_tickets t WHERE t.identifier = 'ISS-004';
 
     UPDATE tb_tickets
-    SET target_version_id = ver_1_1_0_id
+    SET target_version_id = ver_1_1_0_id,
+        phase_id = phase_next_id
     WHERE identifier = 'ISS-004';
+
+    UPDATE tb_tickets
+    SET phase_id = phase_next_id
+    WHERE identifier = 'ISS-016';
 
     UPDATE tb_tickets
     SET observed_version_id = ver_1_0_0_id,

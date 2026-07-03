@@ -8,6 +8,7 @@ import { Ticket, TicketService } from '../../services/ticket.service';
 import { of } from 'rxjs';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import { ProjectStatus } from '../../services/status.service';
+import { PhaseService } from '../../services/phase.service';
 
 describe('KanbanComponent', () => {
   let component: KanbanComponent;
@@ -15,6 +16,7 @@ describe('KanbanComponent', () => {
   let mockActivatedRoute: any;
   let mockProjectsService: jasmine.SpyObj<ProjectsService>;
   let mockTicketService: jasmine.SpyObj<TicketService>;
+  let mockPhaseService: jasmine.SpyObj<PhaseService>;
 
   const mockProject = {
     id: 1,
@@ -23,6 +25,7 @@ describe('KanbanComponent', () => {
     prefix: 'PRJ',
     workflow: { id: 1, name: 'Waterfall' },
     ticketTemplate: { enabled: false },
+    phaseTemplate: { deliverables: [] },
   } as Project;
 
   const mockStatuses: ProjectStatus[] = [
@@ -32,12 +35,14 @@ describe('KanbanComponent', () => {
     { id: 4, name: 'Done', moveable: [2], start: false } as ProjectStatus
   ];
 
-  const emptyVersionFields = {
+  const emptyPlanningFields = {
     finishedAt: null,
     observedVersionId: null,
     observedVersionLabel: null,
     targetVersionId: null,
-    targetVersionLabel: null
+    targetVersionLabel: null,
+    phaseId: null,
+    phaseName: null
   };
 
   const mockTickets: Ticket[] = [
@@ -54,7 +59,7 @@ describe('KanbanComponent', () => {
       categoryName: 'Bug',
       categoryColor: '#E53935',
       priority: 'MEDIUM',
-      ...emptyVersionFields
+      ...emptyPlanningFields
     },
     {
       id: 2,
@@ -69,7 +74,7 @@ describe('KanbanComponent', () => {
       categoryName: 'Bug',
       categoryColor: '#E53935',
       priority: 'HIGH',
-      ...emptyVersionFields
+      ...emptyPlanningFields
     }
   ] as unknown as Ticket[];
 
@@ -91,6 +96,8 @@ describe('KanbanComponent', () => {
   beforeEach(waitForAsync(() => {
     mockProjectsService = jasmine.createSpyObj('ProjectsService', ['findWorkflowByProjectId']);
     mockTicketService = jasmine.createSpyObj('TicketService', ['move']);
+    mockPhaseService = jasmine.createSpyObj('PhaseService', ['list']);
+    mockPhaseService.list.and.returnValue(of([]));
     mockActivatedRoute = {
       data: of({
         statuses: mockStatuses,
@@ -104,7 +111,8 @@ describe('KanbanComponent', () => {
       providers: [
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ProjectsService, useValue: mockProjectsService },
-        { provide: TicketService, useValue: mockTicketService }
+        { provide: TicketService, useValue: mockTicketService },
+        { provide: PhaseService, useValue: mockPhaseService }
       ]
     }).compileComponents();
   }));

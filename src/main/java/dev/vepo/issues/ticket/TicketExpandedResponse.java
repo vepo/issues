@@ -22,6 +22,8 @@ public record TicketExpandedResponse(long id,
                                      String observedVersionLabel,
                                      Long targetVersionId,
                                      String targetVersionLabel,
+                                     Long phaseId,
+                                     String phaseName,
                                      List<TicketHistoryResponse> history) {
 
     public static TicketExpandedResponse load(Ticket ticket, List<TicketHistory> history) {
@@ -45,6 +47,8 @@ public record TicketExpandedResponse(long id,
                                           ticket.getObservedVersion() != null ? ticket.getObservedVersion().getLabel() : null,
                                           ticket.getTargetVersion() != null ? ticket.getTargetVersion().getId() : null,
                                           ticket.getTargetVersion() != null ? ticket.getTargetVersion().getLabel() : null,
+                                          ticket.getPhase() != null ? ticket.getPhase().getId() : null,
+                                          ticket.getPhase() != null ? ticket.getPhase().getName() : null,
                                           history.stream()
                                                  .map(TicketHistoryResponse::load)
                                                  .toList());

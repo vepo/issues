@@ -138,9 +138,33 @@ public class TicketRepository {
         return comment;
     }
 
+    public Stream<Ticket> findByPhaseId(long phaseId) {
+        return em.createQuery("""
+                              FROM Ticket t
+                              WHERE t.deleted = false AND t.phase.id = :phaseId
+                              """, Ticket.class)
+                 .setParameter("phaseId", phaseId)
+                 .getResultStream();
+    }
+
     public Stream<Ticket> findForVersionChangelog(long projectId, long versionId, ChangelogAssociation association) {
         if (association == ChangelogAssociation.PHASE_DELIVERABLE) {
-            return Stream.empty();
+            return em.createQuery("""
+                                  SELECT t FROM Ticket t
+                                  JOIN t.phase p
+                                  WHERE t.deleted = false
+                                  AND t.project.id = :projectId
+                                  AND p.deliverableVersion.id = :versionId
+                                  AND NOT EXISTS (
+                                      SELECT 1 FROM WorkflowFinishStatus fs
+                                      WHERE fs.id.workflowId = t.project.workflow.id
+                                      AND fs.id.statusId = t.status.id
+                                      AND fs.outcome = dev.vepo.issues.workflow.FinishOutcome.CANCELED
+                                  )
+                                  """, Ticket.class)
+                     .setParameter("projectId", projectId)
+                     .setParameter("versionId", versionId)
+                     .getResultStream();
         }
         var versionPredicate = association == ChangelogAssociation.TARGET
                                                                           ? "t.targetVersion.id = :versionId"

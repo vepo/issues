@@ -20,6 +20,8 @@ import { AccountSettingsComponent } from './components/account-settings/account-
 import { CategoriesViewComponent } from './components/categories/categories-view.component';
 import { VersionsViewComponent } from './components/versions/versions-view.component';
 import { VersionDetailComponent } from './components/versions/version-detail.component';
+import { PhasesViewComponent } from './components/phases/phases-view.component';
+import { PhaseDetailComponent } from './components/phases/phase-detail.component';
 import { projectResolver, projectsResolver } from './resolvers/project-resolver';
 import { statusResolver } from './resolvers/status-resolver';
 import { ticketResolver } from './resolvers/ticket.resolver';
@@ -27,6 +29,7 @@ import { ticketsResolver } from './resolvers/tickets-resolver';
 import { userResolver, usersResolver } from './resolvers/users.resolver';
 import { categoriesResolver } from './resolvers/categories-resolver';
 import { versionResolver, versionsResolver } from './resolvers/versions-resolver';
+import { phaseResolver, phasesResolver } from './resolvers/phases-resolver';
 import { workflowsResolver } from './resolvers/workflow-resolver';
 import { authGuard } from './services/auth.guard';
 import { roleGuard } from './services/role.guard';
@@ -83,6 +86,32 @@ export const routes: Routes = [
     resolve: {
       project: projectResolver,
       version: versionResolver
+    },
+    canActivate: [authGuard],
+  },
+  {
+    path: 'project/:projectId/phases',
+    component: PhasesViewComponent,
+    resolve: {
+      project: projectResolver,
+      phases: phasesResolver
+    },
+    canActivate: [authGuard],
+  },
+  {
+    path: 'project/:projectId/phases/new',
+    component: PhaseDetailComponent,
+    resolve: {
+      project: projectResolver
+    },
+    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])],
+  },
+  {
+    path: 'project/:projectId/phases/:phaseId',
+    component: PhaseDetailComponent,
+    resolve: {
+      project: projectResolver,
+      phase: phaseResolver
     },
     canActivate: [authGuard],
   },

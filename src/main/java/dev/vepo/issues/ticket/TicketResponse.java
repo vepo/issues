@@ -18,7 +18,9 @@ public record TicketResponse(long id,
                              Long observedVersionId,
                              String observedVersionLabel,
                              Long targetVersionId,
-                             String targetVersionLabel) {
+                             String targetVersionLabel,
+                             Long phaseId,
+                             String phaseName) {
     public static TicketResponse load(Ticket ticket) {
         return new TicketResponse(ticket.getId(),
                                   ticket.getIdentifier(),
@@ -36,6 +38,8 @@ public record TicketResponse(long id,
                                   ticket.getObservedVersion() != null ? ticket.getObservedVersion().getId() : null,
                                   ticket.getObservedVersion() != null ? ticket.getObservedVersion().getLabel() : null,
                                   ticket.getTargetVersion() != null ? ticket.getTargetVersion().getId() : null,
-                                  ticket.getTargetVersion() != null ? ticket.getTargetVersion().getLabel() : null);
+                                  ticket.getTargetVersion() != null ? ticket.getTargetVersion().getLabel() : null,
+                                  ticket.getPhase() != null ? ticket.getPhase().getId() : null,
+                                  ticket.getPhase() != null ? ticket.getPhase().getName() : null);
     }
 }

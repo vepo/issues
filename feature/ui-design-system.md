@@ -1,7 +1,7 @@
 # UI design system — class consistency
 
 **Feature version:** 1  
-**Status:** planned  
+**Status:** done  
 **Requested:** 2026-07-03
 
 ## Summary
@@ -30,12 +30,10 @@ The Issues SPA already defines a flat UI design language ([docs/ui-elements-gall
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| Q1 | Standardize on **`div.data-table`** (light chrome) and remove **`div.table`** (navy) from active use? | open | |
-| Q2 | **Filter chip active state:** keep filled blue (`.filter-chip--active`) everywhere, or outline + muted bg (`.filter-chip.active`)? | open | |
-| Q3 | **i18n scope:** templates only, or also TS strings (toasts, errors, role labels, backend field names in history)? | open | |
-| Q4 | **Rollout:** big-bang single PR vs phased by screen group (lists → forms → ticket → dashboard)? | open | |
-
-**Gate:** resolve Q1–Q2 before task break; Q3–Q4 can default if user prefers speed.
+| Q1 | Standardize on **`div.data-table`** (light chrome) and remove **`div.table`** (navy) from active use? | answered | **Yes** — remove `div.table` from CSS and gallery |
+| Q2 | **Filter chip active state:** filled blue (`.filter-chip--active`) or outline (`.filter-chip.active`)? | answered | **`.filter-chip--active`** — only pattern used in templates (search, users) |
+| Q3 | **i18n scope** | answered | **Out of scope** — no systematic i18n pass; fix obvious untranslated UI copy only when touching a screen |
+| Q4 | **Rollout** | answered | **Big-bang** — single change set |
 
 ---
 
@@ -197,7 +195,7 @@ Domain         .board, .column, .card, .project-grid, .project-card, .activity-f
 ### Unify application CSS classes and i18n — 2026-07-03
 
 **Version:** 1  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Consolidate duplicate global styles, align all templates to the gallery class matrix, migrate component-local CSS to tokens, and close i18n gaps.
 
@@ -216,26 +214,26 @@ Domain         .board, .column, .card, .project-grid, .project-card, .activity-f
 
 | ID | Task | Done |
 |----|------|------|
-| T1 | **Token pass** — add `$panel-padding`, `$table-cell-padding-x/y` to `colors.scss`; document in gallery § Design tokens | ☐ |
-| T2 | **Deduplicate `styles.scss`** — merge duplicate `.filter-chip`, `.filter-chips`; unify comment-form rules; single `.loading` block | ☐ |
-| T3 | **Deprecate `div.table`** — update gallery + remove unused CSS (verify grep clean) | ☐ |
-| T4 | **Promote shared patterns** — extract `.inline-table` (or extend `.data-table--inline`) from workflow-form; add `.ticket-actions`, `.changelog-section`, global `.form-field--table` | ☐ |
-| T5 | **Template alignment** — replace `.edit-form` → `form.edit`; ensure all list screens use same `data-table` header/cell classes; tab active → `.tab-button--active` | ☐ |
-| T6 | **Component SCSS cleanup** — move toast styles to `styles.scss`; refactor dashboard/notification/rich-text to tokens only | ☐ |
-| T7 | **i18n pass** — add missing `i18n` / `i18n-placeholder` on templates; map role labels and ticket history fields to PT display strings | ☐ |
-| T8 | **Gallery + audit docs** — update `ui-elements-gallery.md` (class matrix, deprecated list, new elements); refresh `ui-nielsen-audit.md` § consistency | ☐ |
+| T1 | **Token pass** — add `$panel-padding`, `$table-cell-padding-x/y` to `colors.scss`; document in gallery § Design tokens | ☑ |
+| T2 | **Deduplicate `styles.scss`** — merge duplicate `.filter-chip`, `.filter-chips`; unify comment-form rules; single `.loading` block | ☑ |
+| T3 | **Deprecate `div.table`** — update gallery + remove unused CSS (verify grep clean) | ☑ |
+| T4 | **Promote shared patterns** — extract `.inline-table` from workflow-form; add `.ticket-actions`, `.changelog-section`, global `.form-field--table` | ☑ |
+| T5 | **Template alignment** — replace `.edit-form` → `form.edit`; tab active → `.tab-button--active`; workflow form → `.inline-table` | ☑ |
+| T6 | **Component SCSS cleanup** — move toast styles to `styles.scss`; refactor dashboard/notification/rich-text to tokens only | ☑ |
+| T7 | ~~**i18n pass**~~ | cancelled — Q3 |
+| T8 | **Gallery + audit docs** — update `ui-elements-gallery.md`; refresh `ui-nielsen-audit.md` § consistency | ☑ |
 
 #### Test coverage (phase 2)
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | `npm run build` (production) | T1–T6 — compile + budget | ☐ |
-| TC2 | Existing `*.component.spec.ts` for touched components | T5–T7 — no broken selectors | ☐ |
+| TC1 | `npm run build` (production) | T1–T6 — compile + budget | ☑ |
+| TC2 | Existing `*.component.spec.ts` for touched components | T5–T7 — no broken selectors | ☑ |
 | TC3 | Manual checklist: login, home, users, projects, ticket, kanban, dashboard, workflows, versions | Full visual smoke | ☐ |
 
-**Development approval:** pending
+**Development approval:** approved 2026-07-03 — tasks: T1, T2, T3, T4, T5, T6, T8 (T7 cancelled per Q3)
 
-**Implementation notes:** _(fill after done)_
+**Implementation notes:** Big-bang pass 2026-07-03. Q1: removed `div.table`. Q2: `.filter-chip--active` (filled blue — only pattern in templates). Q3: i18n out of scope. Added layout tokens; deduplicated filter-chip and comment-form CSS; global `.inline-table`, `.ticket-actions`, `.changelog-section`, `.loading`, toast classes; workflow form and ticket view templates aligned. `npm run build` green.
 
 ---
 

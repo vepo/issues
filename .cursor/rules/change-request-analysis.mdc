@@ -7,6 +7,8 @@ alwaysApply: true
 
 Part of the mandatory [development-process.mdc](development-process.mdc). **Do not write production or test code** until phases 1–3 are complete for the current changelog entry.
 
+**Answering open questions (Q*n*) updates the feature doc only** — it is not development approval. **Each answer triggers a mandatory impact review** — see [development-process.mdc](development-process.mdc) § Impact review when answering open questions.
+
 Template: [feature/README.md](../../feature/README.md).
 
 ## When required
@@ -60,6 +62,8 @@ Kebab-case slug, stable for the lifetime of the capability. Re-run step 0 if the
 - Tests and docs to update
 - Risks (optional bullets) and **Open questions** table (`Q1`, `Q2`, … with status `open` | `answered` | `not valid` and **Answer** column)
 
+**When a question is answered:** run impact review per [development-process.mdc](development-process.mdc) § Impact review when answering open questions — refresh this Impact section, changelog cross-impacts, Risks, tasks, and domain spec; add new **Q*n*** if the answer surfaces gaps.
+
 Increment **Feature version** when adding a changelog entry; assign the next sequential **Version** to that entry.
 
 ### 3. Changelog — one entry per discrete change request (append; do not rewrite history)
@@ -68,7 +72,17 @@ Increment **Feature version** when adding a changelog entry; assign the next seq
 - **Status** — `planned` (then `tasks-ready` → `approved` → `in-progress` → `done` per [development-process.mdc](development-process.mdc))
 - **Impact on other features** — list affected capabilities, routes, or contexts; write `None identified` when isolated
 
-Phases 2–4 (task break, approval, TDD) continue in the same changelog entry — see [development-process.mdc](development-process.mdc).
+Phases 2–4 (task break, approval, TDD) continue in the same changelog entry — see [development-process.mdc](development-process.mdc). **Order is mandatory:** task break before approval; approval before any `src/main` or `src/test` edit.
+
+## Allowed edits by phase
+
+| Phase | Status | May edit |
+|-------|--------|----------|
+| 1 | `planned` | `feature/*.md`, `docs/**`, domain spec |
+| 1 (Q answered) | `planned` or `tasks-ready` | Same — **not** application source |
+| 2 | `tasks-ready` | `feature/*.md` (Tasks, Test coverage) |
+| 3 | `approved` | `feature/*.md` (Development approval line) |
+| 4 | `in-progress` / `done` | `src/main/**`, `src/test/**`, `src/main/webui/**`, docs |
 
 ## Order with other gates
 

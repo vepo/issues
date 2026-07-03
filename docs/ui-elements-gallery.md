@@ -49,6 +49,8 @@ Issues uses **flat UI design** — minimal ornament, bold color blocks, and typo
 | `$shadow-toast` | `0 1px 3px rgba(0,0,0,.1)` | Toast feedback |
 | `$radius-none` | `0` | Square corners — Metro-influenced flat geometry |
 | `$space-sm` / `$space-md` / `$space-lg` | 8 / 16 / 24 px | Spacing grid |
+| `$panel-padding` | `$space-lg` (24px) | `.page-panel`, `.comment-form`, `form.edit.page-panel` |
+| `$table-cell-padding-x` / `$table-cell-padding-y` | 16px / 8px | `.data-table`, `.inline-table` cells |
 | `$shell-padding-x` | `1rem` (16px) | Horizontal inset for header, footer, main, context bar — full-width chrome |
 
 Material theme CSS variables are aligned to `$base-active-color` in `styles.scss`.
@@ -176,6 +178,7 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 |----------|-------|
 | **Location** | `ticket-view.component.html` / `.scss` |
 | **Style** | Borderless; active = bottom border `$base-active-color` |
+| **Active class** | `.tab-button--active` (alias: `.active`) |
 | **Behavior** | Toggles `activeTab` (`history` \| `comments`); no route change |
 
 ### 2.9 Icon-only remove (`.btn-remove`)
@@ -205,11 +208,12 @@ Dashboard widget header; borderless, muted text, red on hover.
 | **Style** | White flat bar, light shadow, focus ring on `:focus-within`; `$radius-none` |
 | **Behavior** | Form submit or Enter → `/search` with `q` query param |
 
-### 3.3 Status filter chips on search (`.filter-chips` / `.filter-chip`)
+### 3.3 Status filter chips (`.filter-chips` / `.filter-chip`)
 
 | Property | Value |
 |----------|-------|
-| **Location** | `search-tickets.component.html` |
+| **Location** | `search-tickets.component.html`, `users-view.component.html` |
+| **Active class** | `.filter-chip--active` — filled primary blue (canonical; do not use `.filter-chip.active`) |
 | **Markup** | `.filter-chip` buttons including **Todos** (`statusId = -1`) |
 | **Behavior** | Click updates `/search` query params (`q`, optional `status`) |
 
@@ -321,7 +325,32 @@ Flat toolbar showing active search criteria (term, status). Replaces legacy `.pa
 
 ### 4.12 Parameters summary (`.parameters-box`) — legacy
 
-Table layout showing active search filters (term, status). Muted toolbar background.
+Table layout showing active search filters (term, status). Muted toolbar background. Prefer `.filter-summary`.
+
+### 4.13 Ticket actions toolbar (`.ticket-actions`)
+
+| Property | Value |
+|----------|-------|
+| **Location** | `ticket-view.component.html` |
+| **Style** | Flex wrap row; top/bottom border; compact `.form-field` for assignee/status + secondary buttons |
+| **Behavior** | Update assignee; move ticket to allowed status |
+
+### 4.14 Version changelog section (`.changelog-section`)
+
+| Property | Value |
+|----------|-------|
+| **Location** | `version-detail.component.html` |
+| **Style** | Section heading + nested `.data-table` per changelog group |
+| **Behavior** | Read-only release notes grouped by section name |
+
+### 4.15 Inline editable table (`.inline-table`)
+
+| Property | Value |
+|----------|-------|
+| **Location** | `workflow-form.component.html` |
+| **Structure** | `.inline-table__header`, `__body`, `__row`, `__col`, `__col--action`; variant `--readonly` |
+| **Style** | Same chrome as `.data-table` header/zebra rows; embeds `form-field--table` in cells |
+| **Behavior** | Add/remove rows for statuses, transitions, finish statuses |
 
 ---
 
@@ -342,26 +371,21 @@ Table layout showing active search filters (term, status). Muted toolbar backgro
 
 ## 6. Data tables
 
-### 6.1 Page table (`div.table`)
+### 6.1 Page and admin list table (`div.data-table`)
 
 | Property | Value |
 |----------|-------|
-| **Chrome** | Navy header row (`.header`), navy sub-header (`.sub-header`) |
-| **Body** | CSS `display: table`; rows `.row.even` / `.row.odd` neutral zebra |
-| **Empty** | `div.table.empty` — dashed muted panel |
+| **Chrome** | Light gray header (`.header`); zebra rows in `.body` |
+| **Structure** | `.header-cell`, `.row.even` / `.row.odd`, `.cell-actions`, `.data-table--empty` |
+| **Modifiers** | `data-table--cols-id-name-color-actions` (categories grid columns) |
 
-**Used in:** users list, projects list.
+**Used in:** users, projects, categories, workflows, versions, ticket history, dashboard widgets.
 
-### 6.2 Embedded data table (`div.data-table`)
+### 6.2 ~~Page table (`div.table`)~~ — removed
 
-| Property | Value |
-|----------|-------|
-| **Chrome** | Light gray header; fits inside dashboard widgets |
-| **Structure** | Same `.header` / `.body` / `.row` pattern as page table |
+Navy chrome table was removed from `styles.scss`. Do not reintroduce — use **`div.data-table`** (§6.1).
 
-**Used in:** dashboard KPI and table widgets.
-
-Note: ticket detail activity uses `.activity-feed` (see §10.1), not `div.data-table`.
+Note: ticket detail activity uses `.activity-feed` (see §10.1), not `div.data-table` for the merged timeline.
 
 ---
 
@@ -480,6 +504,18 @@ Wrapped in `.page.page--wide` with standard `.page-header`. Inner `.page-panel` 
 ---
 
 ## 14. Style review findings
+
+### 2026-07-03 — design system consolidation
+
+| Area | Finding | Status |
+|------|---------|--------|
+| Filter chips | Duplicate `.filter-chip` blocks with conflicting `.active` / `--active` | Fixed — single block; `.filter-chip--active` only |
+| Tables | `div.table` unused; all lists on `div.data-table` | Fixed — removed `div.table` from CSS |
+| Workflow form | Component-local table BEM duplicated data-table | Fixed — global `.inline-table` |
+| Ticket view | `.edit-form`, `.ticket-actions` undocumented | Fixed — `form.edit`, `.ticket-actions` in global CSS |
+| Toasts | Inline component styles with raw hex | Fixed — moved to `styles.scss` semantic tokens |
+| Layout tokens | Panel/table padding drift | Fixed — `$panel-padding`, `$table-cell-padding-*` |
+| i18n | Systematic pass | Deferred per product decision |
 
 ### 2026-07-02 — flat UI pass
 

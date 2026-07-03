@@ -58,6 +58,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 - **Move ticket** — status changes validated against workflow rules
 - **Finish date** — set when moving to a workflow **done** finish status; cleared when leaving done
 - **Versions** — SemVer labels per project; ticket **planned** and **shipped** version fields; grouped **version changelog** (excludes canceled tickets)
+- **Phases** — time-boxed planning periods with objective and deliverables; **activate** / **complete** lifecycle; optional ticket phase assignment; **project phase template** copied into new phases
 - **Categories** — classify tickets with name and color
 - **Comments** — discussion thread on each ticket
 - **Ticket history** — structured audit log (create, field changes, assign, move, subscribe, delete) merged with comments in the **Atividade** feed

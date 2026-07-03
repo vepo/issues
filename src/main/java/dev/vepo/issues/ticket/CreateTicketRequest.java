@@ -7,4 +7,5 @@ public record CreateTicketRequest(@NotNull @Size(min = 5, max = 255) String titl
                                   @NotNull @Size(min = 5, max = 1200) String description,
                                   @NotNull Long categoryId,
                                   @NotNull Long projectId,
-                                  TicketPriority priority) {}
+                                  TicketPriority priority,
+                                  Long phaseId) {}

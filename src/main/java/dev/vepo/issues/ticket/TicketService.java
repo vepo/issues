@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import dev.vepo.issues.categories.CategoryRepository;
 import dev.vepo.issues.notifications.NotificationEvent;
+import dev.vepo.issues.phase.Phase;
+import dev.vepo.issues.phase.PhaseService;
 import dev.vepo.issues.phase.Version;
 import dev.vepo.issues.phase.VersionService;
 import dev.vepo.issues.project.ProjectRepository;
@@ -44,6 +46,7 @@ public class TicketService {
     private final TicketHistoryService historyService;
     private final WorkflowRepository workflowRepository;
     private final VersionService versionService;
+    private final PhaseService phaseService;
     private final Event<NotificationEvent> notificationEmitter;
 
     @Inject
@@ -54,6 +57,7 @@ public class TicketService {
                          TicketHistoryService historyService,
                          WorkflowRepository workflowRepository,
                          VersionService versionService,
+                         PhaseService phaseService,
                          Event<NotificationEvent> notificationEmitter) {
         this.repository = repository;
         this.userRepository = userRepository;
@@ -62,9 +66,11 @@ public class TicketService {
         this.historyService = historyService;
         this.workflowRepository = workflowRepository;
         this.versionService = versionService;
+        this.phaseService = phaseService;
         this.notificationEmitter = notificationEmitter;
     }
 
+    @Transactional
     public List<TicketResponse> listAll(String status) {
         if (Objects.nonNull(status) && IS_NUMBER.test(status)) {
             return repository.findByStatusId(Long.parseLong(status))
@@ -80,6 +86,7 @@ public class TicketService {
                          .toList();
     }
 
+    @Transactional
     public List<TicketResponse> search(String term, long statusId) {
         return repository.search(Optional.ofNullable(term)
                                          .filter(Predicate.not(String::isBlank))
@@ -91,12 +98,14 @@ public class TicketService {
                          .toList();
     }
 
+    @Transactional
     public List<TicketResponse> findByProjectId(long projectId) {
         return repository.findByProjectId(projectId)
                          .map(TicketResponse::load)
                          .toList();
     }
 
+    @Transactional
     public TicketResponse findById(long id) {
         return TicketResponse.load(requireTicket(id));
     }
@@ -128,6 +137,7 @@ public class TicketService {
                                 project,
                                 project.getWorkflow().getStart());
         ticket.setPriority(Objects.nonNull(request.priority()) ? request.priority() : TicketPriority.MEDIUM);
+        ticket.setPhase(phaseService.requireAssignablePhase(project.getId(), request.phaseId()));
         repository.save(ticket);
         historyService.logTicketCreated(ticket, author);
         return TicketResponse.load(ticket);
@@ -156,18 +166,23 @@ public class TicketService {
         if (!entity.getPriority().equals(request.priority())) {
             historyService.logPriorityChanged(entity, user, entity.getPriority().name(), request.priority().name());
         }
-        if (Objects.nonNull(request.versionFields())) {
+        if (Objects.nonNull(request.planningFields())) {
+            applyPhaseChange(entity,
+                             user,
+                             entity.getPhase(),
+                             resolvePhase(entity, request.planningFields().phaseId()),
+                             entity::setPhase);
             applyVersionChange(entity,
                                user,
                                "observedVersion",
                                entity.getObservedVersion(),
-                               resolveVersion(entity, request.versionFields().observedVersionId()),
+                               resolveVersion(entity, request.planningFields().observedVersionId()),
                                entity::setObservedVersion);
             applyVersionChange(entity,
                                user,
                                "targetVersion",
                                entity.getTargetVersion(),
-                               resolveVersion(entity, request.versionFields().targetVersionId()),
+                               resolveVersion(entity, request.planningFields().targetVersionId()),
                                entity::setTargetVersion);
         }
 
@@ -371,6 +386,23 @@ public class TicketService {
 
     private Version resolveVersion(Ticket ticket, Long versionId) {
         return versionService.requireVersionForTicket(ticket.getProject().getId(), versionId);
+    }
+
+    private Phase resolvePhase(Ticket ticket, Long phaseId) {
+        return phaseService.requireAssignablePhase(ticket.getProject().getId(), phaseId);
+    }
+
+    private void applyPhaseChange(Ticket ticket,
+                                  User user,
+                                  Phase current,
+                                  Phase next,
+                                  java.util.function.Consumer<Phase> setter) {
+        var currentName = current != null ? current.getName() : null;
+        var nextName = next != null ? next.getName() : null;
+        if (!Objects.equals(currentName, nextName)) {
+            historyService.logFieldChanged(ticket, user, "phase", currentName, nextName);
+            setter.accept(next);
+        }
     }
 
     private void applyVersionChange(Ticket ticket,

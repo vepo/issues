@@ -34,34 +34,34 @@
       }
     </div>
     @if (mode === 'edit') {
-      <div class="workflow-form__list workflow-form__list--readonly">
-        <div class="workflow-form__list-header">
-          <div class="workflow-form__list-col" i18n>Nome do status</div>
+      <div class="inline-table inline-table--readonly">
+        <div class="inline-table__header">
+          <div class="inline-table__col" i18n>Nome do status</div>
         </div>
-        <div class="workflow-form__list-body">
+        <div class="inline-table__body">
           @for (statusControl of statuses.controls; track $index) {
-            <div class="workflow-form__list-row">
-              <div class="workflow-form__list-col">{{ statusControl.value }}</div>
+            <div class="inline-table__row">
+              <div class="inline-table__col">{{ statusControl.value }}</div>
             </div>
           }
         </div>
       </div>
     } @else {
-      <div class="workflow-form__list">
-        <div class="workflow-form__list-header">
-          <div class="workflow-form__list-col" i18n>Nome do status</div>
-          <div class="workflow-form__list-col workflow-form__list-col--action" i18n>Ações</div>
+      <div class="inline-table">
+        <div class="inline-table__header">
+          <div class="inline-table__col" i18n>Nome do status</div>
+          <div class="inline-table__col inline-table__col--action" i18n>Ações</div>
         </div>
-        <div class="workflow-form__list-body">
+        <div class="inline-table__body">
           @for (statusControl of statuses.controls; track $index) {
-            <div class="workflow-form__list-row">
-              <div class="workflow-form__list-col">
+            <div class="inline-table__row">
+              <div class="inline-table__col">
                 <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
                   <mat-label i18n>Status {{ $index + 1 }}</mat-label>
                   <input matInput [formControl]="$any(statusControl)" required />
                 </mat-form-field>
               </div>
-              <div class="workflow-form__list-col workflow-form__list-col--action">
+              <div class="inline-table__col inline-table__col--action">
                 @if (statuses.length > 2) {
                   <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeStatus($index)" i18n-aria-label aria-label="Excluir status">
                     <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
@@ -83,16 +83,16 @@
         <span i18n>Adicionar transição</span>
       </button>
     </div>
-    <div class="workflow-form__list">
-      <div class="workflow-form__list-header">
-        <div class="workflow-form__list-col" i18n>De</div>
-        <div class="workflow-form__list-col" i18n>Para</div>
-        <div class="workflow-form__list-col workflow-form__list-col--action" i18n>Ações</div>
+    <div class="inline-table">
+      <div class="inline-table__header">
+        <div class="inline-table__col" i18n>De</div>
+        <div class="inline-table__col" i18n>Para</div>
+        <div class="inline-table__col inline-table__col--action" i18n>Ações</div>
       </div>
-      <div class="workflow-form__list-body">
+      <div class="inline-table__body">
         @for (transition of transitions.controls; track $index) {
-          <div class="workflow-form__list-row" [formGroup]="$any(transition)">
-            <div class="workflow-form__list-col">
+          <div class="inline-table__row" [formGroup]="$any(transition)">
+            <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
                 <mat-select formControlName="from" required i18n-aria-label aria-label="De">
                   @for (name of statusNames(); track name) {
@@ -101,7 +101,7 @@
                 </mat-select>
               </mat-form-field>
             </div>
-            <div class="workflow-form__list-col">
+            <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
                 <mat-select formControlName="to" required i18n-aria-label aria-label="Para">
                   @for (name of statusNames(); track name) {
@@ -110,7 +110,7 @@
                 </mat-select>
               </mat-form-field>
             </div>
-            <div class="workflow-form__list-col workflow-form__list-col--action">
+            <div class="inline-table__col inline-table__col--action">
               <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeTransition($index)" i18n-aria-label aria-label="Excluir transição">
                 <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
               </button>
@@ -129,16 +129,16 @@
         <span i18n>Adicionar status de conclusão</span>
       </button>
     </div>
-    <div class="workflow-form__list">
-      <div class="workflow-form__list-header">
-        <div class="workflow-form__list-col" i18n>Status</div>
-        <div class="workflow-form__list-col" i18n>Resultado</div>
-        <div class="workflow-form__list-col workflow-form__list-col--action" i18n>Ações</div>
+    <div class="inline-table">
+      <div class="inline-table__header">
+        <div class="inline-table__col" i18n>Status</div>
+        <div class="inline-table__col" i18n>Resultado</div>
+        <div class="inline-table__col inline-table__col--action" i18n>Ações</div>
       </div>
-      <div class="workflow-form__list-body">
+      <div class="inline-table__body">
         @for (finishStatus of finishStatuses.controls; track $index) {
-          <div class="workflow-form__list-row" [formGroup]="$any(finishStatus)">
-            <div class="workflow-form__list-col">
+          <div class="inline-table__row" [formGroup]="$any(finishStatus)">
+            <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
                 <mat-select formControlName="status" required i18n-aria-label aria-label="Status de conclusão">
                   @for (name of statusNames(); track name) {
@@ -147,7 +147,7 @@
                 </mat-select>
               </mat-form-field>
             </div>
-            <div class="workflow-form__list-col">
+            <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
                 <mat-select formControlName="outcome" required i18n-aria-label aria-label="Resultado">
                   @for (outcome of finishOutcomes; track outcome) {
@@ -156,7 +156,7 @@
                 </mat-select>
               </mat-form-field>
             </div>
-            <div class="workflow-form__list-col workflow-form__list-col--action">
+            <div class="inline-table__col inline-table__col--action">
               <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeFinishStatus($index)" i18n-aria-label aria-label="Excluir status de conclusão">
                 <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
               </button>

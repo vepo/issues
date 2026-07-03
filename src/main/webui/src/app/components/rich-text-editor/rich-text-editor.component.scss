@@ -50,7 +50,8 @@
         outline-offset: 1px;
       }
 
-      &.active {
+      &.active,
+      &--active {
         background: colors.$base-active-color;
         color: colors.$surface-card;
         border-color: colors.$base-active-color;
@@ -73,7 +74,7 @@
     min-height: 120px;
     max-height: 300px;
     overflow-y: auto;
-    padding: 0.75rem;
+    padding: colors.$space-md;
     outline: none;
     line-height: 1.5;
     color: colors.$text-primary;

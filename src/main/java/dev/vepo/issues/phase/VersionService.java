@@ -81,10 +81,14 @@ public class VersionService {
                                               .map(ticket -> toEntry(ticket, EnumSet.of(ChangelogAssociation.OBSERVED)))
                                               .sorted(changelogComparator())
                                               .toList();
+        var phaseTickets = ticketRepository.findForVersionChangelog(projectId, versionId, ChangelogAssociation.PHASE_DELIVERABLE)
+                                           .map(ticket -> toEntry(ticket, EnumSet.of(ChangelogAssociation.PHASE_DELIVERABLE)))
+                                           .sorted(changelogComparator())
+                                           .toList();
         var sections = new ArrayList<VersionChangelogSection>();
         sections.add(new VersionChangelogSection(SECTION_TARGET, targetTickets));
         sections.add(new VersionChangelogSection(SECTION_OBSERVED, observedTickets));
-        sections.add(new VersionChangelogSection(SECTION_PHASE, List.of()));
+        sections.add(new VersionChangelogSection(SECTION_PHASE, phaseTickets));
         return new VersionChangelogResponse(version.getId(), version.getLabel(), version.getDescription(), sections);
     }
 

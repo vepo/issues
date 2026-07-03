@@ -14,6 +14,7 @@ import { ProjectStatus, StatusService } from '../../services/status.service';
 import { User, UsersService } from '../../services/users.service';
 import { Comment, CreateCommentRequest, TicketExpanded, TicketService, UpdateTicketRequest } from '../../services/ticket.service';
 import { Version, VersionService } from '../../services/version.service';
+import { Phase, PhaseService } from '../../services/phase.service';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
 
@@ -44,6 +45,7 @@ export class TicketViewComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly statusService = inject(StatusService);
   private readonly versionService = inject(VersionService);
+  private readonly phaseService = inject(PhaseService);
   private readonly dialog = inject(MatDialog);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -59,6 +61,7 @@ export class TicketViewComponent implements OnInit {
   users: User[] = [];
   projectStatuses: ProjectStatus[] = [];
   projectVersions: Version[] = [];
+  assignablePhases: Phase[] = [];
   selectedStatusId: number | null = null;
   selectedAssigneeId: number | null = null;
 
@@ -68,7 +71,8 @@ export class TicketViewComponent implements OnInit {
     categoryId: [null as number | null, Validators.required],
     priority: ['MEDIUM', Validators.required],
     observedVersionId: [null as number | null],
-    targetVersionId: [null as number | null]
+    targetVersionId: [null as number | null],
+    phaseId: [null as number | null]
   });
 
   readonly priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
@@ -86,6 +90,7 @@ export class TicketViewComponent implements OnInit {
         this.loadComments();
         this.loadProjectStatuses();
         this.loadProjectVersions();
+        this.loadAssignablePhases();
         this.populateEditForm();
       }
     });
@@ -100,6 +105,16 @@ export class TicketViewComponent implements OnInit {
                        this.projectStatuses = statuses;
                        this.selectedStatusId = this.currentStatusId();
                        this.selectedAssigneeId = this.ticket?.assignee?.id ?? null;
+                     });
+  }
+
+  loadAssignablePhases(): void {
+    if (!this.ticket?.project?.id) {
+      return;
+    }
+    this.phaseService.list(this.ticket.project.id)
+                     .subscribe(phases => {
+                       this.assignablePhases = phases.filter(p => p.status === 'PLANNED' || p.status === 'ACTIVE');
                      });
   }
 
@@ -122,7 +137,8 @@ export class TicketViewComponent implements OnInit {
       categoryId: category?.id ?? null,
       priority: this.ticket.priority ?? 'MEDIUM',
       observedVersionId: this.ticket.observedVersionId ?? null,
-      targetVersionId: this.ticket.targetVersionId ?? null
+      targetVersionId: this.ticket.targetVersionId ?? null,
+      phaseId: this.ticket.phaseId ?? null
     });
   }
 
@@ -214,7 +230,8 @@ export class TicketViewComponent implements OnInit {
       description: value.description,
       categoryId: value.categoryId,
       priority: value.priority as UpdateTicketRequest['priority'],
-      versionFields: {
+      planningFields: {
+        phaseId: value.phaseId ?? null,
         observedVersionId: value.observedVersionId ?? null,
         targetVersionId: value.targetVersionId ?? null
       }
@@ -272,6 +289,7 @@ export class TicketViewComponent implements OnInit {
         this.ticket = updatedTicket;
         this.loadProjectStatuses();
         this.loadProjectVersions();
+        this.loadAssignablePhases();
         this.populateEditForm();
       }
     });

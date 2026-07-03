@@ -62,6 +62,16 @@
     }
   </mat-form-field>
 
+  <mat-form-field class="form-field" appearance="outline">
+    <mat-label i18n>Fase</mat-label>
+    <mat-select formControlName="phaseId">
+      <mat-option [value]="null" i18n>Nenhuma</mat-option>
+      @for (phase of assignablePhases; track phase.id) {
+        <mat-option [value]="phase.id">{{ phase.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
   <div class="actions form-actions">
     <button matButton="outlined" class="btn btn-secondary" type="button" (click)="cancel()" i18n>Cancelar</button>
     <button matButton="filled" class="btn" type="button" [disabled]="ticketForm.invalid || isSaving" (click)="submit()" i18n>

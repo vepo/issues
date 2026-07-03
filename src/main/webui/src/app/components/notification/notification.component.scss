@@ -34,11 +34,11 @@
 
 .notification-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: colors.$space-xs;
+  right: colors.$space-xs;
   min-width: 16px;
   height: 16px;
-  padding: 0 4px;
+  padding: 0 colors.$space-xs;
   border-radius: colors.$radius-none;
   background-color: colors.$base-error-color;
   color: colors.$surface-card;

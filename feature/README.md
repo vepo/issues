@@ -2,7 +2,7 @@
 
 One markdown file per **high-level capability**: `feature/<feature-slug>.md` (kebab-case).
 
-**Mandatory process:** [development-process.mdc](../.cursor/rules/development-process.mdc) — feature analysis → task break → development approved → TDD. No code before approval.
+**Mandatory process:** [development-process.mdc](../.cursor/rules/development-process.mdc) — feature analysis → task break → **explicit task approval** → TDD. Answering Q*n* is not approval. No code before approved task IDs.
 
 ## Resolving `<feature-slug>`
 
@@ -59,7 +59,9 @@ Reference by **Q*n*** in tasks, changelog, and discussion. Status: `open` | `ans
 | Q1 | e.g. Should export include soft-deleted tickets? | open | |
 | Q2 | e.g. Max CSV file size for import? | answered | 10 MB; enforced in upload endpoint |
 
-**Gate:** phase 2 (task break) requires no `open` questions that block scope — resolve or mark `not valid` first.
+**Gate:** phase 2 (task break) requires no `open` questions that block scope — resolve or mark `not valid` first. Phase 3 requires explicit task ID approval — answering Q*n* is **not** approval.
+
+**Impact review:** after each answered question, update Impact / Risks / tasks and domain spec as needed; new **Q*n*** may be added — see [development-process.mdc](../.cursor/rules/development-process.mdc) § Impact review when answering open questions.
 
 ## Changelog
 
@@ -94,6 +96,8 @@ Reference by **Q*n*** in tasks, changelog, and discussion. Status: `open` | `ans
 
 **Development approval:** pending | approved YYYY-MM-DD — tasks: T1, T2
 
+Required before phase 4. User must name task IDs (e.g. "Approve T1–T8"). Answering open questions alone does **not** satisfy this line.
+
 **Implementation notes:** (fill after done — key files, tests run)
 ```
 
@@ -116,12 +120,12 @@ Reference by **Q*n*** in tasks, changelog, and discussion. Status: `open` | `ans
 | Notifications (SSE, in-app) | `feature/notifications.md` | 1 | done |
 | Email delivery | `feature/email-delivery.md` | 1 | done |
 | Phase and version management | `feature/phase-management.md` | 4 | planned |
-| UI design system (class consistency) | `feature/ui-design-system.md` | 1 | tasks-ready |
-
-Home (`/`) is a landing shell only — no separate feature doc.
+| UI design system (class consistency) | `feature/ui-design-system.md` | 1 | done |
+| Home screen (personal work hub) | `feature/home-screen.md` | 1 | tasks-ready |
 
 ## Versioning
 
 - **Feature version** (document header) — highest changelog **Version** number; increment when adding a changelog entry.
 - **Changelog Version** — sequential integer per entry (`1`, `2`, `3`, …); stable once published; never renumber.
 - **Open questions** — sequential `Q1`, `Q2`, … per feature file; numbers are never reused; cite as **Q3** in tasks and approval notes.
+- **Approval vs questions** — answering Q*n* updates the feature doc only; phase 3 requires explicit task ID approval ([development-process.mdc](../.cursor/rules/development-process.mdc) § Strict phase gate).

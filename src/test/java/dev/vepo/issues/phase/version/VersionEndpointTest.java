@@ -177,7 +177,7 @@ class VersionEndpointTest {
                          "description": "Ticket with version fields",
                          "categoryId": %d,
                          "priority": "MEDIUM",
-                         "versionFields": {
+                         "planningFields": {
                              "observedVersionId": %d,
                              "targetVersionId": %d
                          }
@@ -211,7 +211,7 @@ class VersionEndpointTest {
     }
 
     @Test
-    @DisplayName("Ticket update preserves versions when versionFields is omitted")
+    @DisplayName("Ticket update preserves versions when planningFields is omitted")
     void shouldPreserveVersionsWhenVersionFieldsOmitted() {
         var versionId = given().header(pmHeader)
                                .accept(ContentType.JSON)
@@ -237,7 +237,7 @@ class VersionEndpointTest {
                          "description": "Ticket with target version set",
                          "categoryId": %d,
                          "priority": "MEDIUM",
-                         "versionFields": {
+                         "planningFields": {
                              "targetVersionId": %d
                          }
                      }""".formatted(ticketFixtures.feature().getId(), versionId))
@@ -330,7 +330,7 @@ class VersionEndpointTest {
                          "description": "Clear version fields",
                          "categoryId": %d,
                          "priority": "MEDIUM",
-                         "versionFields": {
+                         "planningFields": {
                              "targetVersionId": %d
                          }
                      }""".formatted(ticketFixtures.feature().getId(), versionId))
@@ -348,7 +348,7 @@ class VersionEndpointTest {
                          "description": "Clear version fields",
                          "categoryId": %d,
                          "priority": "MEDIUM",
-                         "versionFields": {
+                         "planningFields": {
                              "targetVersionId": null,
                              "observedVersionId": null
                          }
