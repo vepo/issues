@@ -115,12 +115,12 @@ export const routes: Routes = [
     resolve: {
       projects: projectsResolver
     },
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])],
   },
   {
     path: 'projects/new',
     component: ProjectEditComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard(['project-manager'])],
     resolve: {
       workflows: workflowsResolver,
       categories: categoriesResolver
@@ -134,7 +134,7 @@ export const routes: Routes = [
       workflows: workflowsResolver,
       categories: categoriesResolver
     },
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard(['project-manager'])]
   },
   {
     path: 'workflows',

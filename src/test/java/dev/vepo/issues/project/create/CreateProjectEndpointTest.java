@@ -1,7 +1,6 @@
 package dev.vepo.issues.project.create;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -169,8 +168,8 @@ class CreateProjectEndpointTest {
     }
 
     @Test
-    @DisplayName("Project description can be optional")
-    void projectDescriptionCanBeOptionalTest() {
+    @DisplayName("Project description is a required field")
+    void projectDescriptionIsRequiredTest() {
         given().header(pmAuthenticatedHeader)
                .accept(ContentType.JSON)
                .when()
@@ -183,11 +182,9 @@ class CreateProjectEndpointTest {
                      }""".formatted(workflow.id()))
                .post("/api/projects")
                .then()
-               .statusCode(201)
-               .body("name", is("Project Without Description"))
-               .body("description", equalTo(null))
-               .body("prefix", is("PWD"))
-               .body("workflow.id", is((int) workflow.id()));
+               .statusCode(400)
+               .body("violations[0].field", is("create.request.description"))
+               .body("violations[0].message", is("Project description cannot be empty"));
     }
 
     @Test
@@ -200,6 +197,7 @@ class CreateProjectEndpointTest {
                .body("""
                      {
                          "name": "Project No Template %s",
+                         "description": "Project without a ticket template.",
                          "prefix": "PNT",
                          "workflowId": %d
                      }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8), workflow.id()))
@@ -251,6 +249,7 @@ class CreateProjectEndpointTest {
                .body("""
                      {
                          "name": "Invalid Template %s",
+                         "description": "Project with invalid template.",
                          "prefix": "ITPL",
                          "workflowId": %d,
                          "ticketTemplate": {
@@ -276,6 +275,7 @@ class CreateProjectEndpointTest {
                .body("""
                      {
                          "name": "Invalid Category Template %s",
+                         "description": "Project with invalid template category.",
                          "prefix": "ICTP",
                          "workflowId": %d,
                          "ticketTemplate": {
@@ -302,6 +302,7 @@ class CreateProjectEndpointTest {
                .body("""
                      {
                          "name": "Short Title Template %s",
+                         "description": "Project with short template title.",
                          "prefix": "STT",
                          "workflowId": %d,
                          "ticketTemplate": {
@@ -324,6 +325,7 @@ class CreateProjectEndpointTest {
                .body("""
                      {
                          "name": "Short Desc Template %s",
+                         "description": "Project with short template description.",
                          "prefix": "SDT",
                          "workflowId": %d,
                          "ticketTemplate": {

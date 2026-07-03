@@ -76,7 +76,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
-| **Project** | Bounded scope for tickets: name, prefix, description, assigned workflow. | `Project`, `tb_projects` |
+| **Project** | Bounded scope for tickets: name, prefix, required description, assigned workflow. | `Project`, `tb_projects` |
 | **Project prefix** | Short uppercase code used in ticket identifiers (e.g. `ISS`). | `Project.prefix` |
 | **Workflow** | Named state machine: start status, allowed statuses, transitions. | `Workflow`, `tb_workflows` |
 | **Status** | Named step in a workflow (e.g. TODO, IN_PROGRESS, DONE). | `WorkflowStatus`, `tb_workflow_status` |
@@ -143,6 +143,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 6. **Roles** — Endpoint access enforced via `@RolesAllowed`; class-level `@DenyAll` on protected resources.
 7. **Request/Response contract** — HTTP body types are records named `*Request` / `*Response` (ArchUnit enforced).
 8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, title, description, category, and priority must satisfy the same constraints as `CreateTicketRequest`. The create-ticket UI pre-fills the form from the template; the user may edit before submit.
+9. **Project description** — Required on create and update (`CreateProjectRequest.description` must not be blank).
 
 ---
 
