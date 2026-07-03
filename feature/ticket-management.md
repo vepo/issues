@@ -1,7 +1,7 @@
 # Ticket management
 
 **Feature version:** 3  
-**Status:** planned  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -15,7 +15,7 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 | Field | Value |
 |-------|-------|
 | **Source** | ASCII below |
-| **Last updated** | 2026-07-03 |
+| **Last updated** | 2026-07-03 (restore wireframe) |
 
 ### Screen: `/ticket/:ticketIdentifier`
 
@@ -23,18 +23,18 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 |--------|----------|
 | Header | Identifier, title, status move, assignee, subscribe |
 | Fields | Project, category, priority, description (rich text), **Data de vencimento** (optional), phase/versions when enabled |
-| Actions | Save, delete (admin/PM), **Restaurar** on soft-deleted tickets (admin/PM), transition buttons |
+| Actions | Save, delete (admin/PM), **Restaurar** when deleted (admin/PM only); read-only fields when deleted |
 | Comments | Add comment form + thread |
 | Atividade | Merged feed: comments + history (`.activity-feed`) |
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│  PROJ-42  Title                    [Status ▼] [Assign] │
+│  PROJ-42  Title  [excluído]        (controls disabled) │
 ├───────────────────────────────┬────────────────────────┤
-│  Fields + description         │  Comentários           │
-│  [ Salvar ] [ Excluir ]       │  [ new comment… ]      │
+│  Fields + description (read)  │  Comentários (hidden)  │
+│  [ Restaurar ]  (admin/PM)    │                        │
 ├───────────────────────────────┴────────────────────────┤
-│  Atividade (comments + history)                        │
+│  Atividade (comments + history incl. DELETED/RESTORED) │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -177,7 +177,9 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 ### Restore soft-deleted tickets — 2026-07-03
 
 **Version:** 3  
-**Status:** planned
+**Status:** done
+
+**Development approval:** approved 2026-07-03 — tasks: T2–T10
 
 **Description:** Allow admin and project-manager to **restore** soft-deleted tickets from the UI; ticket reappears in lists and search; history logs restoration.
 
@@ -187,13 +189,68 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 |----------------|--------|
 | [ticket-search](ticket-search.md) | Restored tickets included in query results again |
 | [kanban-board](kanban-board.md) | Restored tickets visible on board |
-| [notifications](notifications.md) | Optional notification on restore (TBD in architecture) |
+| [notifications](notifications.md) | **No** restore notification — history entry only (same as delete) |
+
+## Architecture
+
+**Scope:** changelog entry **Restore soft-deleted tickets — v3** only. Due-date architecture remains under v2 above.
+
+| Area | Design |
+|------|--------|
+| Bounded contexts | `ticket`, `ticket.history` — no cross-context events |
+| Packages / layers | `ticket.restore.RestoreTicketEndpoint` → `TicketService.restore` → `TicketRepository.restore`; find paths updated in `TicketService` + `ticket.find` |
+| API | `POST /api/tickets/{id}/restore` — `@RolesAllowed(admin, project-manager)`; returns `TicketResponse` (200). `GET /api/tickets/{identifier}/expanded` returns deleted tickets for **admin/PM only**; regular `user` still gets 404 |
+| Schema / seed | **No schema change** — reuse `tb_tickets.deleted` boolean |
+| Response contract | Add `boolean deleted` to `TicketResponse` and `TicketExpandedResponse` so UI can render read-only deleted state |
+| Service rules | `restore`: load ticket including deleted; reject if not deleted; set `deleted=false`; log `RESTORED` via existing `TicketHistoryService.logTicketRestored`. Mutations (`update`, `move`, `assign`, `delete`, comments, subscribe) reject deleted tickets with 400 |
+| Frontend | `ticket-view`: when `deleted`, show badge, disable edit/move/comment/delete, show **Restaurar** for admin/PM; `ticket.service.restore(id)`; activity feed handles `RESTORED` action |
+| Tests | `RestoreTicketEndpointTest`; extend find-expanded test for admin vs user on deleted ticket; `TicketHistoryServiceTest` or endpoint assertion for RESTORED entry; `ArchitectureTest` for new Response field |
+| Docs | `feature-catalog.md` ticket detail row; domain-spec invariant already recorded |
+
+### Architecture questions (AQ*n*)
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| AQ1 | How can admin/PM open a deleted ticket for restore? | answered | **`GET …/expanded`** returns deleted tickets for **admin/PM**; regular users still 404 |
+| AQ2 | Restore HTTP shape? | answered | **`POST /api/tickets/{id}/restore`** returning `TicketResponse` |
+| AQ3 | Notification on restore? | answered | **No** — `RESTORED` history only (delete does not notify either) |
+
+#### Tasks
+
+| ID | Task | Done |
+|----|------|------|
+| T1 | Architecture + AQ + tasks + test plan on changelog v3 | ☑ |
+| T2 | `TicketRepository.restore` + find-by-id/identifier including deleted | ☑ |
+| T3 | `TicketService.restore` + reject mutations on deleted tickets + role-aware expanded find | ☑ |
+| T4 | Add `deleted` to `TicketResponse` / `TicketExpandedResponse` | ☑ |
+| T5 | `RestoreTicketEndpoint` — `POST /{id}/restore` | ☑ |
+| T6 | `RestoreTicketEndpointTest` + find-expanded deleted visibility tests | ☑ |
+| T7 | Ticket detail UI — deleted read-only state + **Restaurar** (admin/PM) | ☑ |
+| T8 | Activity feed — `RESTORED` icon/summary | ☑ |
+| T9 | OpenAPI codegen (`npm run generate:api`) | ☑ |
+| T10 | `feature-catalog.md` + verify domain-spec invariant | ☑ |
+
+#### Test coverage
+
+| ID | Test | Covers | Done |
+|----|------|--------|------|
+| TC1 | `RestoreTicketEndpointTest` — PM restores deleted ticket | T3, T5 | ☑ |
+| TC2 | `RestoreTicketEndpointTest` — regular user forbidden | T5 | ☑ |
+| TC3 | `RestoreTicketEndpointTest` — restore idempotent guard (not deleted → 400) | T3 | ☑ |
+| TC4 | Find expanded by identifier — admin sees deleted; user gets 404 | T3 | ☑ |
+| TC5 | `TicketHistoryServiceTest` or endpoint — RESTORED history entry | T3 | ☑ |
+| TC6 | `ArchitectureTest` — Response records include `deleted` | T4 | ☑ |
+| TC7 | `activity-feed.utils` spec — RESTORED summary | T8 | ☑ |
 
 #### Feature checklist
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | **Restaurar** action on soft-deleted ticket detail | Wireframe, FQ9 | ☐ |
-| FC2 | Restored ticket visible in lists and search | FQ9 | ☐ |
-| FC3 | History logs restore event | FQ9 | ☐ |
-| FC4 | `domain-specification.md` — restore invariant | Docs | ☐ |
+| FC1 | **Restaurar** action on soft-deleted ticket detail | Wireframe, FQ9 | ☑ |
+| FC2 | Restored ticket visible in lists and search | FQ9 | ☑ |
+| FC3 | History logs restore event (`RESTORED`) | FQ9 | ☑ |
+| FC4 | `domain-specification.md` — restore invariant | Docs | ☑ |
+| FC5 | Deleted ticket detail read-only for all roles; restore admin/PM only | Wireframe, AQ1 | ☑ |
+| FC6 | `feature-catalog.md` — restore step on ticket detail | Docs | ☑ |
+
+**Implementation notes:** `POST /api/tickets/{id}/restore`; `deleted` on Response records; admin/PM expanded find includes soft-deleted tickets; ticket detail read-only + **Restaurar**; activity feed `RESTORED`. `mvn verify` + `npm run build` green (2026-07-03).

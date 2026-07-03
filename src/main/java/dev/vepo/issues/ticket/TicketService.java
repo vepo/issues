@@ -25,6 +25,7 @@ import dev.vepo.issues.ticket.comments.CommentRequest;
 import dev.vepo.issues.ticket.comments.CommentResponse;
 import dev.vepo.issues.ticket.history.TicketHistory;
 import dev.vepo.issues.ticket.history.TicketHistoryService;
+import dev.vepo.issues.user.Role;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
 import dev.vepo.issues.workflow.FinishOutcome;
@@ -121,13 +122,14 @@ public class TicketService {
     }
 
     @Transactional
-    public TicketExpandedResponse findExpandedById(long id) {
-        return TicketExpandedResponse.load(requireTicket(id), loadHistory(id));
+    public TicketExpandedResponse findExpandedById(long id, String username) {
+        var ticket = requireTicketForView(id, username);
+        return TicketExpandedResponse.load(ticket, loadHistory(id));
     }
 
     @Transactional
-    public TicketExpandedResponse findExpandedByIdentifier(String identifier) {
-        var ticket = requireTicketByIdentifier(identifier);
+    public TicketExpandedResponse findExpandedByIdentifier(String identifier, String username) {
+        var ticket = requireTicketByIdentifierForView(identifier, username);
         return TicketExpandedResponse.load(ticket, loadHistory(ticket.getId()));
     }
 
@@ -240,6 +242,20 @@ public class TicketService {
         repository.delete(id);
     }
 
+    @Transactional
+    public TicketResponse restore(long id, String username) {
+        var ticket = repository.findByIdIncludingDeleted(id)
+                               .orElseThrow(() -> ticketNotFound(id));
+        if (!ticket.isDeleted()) {
+            throw new BadRequestException("Ticket is not deleted");
+        }
+        var user = requireUserByUsername(username);
+        repository.restore(id);
+        ticket.setDeleted(false);
+        historyService.logTicketRestored(ticket, user);
+        return TicketResponse.load(ticket);
+    }
+
     public List<CommentResponse> listComments(long id) {
         return repository.findCommentsByTicketId(id)
                          .map(CommentResponse::load)
@@ -345,6 +361,28 @@ public class TicketService {
     private Ticket requireTicketByIdentifier(String identifier) {
         return repository.findByIdentifier(identifier)
                          .orElseThrow(() -> ticketNotFound(identifier));
+    }
+
+    private Ticket requireTicketForView(long id, String username) {
+        var user = requireUserByUsername(username);
+        if (canViewDeletedTicket(user)) {
+            return repository.findByIdIncludingDeleted(id)
+                             .orElseThrow(() -> ticketNotFound(id));
+        }
+        return requireTicket(id);
+    }
+
+    private Ticket requireTicketByIdentifierForView(String identifier, String username) {
+        var user = requireUserByUsername(username);
+        if (canViewDeletedTicket(user)) {
+            return repository.findByIdentifierIncludingDeleted(identifier)
+                             .orElseThrow(() -> ticketNotFound(identifier));
+        }
+        return requireTicketByIdentifier(identifier);
+    }
+
+    private boolean canViewDeletedTicket(User user) {
+        return user.getRoles().contains(Role.ADMIN) || user.getRoles().contains(Role.PROJECT_MANAGER);
     }
 
     private User requireUserByUsername(String username) {

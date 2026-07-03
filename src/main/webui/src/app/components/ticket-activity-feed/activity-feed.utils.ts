@@ -89,6 +89,8 @@ export function activityIcon(item: ActivityItem): string {
       return 'notifications';
     case 'DELETED':
       return 'delete_outline';
+    case 'RESTORED':
+      return 'restore';
     default:
       return 'history';
   }
@@ -119,6 +121,8 @@ export function activitySummary(item: ActivityItem): string {
       return item.oldValue ? `${item.oldValue} deixou de observar` : 'deixou de observar';
     case 'DELETED':
       return 'excluiu o ticket';
+    case 'RESTORED':
+      return 'restaurou o ticket';
     default:
       return 'registrou uma alteração';
   }
@@ -128,7 +132,8 @@ export function hasValueChange(item: ActivityItem): boolean {
   return item.kind === 'change'
     && (Boolean(item.oldValue) || Boolean(item.newValue))
     && item.action !== 'CREATED'
-    && item.action !== 'DELETED';
+    && item.action !== 'DELETED'
+    && item.action !== 'RESTORED';
 }
 
 export function trackActivityItem(item: ActivityItem): string {

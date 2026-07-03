@@ -6,9 +6,13 @@
       <p class="page-subtitle">
         {{ ticket.project.name }}
         <span class="status-badge">{{ ticket.status | normalize }}</span>
+        @if (isDeleted()) {
+          <span class="status-badge status-badge--muted" i18n>excluído</span>
+        }
       </p>
     </div>
     <div class="page-header__actions">
+      @if (!isDeleted()) {
       <button class="btn btn-secondary" matButton="outlined" type="button" (click)="toggleEdit()">
         <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
         <span i18n>{{ isEditing ? 'Cancelar edição' : 'Editar' }}</span>
@@ -30,6 +34,13 @@
         <button class="btn btn-cancel" matButton="filled" type="button" (click)="confirmDelete()">
           <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
           <span i18n>Excluir</span>
+        </button>
+      }
+      }
+      @if (canRestore()) {
+        <button class="btn" matButton="filled" type="button" (click)="confirmRestore()">
+          <mat-icon fontIcon="restore" aria-hidden="true"></mat-icon>
+          <span i18n>Restaurar</span>
         </button>
       }
     </div>
@@ -160,6 +171,7 @@
       </dl>
     }
 
+    @if (!isDeleted()) {
     <div class="ticket-actions">
       <div class="ticket-actions__group">
         <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
@@ -187,6 +199,7 @@
         <button class="btn btn-secondary" matButton="outlined" type="button" (click)="moveTicket()" i18n>Mover ticket</button>
       </div>
     </div>
+    }
 
     <nav class="tabs" aria-label="Seções do ticket">
       <button
@@ -197,6 +210,7 @@
         i18n>
         Histórico
       </button>
+      @if (!isDeleted()) {
       <button
         type="button"
         class="tab-button"
@@ -205,6 +219,7 @@
         i18n>
         Comentários
       </button>
+      }
     </nav>
 
     @if (activeTab === 'history') {
@@ -236,7 +251,7 @@
       }
     }
 
-    @if (activeTab === 'comments') {
+    @if (activeTab === 'comments' && !isDeleted()) {
       <div class="comments-section">
         <div class="comment-form">
           <h3 i18n>Adicionar comentário</h3>

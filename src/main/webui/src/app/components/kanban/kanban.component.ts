@@ -102,7 +102,8 @@ export class KanbanComponent implements OnInit {
       targetVersionId: ticket.targetVersionId,
       targetVersionLabel: ticket.targetVersionLabel,
       phaseId: ticket.phaseId,
-      phaseName: ticket.phaseName
+      phaseName: ticket.phaseName,
+      deleted: ticket.deleted
     };
   }
 

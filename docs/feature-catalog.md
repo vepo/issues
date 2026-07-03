@@ -19,7 +19,7 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Phase list | `/project/:projectId/phases` | authenticated | Kanban → Fases → list phases with status badges |
 | Create phase | `/project/:projectId/phases/new` | project-manager, admin | Fases → Nova fase → objective, deliverables, deliverable version → save |
 | Phase detail | `/project/:projectId/phases/:phaseId` | authenticated | Fases → select phase → edit; PM can **Ativar** (planned) or **Concluir** (active) |
-| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → edit fields (incl. phase, planned/shipped version), assign, move status, delete (admin/PM), comments, observe |
+| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → edit fields (incl. phase, planned/shipped version), assign, move status, delete (admin/PM), **restore deleted ticket (admin/PM)**, comments, observe |
 | Ticket search (simple) | `/search` | authenticated | Menu → search → enter term → open ticket |
 | Advanced search (query language) | `/search/advanced` | authenticated | Search → **Busca avançada** → enter query → **Executar** |
 | Saved queries list | `/search/queries` | authenticated | **Minhas consultas** → open, edit, delete |

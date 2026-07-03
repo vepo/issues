@@ -55,4 +55,32 @@ class FindExpandedTicketByIdEndpointTest {
                .body("project.id", equalTo((int) project.id()))
                .body("project.name", equalTo(project.name()));
     }
+
+    @Test
+    @DisplayName("Project manager should view soft-deleted ticket expanded; regular user gets 404")
+    void shouldExposeDeletedTicketToAdminRolesOnly() {
+        var ticket = fixtures.ticket();
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .when()
+               .delete("/api/tickets/" + ticket.id())
+               .then()
+               .statusCode(204);
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/tickets/{id}/expanded", ticket.identifier())
+               .then()
+               .statusCode(200)
+               .body("id", equalTo((int) ticket.id()))
+               .body("deleted", equalTo(true));
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/tickets/{id}/expanded", ticket.identifier())
+               .then()
+               .statusCode(404);
+    }
 }

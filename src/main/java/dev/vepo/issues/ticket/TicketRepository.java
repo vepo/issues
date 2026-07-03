@@ -79,9 +79,23 @@ public class TicketRepository {
                  .findFirst();
     }
 
+    public Optional<Ticket> findByIdIncludingDeleted(long id) {
+        return em.createQuery("FROM Ticket WHERE id = :id", Ticket.class)
+                 .setParameter("id", id)
+                 .getResultStream()
+                 .findFirst();
+    }
+
     public Optional<Ticket> findByIdentifier(String id) {
         return em.createQuery("FROM Ticket WHERE deleted = false AND identifier = :identifier", Ticket.class)
                  .setParameter("identifier", id)
+                 .getResultStream()
+                 .findFirst();
+    }
+
+    public Optional<Ticket> findByIdentifierIncludingDeleted(String identifier) {
+        return em.createQuery("FROM Ticket WHERE identifier = :identifier", Ticket.class)
+                 .setParameter("identifier", identifier)
                  .getResultStream()
                  .findFirst();
     }
@@ -107,6 +121,13 @@ public class TicketRepository {
                              .setParameter("id", id)
                              .executeUpdate();
         logger.warn("Deleted tickets! count={}", deletedItems);
+    }
+
+    public void restore(long id) {
+        int restoredItems = em.createQuery("UPDATE Ticket SET deleted = false WHERE id = :id AND deleted = true")
+                              .setParameter("id", id)
+                              .executeUpdate();
+        logger.info("Restored tickets! count={}", restoredItems);
     }
 
     public Stream<Ticket> findByProjectId(long id) {

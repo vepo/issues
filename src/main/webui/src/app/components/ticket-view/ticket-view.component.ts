@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ProjectMembersService } from '../../services/project-members.service';
 import { Category, CategoryService } from '../../services/category.service';
@@ -38,7 +38,6 @@ import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.co
 })
 export class TicketViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly ticketService = inject(TicketService);
   private readonly authService = inject(AuthService);
   private readonly membersService = inject(ProjectMembersService);
@@ -282,7 +281,24 @@ export class TicketViewComponent implements OnInit {
   }
 
   canDelete(): boolean {
-    return this.authService.hasRole('admin') || this.authService.hasRole('project-manager');
+    return !this.isDeleted() && (this.authService.hasRole('admin') || this.authService.hasRole('project-manager'));
+  }
+
+  canRestore(): boolean {
+    return this.isDeleted() && (this.authService.hasRole('admin') || this.authService.hasRole('project-manager'));
+  }
+
+  isDeleted(): boolean {
+    return this.ticket?.deleted === true;
+  }
+
+  confirmRestore(): void {
+    if (!this.ticket) {
+      return;
+    }
+    this.ticketService.restore(this.ticket.id).subscribe({
+      next: () => this.reloadTicket()
+    });
   }
 
   confirmDelete(): void {
@@ -293,7 +309,7 @@ export class TicketViewComponent implements OnInit {
     confirmed.afterClosed().subscribe(result => {
       if (result && this.ticket) {
         this.ticketService.delete(this.ticket.id).subscribe({
-          next: () => this.router.navigate(['/project', this.ticket!.project.id, 'kanban'])
+          next: () => this.reloadTicket()
         });
       }
     });

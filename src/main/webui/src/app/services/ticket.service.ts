@@ -68,6 +68,10 @@ export class TicketService {
     return this.api.deleteTicket(ticketId);
   }
 
+  restore(ticketId: number): Observable<Ticket> {
+    return this.api.restoreTicket(ticketId).pipe(map(asLoaded));
+  }
+
   getTicket(id: string): Observable<Ticket> {
     return this.api.findTicketById(Number(id)).pipe(map(asLoaded));
   }

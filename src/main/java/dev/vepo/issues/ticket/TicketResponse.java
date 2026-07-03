@@ -22,7 +22,8 @@ public record TicketResponse(long id,
                              Long targetVersionId,
                              String targetVersionLabel,
                              Long phaseId,
-                             String phaseName) {
+                             String phaseName,
+                             boolean deleted) {
     public static TicketResponse load(Ticket ticket) {
         return new TicketResponse(ticket.getId(),
                                   ticket.getIdentifier(),
@@ -43,6 +44,7 @@ public record TicketResponse(long id,
                                   ticket.getTargetVersion() != null ? ticket.getTargetVersion().getId() : null,
                                   ticket.getTargetVersion() != null ? ticket.getTargetVersion().getLabel() : null,
                                   ticket.getPhase() != null ? ticket.getPhase().getId() : null,
-                                  ticket.getPhase() != null ? ticket.getPhase().getName() : null);
+                                  ticket.getPhase() != null ? ticket.getPhase().getName() : null,
+                                  ticket.isDeleted());
     }
 }

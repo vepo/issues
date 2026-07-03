@@ -56,11 +56,15 @@ describe('activity-feed.utils', () => {
   it('should map icons and summaries', () => {
     const change = feedChange('FIELD_CHANGED', 'title');
     const comment = feedComment();
+    const restored = feedChange('RESTORED');
     expect(activityIcon(change)).toBe('edit');
     expect(activitySummary(change)).toBe('alterou o título');
     expect(activityIcon(comment)).toBe('chat');
     expect(activitySummary(comment)).toBe('comentou');
+    expect(activityIcon(restored)).toBe('restore');
+    expect(activitySummary(restored)).toBe('restaurou o ticket');
     expect(hasValueChange(change)).toBeTrue();
+    expect(hasValueChange(restored)).toBeFalse();
   });
 });
 

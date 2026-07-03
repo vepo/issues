@@ -35,7 +35,7 @@ public class FindExpandedTicketByIdEndpoint {
     @Path("/{id:[0-9]+}/expanded")
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "findExpandedTicketById", summary = "Find expanded ticket by numeric ID")
-    public TicketExpandedResponse findExpandedById(@PathParam("id") Long id) {
-        return ticketService.findExpandedById(id);
+    public TicketExpandedResponse findExpandedById(@PathParam("id") Long id, @Context SecurityContext securityContext) {
+        return ticketService.findExpandedById(id, securityContext.getUserPrincipal().getName());
     }
 }

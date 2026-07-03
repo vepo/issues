@@ -26,6 +26,7 @@ public record TicketExpandedResponse(long id,
                                      String targetVersionLabel,
                                      Long phaseId,
                                      String phaseName,
+                                     boolean deleted,
                                      List<TicketHistoryResponse> history) {
 
     public static TicketExpandedResponse load(Ticket ticket, List<TicketHistory> history) {
@@ -52,6 +53,7 @@ public record TicketExpandedResponse(long id,
                                           ticket.getTargetVersion() != null ? ticket.getTargetVersion().getLabel() : null,
                                           ticket.getPhase() != null ? ticket.getPhase().getId() : null,
                                           ticket.getPhase() != null ? ticket.getPhase().getName() : null,
+                                          ticket.isDeleted(),
                                           history.stream()
                                                  .map(TicketHistoryResponse::load)
                                                  .toList());
