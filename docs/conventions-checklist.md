@@ -36,10 +36,11 @@ Tracks gaps between documentation and code, and agentic development setup status
 
 | Item | Notes |
 |------|-------|
-| Endpoint security gaps | `CategoryEndpoint`, `StatusEndpoint`, `ProjectTicketEndpoint` lack `@DenyAll` / `@RolesAllowed` |
-| Frontend API base URL | Hardcoded `http://localhost:8080/api` in Angular services |
+| Endpoint security gaps | Done — all 39 endpoints use `@DenyAll` + `@RolesAllowed` |
+| Frontend API base URL | Done — relative `/api` via generated client + facades |
+| OpenAPI → TypeScript codegen | Done — `mvn test` + `npm run generate:api`; output gitignored |
 | `application-guidelines.md` | Not created — use `feature-catalog.md` for route flows |
-| OpenAPI as user doc | Live at `/openapi` when running; no static export in `docs/` |
+| OpenAPI as user doc | Live at `/openapi`; test export at `target/openapi/openapi.yaml` |
 
 ## When closing a gap
 

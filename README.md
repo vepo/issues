@@ -32,6 +32,15 @@ mvn quarkus:dev
 
 Dev mode runs Flyway clean+migrate (`%dev.quarkus.flyway.clean-at-start=true`) and loads sample data from `dev-import.sql`.
 
+### After backend API changes
+
+```bash
+mvn test
+cd src/main/webui && npm run generate:api
+```
+
+Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular facades in `services/` wrap the generated `*Api` classes.
+
 | Email | Role | Password |
 |-------|------|----------|
 | `admin@issues.vepo.dev` | admin | see `application.properties` (`password.default`) |

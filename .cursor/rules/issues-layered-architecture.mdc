@@ -13,10 +13,11 @@ Follow [ARCHITECTURE.md](../../ARCHITECTURE.md) §6. Dependencies flow **downwar
 
 ## *Endpoint — HTTP boundary
 
-- `@ApplicationScoped` + `@Path`; handle requests, auth gates, status codes, JSON serialization.
+- **One HTTP operation per class** in `{context}.{action}` subpackage (e.g. `ticket.create.CreateTicketEndpoint`).
+- `@ApplicationScoped` + `@Path`; class-level `@DenyAll`, method-level `@RolesAllowed`.
+- `@Operation(operationId = "...")` + `@Tag(name = "...")` for OpenAPI codegen.
 - Map path/query/body to domain calls; return `*Response` records.
-- **May** inject `*Repository` for trivial read-only lookups with no business rules.
-- **Must** inject `*Service` when logic spans entities, enforces invariants, fires CDI events, or coordinates writes.
+- **Must** inject `*Service` — no business logic, no `@Transactional` in endpoints.
 
 ## *Service — business logic
 
@@ -35,9 +36,9 @@ Follow [ARCHITECTURE.md](../../ARCHITECTURE.md) §6. Dependencies flow **downwar
 
 1. Entity (if new table) + Flyway migration.
 2. `XxxRepository`.
-3. `XxxService` when logic is non-trivial.
-4. `XxxEndpoint` with `*Request`/`*Response` records.
-5. Angular service + component if user-facing.
+4. `XxxService` for non-trivial logic.
+5. One `*Endpoint` class per HTTP operation under `{context}.{action}/`.
+6. Angular facade + component if user-facing; run `npm run generate:api` after API changes.
 
 ## Violations — refactor toward layers
 

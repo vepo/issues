@@ -23,10 +23,11 @@ Enforced by `ArchitectureTest` (ArchUnit).
 - Endpoint public methods return `*Response`, `List<*Response>`, `Set<*Response>`, `Response`, or SSE `Event`.
 - Endpoint body parameters (non-path/query) MUST be `*Request` records.
 
-## Mapping
+## OpenAPI
 
-- Response records expose static factory: `TicketResponse.load(Ticket ticket)`.
-- Nested response records allowed inside endpoints when local to that endpoint.
+- Every endpoint class: `@Tag(name = "...")` at class level, `@Operation(operationId = "...")` on the HTTP method.
+- Shared `*Request`/`*Response` records live at context root (not inside endpoint classes).
+- Test profile exports spec to `target/openapi/openapi.yaml` for Angular codegen.
 
 ## Examples
 

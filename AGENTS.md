@@ -14,6 +14,8 @@ Read these before changing code or tests:
 
 **Workflow:** domain spec → correct package → create tests (TDD) → tiered test runs → `mvn verify` once → update docs when API or routes change.
 
+**API codegen:** after backend endpoint changes, run `mvn test` then `cd src/main/webui && npm run generate:api`. Endpoints live in `{context}.{action}` subpackages — one HTTP method per class (e.g. `user.create.CreateUserEndpoint`).
+
 ## Agents vs commands
 
 | Surface | Location | Purpose |

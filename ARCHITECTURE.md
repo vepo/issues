@@ -58,27 +58,43 @@ erDiagram
 
 ## 5. Package layout
 
-Feature-oriented packages (not a strict global layered tree). Each domain owns entities, repositories, endpoints, and Request/Response records.
+Feature-oriented packages (not a strict global layered tree). Each bounded context owns entities, repositories, services, Request/Response records, and **one HTTP operation per endpoint class** under `{context}.{action}` subpackages.
 
 ```
 dev.vepo.issues/
 ├── IssuesApplication.java     # JAX-RS @ApplicationPath("/api")
 ├── auth/                      # Login, JWT, password recovery
-├── user/                      # User, Role, password reset tokens
-├── project/                   # Project CRUD, project workflow/status views
-├── workflow/                  # Workflow, WorkflowStatus, WorkflowTransition
-├── categories/                # Ticket categories (name + color)
-├── ticket/                    # Ticket CRUD, move, assign, subscribe
-│   ├── comments/              # Ticket comments
-│   ├── history/               # TicketHistory entity + repository
-│   └── business/              # TicketHistoryService (audit logging)
-├── notifications/             # Notification persistence + SSE endpoint
-├── dashboards/                # Project analytics widgets
+│   ├── login/                 # LoginEndpoint
+│   ├── me/                    # MeEndpoint
+│   └── recovery/              # ResetPasswordEndpoint
+├── user/                      # User, Role; UserService; *Request/*Response
+│   ├── create/                # CreateUserEndpoint
+│   ├── update/                # UpdateUserEndpoint
+│   ├── find/                  # FindUserByIdEndpoint
+│   └── search/                # SearchUsersEndpoint
+├── project/                   # ProjectService, ProjectPaths
+│   ├── list/ create/ update/ find/ workflow/ status/
+│   └── tickets/list/          # ListProjectTicketsEndpoint
+├── workflow/                  # WorkflowService
+│   ├── list/ create/
+│   └── status/list/           # ListStatusesEndpoint
+├── categories/                # CategoryService
+│   └── list/                  # ListCategoriesEndpoint
+├── ticket/                    # TicketService, TicketPaths
+│   ├── list/ search/ find/ create/ update/ assign/ delete/ move/
+│   ├── comments/list/ comments/add/
+│   ├── history/               # TicketHistoryService + GetTicketHistoryEndpoint
+│   └── subscribe/             # Subscribe / Unsubscribe endpoints
+├── notifications/             # NotificationService, SSE register + read status
+│   ├── register/
+│   └── read/
+├── dashboards/                # DashboardService
+│   ├── pie/ table/ kpi/
 ├── mailer/                    # Transactional email (Qute templates)
 └── infra/                     # Exception mappers, SPA routing, dev DB setup
 ```
 
-Frontend: `src/main/webui/src/app/` — `components/`, `services/`, `resolvers/`, `directives/`.
+Frontend: `src/main/webui/src/app/` — `components/`, `services/` (thin facades), `generated/` (OpenAPI codegen, gitignored), `resolvers/`.
 
 Bounded contexts and dependency rules: [docs/domain-specification.md](docs/domain-specification.md) §Bounded contexts.
 
@@ -91,49 +107,70 @@ Bounded contexts and dependency rules: [docs/domain-specification.md](docs/domai
 
 ### Service layer
 
-Use when logic spans entities or is reused across endpoints:
+Domain services orchestrate repositories, enforce invariants, and fire CDI events. Endpoints delegate to services — no business logic in endpoint classes.
 
-- `TicketHistoryService` — audit trail on ticket actions.
-- `MailerService` — email on ticket changes and password reset.
-
-Most endpoints call repositories directly for CRUD; add `*Service` when rules grow beyond a single entity.
+| Service | Responsibility |
+|---------|----------------|
+| `TicketService` | Ticket CRUD, move, assign, subscribe; notifications |
+| `TicketHistoryService` | Audit trail on ticket actions |
+| `UserService` | User create/update with role validation |
+| `ProjectService` | Project create/update validation |
+| `AuthenticationService` | Login, recovery, me |
+| `WorkflowService` | Workflow create/list |
+| `DashboardService` | Dashboard aggregations |
+| `NotificationService` | Mark-as-read persistence |
+| `CategoryService` | Category listing |
+| `MailerService` | Email on ticket changes and password reset |
 
 ### Endpoint layer
 
-- Suffix `*Endpoint` (not `Controller` or `Resource`).
-- HTTP DTOs: Java `record`, suffix `Request` / `Response`.
+- **One HTTP method per class** — e.g. `user.create.CreateUserEndpoint` (POST only).
+- Class-level `@DenyAll` + method-level `@RolesAllowed` on every endpoint.
+- `@Operation(operationId = "...")` and `@Tag(name = "...")` for OpenAPI codegen.
+- Shared `@Path` prefix via `{Context}Paths` constants at context root.
+- HTTP DTOs: Java `record`, suffix `Request` / `Response` at context root.
 - Mapping: static factory `load()` on Response records (e.g. `TicketResponse.load(ticket)`).
-- Nested response records allowed inside endpoints when local (e.g. `CategoryEndpoint.CategoryResponse`).
 
 ### CDI events
 
 | Event | Consumer |
 |-------|----------|
-| `NotificationEvent` | SSE channel registration in `NotificationsEndpoint` |
+| `NotificationEvent` | SSE via `RegisterNotificationsEndpoint` |
 | `UserNotificationEvent` | Per-user notification delivery |
 
 ### Testing
 
 - **Backend:** `@QuarkusTest` + REST Assured; `Given` builder for seed data.
-- **Architecture:** `ArchitectureTest` (ArchUnit) enforces Request/Response naming and records.
-- **Frontend:** Karma/Jasmine `*.spec.ts` alongside components and services.
+- **Architecture:** `ArchitectureTest` (ArchUnit) — Request/Response records, `@DenyAll` on endpoints, one HTTP method per endpoint class, EntityManager only in repositories.
+- **Frontend:** Karma/Jasmine `*.spec.ts`; API types from OpenAPI codegen (`src/app/generated/`, gitignored).
 
 ## 7. API surface
 
 Base path: `/api`. OpenAPI at `/openapi.yaml`; Swagger UI at `/openapi`.
 
-| Area | Endpoint class | Path prefix |
-|------|----------------|-------------|
-| Auth | `AuthenticationEndpoint` | `/auth` |
-| Users | `UserEndpoint` | `/users` |
-| Projects | `ProjectEndpoint` | `/projects` |
-| Project tickets | `ProjectTicketEndpoint` | `/projects/{projectId}/tickets` |
-| Tickets | `TicketEndpoint` | `/tickets` |
-| Workflows | `WorkflowEndpoint` | `/workflows` |
-| Statuses | `StatusEndpoint` | `/status` |
-| Categories | `CategoryEndpoint` | `/categories` |
-| Dashboards | `LoadDashboardDataEndpoint` | `/projects/{projectId}/dashboard` |
-| Notifications | `NotificationsEndpoint` | `/notifications` |
+Base path: `/api`. OpenAPI at `/openapi.yaml`; Swagger UI at `/openapi`. Test profile exports spec to `target/openapi/openapi.yaml` for TypeScript codegen.
+
+Each row is one endpoint class (39 total). Path prefixes come from `{Context}Paths`.
+
+| Area | Example class | Path |
+|------|---------------|------|
+| Auth | `auth.login.LoginEndpoint` | `POST /auth/login` |
+| Auth | `auth.me.MeEndpoint` | `GET /auth/me` |
+| Auth | `auth.recovery.ResetPasswordEndpoint` | `POST /auth/recovery` |
+| Users | `user.create.CreateUserEndpoint` | `POST /users` |
+| Users | `user.update.UpdateUserEndpoint` | `POST /users/{id}` |
+| Users | `user.find.FindUserByIdEndpoint` | `GET /users/{id}` |
+| Users | `user.search.SearchUsersEndpoint` | `GET /users/search` |
+| Projects | `project.*` | `/projects` (+ workflow, status subpaths) |
+| Project tickets | `project.tickets.list.ListProjectTicketsEndpoint` | `GET /projects/{id}/tickets` |
+| Tickets | `ticket.*` | `/tickets` (+ comments, history, subscribe) |
+| Workflows | `workflow.list.ListWorkflowsEndpoint` | `GET /workflows` |
+| Workflows | `workflow.create.CreateWorkflowEndpoint` | `POST /workflows` |
+| Statuses | `workflow.status.list.ListStatusesEndpoint` | `GET /status` |
+| Categories | `categories.list.ListCategoriesEndpoint` | `GET /categories` |
+| Dashboards | `dashboards.pie/table/kpi.Load*DashboardEndpoint` | `/projects/{id}/dashboard/{pie\|table\|kpi}/{type}` |
+| Notifications | `notifications.register.RegisterNotificationsEndpoint` | `GET /notifications/register` (SSE) |
+| Notifications | `notifications.read.UpdateNotificationReadEndpoint` | `POST /notifications/{id}/read` |
 
 ## 8. Frontend routes
 
@@ -155,9 +192,8 @@ Full index: [docs/feature-catalog.md](docs/feature-catalog.md).
 ## 9. Security model
 
 - JWT issuer: `https://issues.vepo.dev` (see `application.properties`).
-- Most endpoints: class-level `@DenyAll` + method-level `@RolesAllowed`.
+- All endpoints: class-level `@DenyAll` + method-level `@RolesAllowed`.
 - Roles: `user`, `admin`, `project-manager` (combinable on a user).
-- **Gap:** Some endpoints (`categories`, `status`, project ticket list) lack security annotations — treat as tech debt when hardening.
 
 ## 10. Database
 
@@ -168,7 +204,7 @@ Tables use prefix `tb_`. Initial migration: `V1.0.0__Database_Creation.sql`. Dev
 | Kind | Pattern | Example |
 |------|---------|---------|
 | Root package | `dev.vepo.issues` | — |
-| Endpoint | `XxxEndpoint` | `TicketEndpoint` |
+| Endpoint | `XxxEndpoint` in `{context}.{action}` | `user.create.CreateUserEndpoint` |
 | Repository | `XxxRepository` | `TicketRepository` |
 | Service | `XxxService` | `TicketHistoryService` |
 | Entity | singular PascalCase | `Ticket`, `Project` |
@@ -176,7 +212,7 @@ Tables use prefix `tb_`. Initial migration: `V1.0.0__Database_Creation.sql`. Dev
 | HTTP response | `XxxResponse` record | `TicketResponse` |
 | Exception | `IssuesException` | domain errors in `infra` |
 | Angular component | `*.component.ts` | `kanban.component.ts` |
-| Angular service | `*.service.ts` | `ticket.service.ts` |
+| Angular service | `*.service.ts` facade over generated `*Api` | `ticket.service.ts` |
 | Angular resolver | `*.resolver.ts` | `ticket.resolver.ts` |
 | Docs in `docs/` | kebab-case | `domain-specification.md` |
 
@@ -195,12 +231,24 @@ Tables use prefix `tb_`. Initial migration: `V1.0.0__Database_Creation.sql`. Dev
 
 | Item | Status |
 |------|--------|
-| Inconsistent endpoint security annotations | Partial — some public endpoints |
-| Frontend API URL hardcoded to `localhost:8080` | Dev-only assumption |
-| No dedicated `*Service` layer for all ticket operations | Acceptable for current size |
 | SonarCloud project key migration | Renamed to `vepo_issues` |
 
-## 14. Useful commands
+## 14. OpenAPI → TypeScript codegen
+
+Backend tests export OpenAPI to `target/openapi/openapi.yaml` (`%test.quarkus.smallrye-openapi.store-schema-directory`).
+
+After API changes:
+
+```bash
+mvn test                              # export spec
+cd src/main/webui && npm run generate:api   # → src/app/generated/ (gitignored)
+```
+
+Angular facades in `services/` wrap generated `*Api` classes; `BASE_PATH` is `/api` (relative). SSE (`sse.client.ts`) stays hand-written.
+
+CI order: `mvn test` → `npm run generate:api` → `ng test` → `mvn verify`.
+
+## 15. Useful commands
 
 ```bash
 # Dev mode (Quarkus + Angular via Quinoa)
@@ -219,7 +267,7 @@ cd src/main/webui && npm test
 mvn formatter:format
 ```
 
-## 15. Related docs
+## 16. Related docs
 
 | Document | Purpose |
 |----------|---------|

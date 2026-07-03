@@ -22,9 +22,11 @@ Before any template, style, or interaction change:
 
 ## HTTP
 
-- API calls through dedicated services (e.g. `ticket.service.ts`), not directly from components.
+- API types and clients: OpenAPI codegen → `src/app/generated/` (gitignored). Regenerate with `npm run generate:api` after `mvn test`.
+- Facades in `services/*.service.ts` wrap generated `*Api` classes — components inject facades, not generated services directly.
+- `BASE_PATH` is `/api` (relative) — no hardcoded `localhost:8080`.
 - Attach JWT via `auth.interceptor.ts`.
-- Prefer environment/config for API base URL over scattering `localhost:8080` (tech debt: centralize when touching).
+- SSE stays hand-written in `sse.client.ts`.
 
 ## UI library
 
