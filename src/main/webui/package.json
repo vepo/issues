@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve --hmr",
     "build": "ng build",
+    "prebuild": "npm run generate:api",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",

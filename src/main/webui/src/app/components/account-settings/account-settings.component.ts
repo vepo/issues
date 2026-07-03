@@ -40,7 +40,7 @@ export class AccountSettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.me().subscribe({
-      next: (user) => {
+      next: (user: CurrentUser) => {
         this.user = user;
         this.loading = false;
       },

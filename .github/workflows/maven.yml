@@ -29,8 +29,16 @@ jobs:
         java-version: '21'
         distribution: 'zulu'
         cache: maven
+    - name: Run backend tests and export OpenAPI
+      run: mvn -B test
+    - name: Install Frontend packages
+      working-directory: src/main/webui
+      run: npm ci
+    - name: Generate API client
+      working-directory: src/main/webui
+      run: npm run generate:api
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B package -DskipTests
     
     - name: Update dependency graph
       uses: advanced-security/maven-dependency-submission-action@v5

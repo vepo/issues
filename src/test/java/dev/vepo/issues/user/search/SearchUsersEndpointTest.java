@@ -56,6 +56,8 @@ class SearchUsersEndpointTest {
         assertThat(response).hasSize(1);
         assertThat(response[0].username()).isEqualTo(user2.getUsername());
 
+        Given.authenticatedProjectManager();
+
         response = given().when()
                           .header(authenticatedAdmin)
                           .accept(MediaType.APPLICATION_JSON)
@@ -66,7 +68,10 @@ class SearchUsersEndpointTest {
                           .statusCode(200)
                           .extract()
                           .as(UserResponse[].class);
-        assertThat(response).hasSizeGreaterThan(2);
+        assertThat(response).extracting(UserResponse::username)
+                            .contains(user1.getUsername(), user2.getUsername());
+        assertThat(response).extracting(UserResponse::email)
+                            .doesNotContain("pm@issues.vepo.dev");
     }
 
     @Test

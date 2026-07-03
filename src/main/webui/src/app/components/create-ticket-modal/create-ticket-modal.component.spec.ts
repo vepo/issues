@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { CreateTicketModalComponent } from './create-ticket-modal.component';
 import { MatDialogActions, MatDialogContent, MatDialogTitle, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -48,7 +48,7 @@ describe('CreateTicketModalComponent', () => {
 
         TestBed.configureTestingModule({
             imports: [
-                FormsModule,
+                ReactiveFormsModule,
                 MatFormFieldModule,
                 MatInputModule,
                 MatButtonModule,
