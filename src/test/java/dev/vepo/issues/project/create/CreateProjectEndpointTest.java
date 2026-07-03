@@ -20,6 +20,7 @@ class CreateProjectEndpointTest {
     private WorkflowResponse workflow;
     private Header userAuthenticatedHeader;
     private Header pmAuthenticatedHeader;
+    private dev.vepo.issues.categories.Category category;
 
     @BeforeEach
     void setup() {
@@ -27,6 +28,7 @@ class CreateProjectEndpointTest {
         this.workflow = fixtures.workflow();
         this.userAuthenticatedHeader = fixtures.userAuthenticatedHeader();
         this.pmAuthenticatedHeader = fixtures.pmAuthenticatedHeader();
+        this.category = fixtures.category();
     }
 
     @Test
@@ -70,7 +72,8 @@ class CreateProjectEndpointTest {
                .body("name", is(projectName))
                .body("description", is("This is a test project."))
                .body("workflow.id", is((int) workflow.id()))
-               .body("workflow.name", is(workflow.name()));
+               .body("workflow.name", is(workflow.name()))
+               .body("ticketTemplate.enabled", is(false));
     }
 
     @Test
@@ -185,5 +188,155 @@ class CreateProjectEndpointTest {
                .body("description", equalTo(null))
                .body("prefix", is("PWD"))
                .body("workflow.id", is((int) workflow.id()));
+    }
+
+    @Test
+    @DisplayName("Ticket template disabled when omitted")
+    void ticketTemplateDisabledWhenOmittedTest() {
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Project No Template %s",
+                         "prefix": "PNT",
+                         "workflowId": %d
+                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8), workflow.id()))
+               .post("/api/projects")
+               .then()
+               .statusCode(201)
+               .body("ticketTemplate.enabled", is(false));
+    }
+
+    @Test
+    @DisplayName("Ticket template enabled with valid fields")
+    void ticketTemplateEnabledWithValidFieldsTest() {
+        var suffix = java.util.UUID.randomUUID().toString().substring(0, 6);
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Template Project %s",
+                         "description": "Project with template.",
+                         "prefix": "TP%s",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "title": "Default ticket title",
+                             "description": "Default ticket description for new tickets.",
+                             "categoryId": %d,
+                             "priority": "MEDIUM"
+                         }
+                     }""".formatted(suffix, suffix.substring(0, 2), workflow.id(), category.getId()))
+               .post("/api/projects")
+               .then()
+               .statusCode(201)
+               .body("ticketTemplate.enabled", is(true))
+               .body("ticketTemplate.title", is("Default ticket title"))
+               .body("ticketTemplate.description", is("Default ticket description for new tickets."))
+               .body("ticketTemplate.categoryId", is(category.getId().intValue()))
+               .body("ticketTemplate.priority", is("MEDIUM"));
+    }
+
+    @Test
+    @DisplayName("Ticket template enabled with missing title returns 400")
+    void ticketTemplateEnabledMissingTitleTest() {
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Invalid Template %s",
+                         "prefix": "ITPL",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "description": "Default ticket description for new tickets.",
+                             "categoryId": %d,
+                             "priority": "MEDIUM"
+                         }
+                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8), workflow.id(), category.getId()))
+               .post("/api/projects")
+               .then()
+               .statusCode(400)
+               .body("message", is("Ticket template title cannot be empty"));
+    }
+
+    @Test
+    @DisplayName("Ticket template enabled with invalid category returns 404")
+    void ticketTemplateEnabledInvalidCategoryTest() {
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Invalid Category Template %s",
+                         "prefix": "ICTP",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "title": "Default ticket title",
+                             "description": "Default ticket description for new tickets.",
+                             "categoryId": 9999,
+                             "priority": "MEDIUM"
+                         }
+                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8), workflow.id()))
+               .post("/api/projects")
+               .then()
+               .statusCode(404)
+               .body("message", is("Category with ID 9999 does not exist"));
+    }
+
+    @Test
+    @DisplayName("Ticket template title and description length validation")
+    void ticketTemplateLengthValidationTest() {
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Short Title Template %s",
+                         "prefix": "STT",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "title": "Bug",
+                             "description": "Default ticket description for new tickets.",
+                             "categoryId": %d,
+                             "priority": "MEDIUM"
+                         }
+                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8), workflow.id(), category.getId()))
+               .post("/api/projects")
+               .then()
+               .statusCode(400)
+               .body("message", is("Ticket template title must be between 5 and 255 characters"));
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Short Desc Template %s",
+                         "prefix": "SDT",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "title": "Default ticket title",
+                             "description": "tiny",
+                             "categoryId": %d,
+                             "priority": "MEDIUM"
+                         }
+                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8), workflow.id(), category.getId()))
+               .post("/api/projects")
+               .then()
+               .statusCode(400)
+               .body("message", is("Ticket template description must be between 5 and 1200 characters"));
     }
 }

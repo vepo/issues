@@ -41,6 +41,11 @@ CREATE TABLE tb_projects (
     description TEXT,
     prefix      VARCHAR(15) NOT NULL,
     workflow_id BIGINT NOT NULL,
+    ticket_template_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    ticket_template_title VARCHAR(255),
+    ticket_template_description TEXT,
+    ticket_template_category_id BIGINT REFERENCES tb_categories,
+    ticket_template_priority VARCHAR(16),
 
     CONSTRAINT tb_project_UK UNIQUE (name),
     CONSTRAINT tb_project_workflow_FK FOREIGN KEY (workflow_id) REFERENCES tb_workflows

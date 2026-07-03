@@ -5,6 +5,10 @@
       <p class="page-subtitle" i18n>Quadro Kanban — arraste os tickets entre colunas</p>
     </div>
     <div class="page-header__actions">
+      <a class="btn" matButton="filled" [routerLink]="['/project', project.id, 'tickets', 'new']">
+        <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+        <span i18n>Novo ticket</span>
+      </a>
       <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'dashboard']">
         <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
         <span i18n>Painel</span>

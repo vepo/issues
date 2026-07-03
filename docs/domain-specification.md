@@ -82,6 +82,8 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Status** | Named step in a workflow (e.g. TODO, IN_PROGRESS, DONE). | `WorkflowStatus`, `tb_workflow_status` |
 | **Transition** | Allowed move from one status to another within a workflow. | `WorkflowTransition` |
 | **Start status** | Initial status for new tickets in a workflow. | `Workflow.startStatus` |
+| **Ticket template** | Optional default field values for new tickets in a project: title, description, category, priority. | Embedded on `Project`, `tb_projects` template columns |
+| **Template enabled** | Project manager opted in; when true, all template fields are required and validated like `CreateTicketRequest`. | `Project.ticketTemplateEnabled`; UI checkbox **Usar template de ticket** |
 
 ### Tickets
 
@@ -140,6 +142,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 5. **Notifications** — Fired asynchronously on status move; delivered to ticket subscribers via SSE and optionally email.
 6. **Roles** — Endpoint access enforced via `@RolesAllowed`; class-level `@DenyAll` on protected resources.
 7. **Request/Response contract** — HTTP body types are records named `*Request` / `*Response` (ArchUnit enforced).
+8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, title, description, category, and priority must satisfy the same constraints as `CreateTicketRequest`. The create-ticket UI pre-fills the form from the template; the user may edit before submit.
 
 ---
 

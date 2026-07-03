@@ -12,7 +12,7 @@ Read these before changing code or tests:
 | [.cursor/rules/](.cursor/rules/) | Four pillars + file-scoped detail |
 | [.cursor/agents/](.cursor/agents/) | Project subagents (specialized behaviour) |
 
-**Not in production yet**: This project is not in production yet. There is no need to keep legacy or update any production environment.
+**Not in production yet**: This project is not in production yet. There is no need to keep legacy or update any production environment. Schema changes: amend `V1.0.0__Database_Creation.sql` only — see [issues-flyway.mdc](.cursor/rules/issues-flyway.mdc).
 
 **Workflow:** domain spec → correct package → create tests (TDD) → tiered test runs → `mvn verify` once → update docs when API or routes change.
 
@@ -54,6 +54,7 @@ No content is duplicated across pillars — each hub links to file-scoped rules 
 | [documentation.mdc](.cursor/rules/documentation.mdc) | `docs/**`, `README.md` | User-facing docs maintenance |
 | [readme.mdc](.cursor/rules/readme.mdc) | always on | README features, stack, quick start |
 | [dev-import-sql-safety.mdc](.cursor/rules/dev-import-sql-safety.mdc) | `dev-import.sql`, migrations | Safe dev seed changes |
+| [issues-flyway.mdc](.cursor/rules/issues-flyway.mdc) | always on | Pre-production: amend `V1.0.0` only, no `V1.0.x` files |
 
 ## Project subagents (`.cursor/agents/`)
 

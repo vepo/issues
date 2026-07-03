@@ -39,7 +39,7 @@ mvn formatter:format     # Java formatting
 - Add Python or unrelated runtimes for repo tooling.
 - Change JWT key paths without updating `%dev` and test config.
 - Use `VO` or `DTO` suffix on HTTP types — use `Request` / `Response`.
-- Bypass Flyway for schema changes — add migration scripts.
+- Bypass Flyway for schema changes — update SQL per [issues-flyway.mdc](issues-flyway.mdc).
 - Commit secrets from `application.properties` dev mailer block to production config.
 
 ## Package naming

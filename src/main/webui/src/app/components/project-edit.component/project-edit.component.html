@@ -3,7 +3,7 @@
     <header class="page-header">
       <div>
         <h1 class="page-title" i18n>Editar projeto</h1>
-        <p class="page-subtitle" i18n>Atualize nome, processo e prefixo do projeto</p>
+        <p class="page-subtitle" i18n>Atualize nome, processo, prefixo e template de ticket</p>
       </div>
     </header>
   } @else {
@@ -35,8 +35,41 @@
     </mat-form-field>
     <mat-form-field class="form-field form-field--textarea" appearance="outline">
       <mat-label i18n>Descrição</mat-label>
-      <textarea matInput formControlName="description" required rows="5"></textarea>
+      <textarea matInput formControlName="description" rows="5"></textarea>
     </mat-form-field>
+
+    <section class="form-section">
+      <mat-checkbox formControlName="templateEnabled" i18n>Usar template de ticket</mat-checkbox>
+
+      @if (projectForm.value.templateEnabled) {
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Título do template</mat-label>
+          <input matInput formControlName="templateTitle" />
+        </mat-form-field>
+        <mat-form-field class="form-field form-field--textarea" appearance="outline">
+          <mat-label i18n>Descrição do template</mat-label>
+          <textarea matInput formControlName="templateDescription" rows="5"></textarea>
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Categoria do template</mat-label>
+          <mat-select formControlName="templateCategoryId">
+            <mat-option [value]="-1" disabled i18n>Selecione uma categoria...</mat-option>
+            @for (category of categories; track category.id) {
+              <mat-option [value]="category.id">{{ category.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Prioridade do template</mat-label>
+          <mat-select formControlName="templatePriority">
+            @for (priority of priorities; track priority) {
+              <mat-option [value]="priority">{{ priority }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+    </section>
+
     <div class="actions form-actions">
       <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()" i18n>Cancelar</button>
       <button class="btn" [disabled]="projectForm.invalid" matButton="filled" type="button" (click)="save()" i18n

@@ -6,6 +6,7 @@ DECLARE
     done_id        INTEGER;
     agile_id       INTEGER;
     feature_id     INTEGER;
+    bug_id         INTEGER;
     user_cto_id    INTEGER;
     proj_issues_id INTEGER;
     open_id        INTEGER;
@@ -46,6 +47,7 @@ BEGIN
 
 
     INSERT INTO tb_categories (name, color) VALUES ('Feature', '#01172F') RETURNING id INTO feature_id;
+    INSERT INTO tb_categories (name, color) VALUES ('Bug', '#C62828') RETURNING id INTO bug_id;
 
     INSERT INTO tb_workflow_status (name) VALUES ('TODO')        RETURNING id INTO todo_id;
     INSERT INTO tb_workflow_status (name) VALUES ('IN_PROGRESS') RETURNING id INTO progress_id;
@@ -92,7 +94,14 @@ BEGIN
     INSERT INTO tb_workflow_transitions (workflow_id, from_id, to_id) VALUES (support_id, progress_id, valid_id);
     INSERT INTO tb_workflow_transitions (workflow_id, from_id, to_id) VALUES (support_id, valid_id,    done_id);
 
-    INSERT INTO tb_projects (name, description, prefix, workflow_id) VALUES ('Issues', 'MVP Issues', 'ISS', agile_id) RETURNING id INTO proj_issues_id;
+    INSERT INTO tb_projects (name, description, prefix, workflow_id,
+                             ticket_template_enabled, ticket_template_title,
+                             ticket_template_description, ticket_template_category_id, ticket_template_priority)
+    VALUES ('Issues', 'MVP Issues', 'ISS', agile_id,
+            TRUE, 'New work item',
+            'Describe the change or defect using the sections below.',
+            bug_id, 'MEDIUM')
+    RETURNING id INTO proj_issues_id;
 
     INSERT INTO tb_tickets (identifier, title, description, author_id, project_id, category_id, status_id, created_at, updated_at) VALUES 
                            ('ISS-001',

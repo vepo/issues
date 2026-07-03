@@ -13,12 +13,14 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Project dashboard | `/project/:projectId/dashboard` | authenticated | Home → select project → dashboard shows default widgets on first visit; Editar layout to customize |
 | Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → edit fields, assign, move status, delete (admin/PM), comments, observe |
 | Ticket search | `/search` | authenticated | Menu → search → enter term → open ticket |
+| Create ticket | `/tickets/new` | authenticated | Header → Novo → select project → fill form → create |
+| Create ticket (project) | `/project/:projectId/tickets/new` | authenticated | Kanban → Novo ticket → form pre-filled from template → create |
 | User list | `/users` | admin | Menu → users → list |
 | Create user | `/users/new` | admin | Users → new → fill form → save |
 | Edit user | `/users/:userId` | admin | Users → select user → edit → save |
 | Project list | `/projects` | project-manager+ | Menu → projects → list |
-| Create project | `/projects/new` | project-manager | Projects → new → fill form → save |
-| Edit project | `/projects/:projectId` | project-manager | Projects → select project → edit → save |
+| Create project | `/projects/new` | project-manager | Projects → new → fill form (optional ticket template) → save |
+| Edit project | `/projects/:projectId` | project-manager | Projects → select project → edit template/workflow → save |
 | Workflow list | `/workflows` | project-manager, admin | Menu → Administração → Processos → list workflows → Editar |
 | Create workflow | `/workflows/new` | project-manager, admin | Workflows → Novo processo → status table + transitions table → save |
 | Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, start status, transitions (status names fixed) |

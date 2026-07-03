@@ -1,6 +1,11 @@
 package dev.vepo.issues.project;
 
-public record ProjectResponse(long id, String name, String prefix, String description, ProjectWorkflowResponse workflow) {
+public record ProjectResponse(long id,
+                              String name,
+                              String prefix,
+                              String description,
+                              ProjectWorkflowResponse workflow,
+                              TicketTemplateResponse ticketTemplate) {
 
     public static ProjectResponse load(Project project) {
         return new ProjectResponse(project.getId(),
@@ -8,6 +13,7 @@ public record ProjectResponse(long id, String name, String prefix, String descri
                                    project.getPrefix(),
                                    project.getDescription(),
                                    new ProjectWorkflowResponse(project.getWorkflow().getId(),
-                                                               project.getWorkflow().getName()));
+                                                               project.getWorkflow().getName()),
+                                   TicketTemplateResponse.load(project));
     }
 }

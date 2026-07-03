@@ -1,16 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProjectsService } from '../../services/projects.service';
+import { Category } from '../../services/category.service';
+import { CreateOrUpdateProjectRequest, ProjectsService } from '../../services/projects.service';
 import { Workflow } from '../../services/workflow.service';
 
 @Component({
   selector: 'app-project-edit.component',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatCheckboxModule],
   templateUrl: './project-edit.component.html'
 })
 export class ProjectEditComponent implements OnInit {
@@ -18,50 +20,94 @@ export class ProjectEditComponent implements OnInit {
   private readonly projectsService = inject(ProjectsService);
   private readonly router = inject(Router);
 
-  editMode: boolean = false;
+  editMode = false;
   projectId: number | null = null;
   workflows: Workflow[] = [];
+  categories: Category[] = [];
+  readonly priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
+
   projectForm = new FormGroup({
     name: new FormControl('', Validators.required),
-    description: new FormControl('', []),
-    prefix: new FormControl('', [Validators.minLength(3), Validators.maxLength(5), Validators.required]),
-    workflow: new FormControl(-1, [Validators.required, Validators.min(1)])
+    description: new FormControl(''),
+    prefix: new FormControl('', [Validators.required, Validators.minLength(2), Validators.maxLength(10)]),
+    workflow: new FormControl(-1, [Validators.required, Validators.min(1)]),
+    templateEnabled: new FormControl(false),
+    templateTitle: new FormControl(''),
+    templateDescription: new FormControl(''),
+    templateCategoryId: new FormControl(-1),
+    templatePriority: new FormControl<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('MEDIUM'),
   });
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ project, workflows }) => {
-      console.debug("Workflows data:", workflows);
-      this.workflows = workflows;
-
-      console.debug("Project data: ", project);
+    this.activatedRoute.data.subscribe(({ project, workflows, categories }) => {
+      this.workflows = workflows ?? [];
+      this.categories = categories ?? [];
       this.editMode = project != null;
-      this.projectId = project.id;
-      this.projectForm.setValue({
-        name: project.name,
-        description: project.description,
-        prefix: project.prefix,
-        workflow: 1
-      });
+      this.projectId = project?.id ?? null;
+
+      if (project) {
+        const template = project.ticketTemplate;
+        this.projectForm.patchValue({
+          name: project.name,
+          description: project.description ?? '',
+          prefix: project.prefix,
+          workflow: project.workflow?.id ?? -1,
+          templateEnabled: template?.enabled ?? false,
+          templateTitle: template?.title ?? '',
+          templateDescription: template?.description ?? '',
+          templateCategoryId: template?.categoryId ?? -1,
+          templatePriority: template?.priority ?? 'MEDIUM',
+        });
+      }
     });
   }
 
-
   cancel(): void {
-    this.router.navigate(['/', 'projects']);
+    void this.router.navigate(['/', 'projects']);
   }
 
-  save() {
-    console.log("Save call!")
-    if (this.projectForm.invalid) return;
-    const { name, description, prefix } = this.projectForm.value;
-    if (!name || !prefix || !description) return;
+  save(): void {
+    if (this.projectForm.invalid) {
+      return;
+    }
+    const {
+      name,
+      description,
+      prefix,
+      workflow,
+      templateEnabled,
+      templateTitle,
+      templateDescription,
+      templateCategoryId,
+      templatePriority,
+    } = this.projectForm.value;
+
+    if (!name || !prefix || workflow == null || workflow < 1) {
+      return;
+    }
+
+    const request: CreateOrUpdateProjectRequest = {
+      name,
+      description: description ?? undefined,
+      prefix,
+      workflowId: workflow,
+      ticketTemplate: templateEnabled
+        ? {
+            enabled: true,
+            title: templateTitle ?? undefined,
+            description: templateDescription ?? undefined,
+            categoryId: templateCategoryId != null && templateCategoryId > 0 ? templateCategoryId : undefined,
+            priority: templatePriority ?? 'MEDIUM',
+          }
+        : { enabled: false },
+    };
 
     if (this.projectId) {
-      this.projectsService.update(this.projectId, { name, description, prefix, workflowId: 1 })
-        .subscribe(project => this.router.navigate(['/', 'projects']));
+      this.projectsService.update(this.projectId, request)
+        .subscribe(() => void this.router.navigate(['/', 'projects']));
     } else {
-      this.projectsService.create({ name, description, prefix, workflowId: 1 })
-        .subscribe(project => this.router.navigate(['/', 'projects']));
+      this.projectsService.create(request)
+        .subscribe(() => void this.router.navigate(['/', 'projects']));
     }
   }
 }

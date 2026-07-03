@@ -21,7 +21,8 @@ describe('KanbanComponent', () => {
     name: 'Test Project',
     description: 'Test Description',
     prefix: 'PRJ',
-    workflow: 'Waterfall'
+    workflow: { id: 1, name: 'Waterfall' },
+    ticketTemplate: { enabled: false },
   } as Project;
 
   const mockStatuses: ProjectStatus[] = [

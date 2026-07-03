@@ -51,7 +51,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 ### Tickets & workflow
 
-- **Tickets** — create, edit, assign, set priority, and soft-delete work items scoped to a project
+- **Tickets** — create via `/tickets/new` or project-scoped route; edit, assign, set priority, and soft-delete work items scoped to a project
 - **Identifiers** — human-readable keys (`ISS-001`) from project prefix + sequence
 - **Workflows** — configurable status graphs with allowed transitions per project
 - **Priority** — `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` on create and edit
@@ -63,7 +63,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 ### Projects & administration
 
-- **Projects** — name, prefix, description, and assigned workflow
+- **Projects** — name, prefix, description, assigned workflow, and optional **ticket template** (default title, description, category, priority for new tickets)
 - **Workflow builder** — create workflows with statuses and transitions (`/workflows` UI + API)
 - **Categories admin** — list and create ticket categories (`/categories`, admin)
 - **User management** — CRUD for users and role assignment (admin)

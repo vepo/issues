@@ -34,7 +34,7 @@ Follow [ARCHITECTURE.md](../../ARCHITECTURE.md) §6. Dependencies flow **downwar
 
 ## When adding a feature
 
-1. Entity (if new table) + Flyway migration.
+1. Entity (if new table) + Flyway baseline change per [issues-flyway.mdc](issues-flyway.mdc).
 2. `XxxRepository`.
 4. `XxxService` for non-trivial logic.
 5. One `*Endpoint` class per HTTP operation under `{context}.{action}/`.

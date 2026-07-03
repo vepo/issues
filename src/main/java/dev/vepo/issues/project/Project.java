@@ -1,8 +1,11 @@
 package dev.vepo.issues.project;
 
+import dev.vepo.issues.ticket.TicketPriority;
 import dev.vepo.issues.workflow.Workflow;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,6 +33,22 @@ public class Project {
     @JoinColumn(name = "workflow_id", nullable = false)
     private Workflow workflow;
 
+    @Column(name = "ticket_template_enabled", nullable = false)
+    private boolean ticketTemplateEnabled;
+
+    @Column(name = "ticket_template_title")
+    private String ticketTemplateTitle;
+
+    @Column(name = "ticket_template_description", columnDefinition = "text")
+    private String ticketTemplateDescription;
+
+    @Column(name = "ticket_template_category_id")
+    private Long ticketTemplateCategoryId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ticket_template_priority", length = 16)
+    private TicketPriority ticketTemplatePriority;
+
     public Project() {}
 
     public Project(String prefix, String name, String description, Workflow workflow) {
@@ -37,6 +56,7 @@ public class Project {
         this.name = name;
         this.description = description;
         this.workflow = workflow;
+        this.ticketTemplateEnabled = false;
     }
 
     public Long getId() {
@@ -77,5 +97,53 @@ public class Project {
 
     public void setWorkflow(Workflow workflow) {
         this.workflow = workflow;
+    }
+
+    public boolean isTicketTemplateEnabled() {
+        return ticketTemplateEnabled;
+    }
+
+    public void setTicketTemplateEnabled(boolean ticketTemplateEnabled) {
+        this.ticketTemplateEnabled = ticketTemplateEnabled;
+    }
+
+    public String getTicketTemplateTitle() {
+        return ticketTemplateTitle;
+    }
+
+    public void setTicketTemplateTitle(String ticketTemplateTitle) {
+        this.ticketTemplateTitle = ticketTemplateTitle;
+    }
+
+    public String getTicketTemplateDescription() {
+        return ticketTemplateDescription;
+    }
+
+    public void setTicketTemplateDescription(String ticketTemplateDescription) {
+        this.ticketTemplateDescription = ticketTemplateDescription;
+    }
+
+    public Long getTicketTemplateCategoryId() {
+        return ticketTemplateCategoryId;
+    }
+
+    public void setTicketTemplateCategoryId(Long ticketTemplateCategoryId) {
+        this.ticketTemplateCategoryId = ticketTemplateCategoryId;
+    }
+
+    public TicketPriority getTicketTemplatePriority() {
+        return ticketTemplatePriority;
+    }
+
+    public void setTicketTemplatePriority(TicketPriority ticketTemplatePriority) {
+        this.ticketTemplatePriority = ticketTemplatePriority;
+    }
+
+    public void clearTicketTemplate() {
+        this.ticketTemplateEnabled = false;
+        this.ticketTemplateTitle = null;
+        this.ticketTemplateDescription = null;
+        this.ticketTemplateCategoryId = null;
+        this.ticketTemplatePriority = null;
     }
 }

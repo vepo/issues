@@ -23,7 +23,9 @@ Do not delete these users or the primary sample project without updating tests a
 
 ## When you change the schema (Flyway)
 
-Work through this list **in the same PR** as the migration:
+**Pre-production:** amend [`V1.0.0__Database_Creation.sql`](../../src/main/resources/db/migration/V1.0.0__Database_Creation.sql) only — see [issues-flyway.mdc](issues-flyway.mdc). Do not add `V1.0.x` migration files.
+
+Work through this list **in the same PR** as the schema change:
 
 1. **Reset section** — Extend TRUNCATE/DELETE in FK-safe order for tables dev seed repopulates.
 2. **Seed section** — New `NOT NULL` columns or FKs require matching INSERT values.

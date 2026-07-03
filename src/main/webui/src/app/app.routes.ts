@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { CreateTicketComponent } from './components/create-ticket/create-ticket.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
 import { KanbanComponent } from './components/kanban/kanban.component';
@@ -61,6 +62,25 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'tickets/new',
+    component: CreateTicketComponent,
+    resolve: {
+      projects: projectsResolver,
+      categories: categoriesResolver
+    },
+    canActivate: [authGuard],
+  },
+  {
+    path: 'project/:projectId/tickets/new',
+    component: CreateTicketComponent,
+    resolve: {
+      project: projectResolver,
+      projects: projectsResolver,
+      categories: categoriesResolver
+    },
+    canActivate: [authGuard],
+  },
+  {
     path: 'ticket/:ticketIdentifier',
     component: TicketViewComponent,
     resolve: {
@@ -102,7 +122,8 @@ export const routes: Routes = [
     component: ProjectEditComponent,
     canActivate: [authGuard],
     resolve: {
-      workflows: workflowsResolver
+      workflows: workflowsResolver,
+      categories: categoriesResolver
     }
   },
   {
@@ -110,7 +131,8 @@ export const routes: Routes = [
     component: ProjectEditComponent,
     resolve: {
       project: projectResolver,
-      workflows: workflowsResolver
+      workflows: workflowsResolver,
+      categories: categoriesResolver
     },
     canActivate: [authGuard]
   },

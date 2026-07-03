@@ -75,7 +75,7 @@ Material theme CSS variables are aligned to `$base-active-color` in `styles.scss
 **Behavior:**
 - **Brand** → `/` with `brand-active` on home
 - **Search** — `.search-bar` form; Enter → `/search` with `q` query param only
-- **Novo** — opens `CreateTicketModalComponent` dialog
+- **Novo** — compact primary button → `/tickets/new`
 - **Notificações** — icon-only `matIconButton` + badge (`app-notification`)
 - **User menu** — `person` icon + `mat-menu`: email header, Conta, Administração submenu (role-gated), Sair
 - **Acessar** — shown when logged out → `/login`
@@ -144,7 +144,7 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 |----------|-------|
 | **Use** | Cancel on edit forms, close modals, back navigation |
 
-**Used in:** create-ticket modal, user/project edit, password reset, login secondary actions.
+**Used in:** create-ticket page, user/project edit, password reset, login secondary actions.
 
 ### 2.5 Header icon button (`.btn-icon-header`)
 
@@ -195,7 +195,7 @@ Dashboard widget header; borderless, muted text, red on hover.
 | **Validation** | `mat-error` below field; red `$base-error-color` |
 | **Behavior** | Reactive (`formControlName`) or template-driven (`ngModel`) |
 
-**Used in:** login, password reset, create-ticket modal, user edit, project edit.
+**Used in:** login, password reset, create-ticket page, user edit, project edit.
 
 ### 3.2 Search bar (`.search-bar`)
 
@@ -375,7 +375,7 @@ Note: ticket detail activity uses `.activity-feed` (see §10.1), not `div.data-t
 | Body | `.body` | min-width 500px, form fields |
 | Actions | `.actions` | Right-aligned; Cancel + primary |
 
-**Used in:** `CreateTicketModalComponent` (`disableClose: true`).
+**Used in:** category edit dialog; create-ticket uses the page pattern (`.page` + `.page-panel`) instead.
 
 ---
 

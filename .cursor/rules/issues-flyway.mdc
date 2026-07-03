@@ -1,0 +1,43 @@
+---
+description: Pre-production Flyway — amend V1.0.0, no incremental migrations yet
+alwaysApply: true
+---
+
+# Flyway — pre-production schema changes
+
+**Issues is not in production yet** ([AGENTS.md](../../AGENTS.md)). There are no deployed databases to migrate incrementally.
+
+## Rule
+
+| Situation | Action |
+|-----------|--------|
+| New/changed table or column | **Edit** [`V1.0.0__Database_Creation.sql`](../../src/main/resources/db/migration/V1.0.0__Database_Creation.sql) |
+| Pre-production (now) | **Do not** add `V1.0.1__…`, `V1.1__…`, or other versioned migration files |
+| After first production deploy | Switch to incremental Flyway versions; do not rewrite shipped migrations |
+
+## Same PR checklist
+
+1. Update `V1.0.0__Database_Creation.sql` (CREATE/ALTER in baseline script).
+2. Update [`dev-import.sql`](../../src/main/resources/dev-import.sql) if seed data needs new NOT NULL columns or FKs — see [dev-import-sql-safety.mdc](dev-import-sql-safety.mdc).
+3. Update JPA entities to match.
+4. Run `mvn test` (Flyway runs on `@QuarkusTest` startup).
+
+## Examples
+
+```sql
+-- ✅ Pre-production: add column to CREATE TABLE in V1.0.0
+CREATE TABLE tb_projects (
+    ...
+    ticket_template_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    ...
+);
+
+-- ❌ Pre-production: separate migration file
+-- V1.0.1__Add_Ticket_Template.sql
+ALTER TABLE tb_projects ADD COLUMN ...
+```
+
+## Never
+
+- Bypass Flyway — schema still lives under `src/main/resources/db/migration/`.
+- Add a new migration version while the project remains pre-production (unless the user explicitly requests production rollout prep).
