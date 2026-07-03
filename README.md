@@ -94,7 +94,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 - **Login** — short-lived JWT access token plus refresh token (`POST /auth/refresh`)
 - **Password recovery** — email link with token; confirm page sets new password
-- **Account** — read-only profile at `/account/settings` (`GET /auth/me`)
+- **Account** — edit name and email at `/account/settings`; change password with current password
 
 Production JWT signing key rotation: configure `mp.jwt.verify.publickey.location` to a JWKS resource listing current and previous public keys during rollover (see `application.properties` comments).
 

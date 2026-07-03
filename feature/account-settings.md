@@ -1,7 +1,7 @@
 # Account settings
 
 **Feature version:** 2  
-**Status:** planned  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -88,7 +88,9 @@ Authenticated users view their profile (name, email, roles) and change password 
 ### Self-service profile edit — 2026-07-03
 
 **Version:** 2  
-**Status:** planned
+**Status:** done
+
+**Development approval:** approved 2026-07-03 — tasks: T2–T9
 
 **Description:** Authenticated users update their own name and email on account settings; roles remain read-only.
 
@@ -99,10 +101,43 @@ Authenticated users view their profile (name, email, roles) and change password 
 | User management | Admin still edits other users; account settings is self-service only |
 | Authentication | Profile changes reflected on next `GET /auth/me` |
 
+## Architecture
+
+| Area | Design |
+|------|--------|
+| API | `POST /auth/profile` with `UpdateProfileRequest { name, email }` → `AuthResponse`; self only via JWT principal |
+| Service | `AuthenticationService.updateProfile` — email uniqueness excluding current user |
+| Schema | No change — updates `tb_users.name` and `tb_users.email` |
+| UI | Profile form with **Salvar perfil**; username and roles read-only |
+
+#### Tasks
+
+| ID | Task | Done |
+|----|------|------|
+| T1 | Architecture + tasks + test plan | ☑ |
+| T2 | `UpdateProfileRequest` record | ☑ |
+| T3 | `AuthenticationService.updateProfile` | ☑ |
+| T4 | `UpdateProfileEndpoint` | ☑ |
+| T5 | `UpdateProfileEndpointTest` | ☑ |
+| T6 | Account settings UI — editable profile | ☑ |
+| T7 | `auth.service.updateProfile` + OpenAPI codegen | ☑ |
+| T8 | README + feature-catalog | ☑ |
+| T9 | `mvn verify` + `npm run build` | ☑ |
+
+#### Test coverage
+
+| ID | Test | Covers | Done |
+|----|------|--------|------|
+| TC1 | `UpdateProfileEndpointTest` — update name/email | T3, T4 | ☑ |
+| TC2 | `UpdateProfileEndpointTest` — duplicate email rejected | T3 | ☑ |
+| TC3 | `UpdateProfileEndpointTest` — requires auth | T4 | ☑ |
+
 #### Feature checklist
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Profile form matches **Wireframe** (editable name/email) | Wireframe, FQ1 | ☐ |
-| FC2 | `POST /auth/profile` updates own user only | FQ1 | ☐ |
-| FC3 | Email uniqueness validated | FQ1 | ☐ |
+| FC1 | Profile form matches **Wireframe** (editable name/email) | Wireframe, FQ1 | ☑ |
+| FC2 | `POST /auth/profile` updates own user only | FQ1 | ☑ |
+| FC3 | Email uniqueness validated | FQ1 | ☑ |
+
+**Implementation notes:** `UpdateProfileEndpoint`; account settings profile form; email uniqueness check. `mvn verify` + `npm run build` green (2026-07-03).

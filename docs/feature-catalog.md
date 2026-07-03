@@ -10,7 +10,7 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Home | `/` | authenticated | Login → personal hub: **Tickets atuais**, **Tickets atribuídos**, **Atividade** (static snapshot); optional sections for owned saved queries with **Exibir na página inicial** |
 | Project hub | `/projects/:projectId` | authenticated (project member or admin) | Home → project name → hub: **Kanban**, **Painel**, **Versões**, **Fases**; lists phases and versions; owner PM or admin also **Editar**, **Alocação**, **Nova fase** / **Nova versão** |
 | Project allocation | `/projects/:projectId/allocation` | project owner PM, admin | Project hub → **Alocação** → list members → add user → remove (blocked when member has open assigned tickets; UI lists those tickets) |
-| Account settings | `/account/settings` | authenticated | Menu → Conta → view profile → change password (current + new) or use recovery link |
+| Account settings | `/account/settings` | authenticated | Menu → Conta → edit name/email, save profile → change password (current + new) or use recovery link |
 | Kanban board | `/project/:projectId/kanban` | authenticated (project member or admin) | Project hub → **Kanban** → view columns by status → drag/move ticket; **filter by phase** (all / active / unplanned / **pick any phase**); phase badge on cards |
 | Project dashboard | `/project/:projectId/dashboard` | authenticated (project member or admin) | Project hub → **Painel** → dashboard shows default widgets on first visit; Editar layout to customize |
 | Version catalog | `/project/:projectId/versions` | authenticated | Kanban → Versões → list SemVer labels → open changelog |

@@ -28,9 +28,17 @@ export class AccountSettingsComponent implements OnInit {
   user: CurrentUser | null = null;
   loading = true;
   error = '';
+  profileMessage = '';
+  profileError = '';
   passwordMessage = '';
   passwordError = '';
+  isSavingProfile = false;
   isSavingPassword = false;
+
+  profileForm: FormGroup = this.formBuilder.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]]
+  });
 
   passwordForm: FormGroup = this.formBuilder.group({
     currentPassword: ['', Validators.required],
@@ -42,11 +50,36 @@ export class AccountSettingsComponent implements OnInit {
     this.authService.me().subscribe({
       next: (user: CurrentUser) => {
         this.user = user;
+        this.profileForm.patchValue({
+          name: user.name,
+          email: user.email
+        });
         this.loading = false;
       },
       error: () => {
         this.error = 'Não foi possível carregar seu perfil.';
         this.loading = false;
+      }
+    });
+  }
+
+  saveProfile(): void {
+    if (this.profileForm.invalid) {
+      return;
+    }
+    this.isSavingProfile = true;
+    this.profileMessage = '';
+    this.profileError = '';
+    const { name, email } = this.profileForm.value;
+    this.authService.updateProfile(name, email).subscribe({
+      next: (user) => {
+        this.user = user;
+        this.isSavingProfile = false;
+        this.profileMessage = 'Perfil atualizado com sucesso.';
+      },
+      error: () => {
+        this.isSavingProfile = false;
+        this.profileError = 'Não foi possível atualizar o perfil. Verifique o e-mail informado.';
       }
     });
   }

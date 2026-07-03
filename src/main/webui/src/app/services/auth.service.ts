@@ -44,6 +44,10 @@ export class AuthService {
     return this.api.changePassword({ currentPassword, newPassword });
   }
 
+  updateProfile(name: string, email: string) {
+    return this.api.updateProfile({ name, email }).pipe(map(asLoaded));
+  }
+
   me() {
     return this.api.me().pipe(map(asLoaded));
   }

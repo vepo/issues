@@ -71,6 +71,20 @@ public class AuthenticationService {
     }
 
     @Transactional
+    public AuthResponse updateProfile(String username, UpdateProfileRequest request) {
+        var user = userRepository.findByUsername(username)
+                                 .orElseThrow(() -> new NotFoundException("User not found!"));
+        userRepository.findByEmail(request.email())
+                      .filter(other -> !other.getId().equals(user.getId()))
+                      .ifPresent(other -> {
+                          throw new BadRequestException("Email already in use");
+                      });
+        user.setName(request.name());
+        user.setEmail(request.email());
+        return AuthResponse.load(user);
+    }
+
+    @Transactional
     public void resetPassword(ResetPasswordRequest request) {
         userRepository.findByEmailOrUsername(request.credential())
                       .ifPresentOrElse(user -> {

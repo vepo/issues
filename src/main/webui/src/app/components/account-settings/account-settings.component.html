@@ -12,22 +12,40 @@
     } @else if (error) {
       <div class="error" role="alert">{{ error }}</div>
     } @else if (user) {
-      <dl class="detail-list">
-        <dt i18n>Nome</dt>
-        <dd>{{ user.name }}</dd>
-        <dt i18n>Usuário</dt>
-        <dd>{{ user.username }}</dd>
-        <dt i18n>E-mail</dt>
-        <dd>{{ user.email }}</dd>
-        <dt i18n>Perfis</dt>
-        <dd>
-          <span class="labels">
-            @for (role of user.roles; track role) {
-              <span class="label">{{ role }}</span>
-            }
-          </span>
-        </dd>
-      </dl>
+      <h2 class="section-title" i18n>Perfil</h2>
+      <form class="edit dialog-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Nome</mat-label>
+          <input matInput formControlName="name" required autocomplete="name" />
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>E-mail</mat-label>
+          <input matInput type="email" formControlName="email" required autocomplete="email" />
+        </mat-form-field>
+        <dl class="detail-list detail-list--inline">
+          <dt i18n>Usuário</dt>
+          <dd>{{ user.username }}</dd>
+          <dt i18n>Perfis</dt>
+          <dd>
+            <span class="labels">
+              @for (role of user.roles; track role) {
+                <span class="label">{{ role }}</span>
+              }
+            </span>
+          </dd>
+        </dl>
+        @if (profileMessage) {
+          <p class="success-message" role="status">{{ profileMessage }}</p>
+        }
+        @if (profileError) {
+          <p class="error" role="alert">{{ profileError }}</p>
+        }
+        <div class="form-actions">
+          <button class="btn" matButton="filled" type="submit" [disabled]="profileForm.invalid || isSavingProfile">
+            <span i18n>{{ isSavingProfile ? 'Salvando...' : 'Salvar perfil' }}</span>
+          </button>
+        </div>
+      </form>
     }
   </section>
 
