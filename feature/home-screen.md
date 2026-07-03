@@ -88,6 +88,7 @@ Mobile: stack sections vertically. **No** project grid on home (**Q5**).
 | **Project hub** (**Q15**) | `/projects/:projectId` — view for **members** (all roles); links to Kanban and dashboard; edit/allocation only for owner PM or admin |
 | **Member removal** (**Q13**) | Forbid removing a member with **open** (non-finished) assigned tickets until reassigned; allocation UI shows that user's open assigned tickets |
 | **Search scope** (**Q16**) | **Unchanged** — global ticket search across all projects |
+| **Membership admin** (**Q11**) | Dedicated **allocation** page per project — not on project edit |
 | **Owner transfer** (**Q17**, **Q18**) | **Admin** or **current project owner** may reassign owner on edit; new owner must have `project-manager` role; **need not** be an existing member (**Q18**) — added as member on transfer |
 | **Header label** (**Q10**) | **No** change — **Novo** stays in header |
 | **Menu Conta** | Out of scope — already in header |
@@ -191,7 +192,7 @@ See **Wireframe** § `/` — personal work hub. Section-level loading states.
 
 ## Impact
 
-Reviewed after **Q1–Q16** answers. Scope: home hub + **project membership** + **project owner** + **project hub page** + allocation guards.
+Reviewed after **Q1–Q18** answers. Scope: home hub + **project membership** + **project owner** + **project hub page** + allocation guards.
 
 ### Bounded contexts
 
@@ -257,7 +258,7 @@ Reviewed after **Q1–Q16** answers. Scope: home hub + **project membership** + 
 
 | Doc | Update |
 |-----|--------|
-| `domain-specification.md` | Project member, allocation, home terms, invariants 24–25 (done) |
+| `domain-specification.md` | Project member, owner, allocation, home terms, invariants 24–29 (done) |
 | `feature-catalog.md` | Home happy path; allocation route; project list steps |
 | `README.md` | Features: home hub, project allocation |
 | `ui-elements-gallery.md` | Home sections; allocation table if new pattern |
