@@ -82,6 +82,8 @@ class LoginEndpointTest {
                .post("/api/auth/login")
                .then()
                .statusCode(200)
-               .body("token", is(notNullValue()));
+               .body("token", is(notNullValue()))
+               .body("refreshToken", is(notNullValue()))
+               .body("expiresIn", is(900));
     }
 }

@@ -233,7 +233,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 39. **Self-registration** — new users may register via a public registration flow (default role `user`).
 40. **Account profile** — authenticated users may update their own name and email on account settings.
 41. **Notifications pagination** — notification list uses **infinite scroll** with paginated API; SSE client **auto-reconnects** after network drop.
-42. **Production email** — SMTP configured via Docker environment variables in production; deliverability/rate-limit/i18n email features out of scope.
+43. **Refresh token** — opaque server-side token in `tb_refresh_tokens`; issued on login; rotated on `POST /auth/refresh`; revoked on password change or reset. Access JWT TTL configured via `auth.access-token-minutes` (default 15 min).
 
 ---
 

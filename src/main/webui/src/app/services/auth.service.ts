@@ -1,10 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { map, tap } from 'rxjs';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { AuthApi } from '../generated/api/auth.service';
 import { AuthResponse as GeneratedAuthResponse } from '../generated/model/authResponse';
 import { ConfirmPasswordResetRequest } from '../generated/model/confirmPasswordResetRequest';
 import { LoginRequest } from '../generated/model/loginRequest';
 import { LoginResponse } from '../generated/model/loginResponse';
+import { RefreshTokenRequest } from '../generated/model/refreshTokenRequest';
 import { ResetPasswordRequest } from '../generated/model/resetPasswordRequest';
 import { asLoaded, Loaded } from '../core/required-types';
 
@@ -15,14 +16,20 @@ export type AuthResponse = LoginResponse;
 export class AuthService {
   private readonly api = inject(AuthApi);
   private readonly tokenKey = 'jwt_token';
+  private readonly refreshTokenKey = 'jwt_refresh_token';
 
   login(email: string, password: string) {
     return this.api.login({ email, password } as LoginRequest)
-                   .pipe(tap(res => {
-                     if (res.token) {
-                       this.saveToken(res.token);
-                     }
-                   }));
+                   .pipe(tap(res => this.storeTokens(res)));
+  }
+
+  refreshToken(): Observable<LoginResponse> {
+    const refreshToken = localStorage.getItem(this.refreshTokenKey);
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token'));
+    }
+    return this.api.refreshToken({ refreshToken } as RefreshTokenRequest)
+                   .pipe(tap(res => this.storeTokens(res)));
   }
 
   recoverPassword(credential: string) {
@@ -85,9 +92,19 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  private storeTokens(response: LoginResponse) {
+    if (response.token) {
+      this.saveToken(response.token);
+    }
+    if (response.refreshToken) {
+      localStorage.setItem(this.refreshTokenKey, response.refreshToken);
+    }
   }
 }
