@@ -1,6 +1,10 @@
 package dev.vepo.issues.workflow;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,26 +38,21 @@ public class WorkflowService {
     @Transactional
     public WorkflowResponse create(CreateWorkflowRequest request) {
         logger.debug("Processing create workflow request! request={}", request);
-        var statuses = request.statuses()
-                              .stream()
-                              .map(status -> repository.findStatusByName(status)
-                                                       .orElseGet(() -> {
-                                                           var dbStatus = new WorkflowStatus(status);
-                                                           repository.save(dbStatus);
-                                                           return dbStatus;
-                                                       }))
-                              .collect(Collectors.toMap(WorkflowStatus::getName, Function.identity()));
+        var statuses = resolveStatuses(request.statuses());
         logger.debug("All status exists on database! statuses={}", statuses);
-        return WorkflowResponse.load(repository.save(new Workflow(request.name(),
-                                                                  statuses.values()
-                                                                          .stream()
-                                                                          .toList(),
-                                                                  statuses.get(request.start()),
-                                                                  request.transitions()
-                                                                         .stream()
-                                                                         .map(transition -> new WorkflowTransition(statuses.get(transition.from()),
-                                                                                                                   statuses.get(transition.to())))
-                                                                         .toList())));
+        var workflow = repository.save(new Workflow(request.name(),
+                                                    statuses.values()
+                                                            .stream()
+                                                            .toList(),
+                                                    statuses.get(request.start()),
+                                                    request.transitions()
+                                                           .stream()
+                                                           .map(transition -> new WorkflowTransition(statuses.get(transition.from()),
+                                                                                                     statuses.get(transition.to())))
+                                                           .toList()));
+        applyPhaseStart(workflow, statuses, request.phaseStart());
+        applyFinishStatuses(workflow, statuses, request.finishStatuses());
+        return WorkflowResponse.load(workflow);
     }
 
     public List<StatusResponse> listAllStatuses() {
@@ -96,6 +95,47 @@ public class WorkflowService {
                                .map(transition -> new WorkflowTransition(statuses.get(transition.from()),
                                                                          statuses.get(transition.to())))
                                .toList());
+        applyPhaseStart(workflow, statuses, request.phaseStart());
+        applyFinishStatuses(workflow, statuses, request.finishStatuses());
         return WorkflowResponse.load(workflow);
+    }
+
+    public Optional<FinishOutcome> findFinishOutcome(long workflowId, long statusId) {
+        return repository.findFinishOutcome(workflowId, statusId);
+    }
+
+    private Map<String, WorkflowStatus> resolveStatuses(List<String> statusNames) {
+        return statusNames.stream()
+                          .map(status -> repository.findStatusByName(status)
+                                                   .orElseGet(() -> {
+                                                       var dbStatus = new WorkflowStatus(status);
+                                                       repository.save(dbStatus);
+                                                       return dbStatus;
+                                                   }))
+                          .collect(Collectors.toMap(WorkflowStatus::getName, Function.identity()));
+    }
+
+    private void applyPhaseStart(Workflow workflow, Map<String, WorkflowStatus> statuses, String phaseStartName) {
+        if (Objects.isNull(phaseStartName) || phaseStartName.isBlank()) {
+            workflow.setPhaseStart(null);
+            return;
+        }
+        var phaseStart = statuses.get(phaseStartName);
+        if (Objects.isNull(phaseStart)) {
+            throw new BadRequestException("Phase start status is not part of this workflow");
+        }
+        workflow.setPhaseStart(phaseStart);
+    }
+
+    private void applyFinishStatuses(Workflow workflow, Map<String, WorkflowStatus> statuses, List<FinishStatusRequest> finishStatuses) {
+        workflow.getFinishStatuses().clear();
+        var requested = Optional.ofNullable(finishStatuses).orElseGet(Collections::emptyList);
+        for (var finishStatus : requested) {
+            var status = statuses.get(finishStatus.status());
+            if (Objects.isNull(status)) {
+                throw new BadRequestException("Finish status is not part of this workflow: %s".formatted(finishStatus.status()));
+            }
+            workflow.getFinishStatuses().add(new WorkflowFinishStatus(workflow, status, finishStatus.outcome()));
+        }
     }
 }

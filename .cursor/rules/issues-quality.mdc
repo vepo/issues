@@ -5,6 +5,16 @@ alwaysApply: true
 
 # Coding quality and standards
 
+## Working code invariant
+
+**Development never ends with non-working code.** Before stopping — whether the changelog is `done` or still `in-progress`:
+
+- The project **compiles** (`mvn verify` for backend; `npm run build` when webui changed).
+- **Affected tests pass**; no new failures in touched code.
+- No compile errors or new linter errors in edited files.
+
+If a change breaks the build, **fix it or revert it** before ending. Partial features stay `in-progress`; they do not ship broken.
+
 ## Finish gate (before marking done)
 
 1. **Mid-task:** tiered tests per [issues-testing.mdc](issues-testing.mdc).
@@ -29,6 +39,7 @@ Pre-existing issues elsewhere: fix only if trivial; no scope creep.
 - `npm run build` fails on frontend changes you made.
 - New linter problems in files you changed.
 - Failing tests remain in touched code.
+- **Any** compile error or broken test exists in your diff — including when stopping mid-task (`in-progress` is allowed; broken code is not).
 
 ## Standards (file-scoped detail)
 

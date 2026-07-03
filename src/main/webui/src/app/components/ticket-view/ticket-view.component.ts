@@ -13,6 +13,7 @@ import { Category, CategoryService } from '../../services/category.service';
 import { ProjectStatus, StatusService } from '../../services/status.service';
 import { User, UsersService } from '../../services/users.service';
 import { Comment, CreateCommentRequest, TicketExpanded, TicketService, UpdateTicketRequest } from '../../services/ticket.service';
+import { Version, VersionService } from '../../services/version.service';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
 
@@ -42,6 +43,7 @@ export class TicketViewComponent implements OnInit {
   private readonly categoryService = inject(CategoryService);
   private readonly usersService = inject(UsersService);
   private readonly statusService = inject(StatusService);
+  private readonly versionService = inject(VersionService);
   private readonly dialog = inject(MatDialog);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -56,6 +58,7 @@ export class TicketViewComponent implements OnInit {
   categories: Category[] = [];
   users: User[] = [];
   projectStatuses: ProjectStatus[] = [];
+  projectVersions: Version[] = [];
   selectedStatusId: number | null = null;
   selectedAssigneeId: number | null = null;
 
@@ -63,7 +66,9 @@ export class TicketViewComponent implements OnInit {
     title: ['', [Validators.required, Validators.minLength(5)]],
     description: ['', [Validators.required, Validators.minLength(5)]],
     categoryId: [null as number | null, Validators.required],
-    priority: ['MEDIUM', Validators.required]
+    priority: ['MEDIUM', Validators.required],
+    observedVersionId: [null as number | null],
+    targetVersionId: [null as number | null]
   });
 
   readonly priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
@@ -80,6 +85,7 @@ export class TicketViewComponent implements OnInit {
       if (this.ticket) {
         this.loadComments();
         this.loadProjectStatuses();
+        this.loadProjectVersions();
         this.populateEditForm();
       }
     });
@@ -97,6 +103,14 @@ export class TicketViewComponent implements OnInit {
                      });
   }
 
+  loadProjectVersions(): void {
+    if (!this.ticket?.project?.id) {
+      return;
+    }
+    this.versionService.list(this.ticket.project.id)
+                       .subscribe(versions => this.projectVersions = versions);
+  }
+
   populateEditForm(): void {
     if (!this.ticket) {
       return;
@@ -106,7 +120,9 @@ export class TicketViewComponent implements OnInit {
       title: this.ticket.title,
       description: this.ticket.description,
       categoryId: category?.id ?? null,
-      priority: this.ticket.priority ?? 'MEDIUM'
+      priority: this.ticket.priority ?? 'MEDIUM',
+      observedVersionId: this.ticket.observedVersionId ?? null,
+      targetVersionId: this.ticket.targetVersionId ?? null
     });
   }
 
@@ -197,7 +213,11 @@ export class TicketViewComponent implements OnInit {
       title: value.title,
       description: value.description,
       categoryId: value.categoryId,
-      priority: value.priority as UpdateTicketRequest['priority']
+      priority: value.priority as UpdateTicketRequest['priority'],
+      versionFields: {
+        observedVersionId: value.observedVersionId ?? null,
+        targetVersionId: value.targetVersionId ?? null
+      }
     }).subscribe({
       next: () => {
         this.isSaving = false;
@@ -251,6 +271,7 @@ export class TicketViewComponent implements OnInit {
       next: (updatedTicket) => {
         this.ticket = updatedTicket;
         this.loadProjectStatuses();
+        this.loadProjectVersions();
         this.populateEditForm();
       }
     });

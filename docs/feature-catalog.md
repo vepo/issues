@@ -11,7 +11,10 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Account settings | `/account/settings` | authenticated | Menu → Conta → view profile → change password (current + new) or use recovery link |
 | Kanban board | `/project/:projectId/kanban` | authenticated | Home → select project → view columns by status → drag/move ticket; category color on cards |
 | Project dashboard | `/project/:projectId/dashboard` | authenticated | Home → select project → dashboard shows default widgets on first visit; Editar layout to customize |
-| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → edit fields, assign, move status, delete (admin/PM), comments, observe |
+| Version catalog | `/project/:projectId/versions` | authenticated | Kanban → Versões → list SemVer labels → open changelog |
+| Create version | `/project/:projectId/versions/new` | project-manager, admin | Versões → Nova versão → enter SemVer label + description → save |
+| Version detail / changelog | `/project/:projectId/versions/:versionId` | authenticated | Versões → select version → view grouped changelog (Planejado / Entregue / Via fase); PM can edit label |
+| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → edit fields (incl. planned/shipped version), assign, move status, delete (admin/PM), comments, observe |
 | Ticket search | `/search` | authenticated | Menu → search → enter term → open ticket |
 | Create ticket | `/tickets/new` | authenticated | Header → Novo → select project → fill form → create |
 | Create ticket (project) | `/project/:projectId/tickets/new` | authenticated | Kanban → Novo ticket → form pre-filled from template → create |

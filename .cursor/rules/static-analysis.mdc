@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Static analysis — finish checklist
 
+**Working code only:** do not end development — `done` or `in-progress` — with a failing `mvn verify`, broken `npm run build`, or compile/linter errors in files you changed. Fix or revert first.
+
 Before marking a coding task **done**, run **local** checks only (no SonarCloud tokens required for the gate).
 
 ## When to run
@@ -54,6 +56,7 @@ Pre-existing issues in unrelated files: fix only if trivial; do not scope-creep.
 - `npm run build` fails when `src/main/webui/**` was changed.
 - Linter reports new problems in files you changed.
 - You knowingly left failing tests in touched code.
+- You would leave the workspace in a non-runnable state — revert partial work or complete the fix loop first.
 
 ## Report to the user
 

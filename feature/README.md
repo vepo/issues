@@ -116,6 +116,7 @@ Reference by **Q*n*** in tasks, changelog, and discussion. Status: `open` | `ans
 | Notifications (SSE, in-app) | `feature/notifications.md` | 1 | done |
 | Email delivery | `feature/email-delivery.md` | 1 | done |
 | Phase and version management | `feature/phase-management.md` | 4 | planned |
+| UI design system (class consistency) | `feature/ui-design-system.md` | 1 | tasks-ready |
 
 Home (`/`) is a landing shell only — no separate feature doc.
 

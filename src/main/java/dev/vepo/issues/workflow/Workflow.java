@@ -1,5 +1,6 @@
 package dev.vepo.issues.workflow;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -28,6 +29,10 @@ public class Workflow {
     @JoinColumn(name = "start_id", referencedColumnName = "id", nullable = false)
     private WorkflowStatus start;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "phase_start_id", referencedColumnName = "id")
+    private WorkflowStatus phaseStart;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tb_workflow_statuses", joinColumns = @JoinColumn(name = "workflow_id"), inverseJoinColumns = @JoinColumn(name = "status_id"))
     private List<WorkflowStatus> statuses;
@@ -35,6 +40,9 @@ public class Workflow {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "workflow_id")
     private List<WorkflowTransition> transitions;
+
+    @OneToMany(mappedBy = "workflow", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<WorkflowFinishStatus> finishStatuses = new ArrayList<>();
 
     public Workflow() {}
 
@@ -69,6 +77,14 @@ public class Workflow {
         this.start = start;
     }
 
+    public WorkflowStatus getPhaseStart() {
+        return phaseStart;
+    }
+
+    public void setPhaseStart(WorkflowStatus phaseStart) {
+        this.phaseStart = phaseStart;
+    }
+
     public List<WorkflowStatus> getStatuses() {
         return statuses;
     }
@@ -83,6 +99,14 @@ public class Workflow {
 
     public void setTransitions(List<WorkflowTransition> transitions) {
         this.transitions = transitions;
+    }
+
+    public List<WorkflowFinishStatus> getFinishStatuses() {
+        return finishStatuses;
+    }
+
+    public void setFinishStatuses(List<WorkflowFinishStatus> finishStatuses) {
+        this.finishStatuses = finishStatuses;
     }
 
 }

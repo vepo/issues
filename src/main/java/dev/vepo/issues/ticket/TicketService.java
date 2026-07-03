@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import dev.vepo.issues.categories.CategoryRepository;
 import dev.vepo.issues.notifications.NotificationEvent;
+import dev.vepo.issues.phase.Version;
+import dev.vepo.issues.phase.VersionService;
 import dev.vepo.issues.project.ProjectRepository;
 import dev.vepo.issues.ticket.comments.Comment;
 import dev.vepo.issues.ticket.comments.CommentRequest;
@@ -20,6 +22,8 @@ import dev.vepo.issues.ticket.history.TicketHistory;
 import dev.vepo.issues.ticket.history.TicketHistoryService;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
+import dev.vepo.issues.workflow.FinishOutcome;
+import dev.vepo.issues.workflow.WorkflowRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -38,6 +42,8 @@ public class TicketService {
     private final ProjectRepository projectRepository;
     private final CategoryRepository categoryRepository;
     private final TicketHistoryService historyService;
+    private final WorkflowRepository workflowRepository;
+    private final VersionService versionService;
     private final Event<NotificationEvent> notificationEmitter;
 
     @Inject
@@ -46,12 +52,16 @@ public class TicketService {
                          ProjectRepository projectRepository,
                          CategoryRepository categoryRepository,
                          TicketHistoryService historyService,
+                         WorkflowRepository workflowRepository,
+                         VersionService versionService,
                          Event<NotificationEvent> notificationEmitter) {
         this.repository = repository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.categoryRepository = categoryRepository;
         this.historyService = historyService;
+        this.workflowRepository = workflowRepository;
+        this.versionService = versionService;
         this.notificationEmitter = notificationEmitter;
     }
 
@@ -146,6 +156,20 @@ public class TicketService {
         if (!entity.getPriority().equals(request.priority())) {
             historyService.logPriorityChanged(entity, user, entity.getPriority().name(), request.priority().name());
         }
+        if (Objects.nonNull(request.versionFields())) {
+            applyVersionChange(entity,
+                               user,
+                               "observedVersion",
+                               entity.getObservedVersion(),
+                               resolveVersion(entity, request.versionFields().observedVersionId()),
+                               entity::setObservedVersion);
+            applyVersionChange(entity,
+                               user,
+                               "targetVersion",
+                               entity.getTargetVersion(),
+                               resolveVersion(entity, request.versionFields().targetVersionId()),
+                               entity::setTargetVersion);
+        }
 
         entity.setTitle(request.title());
         entity.setDescription(request.description());
@@ -220,9 +244,12 @@ public class TicketService {
 
         var fromStatus = ticket.getStatus().getName();
         var toStatus = to.getName();
-        ticket.setStatus(to);
-
+        var workflowId = ticket.getProject().getWorkflow().getId();
+        var fromFinishOutcome = workflowRepository.findFinishOutcome(workflowId, ticket.getStatus().getId());
+        var toFinishOutcome = workflowRepository.findFinishOutcome(workflowId, to.getId());
         var user = requireUserByUsername(username);
+        ticket.setStatus(to);
+        applyFinishDate(ticket, fromFinishOutcome, toFinishOutcome, user);
         historyService.logStatusChanged(ticket, user, fromStatus, toStatus);
         logger.info("Enviando evento CDI!");
         notificationEmitter.fireAsync(new NotificationEvent(ticket.getId(),
@@ -317,5 +344,46 @@ public class TicketService {
 
     private NotFoundException categoryNotFound(long categoryId) {
         return new NotFoundException("Category does not found! categoryId=%d".formatted(categoryId));
+    }
+
+    private void applyFinishDate(Ticket ticket,
+                                 Optional<FinishOutcome> fromOutcome,
+                                 Optional<FinishOutcome> toOutcome,
+                                 User user) {
+        if (toOutcome.orElse(null) == FinishOutcome.DONE) {
+            var previous = ticket.getFinishedAt();
+            ticket.setFinishedAt(LocalDateTime.now());
+            historyService.logFieldChanged(ticket,
+                                           user,
+                                           "finishedAt",
+                                           formatDateTime(previous),
+                                           formatDateTime(ticket.getFinishedAt()));
+        } else if (fromOutcome.orElse(null) == FinishOutcome.DONE) {
+            var previous = ticket.getFinishedAt();
+            ticket.setFinishedAt(null);
+            historyService.logFieldChanged(ticket, user, "finishedAt", formatDateTime(previous), null);
+        }
+    }
+
+    private String formatDateTime(LocalDateTime value) {
+        return Objects.nonNull(value) ? value.toString() : null;
+    }
+
+    private Version resolveVersion(Ticket ticket, Long versionId) {
+        return versionService.requireVersionForTicket(ticket.getProject().getId(), versionId);
+    }
+
+    private void applyVersionChange(Ticket ticket,
+                                    User user,
+                                    String field,
+                                    Version current,
+                                    Version next,
+                                    java.util.function.Consumer<Version> setter) {
+        var currentLabel = current != null ? current.getLabel() : null;
+        var nextLabel = next != null ? next.getLabel() : null;
+        if (!Objects.equals(currentLabel, nextLabel)) {
+            historyService.logFieldChanged(ticket, user, field, currentLabel, nextLabel);
+            setter.accept(next);
+        }
     }
 }

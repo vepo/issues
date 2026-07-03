@@ -7,7 +7,9 @@ public record WorkflowResponse(long id,
                                String name,
                                List<String> statuses,
                                String start,
-                               List<TransitionResponse> transitions) {
+                               List<TransitionResponse> transitions,
+                               String phaseStart,
+                               List<FinishStatusResponse> finishStatuses) {
     public static WorkflowResponse load(Workflow workflow) {
         return new WorkflowResponse(workflow.getId(),
                                     workflow.getName(),
@@ -22,6 +24,12 @@ public record WorkflowResponse(long id,
                                             .stream()
                                             .map(transition -> new TransitionResponse(transition.getFrom().getName(),
                                                                                       transition.getTo().getName()))
+                                            .toList(),
+                                    workflow.getPhaseStart() != null ? workflow.getPhaseStart().getName() : null,
+                                    workflow.getFinishStatuses()
+                                            .stream()
+                                            .sorted(Comparator.comparing(fs -> fs.getStatus().getName()))
+                                            .map(FinishStatusResponse::load)
                                             .toList());
     }
 }

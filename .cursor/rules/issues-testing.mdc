@@ -7,6 +7,8 @@ alwaysApply: true
 
 Run the **smallest scope that catches your regression** after substantive edits. Full gate: `mvn verify` once before marking done — see [issues-quality.mdc](issues-quality.mdc).
 
+**Session end:** never stop with failing tests in your diff — run at least the affected test class, then `mvn verify` before handing off ([development-process.mdc](development-process.mdc) § Working code invariant).
+
 ## Tiered ladder
 
 | When | Command |

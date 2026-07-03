@@ -10,7 +10,7 @@ Canonical domain language for **Issues**, a change/ticket management system. Dev
 
 ## Context
 
-Issues lets teams track **tickets** (change/work items) within **projects**, each governed by a configurable **workflow**. Users authenticate with JWT, view tickets on a **Kanban** board or **dashboard**, collaborate via **comments**, and receive **notifications** when subscribed tickets change.
+Issues lets teams track **tickets** (change/work items) within **projects**, each governed by a configurable **workflow**. Projects organize work into **phases** and **versions** for release planning. Users authenticate with JWT, view tickets on a **Kanban** board or **dashboard**, collaborate via **comments**, and receive **notifications** when subscribed tickets change.
 
 ```mermaid
 erDiagram
@@ -18,9 +18,18 @@ erDiagram
     User ||--o{ Ticket : assigned_to
     User }o--o{ Ticket : subscribes
     Project ||--o{ Ticket : contains
+    Project ||--o{ Phase : schedules
+    Project ||--o{ Version : releases
     Project }||--|| Workflow : uses
     Workflow ||--o{ WorkflowStatus : includes
     Workflow ||--o{ WorkflowTransition : defines
+    Workflow }o--o| WorkflowStatus : phase_start
+    Workflow }o--o{ WorkflowStatus : finish_statuses
+    Phase }o--o| Version : deliverable_version
+    Phase ||--o{ PhaseDeliverable : lists
+    Ticket }o--o| Phase : assigned_to
+    Ticket }o--o| Version : observed_version
+    Ticket }o--o| Version : target_version
     Ticket }o--|| WorkflowStatus : current_status
     Ticket }o--o| Category : classified_by
     Ticket ||--o{ Comment : has
@@ -40,7 +49,8 @@ Issues is a **modular monolith**: one deployable, feature packages under `dev.ve
 | **Identity & access** | `auth`, `user` | platform |
 | **Project administration** | `project` | platform, identity, workflow |
 | **Workflow configuration** | `workflow` | platform |
-| **Ticket management** | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business` | platform, identity, project, workflow, categories |
+| **Phase & version planning** | `phase` | platform, project, workflow |
+| **Ticket management** | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business` | platform, identity, project, workflow, categories, phase |
 | **Classification** | `categories` | platform |
 | **Notifications** | `notifications` | platform, identity, ticket |
 | **Analytics** | `dashboards` | platform, project, ticket, workflow |
@@ -81,9 +91,34 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Workflow** | Named state machine: start status, allowed statuses, transitions. | `Workflow`, `tb_workflows` |
 | **Status** | Named step in a workflow (e.g. TODO, IN_PROGRESS, DONE). | `WorkflowStatus`, `tb_workflow_status` |
 | **Transition** | Allowed move from one status to another within a workflow. | `WorkflowTransition` |
-| **Start status** | Initial status for new tickets in a workflow. | `Workflow.startStatus` |
+| **Start status** | Required initial status for every new ticket in a workflow. | `Workflow.start` / `start_id` |
+| **Phase start status** | Optional status on a workflow; when a **phase** is **activated**, each assigned ticket moves here if a valid transition exists. | `Workflow.phaseStart`; UI **Status inicial da fase** |
+| **Finish status** | Workflow status marked as terminal with outcome **done** or **canceled**. | `WorkflowFinishStatus`, `tb_workflow_finish_statuses` |
+| **Finish outcome** | Classification of a finish status: `DONE` or `CANCELED`. | `FinishOutcome` enum |
 | **Ticket template** | Optional default field values for new tickets in a project: title, description, category, priority. | Embedded on `Project`, `tb_projects` template columns |
 | **Template enabled** | Project manager opted in; when true, all template fields are required and validated like `CreateTicketRequest`. | `Project.ticketTemplateEnabled`; UI checkbox **Usar template de ticket** |
+| **Phase template objective** | Default plain-text **objective** copied into each new phase for the project. | `Project.phaseTemplateObjective` |
+| **Phase template deliverable** | Default **deliverable** row copied into each new phase for the project. | `tb_project_phase_deliverable_templates` |
+
+### Phases & versions
+
+Methodology-neutral planning terms. UI labels in PT-BR until i18n.
+
+| Term | Meaning | Code / notes |
+|------|---------|--------------|
+| **Phase** | Time-boxed planning period within a project. | `Phase`, `tb_phases`; UI **Fase** |
+| **Phase status** | Lifecycle of a phase: `PLANNED`, `ACTIVE`, `COMPLETED`. | `PhaseStatus` enum |
+| **Active phase** | The single phase in `ACTIVE` status for a project. | At most one per project |
+| **Activate phase** | Transition `PLANNED` → `ACTIVE`; completes any other active phase in the same project. | `POST .../phases/{id}/activate` |
+| **Complete phase** | Transition `ACTIVE` → `COMPLETED`. | `POST .../phases/{id}/complete` |
+| **Objective** | Single plain-text statement of the phase's main achievement. | `Phase.objective`; UI **Objetivo** |
+| **Deliverable** | Outcome statement attached to a phase (ordered list). | `PhaseDeliverable`, `tb_phase_deliverables`; UI **Entregável** |
+| **Deliverable version** | Version associated with a phase as its delivery target. | `Phase.deliverableVersion` |
+| **Version** | SemVer release label scoped to a project (e.g. `1.2.0`). | `Version`, `tb_versions`; UI **Versão** |
+| **Version changelog** | Derived release view listing tickets associated with a version, in grouped sections, sorted by finish date. | `VersionChangelogResponse`; UI **Registro de alterações da versão** |
+| **Changelog association** | Why a ticket appears on a version changelog: `TARGET`, `OBSERVED`, or `PHASE_DELIVERABLE`. | `ChangelogAssociation` enum |
+| **Assignable phase** | Phase eligible for ticket assignment: `PLANNED` or `ACTIVE` only. | Validation on create/update ticket |
+| **Unplanned ticket** | Ticket with no phase assignment. | `Ticket.phase` null |
 
 ### Tickets
 
@@ -100,6 +135,10 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Priority** | Ticket urgency level. | `TicketPriority` enum: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`; `Ticket.priority` |
 | **Soft delete** | Ticket marked deleted without physical removal. | `Ticket.deleted`; excluded from search |
 | **Move (ticket)** | Change ticket status following workflow transition rules. | `POST /tickets/{id}/move`, `MoveTicketRequest` |
+| **Phase (on ticket)** | Optional assignment of a ticket to a project phase. | `Ticket.phase`; UI **Fase** |
+| **Observed version** | Version where the change was observed or shipped. | `Ticket.observedVersion`; UI **Versão observada** |
+| **Target version** | Version where the change is intended to land. | `Ticket.targetVersion`; UI **Versão alvo** |
+| **Finish date** | Timestamp set when ticket reaches a **done** finish status; cleared when leaving done. | `Ticket.finishedAt`; UI **Data de conclusão** |
 | **Comment** | Text note attached to a ticket. | `Comment`, `tb_comments` |
 | **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`). | `TicketHistory`, `TicketHistoryService` |
 | **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`. | `TicketHistoryAction` |
@@ -149,6 +188,19 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, title, description, category, and priority must satisfy the same constraints as `CreateTicketRequest`. The create-ticket UI pre-fills the form from the template; the user may edit before submit.
 9. **Project description** — Required on create and update (`CreateProjectRequest.description` must not be blank).
 10. **CSV import** — CSV parsed on the server (OpenCSV); upload and rows stored in `tb_ticket_imports` / `tb_ticket_import_rows` before mapping and execution. **Project-scoped** imports fix `project_id` on the batch; **global** imports leave `project_id` null and require a **project column** mapping — each row's project is resolved by name (case-insensitive). Author is the importing user; identifiers are always auto-generated (never read from CSV). Category resolved by name; assignee by email; status by workflow status name within the row's project workflow. Optional priority defaults to `MEDIUM`. Partial import: valid rows are created; invalid rows are reported per row without rolling back siblings. Status on import: ticket is created at workflow start; if a different status is mapped, a direct transition from start to that status must exist (multi-hop paths are not supported).
+11. **One active phase per project** — activating phase B **completes** the previously active phase; never two `ACTIVE` phases in the same project.
+12. **Phase–ticket project match** — a ticket's phase must belong to the ticket's project.
+13. **Assignable phases** — tickets may be assigned only to phases in `PLANNED` or `ACTIVE` status.
+14. **Phases editable after completed** — completed phases may be updated (name, objective, deliverables, deliverable version, dates).
+15. **Phase activation and status** — if workflow defines a **phase start status**, activating a phase moves each assigned ticket there **only when a valid transition exists**; other tickets keep their status; activation is never blocked by failed moves.
+16. **Version labels SemVer** — version labels must be valid SemVer; unique per project.
+17. **Version scope** — observed, target, and deliverable version references must belong to the ticket's or phase's project.
+18. **Finish statuses** — each workflow defines finish statuses tagged `DONE` or `CANCELED`.
+19. **Finish date** — moving to a `DONE` finish status sets `finished_at`; moving out of a `DONE` finish status clears `finished_at`. `CANCELED` does not set finish date.
+20. **Version changelog** — derived, not persisted separately. Includes non-canceled tickets linked by target version, observed version, or phase deliverable version. Excludes tickets in a `CANCELED` finish status; they reappear when moved out of canceled. Sorted by finish date ascending (nulls last) within grouped sections.
+21. **Ticket create — no default phase** — new tickets have no phase unless the user selects one from **planned** and **active** phases in the create form.
+22. **Phase/version history** — changes to phase, observed version, target version, and finish date on tickets are logged via `TicketHistoryService`.
+23. **Phase/version admin roles** — phase and version CRUD: `PROJECT_MANAGER` and `ADMIN`; version changelog read: any authenticated user.
 
 ---
 
@@ -157,9 +209,11 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | Aggregate | Root | Consistency boundary |
 |-----------|------|---------------------|
 | User | `User` | Credentials, roles, profile |
-| Project | `Project` | Name, prefix, workflow assignment |
-| Workflow | `Workflow` | Statuses and transitions |
-| Ticket | `Ticket` | Title, status, assignee, subscribers, comments (via services) |
+| Project | `Project` | Name, prefix, workflow assignment, phase template |
+| Workflow | `Workflow` | Statuses, transitions, phase start status, finish statuses |
+| Phase | `Phase` | Lifecycle, objective, deliverables, deliverable version |
+| Version | `Version` | SemVer label, changelog (derived) |
+| Ticket | `Ticket` | Title, status, assignee, phase, versions, finish date, subscribers, comments (via services) |
 | Notification | `Notification` | Read state per user per event |
 
 ---
@@ -168,11 +222,13 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 
 | Domain term | Primary types |
 |-------------|---------------|
-| Ticket | `ticket.Ticket`, `ticket.TicketEndpoint` |
-| Workflow | `workflow.Workflow`, `workflow.WorkflowEndpoint` |
-| Project | `project.Project`, `project.ProjectEndpoint` |
+| Ticket | `ticket.Ticket`, `ticket.TicketService` |
+| Workflow | `workflow.Workflow`, `workflow.WorkflowService` |
+| Project | `project.Project`, `project.ProjectService` |
+| Phase | `phase.Phase`, `phase.PhaseService` |
+| Version | `phase.Version`, `phase.VersionService` |
 | Notification | `notifications.Notification`, `notifications.NotificationsEndpoint` |
-| Audit | `ticket.business.TicketHistoryService` |
+| Audit | `ticket.history.TicketHistoryService` |
 
 ---
 

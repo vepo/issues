@@ -213,7 +213,11 @@ public class Given {
                                     {"from": "TODO", "to": "In Progress"},
                                     {"from": "In Progress", "to": "Blocked"},
                                     {"from": "Blocked", "to": "In Progress"},
-                                    {"from": "In Progress", "to": "Done"}
+                                    {"from": "In Progress", "to": "Done"},
+                                    {"from": "Done", "to": "In Progress"}
+                                ],
+                                "finishStatuses": [
+                                    {"status": "Done", "outcome": "DONE"}
                                 ]
                             }""")
                       .post("/api/workflows")

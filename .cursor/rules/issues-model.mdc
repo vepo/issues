@@ -65,4 +65,6 @@ Delegate to [`.cursor/agents/`](../agents/) or invoke by name (`tdd-red`, `tdd-g
 
 **Cycle:** Red (must fail) → Green (must pass) → Refactor → `mvn test` → repeat.
 
+**Session end:** every TDD cycle in progress must reach **Green** (or be reverted) before stopping — see [development-process.mdc](development-process.mdc) § Working code invariant.
+
 Test layout: [issues-tests.mdc](issues-tests.mdc). Running tests: [issues-testing.mdc](issues-testing.mdc).

@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { FinishOutcome } from '../../generated/model/finishOutcome';
 import { Workflow } from '../../services/workflow.service';
 
 export type WorkflowFormMode = 'create' | 'edit';
@@ -13,7 +14,9 @@ export interface WorkflowFormValue {
   name: string;
   statuses: string[];
   start: string;
+  phaseStart: string | null;
   transitions: { from: string; to: string }[];
+  finishStatuses: { status: string; outcome: FinishOutcome }[];
 }
 
 @Component({
@@ -45,10 +48,14 @@ export class WorkflowFormComponent implements OnInit {
       this.formBuilder.control('In Progress', Validators.required)
     ]),
     start: ['TODO', Validators.required],
+    phaseStart: [null as string | null],
     transitions: this.formBuilder.array([
       this.createTransitionGroup('TODO', 'In Progress')
-    ])
+    ]),
+    finishStatuses: this.formBuilder.array([])
   });
+
+  readonly finishOutcomes: FinishOutcome[] = ['DONE', 'CANCELED'];
 
   ngOnInit(): void {
     if (this.mode === 'edit' && this.initialWorkflow) {
@@ -64,6 +71,10 @@ export class WorkflowFormComponent implements OnInit {
     return this.workflowForm.get('transitions') as FormArray;
   }
 
+  get finishStatuses(): FormArray {
+    return this.workflowForm.get('finishStatuses') as FormArray;
+  }
+
   statusNames(): string[] {
     if (this.mode === 'edit' && this.initialWorkflow?.statuses) {
       return this.initialWorkflow.statuses;
@@ -77,6 +88,13 @@ export class WorkflowFormComponent implements OnInit {
     return this.formBuilder.group({
       from: [from, Validators.required],
       to: [to, Validators.required]
+    });
+  }
+
+  createFinishStatusGroup(status = '', outcome: FinishOutcome = 'DONE'): FormGroup {
+    return this.formBuilder.group({
+      status: [status, Validators.required],
+      outcome: [outcome, Validators.required]
     });
   }
 
@@ -98,6 +116,14 @@ export class WorkflowFormComponent implements OnInit {
     this.transitions.removeAt(index);
   }
 
+  addFinishStatus(): void {
+    this.finishStatuses.push(this.createFinishStatusGroup());
+  }
+
+  removeFinishStatus(index: number): void {
+    this.finishStatuses.removeAt(index);
+  }
+
   submit(): void {
     if (this.workflowForm.invalid) {
       return;
@@ -107,14 +133,17 @@ export class WorkflowFormComponent implements OnInit {
       name: value.name,
       statuses: this.mode === 'edit' ? this.initialWorkflow!.statuses! : value.statuses,
       start: value.start,
-      transitions: value.transitions
+      phaseStart: value.phaseStart || undefined,
+      transitions: value.transitions,
+      finishStatuses: value.finishStatuses ?? []
     });
   }
 
   private patchWorkflow(workflow: Workflow): void {
     this.workflowForm.patchValue({
       name: workflow.name,
-      start: workflow.start
+      start: workflow.start,
+      phaseStart: workflow.phaseStart ?? null
     });
     this.statuses.clear();
     (workflow.statuses ?? []).forEach(status => {
@@ -127,5 +156,9 @@ export class WorkflowFormComponent implements OnInit {
     if (this.transitions.length === 0) {
       this.addTransition();
     }
+    this.finishStatuses.clear();
+    (workflow.finishStatuses ?? []).forEach(finishStatus => {
+      this.finishStatuses.push(this.createFinishStatusGroup(finishStatus.status ?? '', finishStatus.outcome ?? 'DONE'));
+    });
   }
 }

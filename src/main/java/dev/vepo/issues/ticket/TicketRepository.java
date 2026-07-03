@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dev.vepo.issues.phase.ChangelogAssociation;
 import dev.vepo.issues.ticket.comments.Comment;
 import dev.vepo.issues.ticket.history.TicketHistory;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -135,5 +136,29 @@ public class TicketRepository {
     public Comment saveComment(Comment comment) {
         em.persist(comment);
         return comment;
+    }
+
+    public Stream<Ticket> findForVersionChangelog(long projectId, long versionId, ChangelogAssociation association) {
+        if (association == ChangelogAssociation.PHASE_DELIVERABLE) {
+            return Stream.empty();
+        }
+        var versionPredicate = association == ChangelogAssociation.TARGET
+                                                                          ? "t.targetVersion.id = :versionId"
+                                                                          : "t.observedVersion.id = :versionId";
+        return em.createQuery("""
+                              SELECT t FROM Ticket t
+                              WHERE t.deleted = false
+                              AND t.project.id = :projectId
+                              AND %s
+                              AND NOT EXISTS (
+                                  SELECT 1 FROM WorkflowFinishStatus fs
+                                  WHERE fs.id.workflowId = t.project.workflow.id
+                                  AND fs.id.statusId = t.status.id
+                                  AND fs.outcome = dev.vepo.issues.workflow.FinishOutcome.CANCELED
+                              )
+                              """.formatted(versionPredicate), Ticket.class)
+                 .setParameter("projectId", projectId)
+                 .setParameter("versionId", versionId)
+                 .getResultStream();
     }
 }

@@ -78,6 +78,9 @@ dev.vepo.issues/
 ├── workflow/                  # WorkflowService
 │   ├── list/ create/
 │   └── status/list/           # ListStatusesEndpoint
+├── phase/                     # PhaseService, VersionService, PhasePaths
+│   ├── list/ create/ update/ find/ activate/ complete/
+│   └── version/               # Version CRUD + changelog endpoints
 ├── categories/                # CategoryService
 │   └── list/                  # ListCategoriesEndpoint
 ├── ticket/                    # TicketService, TicketPaths
@@ -116,7 +119,9 @@ Domain services orchestrate repositories, enforce invariants, and fire CDI event
 | `UserService` | User create/update with role validation |
 | `ProjectService` | Project create/update validation |
 | `AuthenticationService` | Login, recovery, me |
-| `WorkflowService` | Workflow create/list |
+| `WorkflowService` | Workflow create/list; phase start and finish status config |
+| `PhaseService` | Phase lifecycle, activation, deliverable copy from template |
+| `VersionService` | Version CRUD (SemVer), changelog aggregation |
 | `DashboardService` | Dashboard aggregations |
 | `NotificationService` | Mark-as-read persistence |
 | `CategoryService` | Category listing |
@@ -167,6 +172,8 @@ Each row is one endpoint class (39 total). Path prefixes come from `{Context}Pat
 | Tickets | `ticket.*` | `/tickets` (+ comments, history, subscribe) |
 | Workflows | `workflow.list.ListWorkflowsEndpoint` | `GET /workflows` |
 | Workflows | `workflow.create.CreateWorkflowEndpoint` | `POST /workflows` |
+| Phases | `phase.*` | `/projects/{id}/phases` |
+| Versions | `phase.version.*` | `/projects/{id}/versions` |
 | Statuses | `workflow.status.list.ListStatusesEndpoint` | `GET /status` |
 | Categories | `categories.list.ListCategoriesEndpoint` | `GET /categories` |
 | Dashboards | `dashboards.pie/table/kpi.Load*DashboardEndpoint` | `/projects/{id}/dashboard/{pie\|table\|kpi}/{type}` |

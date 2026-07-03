@@ -17,6 +17,10 @@
         <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
         <span i18n>Painel</span>
       </button>
+      <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'versions']">
+        <mat-icon fontIcon="new_releases" aria-hidden="true"></mat-icon>
+        <span i18n>Versões</span>
+      </button>
     </div>
   </header>
 

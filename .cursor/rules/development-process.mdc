@@ -7,6 +7,20 @@ alwaysApply: true
 
 **No production or test code** until phases 1–3 are complete for the current changelog entry. Template: [feature/README.md](../../feature/README.md). Analysis detail: [change-request-analysis.mdc](change-request-analysis.mdc).
 
+## Working code invariant
+
+**No development ends with non-working code.** The tree must compile, tests must pass for the scope touched, and the app must remain runnable.
+
+| Situation | Required action |
+|-----------|-----------------|
+| Task or session ending | `mvn verify` green (plus frontend gates if UI changed) — see [issues-quality.mdc](issues-quality.mdc) |
+| Approved tasks incomplete | Keep changelog **`in-progress`** — never `done` |
+| Partial work breaks build/tests | Fix forward **or** revert the breaking diff — do not stop on red |
+| Cannot finish in one session | Leave **`in-progress`** with Implementation notes stating what remains; workspace still **green** |
+| User asks to stop mid-task | Same as above — working code only |
+
+**Forbidden:** marking `done` with failing tests; leaving compile errors; `@Disabled` or weakened assertions to fake green; handing off broken `src/main` or `src/test` without fixing or reverting.
+
 ## Four phases
 
 ```
@@ -18,7 +32,7 @@ alwaysApply: true
 | **1. Feature analysis** | Create/extend `feature/<slug>.md`, update domain spec, resolve open questions | Write `src/main/**` or `src/test/**` |
 | **2. Task break** | Add numbered **Tasks** and **Test coverage** to the changelog entry; set status `tasks-ready` | Start implementation |
 | **3. Development approved** | Present tasks; record user-selected task IDs and approval date | Implement until user explicitly approves tasks |
-| **4. Development** | TDD on **approved tasks only**; mark tasks and tests done; set status `done` | Skip tests; implement unapproved tasks; bypass Red phase |
+| **4. Development** | TDD on **approved tasks only**; mark tasks and tests done; set status `done` only when green | Skip tests; implement unapproved tasks; bypass Red phase; **end with broken code** |
 
 ## Phase 1 — Feature analysis
 
@@ -71,7 +85,15 @@ Set changelog **Status:** `in-progress`. For **each approved task**, in order:
 
 **Coverage rule:** the feature changelog entry is not `done` until every item in **Test coverage** is checked and tiered tests pass ([issues-testing.mdc](issues-testing.mdc)). A feature without tests for new behaviour is incomplete.
 
-**Finish:** `mvn verify` (and frontend gates if UI changed — [static-analysis.mdc](static-analysis.mdc)); update docs per [documentation.mdc](documentation.mdc); fill **Implementation notes**; set status `done`.
+**Finish (all required before `done`):**
+
+1. Every approved task checked off; every **Test coverage** item checked off.
+2. `mvn verify` passes (and frontend gates if UI changed — [static-analysis.mdc](static-analysis.mdc)).
+3. `ReadLints` clean on edited paths — no new errors.
+4. Update docs per [documentation.mdc](documentation.mdc); fill **Implementation notes**.
+5. Set status `done` **only after 1–4**.
+
+If 2 or 3 fail, remain **`in-progress`**, fix or revert until green — do not mark `done` and do not end the session on failure.
 
 ## Status values (changelog entry)
 
@@ -80,8 +102,8 @@ Set changelog **Status:** `in-progress`. For **each approved task**, in order:
 | `planned` | Analysis in progress or not started |
 | `tasks-ready` | Tasks and test plan written; awaiting approval |
 | `approved` | User approved specific tasks; no code yet |
-| `in-progress` | TDD implementation underway |
-| `done` | Approved tasks implemented; tests green; docs updated |
+| `in-progress` | TDD implementation underway — **must leave repo working** at session end |
+| `done` | Approved tasks implemented; **`mvn verify` green**; tests and docs updated |
 
 ## Agent behaviour summary
 
@@ -90,8 +112,9 @@ Set changelog **Status:** `in-progress`. For **each approved task**, in order:
 | "Implement X" (no feature doc) | Phase 1 only — then Phase 2 — then ask for approval |
 | Feature doc exists, no tasks | Phase 2 — then ask for approval |
 | Tasks exist, not approved | Present tasks; **do not code** |
-| "Approve T1–T3" / "Go ahead" | Phase 4 with TDD on those tasks |
-| "Just fix it quickly" | Still require analysis + tasks + approval unless change is exempt (typo/docs-only) |
+| "Approve T1–T3" / "Go ahead" | Phase 4 with TDD on those tasks; end only with working code |
+| "Just fix it quickly" | Still require analysis + tasks + approval unless exempt; **still must end green** |
+| "Stop here" / session limit | `in-progress` + notes; fix or revert until `mvn verify` passes |
 
 ## Related rules
 

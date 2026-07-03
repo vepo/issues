@@ -3,6 +3,8 @@ package dev.vepo.issues.ticket.move;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -63,6 +65,159 @@ class MoveTicketEndpointTest {
                                   .orElseThrow();
         assertEquals("status", statusChange.get("field"));
         assertEquals("In progress", statusChange.get("newValue"));
+    }
+
+    @Test
+    void shouldSetFinishDateWhenMovingToDoneFinishStatus() {
+        var inProgress = Given.status("In Progress");
+        var done = Given.status("Done");
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "to": %d
+                     }""".formatted(inProgress.getId()))
+               .post("/api/tickets/" + fixtures.ticket().id() + "/move")
+               .then()
+               .statusCode(200);
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "to": %d
+                     }""".formatted(done.getId()))
+               .post("/api/tickets/" + fixtures.ticket().id() + "/move")
+               .then()
+               .statusCode(200)
+               .body("finishedAt", notNullValue());
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .when()
+               .get("/api/tickets/" + fixtures.ticket().id())
+               .then()
+               .statusCode(200)
+               .body("finishedAt", notNullValue());
+    }
+
+    @Test
+    void shouldClearFinishDateWhenLeavingDoneFinishStatus() {
+        var inProgress = Given.status("In Progress");
+        var done = Given.status("Done");
+        var ticketId = fixtures.ticket().id();
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "to": %d
+                     }""".formatted(inProgress.getId()))
+               .post("/api/tickets/" + ticketId + "/move")
+               .then()
+               .statusCode(200);
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "to": %d
+                     }""".formatted(done.getId()))
+               .post("/api/tickets/" + ticketId + "/move")
+               .then()
+               .statusCode(200)
+               .body("finishedAt", notNullValue());
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "to": %d
+                     }""".formatted(inProgress.getId()))
+               .post("/api/tickets/" + ticketId + "/move")
+               .then()
+               .statusCode(200)
+               .body("finishedAt", nullValue());
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .when()
+               .get("/api/tickets/" + ticketId)
+               .then()
+               .statusCode(200)
+               .body("finishedAt", nullValue());
+    }
+
+    @Test
+    void shouldNotSetFinishDateWhenMovingToCanceledFinishStatus() {
+        var workflowId = given().header(Given.authenticatedProjectManager())
+                                .when()
+                                .contentType("application/json")
+                                .body("""
+                                      {
+                                          "name": "Canceled Finish Flow",
+                                          "statuses": ["Open", "Canceled"],
+                                          "start": "Open",
+                                          "transitions": [{"from": "Open", "to": "Canceled"}],
+                                          "finishStatuses": [{"status": "Canceled", "outcome": "CANCELED"}]
+                                      }""")
+                                .post("/api/workflows")
+                                .then()
+                                .statusCode(201)
+                                .extract()
+                                .path("id");
+
+        var project = given().header(Given.authenticatedProjectManager())
+                             .when()
+                             .contentType("application/json")
+                             .body("""
+                                   {
+                                       "prefix": "CNF",
+                                       "name": "Canceled Finish Project %s",
+                                       "description": "Project for canceled finish test",
+                                       "workflowId": %d
+                                   }""".formatted(java.util.UUID.randomUUID(), workflowId))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(dev.vepo.issues.project.ProjectResponse.class);
+
+        var canceled = Given.allStatuses()
+                            .stream()
+                            .filter(status -> "Canceled".equals(status.name()))
+                            .findFirst()
+                            .orElseThrow();
+
+        var ticket = given().header(fixtures.pmAuthenticatedHeader())
+                            .when()
+                            .contentType(ContentType.JSON)
+                            .body("""
+                                  {
+                                      "title": "Canceled finish ticket",
+                                      "description": "Canceled finish ticket description",
+                                      "projectId": %d,
+                                      "categoryId": %d
+                                  }""".formatted(project.id(), fixtures.bug().getId()))
+                            .post("/api/tickets")
+                            .then()
+                            .statusCode(201)
+                            .extract()
+                            .as(dev.vepo.issues.ticket.TicketResponse.class);
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "to": %d
+                     }""".formatted(canceled.id()))
+               .post("/api/tickets/" + ticket.id() + "/move")
+               .then()
+               .statusCode(200)
+               .body("finishedAt", nullValue());
     }
 
     @Test

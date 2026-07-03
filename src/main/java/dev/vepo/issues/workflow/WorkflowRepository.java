@@ -59,4 +59,15 @@ public class WorkflowRepository {
         em.persist(workflow);
         return workflow;
     }
+
+    public Optional<FinishOutcome> findFinishOutcome(long workflowId, long statusId) {
+        return em.createQuery("""
+                              SELECT fs.outcome FROM WorkflowFinishStatus fs
+                              WHERE fs.id.workflowId = :workflowId AND fs.id.statusId = :statusId
+                              """, FinishOutcome.class)
+                 .setParameter("workflowId", workflowId)
+                 .setParameter("statusId", statusId)
+                 .getResultStream()
+                 .findFirst();
+    }
 }

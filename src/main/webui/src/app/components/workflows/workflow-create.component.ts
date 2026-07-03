@@ -35,7 +35,9 @@ export class WorkflowCreateComponent {
       name: value.name,
       statuses: value.statuses,
       start: value.start,
-      transitions: value.transitions
+      phaseStart: value.phaseStart ?? undefined,
+      transitions: value.transitions,
+      finishStatuses: value.finishStatuses
     };
     this.isSaving = true;
     this.workflowService.create(request).subscribe({

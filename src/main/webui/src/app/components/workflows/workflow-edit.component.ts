@@ -62,7 +62,9 @@ export class WorkflowEditComponent implements OnInit {
     const request: UpdateWorkflowRequest = {
       name: value.name,
       start: value.start,
-      transitions: value.transitions
+      phaseStart: value.phaseStart ?? undefined,
+      transitions: value.transitions,
+      finishStatuses: value.finishStatuses
     };
     this.isSaving = true;
     this.workflowService.update(this.workflow.id, request).subscribe({

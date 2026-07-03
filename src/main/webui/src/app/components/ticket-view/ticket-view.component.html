@@ -75,6 +75,24 @@
             }
           </mat-select>
         </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Versão planejada</mat-label>
+          <mat-select formControlName="targetVersionId">
+            <mat-option [value]="null" i18n>Nenhuma</mat-option>
+            @for (version of projectVersions; track version.id) {
+              <mat-option [value]="version.id">{{ version.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Versão entregue</mat-label>
+          <mat-select formControlName="observedVersionId">
+            <mat-option [value]="null" i18n>Nenhuma</mat-option>
+            @for (version of projectVersions; track version.id) {
+              <mat-option [value]="version.id">{{ version.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
         <div class="form-actions">
           <button class="btn" matButton="filled" type="submit" [disabled]="editForm.invalid || isSaving">
             <span i18n>{{ isSaving ? 'Salvando...' : 'Salvar' }}</span>
@@ -100,6 +118,18 @@
         <dd>{{ ticket.assignee.name || '—' }}</dd>
         <dt i18n>Status</dt>
         <dd>{{ ticket.status | normalize }}</dd>
+        @if (ticket.finishedAt) {
+          <dt i18n>Data de conclusão</dt>
+          <dd>{{ ticket.finishedAt | date: 'short' }}</dd>
+        }
+        @if (ticket.targetVersionLabel) {
+          <dt i18n>Versão planejada</dt>
+          <dd>{{ ticket.targetVersionLabel }}</dd>
+        }
+        @if (ticket.observedVersionLabel) {
+          <dt i18n>Versão entregue</dt>
+          <dd>{{ ticket.observedVersionLabel }}</dd>
+        }
         <dt i18n>Subscritos</dt>
         <dd>
           @if (ticket.subscribers.length > 0) {

@@ -18,12 +18,15 @@ import { WorkflowCreateComponent } from './components/workflows/workflow-create.
 import { WorkflowEditComponent } from './components/workflows/workflow-edit.component';
 import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
 import { CategoriesViewComponent } from './components/categories/categories-view.component';
+import { VersionsViewComponent } from './components/versions/versions-view.component';
+import { VersionDetailComponent } from './components/versions/version-detail.component';
 import { projectResolver, projectsResolver } from './resolvers/project-resolver';
 import { statusResolver } from './resolvers/status-resolver';
 import { ticketResolver } from './resolvers/ticket.resolver';
 import { ticketsResolver } from './resolvers/tickets-resolver';
 import { userResolver, usersResolver } from './resolvers/users.resolver';
 import { categoriesResolver } from './resolvers/categories-resolver';
+import { versionResolver, versionsResolver } from './resolvers/versions-resolver';
 import { workflowsResolver } from './resolvers/workflow-resolver';
 import { authGuard } from './services/auth.guard';
 import { roleGuard } from './services/role.guard';
@@ -54,6 +57,32 @@ export const routes: Routes = [
       project: projectResolver,
       statuses: statusResolver,
       tickets: ticketsResolver
+    },
+    canActivate: [authGuard],
+  },
+  {
+    path: 'project/:projectId/versions',
+    component: VersionsViewComponent,
+    resolve: {
+      project: projectResolver,
+      versions: versionsResolver
+    },
+    canActivate: [authGuard],
+  },
+  {
+    path: 'project/:projectId/versions/new',
+    component: VersionDetailComponent,
+    resolve: {
+      project: projectResolver
+    },
+    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])],
+  },
+  {
+    path: 'project/:projectId/versions/:versionId',
+    component: VersionDetailComponent,
+    resolve: {
+      project: projectResolver,
+      version: versionResolver
     },
     canActivate: [authGuard],
   },

@@ -39,6 +39,7 @@ Part of [development-process.mdc](development-process.mdc) phase 4. Every approv
 - `@Disabled` to hide failures.
 - `Thread.sleep()` — use Awaitility for async/SSE if needed.
 - Weakening assertions to force green.
+- Leaving Red-phase tests failing at session end without revert — complete Green or revert the test and production stub.
 
 ## Example
 

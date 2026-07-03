@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import dev.vepo.issues.categories.Category;
+import dev.vepo.issues.phase.Version;
 import dev.vepo.issues.project.Project;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.workflow.WorkflowStatus;
@@ -55,6 +56,9 @@ public class Ticket {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "finished_at")
+    private LocalDateTime finishedAt;
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -78,6 +82,14 @@ public class Ticket {
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "observed_version_id")
+    private Version observedVersion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_version_id")
+    private Version targetVersion;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -148,6 +160,14 @@ public class Ticket {
         this.updatedAt = updatedAt;
     }
 
+    public LocalDateTime getFinishedAt() {
+        return finishedAt;
+    }
+
+    public void setFinishedAt(LocalDateTime finishedAt) {
+        this.finishedAt = finishedAt;
+    }
+
     public Category getCategory() {
         return category;
     }
@@ -186,6 +206,22 @@ public class Ticket {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public Version getObservedVersion() {
+        return observedVersion;
+    }
+
+    public void setObservedVersion(Version observedVersion) {
+        this.observedVersion = observedVersion;
+    }
+
+    public Version getTargetVersion() {
+        return targetVersion;
+    }
+
+    public void setTargetVersion(Version targetVersion) {
+        this.targetVersion = targetVersion;
     }
 
     public TicketPriority getPriority() {

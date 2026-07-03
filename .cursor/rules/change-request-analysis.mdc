@@ -82,6 +82,7 @@ Domain checklist: [domain-model.mdc](domain-model.mdc). TDD: [issues-model.mdc](
 
 - Mark changelog entry status through the lifecycle (`approved` → `in-progress` → `done`).
 - Check off **Tasks** and **Test coverage** items as completed.
+- **Working code invariant:** fix or revert before stopping; never mark `done` on red — see [development-process.mdc](development-process.mdc) § Working code invariant.
 - If scope grows, add tasks and obtain new approval — do not expand silently.
 
 ## After implementation

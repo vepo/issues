@@ -32,6 +32,14 @@ describe('KanbanComponent', () => {
     { id: 4, name: 'Done', moveable: [2], start: false } as ProjectStatus
   ];
 
+  const emptyVersionFields = {
+    finishedAt: null,
+    observedVersionId: null,
+    observedVersionLabel: null,
+    targetVersionId: null,
+    targetVersionLabel: null
+  };
+
   const mockTickets: Ticket[] = [
     {
       id: 1,
@@ -45,7 +53,8 @@ describe('KanbanComponent', () => {
       category: 1,
       categoryName: 'Bug',
       categoryColor: '#E53935',
-      priority: 'MEDIUM'
+      priority: 'MEDIUM',
+      ...emptyVersionFields
     },
     {
       id: 2,
@@ -59,9 +68,10 @@ describe('KanbanComponent', () => {
       category: 1,
       categoryName: 'Bug',
       categoryColor: '#E53935',
-      priority: 'HIGH'
+      priority: 'HIGH',
+      ...emptyVersionFields
     }
-  ];
+  ] as unknown as Ticket[];
 
   const mockWorkflow = {
     id: 1,

@@ -39,6 +39,57 @@ class CreateWorkflowEndpointTest {
     }
 
     @Test
+    void shouldPersistFinishStatusesWhenCreatingWorkflow() {
+        given().header(Given.authenticatedProjectManager())
+               .when()
+               .contentType("application/json")
+               .body("""
+                     {
+                         "name": "Finish Status Flow",
+                         "statuses": ["Open", "Done", "Canceled"],
+                         "start": "Open",
+                         "transitions": [
+                             {"from": "Open", "to": "Done"},
+                             {"from": "Open", "to": "Canceled"},
+                             {"from": "Done", "to": "Open"}
+                         ],
+                         "finishStatuses": [
+                             {"status": "Done", "outcome": "DONE"},
+                             {"status": "Canceled", "outcome": "CANCELED"}
+                         ],
+                         "phaseStart": "Open"
+                     }""")
+               .post("/api/workflows")
+               .then()
+               .statusCode(201)
+               .body("finishStatuses.size()", is(2))
+               .body("finishStatuses[0].status", is("Canceled"))
+               .body("finishStatuses[0].outcome", is("CANCELED"))
+               .body("finishStatuses[1].status", is("Done"))
+               .body("finishStatuses[1].outcome", is("DONE"))
+               .body("phaseStart", is("Open"));
+    }
+
+    @Test
+    void shouldRejectFinishStatusNotInWorkflow() {
+        given().header(Given.authenticatedProjectManager())
+               .when()
+               .contentType("application/json")
+               .body("""
+                     {
+                         "name": "Invalid Finish Flow",
+                         "statuses": ["Open", "Done"],
+                         "start": "Open",
+                         "transitions": [{"from": "Open", "to": "Done"}],
+                         "finishStatuses": [{"status": "Missing", "outcome": "DONE"}]
+                     }""")
+               .post("/api/workflows")
+               .then()
+               .statusCode(400)
+               .body("message", is("Finish status is not part of this workflow: Missing"));
+    }
+
+    @Test
     @DisplayName("It should validate create workflow request")
     void shouldValidateCreateWorkflowRequest() {
         given().header(Given.authenticatedUser())

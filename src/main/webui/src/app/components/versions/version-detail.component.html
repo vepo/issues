@@ -1,0 +1,92 @@
+<div class="page">
+  <nav class="breadcrumb" aria-label="Navegação">
+    <a routerLink="/" i18n>Início</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <a [routerLink]="['/project', project?.id, 'kanban']">{{ project?.name }}</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <a [routerLink]="['/project', project?.id, 'versions']" i18n>Versões</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <span class="breadcrumb__current">{{ createMode ? 'Nova versão' : version?.label }}</span>
+  </nav>
+
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">
+        @if (createMode) {
+          <ng-container i18n>Nova versão</ng-container>
+        } @else {
+          {{ version?.label }}
+        }
+      </h1>
+      <p class="page-subtitle" i18n>Rótulo SemVer (ex.: 1.0.0) e registro de alterações da release</p>
+    </div>
+  </header>
+
+  @if (canManage()) {
+    <section class="page-panel">
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Rótulo SemVer</mat-label>
+          <input matInput formControlName="label" required placeholder="1.0.0" />
+        </mat-form-field>
+        <mat-form-field class="form-field form-field--textarea" appearance="outline">
+          <mat-label i18n>Descrição</mat-label>
+          <textarea matInput formControlName="description" rows="3"></textarea>
+        </mat-form-field>
+        <div class="form-actions">
+          <button class="btn" matButton="filled" type="submit" [disabled]="form.invalid || isSaving">
+            <span i18n>{{ isSaving ? 'Salvando...' : (createMode ? 'Criar versão' : 'Salvar') }}</span>
+          </button>
+        </div>
+      </form>
+    </section>
+  } @else if (version) {
+    <section class="page-panel">
+      <dl class="detail-list">
+        <dt i18n>Descrição</dt>
+        <dd>{{ version.description || '—' }}</dd>
+      </dl>
+    </section>
+  }
+
+  @if (!createMode && changelog) {
+    <section class="page-panel">
+      <h2 class="section-title" i18n>Registro de alterações</h2>
+      @for (section of changelog.sections; track section.name) {
+        <div class="changelog-section">
+          <h3>{{ section.name }}</h3>
+          @if (section.tickets.length === 0) {
+            <p class="text-muted" i18n>Nenhum ticket nesta seção.</p>
+          } @else {
+            <div class="data-table">
+              <div class="header">
+                <div class="header-cell left-aligned" i18n>Ticket</div>
+                <div class="header-cell left-aligned" i18n>Título</div>
+                <div class="header-cell left-aligned" i18n>Status</div>
+                <div class="header-cell left-aligned" i18n>Conclusão</div>
+              </div>
+              <div class="body">
+                @for (entry of section.tickets; track entry.ticketId) {
+                  <div class="row {{ $even ? 'even' : 'odd' }}">
+                    <div class="left-aligned">
+                      <a [routerLink]="['/ticket', entry.identifier]">{{ entry.identifier }}</a>
+                    </div>
+                    <div class="left-aligned">{{ entry.title }}</div>
+                    <div class="left-aligned">{{ entry.statusName }}</div>
+                    <div class="left-aligned">
+                      @if (entry.finishedAt) {
+                        {{ entry.finishedAt | date: 'short' }}
+                      } @else {
+                        —
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>

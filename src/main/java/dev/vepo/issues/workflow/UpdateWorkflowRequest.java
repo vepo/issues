@@ -9,4 +9,6 @@ import jakarta.validation.constraints.Size;
 
 public record UpdateWorkflowRequest(@NotBlank(message = "Workflow name cannot be empty!") @Size(min = 5, max = 64, message = "Workflow name should have at least 5 caracters and at most 64!") String name,
                                     @NotNull(message = "No start status is defined!") String start,
-                                    @NotEmpty List<TransitionRequest> transitions) {}
+                                    @NotEmpty List<TransitionRequest> transitions,
+                                    String phaseStart,
+                                    List<FinishStatusRequest> finishStatuses) {}

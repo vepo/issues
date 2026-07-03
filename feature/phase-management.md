@@ -1,7 +1,7 @@
 # Phase and version management
 
-**Feature version:** 4  
-**Status:** planned  
+**Feature version:** 5  
+**Status:** planned — domain spec updated 2026-07-03  
 **Requested:** 2026-07-03  
 **Tracking:** [GitHub issue #6 — Gerenciamento de Sprints](https://github.com/vepo/issues/issues/6)
 
@@ -43,9 +43,9 @@ This capability extends Issues beyond workflow status (Kanban columns) into rele
 - Gantt or timeline views
 - Full i18n (PT-BR labels only for now)
 
-## Proposed ubiquitous language (draft for domain spec)
+## Ubiquitous language
 
-Terms below are **candidates** for `docs/domain-specification.md`. Final labels require domain-spec update before code.
+Synced to `docs/domain-specification.md` (2026-07-03). Implementation must match the domain spec.
 
 | Term | Meaning | Avoid |
 |------|---------|-------|
@@ -82,7 +82,9 @@ Terms below are **candidates** for `docs/domain-specification.md`. Final labels 
 | Finish date | Data de conclusão |
 | Version changelog | Registro de alterações da versão |
 
-### Proposed invariants (draft)
+### Invariants
+
+Canonical copy in domain spec §Business rules (invariants 11–23). Summary:
 
 1. **One active phase per project** — activating phase B **completes** the previously active phase; never two `ACTIVE` phases in the same project.
 2. **Phase and ticket same project** — a ticket's phase must belong to the ticket's project.
@@ -265,6 +267,53 @@ One endpoint class per row per [issues-layered-architecture.mdc](../.cursor/rule
 | **3 — Phase lifecycle** | Phase CRUD; activate (close previous + optional status move); complete; deliverable version; ticket phase assignment | Slice 2 |
 | **4 — Templates & board** | Project phase template; create-ticket phase combobox; Kanban phase filter | Slice 3 |
 
+## Technical plan — slice 1 (workflow finish + finish date)
+
+**Goal:** Workflow defines terminal **finish statuses**; moving a ticket sets or clears **finish date**; workflow editor UI updated.
+
+### Backend tasks
+
+| # | Task | Package / files |
+|---|------|-----------------|
+| 1.1 | Add `FinishOutcome` enum (`DONE`, `CANCELED`) | `workflow` |
+| 1.2 | Add `WorkflowFinishStatus` entity + `tb_workflow_finish_statuses` | `workflow`, `V1.0.0__Database_Creation.sql` |
+| 1.3 | Extend `Workflow` with optional `phaseStart` (`phase_start_id`) — schema only in slice 1; behaviour in slice 3 | `workflow`, migration |
+| 1.4 | Extend `CreateWorkflowRequest` / `WorkflowResponse` with `finishStatuses` list `{ statusId, outcome }` and optional `phaseStartStatusId` | `workflow` |
+| 1.5 | `WorkflowService` — persist finish statuses on create/update; validate status belongs to workflow | `workflow` |
+| 1.6 | `WorkflowRepository` — load finish statuses with workflow | `workflow` |
+| 1.7 | Add `finished_at` column to `tb_tickets` | migration, `ticket.Ticket` |
+| 1.8 | `TicketService.moveTicket` — on entering DONE finish status set `finished_at`; on leaving DONE clear it; log via `TicketHistoryService` | `ticket` |
+| 1.9 | Helper on `WorkflowService` or `WorkflowRepository`: `isFinishStatus(workflowId, statusId)`, `finishOutcome(workflowId, statusId)` | `workflow` |
+| 1.10 | Update `dev-import.sql` — mark DONE/CANCELED on sample workflow statuses | seed data |
+
+### Tests (TDD order)
+
+| # | Test class | Scenario |
+|---|------------|----------|
+| T1 | `WorkflowServiceTest` | shouldPersistFinishStatusesWhenCreatingWorkflow |
+| T2 | `WorkflowServiceTest` | shouldRejectFinishStatusNotInWorkflow |
+| T3 | `TicketServiceTest` | shouldSetFinishDateWhenMovingToDoneFinishStatus |
+| T4 | `TicketServiceTest` | shouldClearFinishDateWhenLeavingDoneFinishStatus |
+| T5 | `TicketServiceTest` | shouldNotSetFinishDateWhenMovingToCanceledFinishStatus |
+| T6 | `MoveTicketEndpointTest` | shouldReturnTicketWithFinishDateAfterMoveToDone |
+
+### Frontend tasks
+
+| # | Task | Files |
+|---|------|-------|
+| F1.1 | Workflow form — finish status multi-select with done/canceled toggle per status | `workflows-view.component.*` |
+| F1.2 | Workflow form — optional phase start status dropdown | `workflows-view.component.*` |
+| F1.3 | Regenerate OpenAPI client after workflow API change | `npm run generate:api` |
+| F1.4 | Ticket detail — display **Data de conclusão** when `finishedAt` present | `ticket-view.component.*` |
+
+### Slice 1 definition of done
+
+- [x] Migration updated in `V1.0.0__Database_Creation.sql`
+- [x] `mvn test` green for workflow + move ticket tests
+- [x] Workflow editor saves finish statuses and phase start status
+- [x] Ticket finish date visible on ticket detail after move to done
+- [x] Domain spec invariants 18–19 satisfied
+
 ## Version changelog — response shape (proposed)
 
 ```java
@@ -351,10 +400,38 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 **Implementation notes:** _(pending)_
 
+### Domain spec sync — 2026-07-03
+
+**Version:** 5  
+**Status:** done
+
+**Description:** Updated `docs/domain-specification.md`, `ARCHITECTURE.md`, and bounded-context rules with phase/version vocabulary, workflow extensions, and invariants 11–23.
+
+**Implementation notes:** `docs/domain-specification.md`, `ARCHITECTURE.md` §5/§6/§7, `.cursor/rules/issues-bounded-contexts.mdc`
+
+### Slice 1 — workflow finish + finish date — 2026-07-03
+
+**Version:** 6  
+**Status:** done
+
+**Description:** Workflow finish statuses (`DONE`/`CANCELED`), optional phase start status (schema + API), ticket `finished_at` on move, workflow editor UI, ticket detail **Data de conclusão**.
+
+**Implementation notes:** `FinishOutcome`, `WorkflowFinishStatus`, `WorkflowService`, `TicketService.moveTicket`, migration, `CreateWorkflowEndpointTest`, `MoveTicketEndpointTest`, workflow form, ticket view.
+
+### Slice 2 — versions + changelog — 2026-07-03
+
+**Version:** 7  
+**Status:** done
+
+**Description:** Version CRUD (SemVer), ticket observed/target version fields, grouped version changelog (Planejado / Entregue / Via fase), Angular version catalog and ticket detail selectors.
+
+**Implementation notes:** `dev.vepo.issues.phase.*`, `phase.version.*` endpoints, `VersionEndpointTest`, `TicketVersionFields`, `dev-import.sql` sample versions, `versions-view` / `version-detail` components, `version.service.ts`, feature catalog + README.
+
 ---
 
 ## Next steps
 
-1. **Update `docs/domain-specification.md`** — Ubiquitous Language, workflow extensions, `phase` bounded context.
-2. **Technical planning** — slice 1 task breakdown (workflow finish statuses first).
-3. **TDD** — failing tests per slice; no production code before domain spec is updated.
+1. ~~**Slice 1 TDD + implementation**~~ — done (2026-07-03).
+2. ~~**Slice 2** — Version CRUD (SemVer), observed/target on ticket, version changelog.~~ — done (2026-07-03).
+3. **Slice 3** — Phase lifecycle, activate/complete, deliverable version.
+4. **Slice 4** — Project templates, create-ticket phase combobox, Kanban filter.

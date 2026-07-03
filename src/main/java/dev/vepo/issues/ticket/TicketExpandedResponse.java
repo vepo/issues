@@ -1,5 +1,6 @@
 package dev.vepo.issues.ticket;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import dev.vepo.issues.ticket.history.TicketHistory;
@@ -16,6 +17,11 @@ public record TicketExpandedResponse(long id,
                                      List<TicketUserResponse> subscribers,
                                      TicketProjectResponse project,
                                      String status,
+                                     LocalDateTime finishedAt,
+                                     Long observedVersionId,
+                                     String observedVersionLabel,
+                                     Long targetVersionId,
+                                     String targetVersionLabel,
                                      List<TicketHistoryResponse> history) {
 
     public static TicketExpandedResponse load(Ticket ticket, List<TicketHistory> history) {
@@ -34,6 +40,11 @@ public record TicketExpandedResponse(long id,
                                                 .toList(),
                                           TicketProjectResponse.load(ticket.getProject()),
                                           ticket.getStatus().getName(),
+                                          ticket.getFinishedAt(),
+                                          ticket.getObservedVersion() != null ? ticket.getObservedVersion().getId() : null,
+                                          ticket.getObservedVersion() != null ? ticket.getObservedVersion().getLabel() : null,
+                                          ticket.getTargetVersion() != null ? ticket.getTargetVersion().getId() : null,
+                                          ticket.getTargetVersion() != null ? ticket.getTargetVersion().getLabel() : null,
                                           history.stream()
                                                  .map(TicketHistoryResponse::load)
                                                  .toList());

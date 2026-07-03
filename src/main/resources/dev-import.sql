@@ -9,6 +9,8 @@ DECLARE
     bug_id         INTEGER;
     user_cto_id    INTEGER;
     proj_issues_id INTEGER;
+    ver_1_0_0_id   INTEGER;
+    ver_1_1_0_id   INTEGER;
     open_id        INTEGER;
     info_id        INTEGER;
     analyse_id     INTEGER;
@@ -66,6 +68,8 @@ BEGIN
     INSERT INTO tb_workflow_transitions (workflow_id, from_id, to_id) VALUES (agile_id, blocked_id,  progress_id);
     INSERT INTO tb_workflow_transitions (workflow_id, from_id, to_id) VALUES (agile_id, progress_id, done_id);
 
+    INSERT INTO tb_workflow_finish_statuses (workflow_id, status_id, outcome) VALUES (agile_id, done_id, 'DONE');
+
     INSERT INTO tb_workflow_status (name) VALUES ('OPEN')                RETURNING id INTO open_id;
     INSERT INTO tb_workflow_status (name) VALUES ('REQUEST_INFORMATION') RETURNING id INTO info_id;
     INSERT INTO tb_workflow_status (name) VALUES ('VALIDATING')          RETURNING id INTO valid_id;
@@ -94,6 +98,9 @@ BEGIN
     INSERT INTO tb_workflow_transitions (workflow_id, from_id, to_id) VALUES (support_id, progress_id, valid_id);
     INSERT INTO tb_workflow_transitions (workflow_id, from_id, to_id) VALUES (support_id, valid_id,    done_id);
 
+    INSERT INTO tb_workflow_finish_statuses (workflow_id, status_id, outcome) VALUES (support_id, done_id, 'DONE');
+    INSERT INTO tb_workflow_finish_statuses (workflow_id, status_id, outcome) VALUES (support_id, cancel_id, 'CANCELED');
+
     INSERT INTO tb_projects (name, description, prefix, workflow_id,
                              ticket_template_enabled, ticket_template_title,
                              ticket_template_description, ticket_template_category_id, ticket_template_priority)
@@ -102,6 +109,14 @@ BEGIN
             'Describe the change or defect using the sections below.',
             bug_id, 'MEDIUM')
     RETURNING id INTO proj_issues_id;
+
+    INSERT INTO tb_versions (project_id, label, description)
+    VALUES (proj_issues_id, '1.0.0', 'MVP inicial')
+    RETURNING id INTO ver_1_0_0_id;
+
+    INSERT INTO tb_versions (project_id, label, description)
+    VALUES (proj_issues_id, '1.1.0', 'Melhorias e estabilização')
+    RETURNING id INTO ver_1_1_0_id;
 
     INSERT INTO tb_tickets (identifier, title, description, author_id, project_id, category_id, status_id, created_at, updated_at) VALUES 
                            ('ISS-001',
@@ -305,4 +320,14 @@ BEGIN
     INSERT INTO tb_ticket_history (action, field, old_value, new_value, timestamp, ticket_id, user_id)
     SELECT 'FIELD_CHANGED', 'title', 'Configuração da Build', 'Configuração da Build Integrada', NOW() - INTERVAL '1 day', t.id, user_cto_id
     FROM tb_tickets t WHERE t.identifier = 'ISS-004';
+
+    UPDATE tb_tickets
+    SET target_version_id = ver_1_1_0_id
+    WHERE identifier = 'ISS-004';
+
+    UPDATE tb_tickets
+    SET observed_version_id = ver_1_0_0_id,
+        target_version_id = ver_1_0_0_id,
+        finished_at = NOW() - INTERVAL '3 days'
+    WHERE identifier IN ('ISS-001', 'ISS-002', 'ISS-003', 'ISS-005', 'ISS-006', 'ISS-015', 'ISS-017');
 END $$;

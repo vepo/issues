@@ -13,6 +13,16 @@
     </mat-select>
   </mat-form-field>
 
+  <mat-form-field class="form-field" appearance="outline">
+    <mat-label i18n>Status inicial da fase</mat-label>
+    <mat-select formControlName="phaseStart">
+      <mat-option [value]="null" i18n>Nenhum</mat-option>
+      @for (name of statusNames(); track name) {
+        <mat-option [value]="name">{{ name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
   <section class="workflow-form__section">
     <div class="workflow-form__section-header">
       <h3 i18n>Status</h3>
@@ -102,6 +112,52 @@
             </div>
             <div class="workflow-form__list-col workflow-form__list-col--action">
               <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeTransition($index)" i18n-aria-label aria-label="Excluir transição">
+                <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="workflow-form__section">
+    <div class="workflow-form__section-header">
+      <h3 i18n>Status de conclusão</h3>
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addFinishStatus()">
+        <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+        <span i18n>Adicionar status de conclusão</span>
+      </button>
+    </div>
+    <div class="workflow-form__list">
+      <div class="workflow-form__list-header">
+        <div class="workflow-form__list-col" i18n>Status</div>
+        <div class="workflow-form__list-col" i18n>Resultado</div>
+        <div class="workflow-form__list-col workflow-form__list-col--action" i18n>Ações</div>
+      </div>
+      <div class="workflow-form__list-body">
+        @for (finishStatus of finishStatuses.controls; track $index) {
+          <div class="workflow-form__list-row" [formGroup]="$any(finishStatus)">
+            <div class="workflow-form__list-col">
+              <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
+                <mat-select formControlName="status" required i18n-aria-label aria-label="Status de conclusão">
+                  @for (name of statusNames(); track name) {
+                    <mat-option [value]="name">{{ name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="workflow-form__list-col">
+              <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
+                <mat-select formControlName="outcome" required i18n-aria-label aria-label="Resultado">
+                  @for (outcome of finishOutcomes; track outcome) {
+                    <mat-option [value]="outcome">{{ outcome === 'DONE' ? 'Concluído' : 'Cancelado' }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="workflow-form__list-col workflow-form__list-col--action">
+              <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeFinishStatus($index)" i18n-aria-label aria-label="Excluir status de conclusão">
                 <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
               </button>
             </div>
