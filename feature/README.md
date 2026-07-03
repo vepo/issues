@@ -2,7 +2,7 @@
 
 One markdown file per **high-level capability**: `feature/<feature-slug>.md` (kebab-case).
 
-Create or update **before** writing code. Rule: [change-request-analysis.mdc](../.cursor/rules/change-request-analysis.mdc).
+**Mandatory process:** [development-process.mdc](../.cursor/rules/development-process.mdc) — feature analysis → task break → development approved → TDD. No code before approval.
 
 ## Resolving `<feature-slug>`
 
@@ -21,7 +21,7 @@ See rule § **Resolve `<feature-slug>`** for the full gate. Summary:
 
 ## Template
 
-Copy into `feature/<feature-slug>.md` and fill in before implementation:
+Copy into `feature/<feature-slug>.md` and fill in **before** task break (phase 1). Phases 2–4 add Tasks, approval, and implementation to each changelog entry.
 
 ```markdown
 # <Human-readable feature name>
@@ -53,7 +53,7 @@ One paragraph: what is being asked and why.
 
 ### <Change name> — YYYY-MM-DD
 
-**Status:** planned | in-progress | done
+**Status:** planned | tasks-ready | approved | in-progress | done
 
 **Description:** What this specific change request does.
 
@@ -65,13 +65,43 @@ One paragraph: what is being asked and why.
 | e.g. Notifications | New event on export completion |
 | — | None identified |
 
+#### Tasks (phase 2 — required before approval)
+
+| ID | Task | Done |
+|----|------|------|
+| T1 | e.g. Add `Phase` entity + Flyway baseline | ☐ |
+| T2 | e.g. `CreatePhaseEndpoint` + test | ☐ |
+
+#### Test coverage (phase 2 — required before done)
+
+| ID | Test | Covers | Done |
+|----|------|--------|------|
+| TC1 | `CreatePhaseEndpointTest` | T1, T2 | ☐ |
+| TC2 | `phase.service.spec.ts` | T3 | ☐ |
+
+**Development approval:** pending | approved YYYY-MM-DD — tasks: T1, T2
+
 **Implementation notes:** (fill after done — key files, tests run)
 ```
 
-## Example slugs
+## Feature index (baseline)
 
-| Capability (catalog) | File |
-|----------------------|------|
-| Import tickets (CSV) | `feature/ticket-import.md` |
-| Account settings | `feature/account-settings.md` |
-| Kanban board | `feature/kanban-board.md` |
+| Capability | File | Status |
+|------------|------|--------|
+| Authentication (login, password recovery) | `feature/authentication.md` | done |
+| Account settings | `feature/account-settings.md` | done |
+| Ticket management (detail, comments, history, subscribe) | `feature/ticket-management.md` | done |
+| Ticket search | `feature/ticket-search.md` | done |
+| Create ticket | `feature/create-ticket.md` | done |
+| Import tickets (CSV) | `feature/ticket-import.md` | done |
+| Kanban board | `feature/kanban-board.md` | done |
+| Project dashboard | `feature/project-dashboard.md` | done |
+| Project administration | `feature/project-administration.md` | done |
+| User management | `feature/user-management.md` | done |
+| Workflow configuration | `feature/workflow-configuration.md` | done |
+| Categories | `feature/categories.md` | done |
+| Notifications (SSE, in-app) | `feature/notifications.md` | done |
+| Email delivery | `feature/email-delivery.md` | done |
+| Phase and version management | `feature/phase-management.md` | planned |
+
+Home (`/`) is a landing shell only — no separate feature doc.

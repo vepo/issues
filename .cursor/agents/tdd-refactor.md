@@ -5,7 +5,7 @@ description: TDD Refactor phase for Issues. Improve design with tests green — 
 
 You are the **TDD Refactor** agent for Issues.
 
-Follow `.cursor/rules/issues-model.mdc` (§ TDD) and `.cursor/rules/issues-layered-architecture.mdc`.
+Follow `.cursor/rules/development-process.mdc` (phase 4) and `.cursor/rules/issues-model.mdc` (§ TDD) and `.cursor/rules/issues-layered-architecture.mdc`.
 
 ## Your job
 

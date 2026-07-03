@@ -1,11 +1,13 @@
 ---
-description: Change request analysis before any implementation — feature impact doc and changelog
+description: Phase 1 — feature analysis before any implementation (part of development process)
 alwaysApply: true
 ---
 
-# Change request analysis (before implementation)
+# Feature analysis (phase 1)
 
-**Do not write production or test code** until the change request analysis is complete. Template: [feature/README.md](../../feature/README.md).
+Part of the mandatory [development-process.mdc](development-process.mdc). **Do not write production or test code** until phases 1–3 are complete for the current changelog entry.
+
+Template: [feature/README.md](../../feature/README.md).
 
 ## When required
 
@@ -14,7 +16,7 @@ alwaysApply: true
 | New behaviour, API, UI route, schema | Yes — create or extend `feature/<feature-slug>.md` |
 | Refactor touching multiple packages or bounded contexts | Yes |
 | Bug fix with cross-feature side effects | Yes — append changelog entry |
-| Typo, comment-only, formatter, docs-only (no behaviour) | No |
+| Typo, comment-only, formatter, docs-only (no behaviour) | No — exempt from full process |
 
 ## Process
 
@@ -50,29 +52,36 @@ The slug names a **high-level capability or user-facing feature**, not a single 
 
 Kebab-case slug, stable for the lifetime of the capability. Re-run step 0 if the request grows into a different feature area.
 
-### 2. Impact — document scope before coding:
-   - Bounded contexts and packages ([issues-bounded-contexts.mdc](issues-bounded-contexts.mdc))
-   - API / OpenAPI / Angular surfaces
-   - Schema (`V1.0.0__Database_Creation.sql`), seed data, migrations
-   - Tests and docs to update
-   - Risks and open questions
-### 3. Changelog — one entry per discrete change request (append; do not rewrite history):
-   - **Change name** — short title (e.g. `Add ticket CSV export`)
-   - **Impact on other features** — list affected capabilities, routes, or contexts; write `None identified` when isolated
+### 2. Impact — document scope before coding
+
+- Bounded contexts and packages ([issues-bounded-contexts.mdc](issues-bounded-contexts.mdc))
+- API / OpenAPI / Angular surfaces
+- Schema (`V1.0.0__Database_Creation.sql`), seed data, migrations
+- Tests and docs to update
+- Risks and open questions
+
+### 3. Changelog — one entry per discrete change request (append; do not rewrite history)
+
+- **Change name** — short title (e.g. `Add ticket CSV export`)
+- **Status** — `planned` (then `tasks-ready` → `approved` → `in-progress` → `done` per [development-process.mdc](development-process.mdc))
+- **Impact on other features** — list affected capabilities, routes, or contexts; write `None identified` when isolated
+
+Phases 2–4 (task break, approval, TDD) continue in the same changelog entry — see [development-process.mdc](development-process.mdc).
 
 ## Order with other gates
 
 ```
-Change request analysis → domain spec review → package placement → TDD → implementation
+Feature analysis → domain spec review → task break → development approved → TDD → verify
 ```
 
-Domain checklist: [domain-model.mdc](domain-model.mdc). Feature workflow: [issues-model.mdc](issues-model.mdc).
+Domain checklist: [domain-model.mdc](domain-model.mdc). TDD: [issues-model.mdc](issues-model.mdc).
 
-## During implementation
+## During implementation (phase 4 only)
 
-- Mark changelog entry status: `planned` → `in-progress` → `done`.
-- If scope grows, add a **new** changelog entry; update the Impact section if the overall feature footprint changes.
+- Mark changelog entry status through the lifecycle (`approved` → `in-progress` → `done`).
+- Check off **Tasks** and **Test coverage** items as completed.
+- If scope grows, add tasks and obtain new approval — do not expand silently.
 
 ## After implementation
 
-Close the loop in the same `feature/<feature-slug>.md` entry (files touched, tests run). User-facing doc updates remain in [documentation.mdc](documentation.mdc) — do not duplicate route tables in feature docs.
+Close the loop in the same changelog entry (**Implementation notes**, tests run). User-facing doc updates remain in [documentation.mdc](documentation.mdc) — do not duplicate route tables in feature docs.

@@ -34,11 +34,13 @@ Follow [ARCHITECTURE.md](../../ARCHITECTURE.md) §6. Dependencies flow **downwar
 
 ## When adding a feature
 
+Complete [development-process.mdc](development-process.mdc) phases 1–3 before coding. Phase 4 (TDD), in order:
+
 1. Entity (if new table) + Flyway baseline change per [issues-flyway.mdc](issues-flyway.mdc).
 2. `XxxRepository`.
-4. `XxxService` for non-trivial logic.
-5. One `*Endpoint` class per HTTP operation under `{context}.{action}/`.
-6. Angular facade + component if user-facing; run `npm run generate:api` after API changes.
+3. `XxxService` for non-trivial logic.
+4. One `*Endpoint` class per HTTP operation under `{context}.{action}/`.
+5. Angular facade + component if user-facing; run `npm run generate:api` after API changes.
 
 ## Violations — refactor toward layers
 

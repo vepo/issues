@@ -9,10 +9,11 @@ Canonical references: [ARCHITECTURE.md](../../ARCHITECTURE.md), [docs/domain-spe
 
 ## Before any change
 
-1. **Change request analysis** — create or update `feature/<feature-slug>.md` (impact + changelog) per [change-request-analysis.mdc](change-request-analysis.mdc). No code until done.
-2. Read **domain specification** (Ubiquitous Language) for ticket, workflow, project, or notification work.
-3. Read **ARCHITECTURE.md** §5 (package layout), §11 (naming), §12 (feature workflow).
-4. Follow patterns in the package you edit.
+1. **Development process** — follow [development-process.mdc](development-process.mdc): feature analysis → task break → user approval → TDD. **No `src/main` or `src/test` changes before approval.**
+2. **Feature analysis** — create or update `feature/<feature-slug>.md` per [change-request-analysis.mdc](change-request-analysis.mdc).
+3. Read **domain specification** (Ubiquitous Language) for ticket, workflow, project, or notification work.
+4. Read **ARCHITECTURE.md** §5 (package layout), §11 (naming), §12 (feature workflow).
+5. Follow patterns in the package you edit.
 
 ## Domain vocabulary in code and tests
 
@@ -48,11 +49,13 @@ Bounded context rules: [issues-bounded-contexts.mdc](issues-bounded-contexts.mdc
 
 ## Feature workflow
 
-Change request analysis (`feature/<feature-slug>.md`) → domain spec → correct package → **create tests** (TDD below) → tiered runs ([issues-testing.mdc](issues-testing.mdc)) → `mvn verify` ([issues-quality.mdc](issues-quality.mdc)).
+[development-process.mdc](development-process.mdc): feature analysis → task break → development approved → TDD (per approved task) → tiered runs ([issues-testing.mdc](issues-testing.mdc)) → `mvn verify` ([issues-quality.mdc](issues-quality.mdc)).
 
-## TDD — development guidance
+## TDD — mandatory in phase 4
 
-Default for new behaviour: write a failing test before `src/main` changes. Delegate to [`.cursor/agents/`](../agents/) or invoke by name (`tdd-red`, `tdd-green`, `tdd-refactor`).
+**Required** for every approved task. Write a failing test before `src/main` changes. The changelog **Test coverage** checklist must be complete before marking the entry `done`.
+
+Delegate to [`.cursor/agents/`](../agents/) or invoke by name (`tdd-red`, `tdd-green`, `tdd-refactor`).
 
 | Phase | Subagent | Goal | Allowed | Forbidden |
 |-------|----------|------|---------|-----------|

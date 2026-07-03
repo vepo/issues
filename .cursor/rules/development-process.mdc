@@ -1,0 +1,102 @@
+---
+description: Mandatory agentic development process — feature analysis, task break, approval, TDD
+alwaysApply: true
+---
+
+# Development process (mandatory)
+
+**No production or test code** until phases 1–3 are complete for the current changelog entry. Template: [feature/README.md](../../feature/README.md). Analysis detail: [change-request-analysis.mdc](change-request-analysis.mdc).
+
+## Four phases
+
+```
+1. Feature analysis  →  2. Task break  →  3. Development approved  →  4. Development (TDD)
+```
+
+| Phase | Agent may | Agent must not |
+|-------|-----------|----------------|
+| **1. Feature analysis** | Create/extend `feature/<slug>.md`, update domain spec, resolve open questions | Write `src/main/**` or `src/test/**` |
+| **2. Task break** | Add numbered **Tasks** and **Test coverage** to the changelog entry; set status `tasks-ready` | Start implementation |
+| **3. Development approved** | Present tasks; record user-selected task IDs and approval date | Implement until user explicitly approves tasks |
+| **4. Development** | TDD on **approved tasks only**; mark tasks and tests done; set status `done` | Skip tests; implement unapproved tasks; bypass Red phase |
+
+## Phase 1 — Feature analysis
+
+Required when: new behaviour, API, UI route, schema, multi-package refactor, or bug fix with cross-feature impact. Not required: typo, comment-only, formatter, docs-only.
+
+1. Resolve `<feature-slug>` — [change-request-analysis.mdc](change-request-analysis.mdc) §0.
+2. Create or extend `feature/<feature-slug>.md` with Summary, Impact, Risks, and a new **Changelog** entry (`status: planned`).
+3. Read [domain-specification.md](../../docs/domain-specification.md); update Ubiquitous Language and invariants **before code** if vocabulary or rules change ([domain-model.mdc](domain-model.mdc)).
+4. Resolve **Risks and open questions** — ask the user when product decisions are needed.
+
+**Exit criteria:** changelog entry exists with complete Impact; domain spec current; blocking questions answered.
+
+## Phase 2 — Task break
+
+Break the changelog entry into **small, independently verifiable tasks** (backend entity, endpoint, service, Angular component, etc.).
+
+Add to the changelog entry:
+
+- **Tasks** — numbered checklist (`T1`, `T2`, …) with one clear deliverable each.
+- **Test coverage** — checklist mapping each task (or group) to tests that must exist before `done`.
+
+Set changelog **Status:** `tasks-ready`. Present the task list to the user.
+
+**Exit criteria:** every approved-scope deliverable has a task; test coverage plan lists endpoint, service, and/or Angular specs as applicable.
+
+## Phase 3 — Development approved
+
+**Stop and wait for the user.** Present tasks; user selects which to implement (all or a subset).
+
+Record in the changelog entry:
+
+```markdown
+**Development approval:** approved YYYY-MM-DD — tasks: T1, T3
+```
+
+Set changelog **Status:** `approved`.
+
+Implement **only** approved task IDs. If scope grows, add tasks and obtain a new approval — do not expand silently.
+
+**Exit criteria:** explicit user approval with listed task IDs.
+
+## Phase 4 — Development (TDD)
+
+Set changelog **Status:** `in-progress`. For **each approved task**, in order:
+
+1. **Red** — failing test(s) for that task's behaviour ([issues-model.mdc](issues-model.mdc) § TDD; optional `tdd-red` subagent).
+2. **Green** — minimal production code to pass (`tdd-green`).
+3. **Refactor** — cleanup with tests green (`tdd-refactor`).
+4. Mark task checkbox done; mark matching **Test coverage** items done.
+
+**Coverage rule:** the feature changelog entry is not `done` until every item in **Test coverage** is checked and tiered tests pass ([issues-testing.mdc](issues-testing.mdc)). A feature without tests for new behaviour is incomplete.
+
+**Finish:** `mvn verify` (and frontend gates if UI changed — [static-analysis.mdc](static-analysis.mdc)); update docs per [documentation.mdc](documentation.mdc); fill **Implementation notes**; set status `done`.
+
+## Status values (changelog entry)
+
+| Status | Meaning |
+|--------|---------|
+| `planned` | Analysis in progress or not started |
+| `tasks-ready` | Tasks and test plan written; awaiting approval |
+| `approved` | User approved specific tasks; no code yet |
+| `in-progress` | TDD implementation underway |
+| `done` | Approved tasks implemented; tests green; docs updated |
+
+## Agent behaviour summary
+
+| User request | Agent action |
+|--------------|--------------|
+| "Implement X" (no feature doc) | Phase 1 only — then Phase 2 — then ask for approval |
+| Feature doc exists, no tasks | Phase 2 — then ask for approval |
+| Tasks exist, not approved | Present tasks; **do not code** |
+| "Approve T1–T3" / "Go ahead" | Phase 4 with TDD on those tasks |
+| "Just fix it quickly" | Still require analysis + tasks + approval unless change is exempt (typo/docs-only) |
+
+## Related rules
+
+- Analysis template: [change-request-analysis.mdc](change-request-analysis.mdc)
+- Domain gate: [domain-model.mdc](domain-model.mdc)
+- TDD cycle: [issues-model.mdc](issues-model.mdc) § TDD
+- Test conventions: [issues-tests.mdc](issues-tests.mdc)
+- Finish gate: [issues-quality.mdc](issues-quality.mdc)

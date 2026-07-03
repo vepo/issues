@@ -34,6 +34,7 @@ Single Maven module; logical boundaries in `dev.vepo.issues.*`. Full table: [doc
 
 ## When adding a feature
 
-1. Place code in the correct context package.
-2. Update domain spec if new vocabulary.
-3. Do not add domain imports to `infra` beyond what cross-cutting requires.
+1. Complete [development-process.mdc](development-process.mdc) — feature analysis, task break, user approval.
+2. Place code in the correct context package.
+3. Update domain spec if new vocabulary.
+4. Do not add domain imports to `infra` beyond what cross-cutting requires.

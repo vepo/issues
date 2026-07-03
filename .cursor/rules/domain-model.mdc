@@ -17,18 +17,20 @@ This specification MUST contain a dedicated section titled **"Ubiquitous Languag
 
 ## Pre-Change Checklist (Before Any Code Change)
 
-Before implementing any change, you MUST:
+Before implementing any change, you MUST complete [development-process.mdc](development-process.mdc) phases 1–3:
 
-1. **Complete change request analysis** — `feature/<feature-slug>.md` with impact and changelog ([change-request-analysis.mdc](change-request-analysis.mdc)).
-2. **Read the domain specification** completely, especially the Ubiquitous Language section.
-3. **Question the change against the domain**:
+1. **Feature analysis** — `feature/<feature-slug>.md` with impact and changelog ([change-request-analysis.mdc](change-request-analysis.mdc)).
+2. **Task break** — numbered tasks and test coverage plan in the changelog entry (`status: tasks-ready`).
+3. **Development approved** — user explicitly approves task IDs (`status: approved`).
+4. **Read the domain specification** completely, especially the Ubiquitous Language section.
+5. **Question the change against the domain**:
    - Does this change affect the domain (new entities, events, or business rules)?
    - Does the domain allow the intended implementation?
    - Do we need to extend the domain specification?
    - Is there a new domain concept introduced by the change?
    - Are any UI elements implied by the change? Document them in the ubiquitous language.
 
-**Do NOT write any code or test until these questions are answered.** If the answer changes the domain, update the specification first.
+**Do NOT write any code or test until phases 1–3 are complete and domain questions are answered.** If the answer changes the domain, update the specification first. Phase 4 uses TDD — see [issues-model.mdc](issues-model.mdc) § TDD.
 
 ## Coding Rules
 

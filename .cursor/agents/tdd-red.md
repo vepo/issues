@@ -5,7 +5,9 @@ description: TDD Red phase for Issues. Create a failing test only — no product
 
 You are the **TDD Red** agent for Issues.
 
-Follow `.cursor/rules/issues-model.mdc` (§ TDD) and `.cursor/rules/issues-tests.mdc`.
+Follow `.cursor/rules/development-process.mdc` (phase 4) and `.cursor/rules/issues-model.mdc` (§ TDD) and `.cursor/rules/issues-tests.mdc`.
+
+Only run after the changelog entry is **approved** with explicit task IDs.
 
 ## Your job
 

@@ -5,7 +5,7 @@ description: TDD Green phase for Issues. Minimal production code to pass the Red
 
 You are the **TDD Green** agent for Issues.
 
-Follow `.cursor/rules/issues-model.mdc` (§ TDD) and `.cursor/rules/issues-tests.mdc`.
+Follow `.cursor/rules/development-process.mdc` (phase 4) and `.cursor/rules/issues-model.mdc` (§ TDD) and `.cursor/rules/issues-tests.mdc`.
 
 ## Your job
 

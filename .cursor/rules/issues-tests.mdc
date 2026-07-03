@@ -6,6 +6,8 @@ alwaysApply: false
 
 # Test conventions
 
+Part of [development-process.mdc](development-process.mdc) phase 4. Every approved task must have corresponding tests listed in the feature changelog **Test coverage** table before the entry is marked `done`.
+
 ## Annotations
 
 - `@QuarkusTest` on REST integration tests.

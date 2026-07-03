@@ -221,12 +221,16 @@ Tables use prefix `tb_`. Initial migration: `V1.0.0__Database_Creation.sql`. Dev
 
 ## 12. Feature workflow (agents)
 
-1. Read [docs/domain-specification.md](docs/domain-specification.md) — update if vocabulary changes.
-2. Place code in the correct package (see §5 and bounded contexts).
-3. **Create tests first** (TDD) — see [`.cursor/rules/issues-model.mdc`](.cursor/rules/issues-model.mdc) § TDD.
-4. Run tiered tests — [`.cursor/rules/issues-testing.mdc`](.cursor/rules/issues-testing.mdc).
-5. Run `mvn verify` once before done — [`.cursor/rules/static-analysis.mdc`](.cursor/rules/static-analysis.mdc).
-6. Update [docs/feature-catalog.md](docs/feature-catalog.md) when routes or UI flows change.
+Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-process.mdc).
+
+1. **Feature analysis** — create or extend `feature/<feature-slug>.md`; update [docs/domain-specification.md](docs/domain-specification.md) if vocabulary changes.
+2. **Task break** — numbered tasks and test coverage plan in the changelog entry.
+3. **Development approved** — user selects tasks; no code until approved.
+4. **Development (TDD)** — Red → Green → Refactor per approved task; tests must cover the change.
+5. Place code in the correct package (see §5 and bounded contexts).
+6. Run tiered tests — [`.cursor/rules/issues-testing.mdc`](.cursor/rules/issues-testing.mdc).
+7. Run `mvn verify` once before done — [`.cursor/rules/static-analysis.mdc`](.cursor/rules/static-analysis.mdc).
+8. Update [docs/feature-catalog.md](docs/feature-catalog.md) when routes or UI flows change.
 
 ## 13. Known gaps / WIP
 

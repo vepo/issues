@@ -1,0 +1,46 @@
+# Categories
+
+**Status:** done  
+**Requested:** retrospective baseline (documented 2026-07-03)
+
+## Summary
+
+Administrators manage ticket categories: name and display color. Categories classify tickets on create, edit, Kanban cards, and imports. List is available to all authenticated users for pickers; admin CRUD at `/categories`.
+
+## Impact
+
+| Area | Effect |
+|------|--------|
+| Bounded contexts | `categories` (Classification) |
+| Packages / files | `categories.create`, `categories.update`, `categories.list` |
+| API | `GET /categories`, `POST /categories`, `POST /categories/{id}` |
+| UI | `/categories`; `categories-view` component (list, create/edit dialog with color picker) |
+| Schema / seed | `tb_categories`; sample categories in `dev-import.sql` |
+| Tests | `ListCategoriesEndpointTest`, `CreateCategoryEndpointTest`, `UpdateCategoryEndpointTest` |
+| Docs | domain-spec (Category), feature-catalog (Category list), README § Tickets & workflow |
+
+### Risks and open questions
+
+- Deleting categories referenced by tickets — verify referential behavior before adding delete.
+- Category rename propagates to existing tickets via FK.
+
+## Changelog
+
+### Initial implementation — baseline
+
+**Status:** done
+
+**Description:** Admin category list with Nova categoria and Editar dialog; color picker for card/display styling; public list endpoint for forms.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| Create ticket | Category picker |
+| Ticket management | Category on ticket detail |
+| Kanban board | Category color on cards |
+| Ticket import | Category column mapping |
+| Project administration | Template default category |
+| — | None identified |
+
+**Implementation notes:** `categories-view.component.ts`; `ListCategoriesEndpoint` used by filters and ticket forms.
