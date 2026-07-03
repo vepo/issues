@@ -1,5 +1,6 @@
 # Notifications
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,18 @@ In-app notifications for ticket subscribers: persisted alerts, mark-as-read, and
 | Tests | `RegisterNotificationsEndpointTest`, `UpdateNotificationReadEndpointTest` |
 | Docs | domain-spec (Notification, Notification channel), feature-catalog (Notifications SSE row), README § Notifications & email |
 
-### Risks and open questions
+### Open questions
 
-- SSE connection recovery on network drop — client reconnect behaviour.
-- Notification volume per user at scale.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | How should SSE reconnect after network drop? | open | |
+| Q2 | What retention or pagination strategy applies at high notification volume? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** CDI events on ticket changes create notifications for subscribers; SSE register endpoint pushes to connected clients; mark-as-read updates persistence.

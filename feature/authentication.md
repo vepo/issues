@@ -1,5 +1,6 @@
 # Authentication
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,18 @@ JWT-based login and password recovery for Issues. Users authenticate with email 
 | Tests | `LoginEndpointTest`, `MeEndpointTest`, `ResetPasswordEndpointTest`, `ConfirmPasswordResetEndpointTest` |
 | Docs | domain-spec (Session, Password recovery), feature-catalog (Login, Password reset rows), README § Authentication |
 
-### Risks and open questions
+### Open questions
 
-- JWT key rotation in production not yet documented.
-- Token expiry and refresh strategy: single long-lived JWT today; no refresh endpoint.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | How should JWT key rotation be handled in production? | open | |
+| Q2 | Should the app support token refresh, or remain single long-lived JWT? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Login with email/password returning JWT; password recovery request and confirm flows; `GET /auth/me` for current user profile.

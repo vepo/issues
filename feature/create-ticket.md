@@ -1,5 +1,6 @@
 # Create ticket
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,14 +20,17 @@ Create new tickets globally (`/tickets/new`) or within a project (`/project/:pro
 | Tests | `CreateTicketEndpointTest` |
 | Docs | domain-spec (Identifier, Ticket template), feature-catalog (Create ticket rows), README § Tickets & workflow |
 
-### Risks and open questions
+### Open questions
 
-- Template fields required when enabled; PM must configure project before team benefits.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should ticket template be optional when enabled but PM has not configured all fields? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Create ticket form with project selection, title, description, category, priority, assignee; project route pre-fills from template; history logs CREATED.

@@ -1,5 +1,6 @@
 # Categories
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,18 @@ Administrators manage ticket categories: name and display color. Categories clas
 | Tests | `ListCategoriesEndpointTest`, `CreateCategoryEndpointTest`, `UpdateCategoryEndpointTest` |
 | Docs | domain-spec (Category), feature-catalog (Category list), README § Tickets & workflow |
 
-### Risks and open questions
+### Open questions
 
-- Deleting categories referenced by tickets — verify referential behavior before adding delete.
-- Category rename propagates to existing tickets via FK.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should categories be deletable when referenced by tickets? | open | |
+| Q2 | Does category rename need explicit UX beyond FK propagation? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Admin category list with Nova categoria and Editar dialog; color picker for card/display styling; public list endpoint for forms.

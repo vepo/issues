@@ -1,5 +1,6 @@
 # Account settings
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,14 +20,17 @@ Authenticated users view their profile (name, email, roles) and change password 
 | Tests | `MeEndpointTest`, `ChangePasswordEndpointTest` |
 | Docs | feature-catalog (Account settings row), README § Authentication |
 
-### Risks and open questions
+### Open questions
 
-- Profile fields are read-only in UI; no edit-name/email flow yet.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should users edit name and email in account settings (self-service)? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Account settings page showing profile from `GET /auth/me`; change password form requiring current password.

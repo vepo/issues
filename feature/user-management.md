@@ -1,5 +1,6 @@
 # User management
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,18 @@ Administrators list, create, and edit users: name, email, password, and combinab
 | Tests | `CreateUserEndpointTest`, `UpdateUserEndpointTest`, `FindUserByIdEndpointTest`, `SearchUsersEndpointTest` |
 | Docs | domain-spec (User, Role), feature-catalog (User list/create/edit), README § Projects & administration |
 
-### Risks and open questions
+### Open questions
 
-- No self-registration; admin must create accounts.
-- Password policy beyond default dev password not enforced.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should self-registration be supported? | open | |
+| Q2 | What password policy should apply beyond the dev default? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Admin-only user CRUD with multi-role assignment and user search for assignee/autocomplete use cases.

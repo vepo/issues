@@ -58,7 +58,9 @@ Kebab-case slug, stable for the lifetime of the capability. Re-run step 0 if the
 - API / OpenAPI / Angular surfaces
 - Schema (`V1.0.0__Database_Creation.sql`), seed data, migrations
 - Tests and docs to update
-- Risks and open questions
+- Risks (optional bullets) and **Open questions** table (`Q1`, `Q2`, … with status `open` | `answered` | `not valid` and **Answer** column)
+
+Increment **Feature version** when adding a changelog entry; assign the next sequential **Version** to that entry.
 
 ### 3. Changelog — one entry per discrete change request (append; do not rewrite history)
 

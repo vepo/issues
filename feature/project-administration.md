@@ -1,5 +1,6 @@
 # Project administration
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,18 @@ Project managers create and edit projects: name, prefix, required description, a
 | Tests | `CreateProjectEndpointTest`, `UpdateProjectEndpointTest`, `ListProjectsEndpointTest`, `FindProjectByIdEndpointTest`, `FindProjectWorkflowEndpointTest`, `ListProjectStatusesEndpointTest` |
 | Docs | domain-spec (Project, Ticket template), feature-catalog (Project list/create/edit), README § Projects & administration |
 
-### Risks and open questions
+### Open questions
 
-- Prefix immutability after tickets created — verify business rule if changing prefix is requested.
-- One workflow per project; no multi-workflow projects.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should project prefix be immutable after tickets exist? | open | |
+| Q2 | Will projects ever support multiple workflows? | not valid | One workflow per project is the current invariant |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Project CRUD for project-manager role; workflow assignment; optional ticket template with **Usar template de ticket** checkbox.

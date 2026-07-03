@@ -1,5 +1,6 @@
 # Kanban board
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,18 @@ Project-scoped board view grouping tickets into columns by workflow status. User
 | Tests | `ListProjectTicketsEndpointTest`, `ListProjectStatusesEndpointTest`, `MoveTicketEndpointTest` |
 | Docs | domain-spec (Kanban), feature-catalog (Kanban board), README § Views & analytics |
 
-### Risks and open questions
+### Open questions
 
-- Drag-and-drop UX depends on client-side validation mirroring server rules.
-- No swimlanes or WIP limits.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should Kanban support swimlanes or WIP limits? | open | |
+| Q2 | How should client-side drag validation stay aligned with server move rules? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Kanban columns per project workflow status; ticket cards with category color; move between columns via workflow-validated API.

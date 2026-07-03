@@ -1,5 +1,6 @@
 # Project dashboard
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,22 @@ Per-project analytics page with configurable widget layout: pie charts (tickets 
 | Tests | `LoadPieDashboardEndpointTest`, `LoadTableDashboardEndpointTest`, `LoadKpiDashboardEndpointTest` |
 | Docs | domain-spec (Dashboard, Dashboard widget types), feature-catalog (Project dashboard), README § Views & analytics |
 
-### Risks and open questions
+### Risks
 
-- Widget layout persistence mechanism (local vs server) — verify implementation if extending.
-- Chart performance on large ticket volumes.
+- Widget layout persisted in browser `localStorage` only (ARCHITECTURE §13).
+
+### Open questions
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should dashboard layout be persisted server-side? | open | |
+| Q2 | Are chart query optimizations needed for large ticket volumes? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Dashboard with tickets-by-day, tickets-by-status, tickets-by-priority pie charts, recent-tickets table, and performance-kpi widget; editable layout.

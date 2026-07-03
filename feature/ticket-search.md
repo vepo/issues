@@ -1,5 +1,6 @@
 # Ticket search
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,18 @@ Global full-text search across tickets in all projects. Authenticated users ente
 | Tests | `SearchTicketsEndpointTest` |
 | Docs | domain-spec (Search), feature-catalog (Ticket search), README § Views & analytics |
 
-### Risks and open questions
+### Open questions
 
-- No advanced filters (project, status, assignee) in search UI.
-- Search performance at scale not indexed beyond DB full-text/query approach.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should search support filters (project, status, assignee)? | open | |
+| Q2 | Is dedicated full-text indexing required at scale? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Menu-accessible global search page with term input and navigation to ticket detail by identifier.

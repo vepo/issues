@@ -1,5 +1,6 @@
 # Email delivery
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,18 @@ Transactional email via Quarkus Mailer and Qute templates: password reset links 
 | Tests | Covered indirectly via `ResetPasswordEndpointTest`, `ConfirmPasswordResetEndpointTest`; mailer mocked in tests |
 | Docs | domain-spec (Password recovery, Ticket change email), README § Notifications & email |
 
-### Risks and open questions
+### Open questions
 
-- Dev mailer config in `application.properties` must not leak to production.
-- Email deliverability, rate limits, and template localization not addressed.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | How is production SMTP configured separately from `%dev` mailer settings? | open | |
+| Q2 | Are deliverability, rate limits, and template localization required? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** `MailerService` sends password reset email with token link and `notifyTicketChange.html` for subscriber ticket updates.

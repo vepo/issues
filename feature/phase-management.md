@@ -1,5 +1,6 @@
 # Phase and version management
 
+**Feature version:** 4  
 **Status:** planned  
 **Requested:** 2026-07-03  
 **Tracking:** [GitHub issue #6 — Gerenciamento de Sprints](https://github.com/vepo/issues/issues/6)
@@ -99,41 +100,27 @@ Terms below are **candidates** for `docs/domain-specification.md`. Final labels 
 14. **Ticket create — no default phase** — new tickets have `phase_id = null`; create form offers optional combobox of **planned** and **active** phases for the selected project.
 15. **Roles** — phase/version CRUD: `PROJECT_MANAGER` (and `ADMIN`); ticket fields: same as ticket update; version changelog: read-only for authenticated users.
 
-## Resolved decisions
+### Open questions
 
-| # | Topic | Decision |
-|---|-------|----------|
-| 1 | “Objects” typo | **Objective** — one plain-text field per phase describing the main achievement |
-| 2 | Multiple active phases | **Forbidden** — previous active phase is **completed** on activate |
-| 3 | Phase start status | Optional on **Workflow**; on activate, move tickets **when transition exists**; **skip** others; phase always activates |
-| 4 | Edit after close | **Yes** — completed phases remain editable |
-| 5 | Version label format | **SemVer** with unique-per-project constraint |
-| 6 | Objectives/deliverables storage | See [§ Storage model](#storage-model) — was an implementation choice between DB tables vs JSON; resolved below |
-| 7 | Project template | **Objective** + **deliverables** template on project; **copied** into each new phase (editable per phase) |
-| 8 | Default phase on ticket create | **No default**; optional combobox on create form listing **planned** and **active** phases |
-| 9 | UI language | **PT-BR** for now; full i18n later |
-| 10 | Package name | **`phase`** (`dev.vepo.issues.phase.*`) |
-| 11 | Changelog grouping | **Grouped sections** (Planned / Shipped / Via phase) with association tags |
-| 12 | Changelog sort & finish | Sort by **finish date**; workflow **finish statuses** (`DONE` / `CANCELED`); **done** sets finish date; **canceled** excluded from changelog |
-| 13 | Reopen canceled ticket | **Reappears** on version changelog when moved out of canceled finish status |
-| 14 | Clear finish date | **Yes** — leaving a done finish status clears `finished_at` |
-| 15 | Phase activate without transition | **Activate anyway** — skip status move for tickets without valid transition to phase start status |
+Reference by **Q*n*** in tasks and changelog. Status: `open` | `answered` | `not valid`.
 
-### Storage model
-
-Question 6 asked *how* to persist objectives and deliverables in the database:
-
-| Approach | Meaning |
-|----------|---------|
-| Normalized tables | One row per deliverable in `tb_phase_deliverables` |
-| JSON column | Array stored as JSON on `tb_phases` |
-| Embedded columns | Single `objective TEXT` on phase; deliverables as child rows |
-
-**Decision:** `objective` as a **TEXT column** on `tb_phases` (and template column on `tb_projects`). **Deliverables** as **normalized rows** (`tb_phase_deliverables`, `tb_project_phase_deliverable_templates`) for ordered lists and future checklist UI.
-
-### Phase on ticket create (question 8)
-
-**Decision:** no automatic phase assignment. The create-ticket form includes an **optional combobox** listing phases in `PLANNED` or `ACTIVE` status for the selected project. Default selection is empty (unassigned).
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Does “objects” in the original request mean a separate entity? | answered | **Objective** — one plain-text field per phase describing the main achievement |
+| Q2 | Can a project have multiple active phases at once? | answered | **Forbidden** — activating a new phase **completes** the previously active phase |
+| Q3 | How does phase start status work on activate? | answered | Optional on **Workflow**; on activate, move tickets **when a valid transition exists**; **skip** others; phase always activates |
+| Q4 | Can completed phases be edited? | answered | **Yes** — completed phases remain editable (name, objective, deliverables, deliverable version, dates) |
+| Q5 | What format should version labels use? | answered | **SemVer** with unique-per-project constraint |
+| Q6 | How should objectives and deliverables be stored in the database? | answered | `objective` as **TEXT** on `tb_phases` (and template on `tb_projects`); **deliverables** as normalized rows (`tb_phase_deliverables`, `tb_project_phase_deliverable_templates`) |
+| Q7 | Should project planning templates apply to new phases? | answered | **Objective** + **deliverables** template on project; **copied** into each new phase (editable per phase) |
+| Q8 | Should new tickets default to the active phase? | answered | **No default**; optional combobox on create listing **planned** and **active** phases; default selection empty |
+| Q9 | What UI language should labels use? | answered | **PT-BR** for now; full i18n later |
+| Q10 | What package name should own phase/version logic? | answered | **`phase`** (`dev.vepo.issues.phase.*`) |
+| Q11 | How should the version changelog group tickets? | answered | **Grouped sections** (Planned / Shipped / Via phase) with association tags |
+| Q12 | How should changelog sort and finish statuses work? | answered | Sort by **finish date**; workflow **finish statuses** (`DONE` / `CANCELED`); **done** sets finish date; **canceled** excluded from changelog |
+| Q13 | What happens when a canceled ticket is reopened? | answered | **Reappears** on version changelog when moved out of canceled finish status |
+| Q14 | Should finish date clear when leaving a done status? | answered | **Yes** — leaving a done finish status clears `finished_at` |
+| Q15 | Should phase activation be blocked if some tickets cannot transition? | answered | **Activate anyway** — skip status move for tickets without valid transition to phase start status |
 
 ## Impact
 
@@ -278,10 +265,6 @@ One endpoint class per row per [issues-layered-architecture.mdc](../.cursor/rule
 | **3 — Phase lifecycle** | Phase CRUD; activate (close previous + optional status move); complete; deliverable version; ticket phase assignment | Slice 2 |
 | **4 — Templates & board** | Project phase template; create-ticket phase combobox; Kanban phase filter | Slice 3 |
 
-## Open questions
-
-_All product questions resolved as of 2026-07-03._
-
 ## Version changelog — response shape (proposed)
 
 ```java
@@ -314,6 +297,7 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 ### Phase and version management (initial) — 2026-07-03
 
+**Version:** 1  
 **Status:** planned
 
 **Description:** Full capability per issue #6 and extended requirements: phases with lifecycle, versions, version changelog, deliverable version per phase, ticket observed/target version, objective and deliverables. Methodology-neutral naming throughout.
@@ -333,6 +317,7 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 ### Version changelog — 2026-07-03
 
+**Version:** 2  
 **Status:** planned
 
 **Description:** Each version exposes a changelog: associated tickets in grouped sections, sorted by finish date, excluding canceled.
@@ -341,9 +326,10 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 ### Product decisions — 2026-07-03
 
+**Version:** 3  
 **Status:** planned
 
-**Description:** Resolved open questions: single objective text; one active phase; phase start status; phases editable after close; SemVer; `phase` package; PT-BR UI; workflow finish statuses with ticket finish date; canceled excluded from changelog.
+**Description:** Resolved **Q1**–**Q12**: single objective text; one active phase; phase start status; phases editable after close; SemVer; `phase` package; PT-BR UI; workflow finish statuses with ticket finish date; canceled excluded from changelog.
 
 **Impact on other features:**
 
@@ -358,9 +344,10 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 ### Final product decisions — 2026-07-03
 
+**Version:** 4  
 **Status:** planned
 
-**Description:** Ticket create: no default phase, optional combobox (planned + active). Reopen canceled → back on changelog. Clear finish date when leaving done. Phase activate proceeds even when some tickets cannot transition to phase start status.
+**Description:** Resolved **Q8**, **Q13**–**Q15**: ticket create has no default phase (optional combobox); reopen canceled → back on changelog; clear finish date when leaving done; phase activate proceeds when some tickets cannot transition.
 
 **Implementation notes:** _(pending)_
 

@@ -1,5 +1,6 @@
 # Ticket import (CSV)
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,18 @@ Bulk-create tickets from CSV files via a multi-step wizard: upload, column mappi
 | Tests | `TicketImportServiceTest`, `ImportTicketsEndpointTest`, `GlobalTicketImportEndpointTest`, `PreviewTicketImportEndpointTest` |
 | Docs | domain-spec (CSV import, Column mapping, Import batch), feature-catalog (Import rows), README § Tickets & workflow |
 
-### Risks and open questions
+### Open questions
 
-- Large CSV files may need streaming/chunking for production scale.
-- Row correction UI for validation errors; partial import success handling.
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | What is the maximum CSV file size and should uploads stream/chunk? | open | |
+| Q2 | How should partial import success and row correction UX behave? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** OpenCSV parsing, persisted import batches, column-mapping wizard, preview with validation, execute creates tickets per valid row.

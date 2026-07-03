@@ -27,9 +27,9 @@ Required when: new behaviour, API, UI route, schema, multi-package refactor, or 
 1. Resolve `<feature-slug>` — [change-request-analysis.mdc](change-request-analysis.mdc) §0.
 2. Create or extend `feature/<feature-slug>.md` with Summary, Impact, Risks, and a new **Changelog** entry (`status: planned`).
 3. Read [domain-specification.md](../../docs/domain-specification.md); update Ubiquitous Language and invariants **before code** if vocabulary or rules change ([domain-model.mdc](domain-model.mdc)).
-4. Resolve **Risks and open questions** — ask the user when product decisions are needed.
+4. Track **Open questions** in the numbered table; ask the user when product decisions are needed; set status `answered` with the decision in **Answer**. Cite **Q*n*** elsewhere. Phase 2 blocked while blocking questions remain `open`.
 
-**Exit criteria:** changelog entry exists with complete Impact; domain spec current; blocking questions answered.
+**Exit criteria:** changelog entry exists with complete Impact; domain spec current; blocking questions `answered` or `not valid`.
 
 ## Phase 2 — Task break
 

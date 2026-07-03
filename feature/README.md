@@ -26,6 +26,7 @@ Copy into `feature/<feature-slug>.md` and fill in **before** task break (phase 1
 ```markdown
 # <Human-readable feature name>
 
+**Feature version:** 1  
 **Status:** planned | in-progress | done  
 **Requested:** YYYY-MM-DD
 
@@ -45,14 +46,26 @@ One paragraph: what is being asked and why.
 | Tests | Endpoint tests, Angular specs, ArchUnit |
 | Docs | domain-spec, feature-catalog, README, ARCHITECTURE |
 
-### Risks and open questions
+### Risks
 
-- …
+Non-question risks and known gaps (optional bullet list).
+
+### Open questions
+
+Reference by **Q*n*** in tasks, changelog, and discussion. Status: `open` | `answered` | `not valid`.
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | e.g. Should export include soft-deleted tickets? | open | |
+| Q2 | e.g. Max CSV file size for import? | answered | 10 MB; enforced in upload endpoint |
+
+**Gate:** phase 2 (task break) requires no `open` questions that block scope — resolve or mark `not valid` first.
 
 ## Changelog
 
 ### <Change name> — YYYY-MM-DD
 
+**Version:** 1  
 **Status:** planned | tasks-ready | approved | in-progress | done
 
 **Description:** What this specific change request does.
@@ -86,22 +99,28 @@ One paragraph: what is being asked and why.
 
 ## Feature index (baseline)
 
-| Capability | File | Status |
-|------------|------|--------|
-| Authentication (login, password recovery) | `feature/authentication.md` | done |
-| Account settings | `feature/account-settings.md` | done |
-| Ticket management (detail, comments, history, subscribe) | `feature/ticket-management.md` | done |
-| Ticket search | `feature/ticket-search.md` | done |
-| Create ticket | `feature/create-ticket.md` | done |
-| Import tickets (CSV) | `feature/ticket-import.md` | done |
-| Kanban board | `feature/kanban-board.md` | done |
-| Project dashboard | `feature/project-dashboard.md` | done |
-| Project administration | `feature/project-administration.md` | done |
-| User management | `feature/user-management.md` | done |
-| Workflow configuration | `feature/workflow-configuration.md` | done |
-| Categories | `feature/categories.md` | done |
-| Notifications (SSE, in-app) | `feature/notifications.md` | done |
-| Email delivery | `feature/email-delivery.md` | done |
-| Phase and version management | `feature/phase-management.md` | planned |
+| Capability | File | Feature version | Status |
+|------------|------|-----------------|--------|
+| Authentication (login, password recovery) | `feature/authentication.md` | 1 | done |
+| Account settings | `feature/account-settings.md` | 1 | done |
+| Ticket management (detail, comments, history, subscribe) | `feature/ticket-management.md` | 1 | done |
+| Ticket search | `feature/ticket-search.md` | 1 | done |
+| Create ticket | `feature/create-ticket.md` | 1 | done |
+| Import tickets (CSV) | `feature/ticket-import.md` | 1 | done |
+| Kanban board | `feature/kanban-board.md` | 1 | done |
+| Project dashboard | `feature/project-dashboard.md` | 1 | done |
+| Project administration | `feature/project-administration.md` | 1 | done |
+| User management | `feature/user-management.md` | 1 | done |
+| Workflow configuration | `feature/workflow-configuration.md` | 1 | done |
+| Categories | `feature/categories.md` | 1 | done |
+| Notifications (SSE, in-app) | `feature/notifications.md` | 1 | done |
+| Email delivery | `feature/email-delivery.md` | 1 | done |
+| Phase and version management | `feature/phase-management.md` | 4 | planned |
 
 Home (`/`) is a landing shell only — no separate feature doc.
+
+## Versioning
+
+- **Feature version** (document header) — highest changelog **Version** number; increment when adding a changelog entry.
+- **Changelog Version** — sequential integer per entry (`1`, `2`, `3`, …); stable once published; never renumber.
+- **Open questions** — sequential `Q1`, `Q2`, … per feature file; numbers are never reused; cite as **Q3** in tasks and approval notes.

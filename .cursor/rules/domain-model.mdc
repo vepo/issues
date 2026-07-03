@@ -22,8 +22,9 @@ Before implementing any change, you MUST complete [development-process.mdc](deve
 1. **Feature analysis** — `feature/<feature-slug>.md` with impact and changelog ([change-request-analysis.mdc](change-request-analysis.mdc)).
 2. **Task break** — numbered tasks and test coverage plan in the changelog entry (`status: tasks-ready`).
 3. **Development approved** — user explicitly approves task IDs (`status: approved`).
-4. **Read the domain specification** completely, especially the Ubiquitous Language section.
-5. **Question the change against the domain**:
+4. **Open questions** — track in numbered table (**Q1**, **Q2**, …); status `open` | `answered` | `not valid`; cite **Q*n*** in tasks and changelog.
+5. **Read the domain specification** completely, especially the Ubiquitous Language section.
+6. **Question the change against the domain**:
    - Does this change affect the domain (new entities, events, or business rules)?
    - Does the domain allow the intended implementation?
    - Do we need to extend the domain specification?

@@ -1,5 +1,6 @@
 # Workflow configuration
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,22 @@ Project managers and admins define workflows: name, start status, status list, a
 | Tests | `CreateWorkflowEndpointTest`, `UpdateWorkflowEndpointTest`, `ListWorkflowsEndpointTest`, `ListStatusesEndpointTest` |
 | Docs | domain-spec (Workflow, Status, Transition), feature-catalog (Workflow rows), README § Tickets & workflow |
 
-### Risks and open questions
+### Risks
 
-- **Known gap:** status list not editable after workflow creation (ARCHITECTURE §13).
-- Orphan transitions if statuses removed in future enhancement.
+- Status list not editable after workflow creation (ARCHITECTURE §13).
+
+### Open questions
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should workflow statuses be editable after create? | open | |
+| Q2 | How should orphan transitions be handled if statuses are removed? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Workflow builder UI with status table and transitions table on create; edit updates name, start status, and transitions.

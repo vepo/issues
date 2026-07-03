@@ -1,5 +1,6 @@
 # Ticket management
 
+**Feature version:** 1  
 **Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
@@ -19,15 +20,21 @@ Core ticket lifecycle: view and edit ticket fields, assign users, move status pe
 | Tests | `CreateTicketEndpointTest`, `UpdateTicketEndpointTest`, `DeleteTicketEndpointTest`, `MoveTicketEndpointTest`, `UpdateAssigneeEndpointTest`, `Find*EndpointTest`, `ListTicketsEndpointTest`, `AddCommentEndpointTest`, `ListCommentsEndpointTest`, `GetTicketHistoryEndpointTest`, `TicketHistoryServiceTest`, `SubscribeTicketEndpointTest`, `HistoryDisplayTest` |
 | Docs | domain-spec (Ticket, Comment, History, Subscriber, Activity feed), feature-catalog (Ticket detail), README § Tickets & workflow |
 
-### Risks and open questions
+### Risks
 
 - Due date field not implemented (ARCHITECTURE §13 known gap).
-- Restore deleted ticket not exposed in UI.
+
+### Open questions
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| Q1 | Should deleted tickets be restorable from the UI? | open | |
 
 ## Changelog
 
 ### Initial implementation — baseline
 
+**Version:** 1  
 **Status:** done
 
 **Description:** Full ticket CRUD (soft delete), workflow-validated moves, assignee updates, comments, structured history, subscribers, and merged Atividade feed on detail page.
