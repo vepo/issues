@@ -45,7 +45,10 @@ export class CreateTicketModalComponent implements OnInit {
     projectId: new FormControl(-1, [Validators.min(1)]),
     description: new FormControl('', [Validators.minLength(5), Validators.maxLength(1200)]),
     categoryId: new FormControl(-1, [Validators.min(1)]),
+    priority: new FormControl('MEDIUM', [Validators.required]),
   });
+
+  readonly priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
   constructor() {
     const authService = this.authService;
@@ -87,7 +90,8 @@ export class CreateTicketModalComponent implements OnInit {
       title: this.ticketForm.value.title!,
       description: this.ticketForm.value.description!,
       categoryId: this.ticketForm.value.categoryId!,
-      projectId: this.ticketForm.value.projectId!
+      projectId: this.ticketForm.value.projectId!,
+      priority: this.ticketForm.value.priority! as CreateTicketRequest['priority']
     };
     this.ticketService.createTicket(req)
                       .subscribe(ticket => { 

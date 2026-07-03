@@ -24,6 +24,13 @@ public class CategoryRepository {
                  .getResultStream();
     }
 
+    public Optional<Category> findByName(String name) {
+        return em.createQuery("FROM Category WHERE lower(name) = lower(:name)", Category.class)
+                 .setParameter("name", name)
+                 .getResultStream()
+                 .findFirst();
+    }
+
     public Category save(Category category) {
         em.persist(category);
         return category;

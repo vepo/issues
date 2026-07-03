@@ -16,6 +16,7 @@ import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 
@@ -38,6 +39,28 @@ public class AuthenticationService {
         this.userRepository = userRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.mailerService = mailerService;
+    }
+
+    @Transactional
+    public void confirmPasswordReset(ConfirmPasswordResetRequest request) {
+        var resetToken = passwordResetTokenRepository.findByToken(request.token())
+                                                     .orElseThrow(() -> new BadRequestException("Invalid or expired reset token"));
+        if (!resetToken.isValid()) {
+            throw new BadRequestException("Invalid or expired reset token");
+        }
+        var user = resetToken.getUser();
+        user.setEncodedPassword(passwordEncoder.hashPassword(request.newPassword()));
+        resetToken.setUsed(true);
+    }
+
+    @Transactional
+    public void changePassword(String username, ChangePasswordRequest request) {
+        var user = userRepository.findByUsername(username)
+                                 .orElseThrow(() -> new NotFoundException("User not found!"));
+        if (!passwordEncoder.matches(request.currentPassword(), user.getEncodedPassword())) {
+            throw new BadRequestException("Current password is incorrect");
+        }
+        user.setEncodedPassword(passwordEncoder.hashPassword(request.newPassword()));
     }
 
     @Transactional

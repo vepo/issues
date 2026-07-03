@@ -218,12 +218,9 @@ Legend: ✅ Compliant · ⚠️ Partial · ❌ Gap · **Fix** = action taken or 
 
 | Item | Heuristic | Priority |
 |------|-----------|----------|
-| Password reset confirm implementation | H2, H9 | Medium |
-| Password reset request API error UI | H9 | Low |
-| Users list Material filter fields | H4 | Low |
-| Dashboard loading copy per widget type | H1 | Low |
-| Comment submit loading indicator | H1 | Low |
 | In-app help / onboarding tooltip | H10 | Low |
+
+Most items from the 2026-07-02 audit are addressed (password confirm, workflows UI, account page, per-widget loading copy).
 
 ---
 

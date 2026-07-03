@@ -290,8 +290,8 @@ a {
   }
 }
 
-input,
-select {
+input:not(.mat-mdc-input-element),
+select:not(.mat-mdc-select-min-line) {
   box-sizing: border-box;
   border: solid 1px colors.$border-default;
   border-radius: colors.$radius-none;
@@ -299,8 +299,8 @@ select {
   padding: colors.$space-xs colors.$space-xl colors.$space-xs colors.$space-sm;
   color: colors.$text-primary;
 
-  &:focus:not(.mat-mdc-input-element),
-  &:focus-visible:not(.mat-mdc-input-element) {
+  &:focus,
+  &:focus-visible {
     outline: none;
     border-color: colors.$focus-ring-color;
     box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.25);
@@ -1009,6 +1009,7 @@ main {
       .card {
         cursor: grab;
         transition: border-color 0.15s ease;
+        border-left: 4px solid transparent;
 
         &.empty {
           font-style: italic;
@@ -1063,7 +1064,36 @@ mat-form-field.form-field {
   display: block;
   margin-bottom: colors.$space-sm;
 
+  .mat-mdc-form-field-infix {
+    min-height: 3rem;
+    padding: colors.$space-sm colors.$space-md;
+  }
+
+  .mat-mdc-input-element {
+    padding: colors.$space-xs colors.$space-sm;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .mat-mdc-select-trigger {
+    padding: colors.$space-xs colors.$space-sm;
+    min-height: 1.75rem;
+    box-sizing: border-box;
+  }
+
+  .mat-mdc-select-value,
+  .mat-mdc-select-min-line {
+    padding-left: colors.$space-xs;
+  }
+
   &.form-field--compact {
+    .mat-mdc-form-field-infix {
+      min-height: 3.5rem;
+      padding: colors.$space-sm colors.$space-md;
+      display: flex;
+      align-items: center;
+    }
   }
 
   &.form-field--textarea {
@@ -1097,6 +1127,174 @@ form {
   gap: colors.$space-xs;
 }
 
+.color-field-row {
+  display: flex;
+  align-items: center;
+  gap: colors.$space-sm;
+  margin-bottom: colors.$space-sm;
+
+  &__label {
+    font-size: 0.875rem;
+    color: colors.$text-secondary;
+    min-width: 2.5rem;
+  }
+
+  .color-picker {
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid colors.$border-default;
+    background: colors.$surface-card;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .form-field {
+    flex: 1;
+    margin-bottom: 0;
+  }
+}
+
+.color-picker-field {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-sm;
+  margin-bottom: colors.$space-sm;
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: colors.$text-secondary;
+  }
+
+  &__row {
+    display: flex;
+    align-items: flex-end;
+    gap: colors.$space-md;
+    width: 100%;
+  }
+
+  &__hex {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+
+    .mat-mdc-text-field-wrapper {
+      height: 3.5rem;
+    }
+  }
+}
+
+.color-picker-trigger {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: pointer;
+  width: fit-content;
+  margin: 0 0 0.5rem 0;
+
+  &__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+
+  &__surface {
+    display: inline-flex;
+    align-items: center;
+    gap: colors.$space-sm;
+    height: 3.5rem;
+    box-sizing: border-box;
+    padding: 0 colors.$space-md;
+    border: 1px solid colors.$border-default;
+    background: colors.$surface-card;
+    color: colors.$text-primary;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      border-color: colors.$base-active-color;
+      box-shadow: colors.$shadow-card;
+    }
+  }
+
+  &__swatch {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid colors.$border-subtle;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  &:focus-within &__surface {
+    @include focus-ring;
+  }
+}
+
+.mat-mdc-button-base.btn-icon-only {
+  min-width: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+
+  .mdc-button__label {
+    padding: 0;
+  }
+}
+
+.category-swatch {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-right: colors.$space-xs;
+  border: 1px solid colors.$border-subtle;
+  vertical-align: middle;
+}
+
+.section-title {
+  margin: 0 0 colors.$space-md;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.success-message {
+  color: colors.$base-active-color;
+  font-size: 0.875rem;
+  margin: 0 0 colors.$space-sm;
+}
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: colors.$space-xs;
+  padding: 0.125rem colors.$space-sm;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: colors.$radius-none;
+  color: colors.$text-primary;
+  background: colors.$surface-muted;
+  border-left: 3px solid transparent;
+
+  &__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+}
+
 .create-ticket-dialog {
   .mat-mdc-dialog-surface {
     padding: 0;
@@ -1119,6 +1317,45 @@ form {
     padding: colors.$space-lg;
     margin: 0;
     max-height: 65vh;
+  }
+
+  mat-dialog-actions,
+  .mat-mdc-dialog-actions {
+    padding: colors.$space-md colors.$space-lg;
+    margin: 0;
+    min-height: auto;
+    border-top: 1px solid colors.$border-subtle;
+    background: colors.$surface-toolbar;
+    gap: colors.$space-sm;
+  }
+}
+
+.category-dialog {
+  .mat-mdc-dialog-surface {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  h2[mat-dialog-title],
+  .mat-mdc-dialog-title {
+    margin: 0;
+    padding: colors.$space-md colors.$space-lg;
+    background: colors.$base-background-color;
+    color: colors.$surface-card;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  mat-dialog-content,
+  .mat-mdc-dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: colors.$space-sm;
+    padding: colors.$space-lg;
+    margin: 0;
+    max-height: 65vh;
+    box-sizing: border-box;
   }
 
   mat-dialog-actions,
@@ -1410,18 +1647,40 @@ div.data-table {
     > div {
       flex: 1;
       padding: colors.$space-sm colors.$space-md;
+      text-align: left;
+    }
+
+    .header-cell--actions {
+      flex: 0 0 7.5rem;
+      text-align: center;
     }
   }
 
   .body {
     .row {
       display: flex;
+      align-items: center;
       transition: background-color 0.12s ease;
 
       > div {
         flex: 1;
         padding: colors.$space-sm colors.$space-md;
         vertical-align: middle;
+        text-align: left;
+      }
+
+      .cell-actions {
+        flex: 0 0 7.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: colors.$space-xs colors.$space-sm;
+      }
+
+      .cell-color {
+        display: flex;
+        align-items: center;
+        gap: colors.$space-xs;
       }
 
       &.even {
@@ -1435,6 +1694,21 @@ div.data-table {
       &:hover {
         background-color: colors.$surface-toolbar;
       }
+    }
+  }
+
+  &--cols-id-name-color-actions {
+    .header,
+    .body .row {
+      display: grid;
+      grid-template-columns: 4.5rem minmax(8rem, 1.5fr) minmax(8rem, 1fr) 7.5rem;
+      align-items: center;
+    }
+
+    .header-cell--actions,
+    .cell-actions {
+      justify-self: center;
+      text-align: center;
     }
   }
 

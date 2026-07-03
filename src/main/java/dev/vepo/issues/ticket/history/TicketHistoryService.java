@@ -39,6 +39,10 @@ public class TicketHistoryService {
         createEntry(ticket, user, TicketHistoryAction.ASSIGNEE_CHANGED, "assignee", fromAssignee, toAssignee, null);
     }
 
+    public void logPriorityChanged(Ticket ticket, User user, String fromPriority, String toPriority) {
+        createEntry(ticket, user, TicketHistoryAction.FIELD_CHANGED, "priority", fromPriority, toPriority, null);
+    }
+
     public void logSubscribed(Ticket ticket, User user, String subscriberName) {
         createEntry(ticket, user, TicketHistoryAction.SUBSCRIBED, "subscriber", null, subscriberName, null);
     }

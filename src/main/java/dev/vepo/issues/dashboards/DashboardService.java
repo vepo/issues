@@ -36,7 +36,7 @@ public class DashboardService {
 
     public PieChartDataResponse loadPieData(long projectId, DashboardType type) {
         return switch (type) {
-            case TICKETS_BY_PRIORITY -> loadTicketsByCategory(projectId);
+            case TICKETS_BY_PRIORITY -> loadTicketsByPriority(projectId);
             case TICKETS_BY_DAY -> loadTicketByDay(projectId);
             case TICKETS_BY_STATUS -> loadTicketByStatus(projectId);
             default -> throw new BadRequestException("Invalid chart type!!");
@@ -88,8 +88,8 @@ public class DashboardService {
                                 ((Function<Ticket, WorkflowStatus>) Ticket::getStatus).andThen(WorkflowStatus::getName));
     }
 
-    private PieChartDataResponse loadTicketsByCategory(long projectId) {
-        return generatePieChart(projectId, ticket -> ticket.getCategory().getName());
+    private PieChartDataResponse loadTicketsByPriority(long projectId) {
+        return generatePieChart(projectId, ticket -> ticket.getPriority().name());
     }
 
     private PieChartDataResponse generatePieChart(long projectId, Function<Ticket, String> keyExtractor) {

@@ -157,6 +157,7 @@ Each row is one endpoint class (39 total). Path prefixes come from `{Context}Pat
 | Auth | `auth.login.LoginEndpoint` | `POST /auth/login` |
 | Auth | `auth.me.MeEndpoint` | `GET /auth/me` |
 | Auth | `auth.recovery.ResetPasswordEndpoint` | `POST /auth/recovery` |
+| Auth | `auth.recovery.ConfirmPasswordResetEndpoint` | `POST /auth/recovery/confirm` |
 | Users | `user.create.CreateUserEndpoint` | `POST /users` |
 | Users | `user.update.UpdateUserEndpoint` | `POST /users/{id}` |
 | Users | `user.find.FindUserByIdEndpoint` | `GET /users/{id}` |
@@ -231,7 +232,10 @@ Tables use prefix `tb_`. Initial migration: `V1.0.0__Database_Creation.sql`. Dev
 
 | Item | Status |
 |------|--------|
-| SonarCloud project key migration | Renamed to `vepo_issues` |
+| Workflow update API/UI | Partial — edit name, start status, and transitions; status list fixed after create |
+| Due date on tickets | Not implemented |
+| Server-persisted dashboard layouts | Uses browser `localStorage` only |
+| In-app onboarding tooltips | Not implemented |
 
 ## 14. OpenAPI → TypeScript codegen
 

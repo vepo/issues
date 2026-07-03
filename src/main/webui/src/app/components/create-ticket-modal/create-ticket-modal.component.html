@@ -44,6 +44,15 @@
     </mat-form-field>
 
     <mat-form-field class="form-field" appearance="outline">
+      <mat-label i18n>Prioridade</mat-label>
+      <mat-select formControlName="priority" required>
+        @for (priority of priorities; track priority) {
+          <mat-option [value]="priority">{{ priority }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="form-field" appearance="outline">
       <mat-label i18n>Categoria</mat-label>
       <mat-select formControlName="categoryId" required>
         <mat-option [value]="-1" disabled i18n>Selecione uma categoria...</mat-option>

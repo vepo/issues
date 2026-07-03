@@ -51,9 +51,10 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 ### Tickets & workflow
 
-- **Tickets** — create, edit, assign, and soft-delete work items scoped to a project
+- **Tickets** — create, edit, assign, set priority, and soft-delete work items scoped to a project
 - **Identifiers** — human-readable keys (`ISS-001`) from project prefix + sequence
 - **Workflows** — configurable status graphs with allowed transitions per project
+- **Priority** — `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` on create and edit
 - **Move ticket** — status changes validated against workflow rules
 - **Categories** — classify tickets with name and color
 - **Comments** — discussion thread on each ticket
@@ -63,7 +64,8 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 ### Projects & administration
 
 - **Projects** — name, prefix, description, and assigned workflow
-- **Workflow builder** — create workflows with statuses and transitions (API)
+- **Workflow builder** — create workflows with statuses and transitions (`/workflows` UI + API)
+- **Categories admin** — list and create ticket categories (`/categories`, admin)
 - **User management** — CRUD for users and role assignment (admin)
 - **Roles** — `user`, `admin`, `project-manager` (combinable)
 
@@ -83,8 +85,8 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 ### Authentication
 
 - **Login** — JWT-based session via Bearer token
-- **Password recovery** — email link with single-use reset token
-- **Current user profile** — `/auth/me` for authenticated context
+- **Password recovery** — email link with token; confirm page sets new password
+- **Account** — read-only profile at `/account/settings` (`GET /auth/me`)
 
 ## Documentation
 

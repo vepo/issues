@@ -6,11 +6,12 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 |---------|-------|-------|-------------------|
 | Login | `/login` | public | Open app → enter email/password → submit → redirect home |
 | Password reset request | `/login/reset-password` | public | Login → "Forgot password" → enter email → submit |
-| Password reset confirm | `/login/reset-password/:token` | public | Open email link → enter new password → submit |
+| Password reset confirm | `/login/reset-password/:token` | public | Open email link → enter new password twice → submit → login |
 | Home | `/` | authenticated | Login → land on home |
-| Kanban board | `/project/:projectId/kanban` | authenticated | Home → select project → view columns by status → drag/move ticket |
-| Project dashboard | `/project/:projectId/dashboard` | authenticated | Home → select project → dashboard → view charts/KPIs |
-| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → **Atividade** feed (comments + changes), filter chips, comment form, observe toggle |
+| Account settings | `/account/settings` | authenticated | Menu → Conta → view profile → change password (current + new) or use recovery link |
+| Kanban board | `/project/:projectId/kanban` | authenticated | Home → select project → view columns by status → drag/move ticket; category color on cards |
+| Project dashboard | `/project/:projectId/dashboard` | authenticated | Home → select project → dashboard shows default widgets on first visit; Editar layout to customize |
+| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → edit fields, assign, move status, delete (admin/PM), comments, observe |
 | Ticket search | `/search` | authenticated | Menu → search → enter term → open ticket |
 | User list | `/users` | admin | Menu → users → list |
 | Create user | `/users/new` | admin | Users → new → fill form → save |
@@ -18,20 +19,25 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Project list | `/projects` | project-manager+ | Menu → projects → list |
 | Create project | `/projects/new` | project-manager | Projects → new → fill form → save |
 | Edit project | `/projects/:projectId` | project-manager | Projects → select project → edit → save |
+| Workflow list | `/workflows` | project-manager, admin | Menu → Administração → Processos → list workflows → Editar |
+| Create workflow | `/workflows/new` | project-manager, admin | Workflows → Novo processo → status table + transitions table → save |
+| Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, start status, transitions (status names fixed) |
+| Category list | `/categories` | admin | Menu → Administração → Categorias → list; Nova categoria or Editar dialog with color picker |
 | Notifications (SSE) | (global, background) | authenticated | Login → SSE registers → badge updates on ticket changes |
 
 ## API-only features (no dedicated UI page)
 
 | Feature | API | Notes |
 |---------|-----|-------|
-| Create workflow | `POST /workflows` | admin, project-manager |
-| List categories | `GET /categories` | Used by ticket forms |
 | List statuses | `GET /status` | Used by filters and admin |
+| Confirm password reset | `POST /auth/recovery/confirm` | Used by password reset confirm page |
+| Change password | `POST /auth/change-password` | Used by account settings while logged in |
 
 ## Dev personas (from `dev-import.sql`)
 
 | Email | Roles | Use for |
 |-------|-------|---------|
+| cto@issues.ui | admin, project-manager, user | Full admin menu, workflows, projects |
 | admin@issues.vepo.dev | admin | User admin, ticket delete |
 | pm@issues.vepo.dev | project-manager | Project CRUD |
 | user@issues.vepo.dev | user | Ticket CRUD, Kanban |

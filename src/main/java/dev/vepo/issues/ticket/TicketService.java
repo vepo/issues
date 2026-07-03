@@ -117,6 +117,7 @@ public class TicketService {
                                 null,
                                 project,
                                 project.getWorkflow().getStart());
+        ticket.setPriority(Objects.nonNull(request.priority()) ? request.priority() : TicketPriority.MEDIUM);
         repository.save(ticket);
         historyService.logTicketCreated(ticket, author);
         return TicketResponse.load(ticket);
@@ -142,10 +143,14 @@ public class TicketService {
                                            entity.getCategory().getName(),
                                            newCategory.getName());
         }
+        if (!entity.getPriority().equals(request.priority())) {
+            historyService.logPriorityChanged(entity, user, entity.getPriority().name(), request.priority().name());
+        }
 
         entity.setTitle(request.title());
         entity.setDescription(request.description());
         entity.setCategory(newCategory);
+        entity.setPriority(request.priority());
         entity.setUpdatedAt(LocalDateTime.now());
 
         return TicketResponse.load(entity);

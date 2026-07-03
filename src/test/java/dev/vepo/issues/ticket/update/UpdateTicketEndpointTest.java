@@ -33,14 +33,16 @@ class UpdateTicketEndpointTest {
                      {
                          "title": "New Ticket Title",
                          "description": "New Ticket description",
-                         "categoryId": %d
+                         "categoryId": %d,
+                         "priority": "HIGH"
                      }""".formatted(fixtures.feature().getId()))
                .post("/api/tickets/" + fixtures.ticket().id())
                .then()
                .statusCode(200)
                .body("title", equalTo("New Ticket Title"))
                .body("description", equalTo("New Ticket description"))
-               .body("category", is(fixtures.feature().getId().intValue()));
+               .body("category", is(fixtures.feature().getId().intValue()))
+               .body("priority", equalTo("HIGH"));
     }
 
     @Test
@@ -54,7 +56,8 @@ class UpdateTicketEndpointTest {
                      {
                          "title": "Invalid Category Ticket",
                          "description": "This ticket has an invalid category ID.",
-                         "categoryId": 9999
+                         "categoryId": 9999,
+                         "priority": "MEDIUM"
                      }""")
                .post("/api/tickets/" + fixtures.ticket().id())
                .then()

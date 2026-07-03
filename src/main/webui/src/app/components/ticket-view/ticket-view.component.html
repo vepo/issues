@@ -1,5 +1,13 @@
 @if (ticket) {
 <div class="page">
+  <nav class="breadcrumb" aria-label="Navegação">
+    <a routerLink="/" i18n>Início</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <a [routerLink]="['/project', ticket.project.id, 'kanban']">{{ ticket.project.name }}</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <span class="breadcrumb__current">#{{ ticket.identifier }}</span>
+  </nav>
+
   <header class="page-header">
     <div>
       <h1 class="page-title">#{{ ticket.identifier }} — {{ ticket.title }}</h1>
@@ -9,6 +17,10 @@
       </p>
     </div>
     <div class="page-header__actions">
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="toggleEdit()">
+        <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
+        <span i18n>{{ isEditing ? 'Cancelar edição' : 'Editar' }}</span>
+      </button>
       <button class="btn" matButton="filled" (click)="toggle()">
         @if (isSubscribed()) {
           <ng-container>
@@ -22,96 +34,205 @@
           </ng-container>
         }
       </button>
+      @if (canDelete()) {
+        <button class="btn btn-cancel" matButton="filled" type="button" (click)="confirmDelete()">
+          <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
+          <span i18n>Excluir</span>
+        </button>
+      }
     </div>
   </header>
 
   <section class="page-panel">
-    <dl class="detail-list">
-      <dt i18n>Projeto</dt>
-      <dd>{{ ticket.project.name }}</dd>
-      <dt i18n>Categoria</dt>
-      <dd>{{ ticket.category }}</dd>
-      <dt i18n>Autor</dt>
-      <dd>{{ ticket.author.name }}</dd>
-      <dt i18n>Responsável</dt>
-      <dd>{{ ticket.assignee?.name || '—' }}</dd>
-      <dt i18n>Status</dt>
-      <dd>{{ ticket.status | normalize }}</dd>
-      <dt i18n>Subscritos</dt>
-      <dd>
-        @if (ticket.subscribers.length > 0) {
-          <span class="labels">
-            @for (subs of ticket.subscribers; track subs.username) {
-              <span class="label">{{ subs.name }}</span>
+    @if (isEditing) {
+      <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveTicket()">
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Título</mat-label>
+          <input matInput formControlName="title" required />
+        </mat-form-field>
+        <mat-form-field class="form-field form-field--textarea" appearance="outline">
+          <mat-label i18n>Descrição</mat-label>
+          <textarea matInput formControlName="description" rows="5" required></textarea>
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Categoria</mat-label>
+          <mat-select formControlName="categoryId" required>
+            @for (category of categories; track category.id) {
+              <mat-option [value]="category.id">
+                <span class="category-badge" [style.border-left-color]="category.color">
+                  <span class="category-badge__dot" [style.background-color]="category.color"></span>
+                  {{ category.name }}
+                </span>
+              </mat-option>
             }
-          </span>
-        } @else {
-          <span class="text-muted" i18n>Nenhum</span>
-        }
-      </dd>
-      <dt i18n>Descrição</dt>
-      <dd>{{ ticket.description }}</dd>
-    </dl>
-
-    <section class="activity-section" aria-labelledby="activity-heading">
-      <h2 id="activity-heading" class="activity-section__title" i18n>Atividade</h2>
-
-      <div class="comment-form">
-        <h3 i18n>Adicionar comentário</h3>
-        <app-rich-text-editor
-          [value]="newComment"
-          [disabled]="submittingComment"
-          placeholder="Digite seu comentário..."
-          (valueChange)="onCommentChange($event)">
-        </app-rich-text-editor>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Prioridade</mat-label>
+          <mat-select formControlName="priority" required>
+            @for (priority of priorities; track priority) {
+              <mat-option [value]="priority">{{ priority }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
         <div class="form-actions">
-          <button
-            class="btn"
-            matButton="filled"
-            (click)="addComment()"
-            [disabled]="!newComment.trim() || submittingComment">
-            @if (submittingComment) {
-              <span i18n>Enviando...</span>
-            } @else {
-              <span i18n>Publicar comentário</span>
-            }
+          <button class="btn" matButton="filled" type="submit" [disabled]="editForm.invalid || isSaving">
+            <span i18n>{{ isSaving ? 'Salvando...' : 'Salvar' }}</span>
           </button>
         </div>
-      </div>
+      </form>
+    } @else {
+      <dl class="detail-list">
+        <dt i18n>Projeto</dt>
+        <dd>{{ ticket.project.name }}</dd>
+        <dt i18n>Categoria</dt>
+        <dd>
+          <span class="category-badge" [style.border-left-color]="ticket.categoryColor">
+            <span class="category-badge__dot" [style.background-color]="ticket.categoryColor"></span>
+            {{ ticket.category }}
+          </span>
+        </dd>
+        <dt i18n>Prioridade</dt>
+        <dd>{{ ticket.priority }}</dd>
+        <dt i18n>Autor</dt>
+        <dd>{{ ticket.author.name }}</dd>
+        <dt i18n>Responsável</dt>
+        <dd>{{ ticket.assignee?.name || '—' }}</dd>
+        <dt i18n>Status</dt>
+        <dd>{{ ticket.status | normalize }}</dd>
+        <dt i18n>Subscritos</dt>
+        <dd>
+          @if (ticket.subscribers.length > 0) {
+            <span class="labels">
+              @for (subs of ticket.subscribers; track subs.username) {
+                <span class="label">{{ subs.name }}</span>
+              }
+            </span>
+          } @else {
+            <span class="text-muted" i18n>Nenhum</span>
+          }
+        </dd>
+        <dt i18n>Descrição</dt>
+        <dd>{{ ticket.description }}</dd>
+      </dl>
+    }
 
-      <div class="filter-chips" role="group" aria-label="Filtrar atividade" i18n-aria-label>
-        <button
-          type="button"
-          class="filter-chip"
-          [class.active]="activeFilter === 'all'"
-          (click)="setActiveFilter('all')"
-          i18n>
-          Todos
-        </button>
-        <button
-          type="button"
-          class="filter-chip"
-          [class.active]="activeFilter === 'comments'"
-          (click)="setActiveFilter('comments')"
-          i18n>
-          Comentários
-        </button>
-        <button
-          type="button"
-          class="filter-chip"
-          [class.active]="activeFilter === 'changes'"
-          (click)="setActiveFilter('changes')"
-          i18n>
-          Alterações
-        </button>
-      </div>
+    <div class="ticket-actions">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>Responsável</mat-label>
+        <mat-select [(ngModel)]="selectedAssigneeId" name="assignee">
+          @for (user of users; track user.id) {
+            <mat-option [value]="user.id">{{ user.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="saveAssignee()" i18n>Atualizar responsável</button>
 
-      @if (loadingComments) {
-        <div class="loading" i18n>Carregando atividade...</div>
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>Mover para</mat-label>
+        <mat-select [(ngModel)]="selectedStatusId" name="status">
+          <mat-option [value]="currentStatusId()">{{ ticket.status | normalize }} (atual)</mat-option>
+          @for (status of allowedTargetStatuses(); track status.id) {
+            <mat-option [value]="status.id">{{ status.name | normalize }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="moveTicket()" i18n>Mover ticket</button>
+    </div>
+
+    <nav class="tabs" aria-label="Seções do ticket">
+      <button
+        type="button"
+        class="tab-button"
+        [class.active]="activeTab === 'history'"
+        (click)="setActiveTab('history')"
+        i18n>
+        Histórico
+      </button>
+      <button
+        type="button"
+        class="tab-button"
+        [class.active]="activeTab === 'comments'"
+        (click)="setActiveTab('comments')"
+        i18n>
+        Comentários
+      </button>
+    </nav>
+
+    @if (activeTab === 'history') {
+      @if (ticket.history && ticket.history.length > 0) {
+        <div class="data-table">
+          <div class="header">
+            <div class="header-cell" i18n>Data</div>
+            <div class="header-cell" i18n>Usuário</div>
+            <div class="header-cell" i18n>Alteração</div>
+          </div>
+          <div class="body">
+            @for (entry of ticket.history; track entry.timestamp) {
+              <div class="row {{ $even ? 'even' : 'odd' }}">
+                <div>{{ entry.timestamp | date: 'medium' }}</div>
+                <div>{{ entry.user?.email }}</div>
+                <div>
+                  @if (entry.field) {
+                    {{ entry.action }} — {{ entry.field }}: {{ entry.oldValue || '—' }} → {{ entry.newValue || '—' }}
+                  } @else {
+                    {{ entry.action }}
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
       } @else {
-        <app-ticket-activity-feed [items]="filteredActivity()"></app-ticket-activity-feed>
+        <div class="empty-state" i18n>Nenhuma atividade registrada para este ticket.</div>
       }
-    </section>
+    }
+
+    @if (activeTab === 'comments') {
+      <div class="comments-section">
+        <div class="comment-form">
+          <h3 i18n>Adicionar comentário</h3>
+          <app-rich-text-editor
+            [value]="newComment"
+            [disabled]="submittingComment"
+            placeholder="Digite seu comentário..."
+            (valueChange)="onCommentChange($event)">
+          </app-rich-text-editor>
+          <div class="form-actions">
+            <button
+              class="btn"
+              matButton="filled"
+              (click)="addComment()"
+              [disabled]="!newComment.trim() || submittingComment">
+              @if (submittingComment) {
+                <span i18n>Enviando...</span>
+              } @else {
+                <span i18n>Publicar comentário</span>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="comments-list">
+          <h3 i18n>Comentários ({{ comments.length }})</h3>
+          @if (loadingComments) {
+            <div class="loading" i18n>Carregando comentários...</div>
+          } @else if (comments.length > 0) {
+            @for (comment of comments; track comment.id) {
+              <div class="comment">
+                <div class="comment-header">
+                  <span class="comment-author">{{ comment.author.name }}</span>
+                  <span class="comment-date">{{ comment.createdAt | date: 'medium' }}</span>
+                </div>
+                <div class="comment-content" [innerHTML]="comment.content"></div>
+              </div>
+            }
+          } @else {
+            <div class="empty-state" i18n>Nenhum comentário ainda. Seja o primeiro a comentar.</div>
+          }
+        </div>
+      </div>
+    }
   </section>
 </div>
 }

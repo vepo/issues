@@ -38,7 +38,8 @@ class GetTicketHistoryEndpointTest {
                      {
                          "title": "Updated Title for History",
                          "description": "Updated description for history",
-                         "categoryId": %d
+                         "categoryId": %d,
+                         "priority": "MEDIUM"
                      }""".formatted(fixtures.feature().getId()))
                .post("/api/tickets/" + fixtures.ticket().id())
                .then()

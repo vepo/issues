@@ -11,13 +11,20 @@ import { SearchTicketsComponent } from './components/search-tickets/search-ticke
 import { TicketViewComponent } from './components/ticket-view/ticket-view.component';
 import { UsersEditComponent } from './components/users-edit.component/users-edit.component';
 import { UsersViewComponent } from './components/users-view.component/users-view.component';
+import { WorkflowsViewComponent } from './components/workflows/workflows-view.component';
+import { WorkflowCreateComponent } from './components/workflows/workflow-create.component';
+import { WorkflowEditComponent } from './components/workflows/workflow-edit.component';
+import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
+import { CategoriesViewComponent } from './components/categories/categories-view.component';
 import { projectResolver, projectsResolver } from './resolvers/project-resolver';
 import { statusResolver } from './resolvers/status-resolver';
 import { ticketResolver } from './resolvers/ticket.resolver';
 import { ticketsResolver } from './resolvers/tickets-resolver';
 import { userResolver, usersResolver } from './resolvers/users.resolver';
+import { categoriesResolver } from './resolvers/categories-resolver';
 import { workflowsResolver } from './resolvers/workflow-resolver';
 import { authGuard } from './services/auth.guard';
+import { roleGuard } from './services/role.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -106,6 +113,37 @@ export const routes: Routes = [
       workflows: workflowsResolver
     },
     canActivate: [authGuard]
+  },
+  {
+    path: 'workflows',
+    component: WorkflowsViewComponent,
+    resolve: {
+      workflows: workflowsResolver
+    },
+    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])],
+  },
+  {
+    path: 'workflows/new',
+    component: WorkflowCreateComponent,
+    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])],
+  },
+  {
+    path: 'workflows/:workflowId',
+    component: WorkflowEditComponent,
+    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])],
+  },
+  {
+    path: 'account/settings',
+    component: AccountSettingsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'categories',
+    component: CategoriesViewComponent,
+    resolve: {
+      categories: categoriesResolver
+    },
+    canActivate: [authGuard, roleGuard(['admin'])],
   },
   {
     path: '',

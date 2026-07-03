@@ -38,8 +38,9 @@ export class PasswordResetRequestComponent {
             console.log("Success!!", resp)
             this.isLoading = false;
             this.toastService.success("Recuperação de senha iniciada. Verifique seu email!", 15000);
-          }, error: (err) => {
-            console.log(err);
+          }, error: () => {
+            this.isLoading = false;
+            this.toastService.error('Não foi possível iniciar a recuperação. Tente novamente.');
           }
         })
     }

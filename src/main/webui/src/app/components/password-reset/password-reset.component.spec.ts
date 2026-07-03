@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 import { PasswordResetComponent } from './password-reset.component';
+import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 describe('PasswordReset', () => {
   let component: PasswordResetComponent;
@@ -9,7 +12,23 @@ describe('PasswordReset', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [PasswordResetComponent],
-      providers: [provideRouter([])]
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { paramMap: { get: () => 'test-token' } }
+          }
+        },
+        {
+          provide: AuthService,
+          useValue: jasmine.createSpyObj('AuthService', ['confirmPasswordReset'])
+        },
+        {
+          provide: ToastService,
+          useValue: jasmine.createSpyObj('ToastService', ['success', 'error'])
+        }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PasswordResetComponent);

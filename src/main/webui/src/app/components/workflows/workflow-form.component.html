@@ -1,0 +1,120 @@
+<form class="workflow-form" [formGroup]="workflowForm" (ngSubmit)="submit()">
+  <mat-form-field class="form-field" appearance="outline">
+    <mat-label i18n>Nome</mat-label>
+    <input matInput formControlName="name" required />
+  </mat-form-field>
+
+  <mat-form-field class="form-field" appearance="outline">
+    <mat-label i18n>Status inicial</mat-label>
+    <mat-select formControlName="start" required>
+      @for (name of statusNames(); track name) {
+        <mat-option [value]="name">{{ name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <section class="workflow-form__section">
+    <div class="workflow-form__section-header">
+      <h3 i18n>Status</h3>
+      @if (mode === 'create') {
+        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addStatus()">
+          <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+          <span i18n>Adicionar status</span>
+        </button>
+      }
+    </div>
+    @if (mode === 'edit') {
+      <div class="workflow-form__list workflow-form__list--readonly">
+        <div class="workflow-form__list-header">
+          <div class="workflow-form__list-col" i18n>Nome do status</div>
+        </div>
+        <div class="workflow-form__list-body">
+          @for (statusControl of statuses.controls; track $index) {
+            <div class="workflow-form__list-row">
+              <div class="workflow-form__list-col">{{ statusControl.value }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="workflow-form__list">
+        <div class="workflow-form__list-header">
+          <div class="workflow-form__list-col" i18n>Nome do status</div>
+          <div class="workflow-form__list-col workflow-form__list-col--action" i18n>Ações</div>
+        </div>
+        <div class="workflow-form__list-body">
+          @for (statusControl of statuses.controls; track $index) {
+            <div class="workflow-form__list-row">
+              <div class="workflow-form__list-col">
+                <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
+                  <mat-label i18n>Status {{ $index + 1 }}</mat-label>
+                  <input matInput [formControl]="$any(statusControl)" required />
+                </mat-form-field>
+              </div>
+              <div class="workflow-form__list-col workflow-form__list-col--action">
+                @if (statuses.length > 2) {
+                  <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeStatus($index)" i18n-aria-label aria-label="Excluir status">
+                    <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="workflow-form__section">
+    <div class="workflow-form__section-header">
+      <h3 i18n>Transições</h3>
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addTransition()">
+        <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+        <span i18n>Adicionar transição</span>
+      </button>
+    </div>
+    <div class="workflow-form__list">
+      <div class="workflow-form__list-header">
+        <div class="workflow-form__list-col" i18n>De</div>
+        <div class="workflow-form__list-col" i18n>Para</div>
+        <div class="workflow-form__list-col workflow-form__list-col--action" i18n>Ações</div>
+      </div>
+      <div class="workflow-form__list-body">
+        @for (transition of transitions.controls; track $index) {
+          <div class="workflow-form__list-row" [formGroup]="$any(transition)">
+            <div class="workflow-form__list-col">
+              <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
+                <mat-select formControlName="from" required i18n-aria-label aria-label="De">
+                  @for (name of statusNames(); track name) {
+                    <mat-option [value]="name">{{ name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="workflow-form__list-col">
+              <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
+                <mat-select formControlName="to" required i18n-aria-label aria-label="Para">
+                  @for (name of statusNames(); track name) {
+                    <mat-option [value]="name">{{ name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="workflow-form__list-col workflow-form__list-col--action">
+              <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeTransition($index)" i18n-aria-label aria-label="Excluir transição">
+                <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="actions form-actions">
+    <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancelled.emit()" i18n>Cancelar</button>
+    <button class="btn" matButton="filled" type="submit" [disabled]="workflowForm.invalid || isSaving">
+      <span i18n>{{ isSaving ? 'Salvando...' : 'Salvar' }}</span>
+    </button>
+  </div>
+</form>

@@ -58,6 +58,7 @@ CREATE TABLE tb_tickets (
     project_id  BIGINT NOT NULL,
     category_id BIGINT NOT NULL,
     status_id   BIGINT NOT NULL,
+    priority    VARCHAR(16) NOT NULL DEFAULT 'MEDIUM',
     deleted     BOOLEAN DEFAULT false,
 
     CONSTRAINT tb_project_ID_UK       UNIQUE (identifier),

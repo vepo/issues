@@ -1,9 +1,15 @@
 import { Injectable, inject } from '@angular/core';
-import { tap } from 'rxjs';
+import { map, tap } from 'rxjs';
 import { AuthApi } from '../generated/api/auth.service';
+import { AuthResponse as GeneratedAuthResponse } from '../generated/model/authResponse';
+import { ConfirmPasswordResetRequest } from '../generated/model/confirmPasswordResetRequest';
 import { LoginRequest } from '../generated/model/loginRequest';
 import { LoginResponse } from '../generated/model/loginResponse';
 import { ResetPasswordRequest } from '../generated/model/resetPasswordRequest';
+import { asLoaded, Loaded } from '../core/required-types';
+
+export type CurrentUser = Loaded<GeneratedAuthResponse>;
+export type AuthResponse = LoginResponse;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -21,6 +27,18 @@ export class AuthService {
 
   recoverPassword(credential: string) {
     return this.api.resetPassword({ credential } as ResetPasswordRequest);
+  }
+
+  confirmPasswordReset(token: string, newPassword: string) {
+    return this.api.confirmPasswordReset({ token, newPassword } as ConfirmPasswordResetRequest);
+  }
+
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.api.changePassword({ currentPassword, newPassword });
+  }
+
+  me() {
+    return this.api.me().pipe(map(asLoaded));
   }
 
   saveToken(token: string) {
@@ -73,5 +91,3 @@ export class AuthService {
     return !!this.getToken();
   }
 }
-
-export type AuthResponse = LoginResponse;

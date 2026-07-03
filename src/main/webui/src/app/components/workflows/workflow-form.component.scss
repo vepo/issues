@@ -1,0 +1,104 @@
+@use "../../../colors";
+
+.workflow-form {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-md;
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: colors.$space-sm;
+  }
+
+  &__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: colors.$space-sm;
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
+
+  &__list {
+    border: 1px solid colors.$border-subtle;
+    background: colors.$surface-card;
+    overflow: hidden;
+  }
+
+  &__list-header {
+    display: flex;
+    align-items: center;
+    gap: colors.$space-md;
+    padding: colors.$space-sm colors.$space-md;
+    background: colors.$surface-toolbar;
+    border-bottom: 1px solid colors.$border-subtle;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: colors.$text-secondary;
+  }
+
+  &__list-row {
+    display: flex;
+    align-items: center;
+    gap: colors.$space-md;
+    padding: colors.$space-sm colors.$space-md;
+
+    &:nth-child(odd) {
+      background: colors.$surface-muted;
+    }
+
+    &:nth-child(even) {
+      background: colors.$surface-card;
+    }
+
+    &:hover {
+      background: colors.$surface-toolbar;
+    }
+  }
+
+  &__list-col {
+    flex: 1;
+    min-width: 0;
+
+    &--action {
+      flex: 0 0 2.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &__list--readonly &__list-row {
+    padding: colors.$space-sm colors.$space-md;
+  }
+
+  .form-field--table {
+    width: 100%;
+    margin: 0;
+
+    .mat-mdc-form-field-infix {
+      min-height: 2.5rem;
+      padding: colors.$space-xs colors.$space-sm;
+    }
+
+    .mat-mdc-select-trigger {
+      padding: colors.$space-xs colors.$space-sm;
+    }
+  }
+
+  .form-actions {
+    margin-top: colors.$space-md;
+    padding-top: colors.$space-lg;
+    border-top: 1px solid colors.$border-subtle;
+    display: flex;
+    justify-content: flex-end;
+    gap: colors.$space-sm;
+  }
+}

@@ -7,6 +7,8 @@ import { CommentResponse } from '../generated/model/commentResponse';
 import { CreateTicketRequest } from '../generated/model/createTicketRequest';
 import { MoveTicketRequest } from '../generated/model/moveTicketRequest';
 import { SubscribeTicketRequest } from '../generated/model/subscribeTicketRequest';
+import { UpdateAssigneeRequest } from '../generated/model/updateAssigneeRequest';
+import { UpdateTicketRequest } from '../generated/model/updateTicketRequest';
 import { TicketExpandedResponse } from '../generated/model/ticketExpandedResponse';
 import { TicketHistoryResponse } from '../generated/model/ticketHistoryResponse';
 import { TicketResponse } from '../generated/model/ticketResponse';
@@ -17,7 +19,7 @@ export type TicketExpanded = Loaded<TicketExpandedResponse>;
 export type Comment = Loaded<CommentResponse>;
 export type TicketHistory = Loaded<TicketHistoryResponse>;
 export type CreateCommentRequest = CommentRequest;
-export type { CreateTicketRequest };
+export type { CreateTicketRequest, UpdateTicketRequest };
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +54,18 @@ export class TicketService {
 
   createTicket(request: CreateTicketRequest): Observable<Ticket> {
     return this.api.createTicket(request).pipe(map(asLoaded));
+  }
+
+  update(ticketId: number, request: UpdateTicketRequest): Observable<Ticket> {
+    return this.api.updateTicket(ticketId, request).pipe(map(asLoaded));
+  }
+
+  updateAssignee(ticketId: number, assigneeId: number): Observable<Ticket> {
+    return this.api.updateAssignee(ticketId, { assigneeId } as UpdateAssigneeRequest).pipe(map(asLoaded));
+  }
+
+  delete(ticketId: number): Observable<unknown> {
+    return this.api.deleteTicket(ticketId);
   }
 
   getTicket(id: string): Observable<Ticket> {

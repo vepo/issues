@@ -15,6 +15,8 @@ import dev.vepo.issues.user.User;
 import dev.vepo.issues.workflow.WorkflowStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -77,6 +79,10 @@ public class Ticket {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TicketPriority priority = TicketPriority.MEDIUM;
+
     public Ticket() {}
 
     public Ticket(String identifier, String title, String description, Category category, User author, User assignee, Project project, WorkflowStatus status) {
@@ -88,6 +94,7 @@ public class Ticket {
         this.assignee = assignee;
         this.project = project;
         this.status = status;
+        this.priority = TicketPriority.MEDIUM;
         this.createdAt = this.updatedAt = LocalDateTime.now();
         this.deleted = false;
         this.subscribers = emptySet();
@@ -179,6 +186,14 @@ public class Ticket {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public TicketPriority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(TicketPriority priority) {
+        this.priority = priority;
     }
 
     public boolean isDeleted() {

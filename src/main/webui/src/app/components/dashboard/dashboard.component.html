@@ -90,6 +90,9 @@
     </div>
   } @else {
     <div class="dashboard-area">
+      @if (pageLayout.widgets.length === 0) {
+        <div class="empty-state" i18n>Nenhum widget — use Editar layout para adicionar indicadores.</div>
+      }
       <div class="widgets-grid">
         
         @for(widget of pageLayout.widgets; track widget.id) {

@@ -168,9 +168,10 @@ export class DashboardComponent implements OnInit {
   }
 
   removeWidget(widgetIndex: number) {
-    console.log('Removed', widgetIndex);
-    this.pageLayout.widgets.splice(widgetIndex, 1);
-    this.availableWidgets.push(this.pageLayout.widgets[widgetIndex]);
+    const removed = this.pageLayout.widgets.splice(widgetIndex, 1)[0];
+    if (removed) {
+      this.availableWidgets.push(removed);
+    }
     this.saveDashboardConfig();
   }
 
@@ -181,13 +182,21 @@ export class DashboardComponent implements OnInit {
     console.log("Saved", this.pageLayout);
   }
 
+  private readonly defaultWidgetIds = ['tickets-by-status', 'tickets-by-priority', 'performance-kpi', 'recent-tickets'];
+
   loadDashboardConfig() {
-    console.log("Loading", `project-layout-${this.project?.id}`);
-    const savedConfig = localStorage.getItem(`project-layout-${this.project?.id}`);
-    console.log(savedConfig);
+    const storageKey = `project-layout-${this.project?.id}`;
+    const savedConfig = localStorage.getItem(storageKey);
     if (savedConfig) {
       this.pageLayout = JSON.parse(savedConfig);
+      return;
     }
+    const defaultWidgets = this.availableDasboards.all.filter(widget => this.defaultWidgetIds.includes(widget.id));
+    this.pageLayout = {
+      ...this.dashboardLayouts,
+      widgets: defaultWidgets.map(widget => ({ ...widget }))
+    };
+    localStorage.setItem(storageKey, JSON.stringify(this.pageLayout));
   }
 
   toggleEdit() {

@@ -45,7 +45,10 @@ export class KanbanComponent implements OnInit {
       project: ticket.project,
       status: ticket.status,
       assignee: ticket.assignee,
-      category:ticket.category
+      category: ticket.category,
+      categoryName: ticket.categoryName,
+      categoryColor: ticket.categoryColor,
+      priority: ticket.priority
     };
   }
 

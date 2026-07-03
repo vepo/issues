@@ -1,0 +1,69 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Conta</h1>
+      <p class="page-subtitle" i18n>Seu perfil e permissões no Issues</p>
+    </div>
+  </header>
+
+  <section class="page-panel">
+    @if (loading) {
+      <div class="loading" i18n>Carregando perfil...</div>
+    } @else if (error) {
+      <div class="error" role="alert">{{ error }}</div>
+    } @else if (user) {
+      <dl class="detail-list">
+        <dt i18n>Nome</dt>
+        <dd>{{ user.name }}</dd>
+        <dt i18n>Usuário</dt>
+        <dd>{{ user.username }}</dd>
+        <dt i18n>E-mail</dt>
+        <dd>{{ user.email }}</dd>
+        <dt i18n>Perfis</dt>
+        <dd>
+          <span class="labels">
+            @for (role of user.roles; track role) {
+              <span class="label">{{ role }}</span>
+            }
+          </span>
+        </dd>
+      </dl>
+    }
+  </section>
+
+  <section class="page-panel">
+    <h2 class="section-title" i18n>Alterar senha</h2>
+    <form class="edit dialog-form" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>Senha atual</mat-label>
+        <input matInput type="password" formControlName="currentPassword" required autocomplete="current-password" />
+      </mat-form-field>
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>Nova senha</mat-label>
+        <input matInput type="password" formControlName="newPassword" required autocomplete="new-password" />
+      </mat-form-field>
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>Confirmar nova senha</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" required autocomplete="new-password" />
+        @if (passwordsMismatch()) {
+          <mat-error i18n>As senhas não coincidem</mat-error>
+        }
+      </mat-form-field>
+      @if (passwordMessage) {
+        <p class="success-message" role="status">{{ passwordMessage }}</p>
+      }
+      @if (passwordError) {
+        <p class="error" role="alert">{{ passwordError }}</p>
+      }
+      <div class="form-actions">
+        <button class="btn" matButton="filled" type="submit" [disabled]="passwordForm.invalid || passwordsMismatch() || isSavingPassword">
+          <span i18n>{{ isSavingPassword ? 'Salvando...' : 'Alterar senha' }}</span>
+        </button>
+      </div>
+      <p class="text-muted account-hint">
+        <span i18n>Esqueceu a senha?</span>
+        <a routerLink="/login/reset-password" i18n>Recuperar senha</a>
+      </p>
+    </form>
+  </section>
+</div>

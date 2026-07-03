@@ -41,7 +41,10 @@ describe('KanbanComponent', () => {
       project: 1,
       status: 1,
       assignee: 1,
-      category: 1
+      category: 1,
+      categoryName: 'Bug',
+      categoryColor: '#E53935',
+      priority: 'MEDIUM'
     },
     {
       id: 2,
@@ -52,7 +55,10 @@ describe('KanbanComponent', () => {
       project: 1,
       status: 2,
       assignee: 1,
-      category: 1
+      category: 1,
+      categoryName: 'Bug',
+      categoryColor: '#E53935',
+      priority: 'HIGH'
     }
   ];
 

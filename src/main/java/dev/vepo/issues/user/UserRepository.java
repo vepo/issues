@@ -71,21 +71,13 @@ public class UserRepository {
             predicates.add(cb.like(cb.lower(user.get("email")), "%%%s%%".formatted(email).toLowerCase()));
         }
 
-        // TODO: Filter on query
-        // if (Objects.nonNull(roles) && !roles.isEmpty()) {
-        // predicates.addAll(roles.stream()
-        // .map(role -> cb.like(user.get("roles").as(String.class),
-        // String.format("%%%s%%", role.name())))
-        // .toList());
-        // }
-
         if (!predicates.isEmpty()) {
             cq = cq.where(cb.and(predicates));
         }
 
         return em.createQuery(cq)
                  .getResultStream()
-                 .filter(u -> roles.isEmpty() || u.getRoles().containsAll(roles));
+                 .filter(u -> roles.isEmpty() || roles.stream().allMatch(role -> u.getRoles().contains(role)));
     }
 
     public Optional<User> findByEmailOrUsername(String credential) {

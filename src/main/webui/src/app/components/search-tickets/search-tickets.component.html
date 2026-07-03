@@ -63,6 +63,13 @@
           <p class="metadata">
             <span i18n>Projeto:</span> {{ projectName(ticket.project) }} ·
             <span class="status-badge">{{ statusName(ticket.status) }}</span>
+            @if (ticket.categoryName) {
+              ·
+              <span class="category-badge" [style.border-left-color]="ticket.categoryColor">
+                <span class="category-badge__dot" [style.background-color]="ticket.categoryColor"></span>
+                {{ ticket.categoryName }}
+              </span>
+            }
           </p>
         </a>
       }

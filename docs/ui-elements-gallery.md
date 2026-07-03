@@ -492,8 +492,8 @@ Wrapped in `.page.page--wide` with standard `.page-header`. Inner `.page-panel` 
 | Header | Toolbar controls replaced tall `mat-form-field` | Fixed |
 | Users list | Debug template leak | Fixed |
 | Dashboard | Typo `dashboar table` | Fixed |
-| Password reset page | Stub component | Open |
-| Workflows / account routes | Menu links may lack routes | Open |
+| Password reset page | Stub component | Done |
+| Workflows / account routes | Menu links may lack routes | Done |
 
 ---
 

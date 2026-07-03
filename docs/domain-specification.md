@@ -95,7 +95,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Assignee** | User responsible for the ticket (optional). | `Ticket.assignee` |
 | **Author** | User who created the ticket. | `Ticket.author` |
 | **Current status** | Ticket's position in the project workflow. | `Ticket.status` → `WorkflowStatus` |
-| **Priority** | Ticket urgency level. | `Ticket.priority` |
+| **Priority** | Ticket urgency level. | `TicketPriority` enum: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`; `Ticket.priority` |
 | **Soft delete** | Ticket marked deleted without physical removal. | `Ticket.deleted`; excluded from search |
 | **Move (ticket)** | Change ticket status following workflow transition rules. | `POST /tickets/{id}/move`, `MoveTicketRequest` |
 | **Comment** | Text note attached to a ticket. | `Comment`, `tb_comments` |

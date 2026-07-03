@@ -63,6 +63,10 @@
               <mat-icon matMenuItemIcon fontIcon="group"></mat-icon>
               <span i18n>Usuários</span>
             </button>
+            <button mat-menu-item [routerLink]="'/categories'">
+              <mat-icon matMenuItemIcon fontIcon="category"></mat-icon>
+              <span i18n>Categorias</span>
+            </button>
           </ng-container>
           <ng-container *role="'project-manager'">
             <button mat-menu-item [routerLink]="'/workflows'">

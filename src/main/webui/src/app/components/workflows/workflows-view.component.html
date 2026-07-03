@@ -1,0 +1,45 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Processos</h1>
+      <p class="page-subtitle" i18n>Fluxos de status e transições para projetos</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn" matButton="filled" [routerLink]="['/', 'workflows', 'new']">
+        <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+        <span i18n>Novo processo</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="page-panel page-panel--flush">
+    <div class="data-table">
+      <div class="header">
+        <div class="header-cell">ID</div>
+        <div class="header-cell left-aligned" i18n>Nome</div>
+        <div class="header-cell left-aligned" i18n>Status</div>
+        <div class="header-cell left-aligned" i18n>Início</div>
+        <div class="header-cell" i18n>Ações</div>
+      </div>
+      <div class="body">
+        @for (entry of workflows; track entry.id) {
+          <div class="row {{ $even ? 'even' : 'odd' }}">
+            <div>{{ entry.id }}</div>
+            <div class="left-aligned">{{ entry.name }}</div>
+            <div class="left-aligned">{{ entry.statuses?.join(', ') }}</div>
+            <div class="left-aligned">{{ entry.start }}</div>
+            <div>
+              <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="['/workflows', entry.id]">
+                <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
+                <span i18n>Editar</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      @if (workflows.length === 0) {
+        <div class="data-table--empty" i18n>Nenhum processo cadastrado.</div>
+      }
+    </div>
+  </section>
+</div>

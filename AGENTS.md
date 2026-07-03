@@ -12,6 +12,8 @@ Read these before changing code or tests:
 | [.cursor/rules/](.cursor/rules/) | Four pillars + file-scoped detail |
 | [.cursor/agents/](.cursor/agents/) | Project subagents (specialized behaviour) |
 
+**Not in production yet**: This project is not in production yet. There is no need to keep legacy or update any production environment.
+
 **Workflow:** domain spec → correct package → create tests (TDD) → tiered test runs → `mvn verify` once → update docs when API or routes change.
 
 **API codegen:** after backend endpoint changes, run `mvn test` then `cd src/main/webui && npm run generate:api`. Endpoints live in `{context}.{action}` subpackages — one HTTP method per class (e.g. `user.create.CreateUserEndpoint`).

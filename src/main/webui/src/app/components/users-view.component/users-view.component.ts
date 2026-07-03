@@ -25,18 +25,14 @@ export class UsersViewComponent implements OnInit {
   }
 
   toggleRole(role: string) {
-    console.debug("Toggle filter for role:", role)
-    let roleIndex = this.filter.roles.indexOf(role);
-    if (roleIndex == -1) {
+    const roleIndex = this.filter.roles.indexOf(role);
+    if (roleIndex === -1) {
       this.filter.roles.push(role);
-      this.users = this.users.filter(u => u.roles.indexOf(role) != -1);
     } else {
-      console.debug("Removing role...", roleIndex, this.filter.roles);
       this.filter.roles.splice(roleIndex, 1);
-      console.debug("Role removed!", this.filter.roles);
-      this.updateSearch();
     }
-    this.lastSearch = this.filter;
+    this.updateSearch();
+    this.lastSearch = { ...this.filter, roles: [...this.filter.roles] };
   }
 
   updateSearch() {
@@ -45,25 +41,9 @@ export class UsersViewComponent implements OnInit {
   }
 
   filterChanged(value: string) {
-    switch (value) {
-      case 'name':
-        console.debug("Is new name substring of old name?", this.lastSearch.name, this.filter.name);
-        if (this.filter.name != '' && (this.lastSearch.name == '' || this.lastSearch.name.indexOf(this.filter.name))) {
-          console.debug('filtering', this.filter);
-          this.users = this.users.filter(u => u.name.indexOf(this.filter.name) != -1);
-        } else {
-          console.debug('Searching again...', this.filter)
-          this.updateSearch();
-        }
-        break;
-      case 'email':
-        if (this.filter.email != '' && (this.lastSearch.email == '' || this.lastSearch.email.indexOf(this.filter.email))) {
-          this.users = this.users.filter(u => u.email.indexOf(this.filter.email) != -1);
-        } else {
-          this.updateSearch();
-        }
-        break;
+    if (value === 'name' || value === 'email') {
+      this.updateSearch();
     }
-    this.lastSearch = this.filter;
+    this.lastSearch = { ...this.filter, roles: [...this.filter.roles] };
   }
 }

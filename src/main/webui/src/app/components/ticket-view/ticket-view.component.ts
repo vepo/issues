@@ -1,69 +1,129 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { DatePipe } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute } from '@angular/router';
-import { Subject, filter, takeUntil } from 'rxjs';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { Comment, CreateCommentRequest, TicketExpanded, TicketService } from '../../services/ticket.service';
-import { NotificationService } from '../../services/notification.service';
+import { Category, CategoryService } from '../../services/category.service';
+import { ProjectStatus, StatusService } from '../../services/status.service';
+import { User, UsersService } from '../../services/users.service';
+import { Comment, CreateCommentRequest, TicketExpanded, TicketService, UpdateTicketRequest } from '../../services/ticket.service';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
-import { TicketActivityFeedComponent } from '../ticket-activity-feed/ticket-activity-feed.component';
-import {
-  ActivityFilter,
-  ActivityItem,
-  buildActivityFeed,
-  filterActivity,
-} from '../ticket-activity-feed/activity-feed.utils';
 
 @Component({
   selector: 'app-ticket-view',
   templateUrl: './ticket-view.component.html',
   imports: [
+    DatePipe,
     NormalizePipe,
     FormsModule,
+    ReactiveFormsModule,
     RichTextEditorComponent,
-    TicketActivityFeedComponent,
     MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
     MatIconModule,
-  ],
+    RouterLink
+  ]
 })
-export class TicketViewComponent implements OnInit, OnDestroy {
+export class TicketViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly ticketService = inject(TicketService);
   private readonly authService = inject(AuthService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly destroy$ = new Subject<void>();
+  private readonly categoryService = inject(CategoryService);
+  private readonly usersService = inject(UsersService);
+  private readonly statusService = inject(StatusService);
+  private readonly dialog = inject(MatDialog);
+  private readonly formBuilder = inject(FormBuilder);
 
   ticket?: TicketExpanded;
   comments: Comment[] = [];
   newComment: string = '';
-  activeFilter: ActivityFilter = 'all';
+  activeTab: 'history' | 'comments' = 'history';
   loadingComments = false;
   submittingComment = false;
-  activityItems: ActivityItem[] = [];
+  isEditing = false;
+  isSaving = false;
+  categories: Category[] = [];
+  users: User[] = [];
+  projectStatuses: ProjectStatus[] = [];
+  selectedStatusId: number | null = null;
+  selectedAssigneeId: number | null = null;
+
+  editForm: FormGroup = this.formBuilder.group({
+    title: ['', [Validators.required, Validators.minLength(5)]],
+    description: ['', [Validators.required, Validators.minLength(5)]],
+    categoryId: [null as number | null, Validators.required],
+    priority: ['MEDIUM', Validators.required]
+  });
+
+  readonly priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
   ngOnInit(): void {
+    this.categoryService.findAll().subscribe(categories => {
+      this.categories = categories;
+      this.populateEditForm();
+    });
+    this.usersService.search().subscribe(users => this.users = users);
+
     this.route.data.subscribe(({ ticket }) => {
       this.ticket = ticket;
       if (this.ticket) {
         this.loadComments();
-        this.refreshActivity();
+        this.loadProjectStatuses();
+        this.populateEditForm();
       }
     });
-
-    this.notificationService.listen()
-      .pipe(
-        takeUntil(this.destroy$),
-        filter(event => event.type === 'ticket-moved' && event.ticketId === this.ticket?.id),
-      )
-      .subscribe(() => this.reloadTicket());
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  loadProjectStatuses(): void {
+    if (!this.ticket?.project?.id) {
+      return;
+    }
+    this.statusService.findProjectsStatuses(this.ticket.project.id)
+                     .subscribe(statuses => {
+                       this.projectStatuses = statuses;
+                       this.selectedStatusId = this.currentStatusId();
+                       this.selectedAssigneeId = this.ticket?.assignee?.id ?? null;
+                     });
+  }
+
+  populateEditForm(): void {
+    if (!this.ticket) {
+      return;
+    }
+    const category = this.categories.find(c => c.name === this.ticket!.category);
+    this.editForm.patchValue({
+      title: this.ticket.title,
+      description: this.ticket.description,
+      categoryId: category?.id ?? null,
+      priority: this.ticket.priority ?? 'MEDIUM'
+    });
+  }
+
+  currentStatusId(): number | null {
+    if (!this.ticket) {
+      return null;
+    }
+    return this.projectStatuses.find(s => s.name === this.ticket!.status)?.id ?? null;
+  }
+
+  allowedTargetStatuses(): ProjectStatus[] {
+    const currentId = this.currentStatusId();
+    const current = this.projectStatuses.find(s => s.id === currentId);
+    if (!current?.moveable) {
+      return [];
+    }
+    return this.projectStatuses.filter(s => current.moveable!.includes(s.id!));
   }
 
   loadComments(): void {
@@ -74,11 +134,10 @@ export class TicketViewComponent implements OnInit, OnDestroy {
       next: (comments) => {
         this.comments = comments;
         this.loadingComments = false;
-        this.refreshActivity();
       },
       error: () => {
         this.loadingComments = false;
-      },
+      }
     });
   }
 
@@ -93,12 +152,11 @@ export class TicketViewComponent implements OnInit, OnDestroy {
         this.comments.unshift(comment);
         this.newComment = '';
         this.submittingComment = false;
-        this.refreshActivity();
         this.reloadTicket();
       },
       error: () => {
         this.submittingComment = false;
-      },
+      }
     });
   }
 
@@ -115,17 +173,75 @@ export class TicketViewComponent implements OnInit, OnDestroy {
 
     if (this.isSubscribed()) {
       this.ticketService.removeSubscription(this.ticket?.id, this.authService.getAuthUserId())
-        .subscribe(ticket => {
-          this.ticket = ticket;
-          this.refreshActivity();
-        });
+        .subscribe(ticket => this.ticket = ticket);
     } else {
       this.ticketService.addSubscription(this.ticket?.id, this.authService.getAuthUserId())
-        .subscribe(ticket => {
-          this.ticket = ticket;
-          this.refreshActivity();
-        });
+        .subscribe(ticket => this.ticket = ticket);
     }
+  }
+
+  toggleEdit(): void {
+    this.isEditing = !this.isEditing;
+    if (this.isEditing) {
+      this.populateEditForm();
+    }
+  }
+
+  saveTicket(): void {
+    if (!this.ticket || this.editForm.invalid) {
+      return;
+    }
+    this.isSaving = true;
+    const value = this.editForm.value;
+    this.ticketService.update(this.ticket.id, {
+      title: value.title,
+      description: value.description,
+      categoryId: value.categoryId,
+      priority: value.priority as UpdateTicketRequest['priority']
+    }).subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.isEditing = false;
+        this.reloadTicket();
+      },
+      error: () => {
+        this.isSaving = false;
+      }
+    });
+  }
+
+  saveAssignee(): void {
+    if (!this.ticket || this.selectedAssigneeId == null) {
+      return;
+    }
+    this.ticketService.updateAssignee(this.ticket.id, this.selectedAssigneeId)
+                      .subscribe(() => this.reloadTicket());
+  }
+
+  moveTicket(): void {
+    if (!this.ticket || this.selectedStatusId == null || this.selectedStatusId === this.currentStatusId()) {
+      return;
+    }
+    this.ticketService.move(this.ticket.id, this.selectedStatusId)
+                      .subscribe(() => this.reloadTicket());
+  }
+
+  canDelete(): boolean {
+    return this.authService.hasRole('admin') || this.authService.hasRole('project-manager');
+  }
+
+  confirmDelete(): void {
+    if (!this.ticket) {
+      return;
+    }
+    const confirmed = this.dialog.open(TicketDeleteDialogComponent);
+    confirmed.afterClosed().subscribe(result => {
+      if (result && this.ticket) {
+        this.ticketService.delete(this.ticket.id).subscribe({
+          next: () => this.router.navigate(['/project', this.ticket!.project.id, 'kanban'])
+        });
+      }
+    });
   }
 
   reloadTicket(): void {
@@ -134,20 +250,27 @@ export class TicketViewComponent implements OnInit, OnDestroy {
     this.ticketService.findExpandedByIdentifier(this.ticket.identifier).subscribe({
       next: (updatedTicket) => {
         this.ticket = updatedTicket;
-        this.refreshActivity();
-      },
+        this.loadProjectStatuses();
+        this.populateEditForm();
+      }
     });
   }
 
-  setActiveFilter(filter: ActivityFilter): void {
-    this.activeFilter = filter;
-  }
-
-  filteredActivity(): ActivityItem[] {
-    return filterActivity(this.activityItems, this.activeFilter);
-  }
-
-  private refreshActivity(): void {
-    this.activityItems = buildActivityFeed(this.ticket?.history ?? [], this.comments);
+  setActiveTab(tab: 'history' | 'comments'): void {
+    this.activeTab = tab;
   }
 }
+
+@Component({
+  selector: 'app-ticket-delete-dialog',
+  imports: [MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title i18n>Excluir ticket</h2>
+    <mat-dialog-content i18n>Deseja excluir este ticket? Esta ação não pode ser desfeita.</mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
+      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true" i18n>Excluir</button>
+    </mat-dialog-actions>
+  `
+})
+export class TicketDeleteDialogComponent {}

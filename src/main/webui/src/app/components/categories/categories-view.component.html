@@ -1,0 +1,46 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Categorias</h1>
+      <p class="page-subtitle" i18n>Classificação de tickets por tipo</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn" matButton="filled" type="button" (click)="openCreateDialog()">
+        <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+        <span i18n>Nova categoria</span>
+      </button>
+    </div>
+  </header>
+
+  <section class="page-panel page-panel--flush">
+    <div class="data-table data-table--cols-id-name-color-actions">
+      <div class="header">
+        <div class="header-cell">ID</div>
+        <div class="header-cell" i18n>Nome</div>
+        <div class="header-cell" i18n>Cor</div>
+        <div class="header-cell header-cell--actions" i18n>Ações</div>
+      </div>
+      <div class="body">
+        @for (entry of categories; track entry.id) {
+          <div class="row {{ $even ? 'even' : 'odd' }}">
+            <div>{{ entry.id }}</div>
+            <div>{{ entry.name }}</div>
+            <div class="cell-color">
+              <span class="category-swatch" [style.background-color]="entry.color" aria-hidden="true"></span>
+              <span>{{ entry.color }}</span>
+            </div>
+            <div class="cell-actions">
+              <button class="btn btn-secondary" matButton="outlined" type="button" (click)="openEditDialog(entry)">
+                <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
+                <span i18n>Editar</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      @if (categories.length === 0) {
+        <div class="data-table--empty" i18n>Nenhuma categoria cadastrada.</div>
+      }
+    </div>
+  </section>
+</div>
