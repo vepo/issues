@@ -51,7 +51,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 ### Tickets & workflow
 
-- **Tickets** — create via `/tickets/new` or project-scoped route; edit, assign, set priority, and soft-delete work items scoped to a project
+- **Tickets** — create via `/tickets/new` or project-scoped route; edit, assign, optional **due date**, set priority, and soft-delete work items scoped to a project
 - **Identifiers** — human-readable keys (`ISS-001`) from project prefix + sequence
 - **Workflows** — configurable status graphs with allowed transitions per project
 - **Priority** — `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` on create and edit

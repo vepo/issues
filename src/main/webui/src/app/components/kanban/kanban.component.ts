@@ -11,6 +11,7 @@ import { ProjectStatus } from '../../services/status.service';
 import { Ticket, TicketService } from '../../services/ticket.service';
 import { Phase, PhaseService } from '../../services/phase.service';
 import { NormalizePipe } from '../pipes/normalize.pipe';
+import { ContextHintComponent } from '../context-hint/context-hint.component';
 
 /** `all` | `unplanned` | `active` | `phase:{id}` */
 type PhaseFilterValue = string;
@@ -18,7 +19,7 @@ type PhaseFilterValue = string;
 @Component({
   selector: 'app-kanban',
   templateUrl: './kanban.component.html',
-  imports: [CommonModule, DragDropModule, RouterLink, NormalizePipe, MatButtonModule, MatIconModule, MatFormFieldModule, MatSelectModule],
+  imports: [CommonModule, DragDropModule, RouterLink, NormalizePipe, MatButtonModule, MatIconModule, MatFormFieldModule, MatSelectModule, ContextHintComponent],
   standalone: true
 })
 export class KanbanComponent implements OnInit {
@@ -95,6 +96,7 @@ export class KanbanComponent implements OnInit {
       categoryColor: ticket.categoryColor,
       priority: ticket.priority,
       finishedAt: ticket.finishedAt,
+      dueDate: ticket.dueDate,
       observedVersionId: ticket.observedVersionId,
       observedVersionLabel: ticket.observedVersionLabel,
       targetVersionId: ticket.targetVersionId,

@@ -23,6 +23,7 @@ export const QUERY_LANGUAGE_FIELDS: QueryFieldHelp[] = [
   { name: 'phase', operators: '=, !=, ~, IS EMPTY, IS NOT EMPTY', description: 'Nome da fase' },
   { name: 'targetVersion', operators: '=, !=, ~, IS EMPTY, IS NOT EMPTY', description: 'Versão planejada' },
   { name: 'observedVersion', operators: '=, !=, ~, IS EMPTY, IS NOT EMPTY', description: 'Versão entregue' },
+  { name: 'dueDate / due', operators: '=, !=, >, <, >=, <=, IS EMPTY, IS NOT EMPTY', description: 'Data de vencimento (ISO-8601, ex.: 2026-08-15)' },
   { name: 'created / createdAt', operators: '=, !=, >, <, >=, <=', description: 'Data de criação (ISO-8601)' },
   { name: 'updated / updatedAt', operators: '=, !=, >, <, >=, <=', description: 'Data de atualização (ISO-8601)' },
   { name: 'finished / finishedAt', operators: '=, !=, >, <, >=, <=, IS EMPTY, IS NOT EMPTY', description: 'Data de conclusão (ISO-8601)' }

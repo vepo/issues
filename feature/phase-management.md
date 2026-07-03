@@ -1,7 +1,7 @@
 # Phase and version management
 
 **Feature version:** 5  
-**Status:** planned — domain spec updated 2026-07-03; slices 1–4 implemented 2026-07-03  
+**Status:** done  
 **Requested:** 2026-07-03  
 **Tracking:** [GitHub issue #6 — Gerenciamento de Sprints](https://github.com/vepo/issues/issues/6)
 
@@ -403,7 +403,7 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 ### Phase and version management (initial) — 2026-07-03
 
 **Version:** 1  
-**Status:** planned
+**Status:** done
 
 **Description:** Full capability per issue #6 and extended requirements: phases with lifecycle, versions, version changelog, deliverable version per phase, ticket observed/target version, objective and deliverables. Methodology-neutral naming throughout.
 
@@ -422,8 +422,8 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Phase lifecycle UI matches **Wireframe** | Wireframe | ☐ |
-| FC2 | Version catalog + changelog match **Wireframe** | Wireframe | ☐ |
+| FC1 | Phase lifecycle UI matches **Wireframe** | Wireframe | ☑ |
+| FC2 | Version catalog + changelog match **Wireframe** | Wireframe | ☑ |
 | FC3 | Workflow finish statuses + finish date | Slice 1 | ☑ |
 | FC4 | Version CRUD + observed/target on ticket | Slice 2 | ☑ |
 | FC5 | Phase CRUD, activate, complete | Slice 3 | ☑ |
@@ -431,21 +431,21 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 | FC7 | `domain-specification.md` invariants 11–23 | V5 | ☑ |
 | FC8 | `feature-catalog.md` phase/version routes | Impact / Docs | ☑ |
 
-**Implementation notes:** _(pending — fill after each slice)_
+**Implementation notes:** Delivered across slices v6–v10 below. See **Slice 3** (phase lifecycle), **Slice 2** (versions/changelog), **Slice 4–5** (templates, Kanban filter).
 
 ### Version changelog — 2026-07-03
 
 **Version:** 2  
-**Status:** planned
+**Status:** done
 
 **Description:** Each version exposes a changelog: associated tickets in grouped sections, sorted by finish date, excluding canceled.
 
-**Implementation notes:** _(pending)_
+**Implementation notes:** See **Slice 2 — versions + changelog** (v7).
 
 ### Product decisions — 2026-07-03
 
 **Version:** 3  
-**Status:** planned
+**Status:** done
 
 **Description:** Resolved **Q1**–**Q12**: single objective text; one active phase; phase start status; phases editable after close; SemVer; `phase` package; PT-BR UI; workflow finish statuses with ticket finish date; canceled excluded from changelog.
 
@@ -458,16 +458,16 @@ Query (conceptual): union of non-deleted tickets where association matches, **ex
 | Activate phase | May bulk-move tickets to phase start status |
 | Version changelog | Sort by finish date; exclude canceled |
 
-**Implementation notes:** _(pending)_
+**Implementation notes:** Decisions reflected in domain spec invariants 11–23 and slice implementations v6–v10.
 
 ### Final product decisions — 2026-07-03
 
 **Version:** 4  
-**Status:** planned
+**Status:** done
 
 **Description:** Resolved **Q8**, **Q13**–**Q15**: ticket create has no default phase (optional combobox); reopen canceled → back on changelog; clear finish date when leaving done; phase activate proceeds when some tickets cannot transition.
 
-**Implementation notes:** _(pending)_
+**Implementation notes:** See **Slice 3** (activate/complete), **Slice 4** (create-ticket phase combobox), **Slice 1** (finish date on move).
 
 ### Domain spec sync — 2026-07-03
 

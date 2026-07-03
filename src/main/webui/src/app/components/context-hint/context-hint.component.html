@@ -1,0 +1,13 @@
+@if (visible) {
+  <aside class="context-hint" role="note">
+    <p class="context-hint__message">{{ message }}</p>
+    <button
+      class="btn btn-secondary context-hint__close"
+      matButton="outlined"
+      type="button"
+      (click)="dismiss()"
+      i18n>
+      Fechar
+    </button>
+  </aside>
+}

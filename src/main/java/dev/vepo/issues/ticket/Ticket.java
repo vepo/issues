@@ -2,6 +2,7 @@ package dev.vepo.issues.ticket;
 
 import static java.util.Collections.emptySet;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
@@ -59,6 +60,9 @@ public class Ticket {
 
     @Column(name = "finished_at")
     private LocalDateTime finishedAt;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
@@ -171,6 +175,14 @@ public class Ticket {
 
     public void setFinishedAt(LocalDateTime finishedAt) {
         this.finishedAt = finishedAt;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 
     public Category getCategory() {

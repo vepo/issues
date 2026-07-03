@@ -144,6 +144,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | **Observed version** | Version where the change was observed or shipped. | `Ticket.observedVersion`; UI **Versão observada** |
 | **Target version** | Version where the change is intended to land. | `Ticket.targetVersion`; UI **Versão alvo** |
 | **Finish date** | Timestamp set when ticket reaches a **done** finish status; cleared when leaving done. | `Ticket.finishedAt`; UI **Data de conclusão** |
+| **Due date** | Optional user-planned deadline for the ticket; distinct from finish date. | `Ticket.dueDate`; UI **Data de vencimento** |
 | **Comment** | Text note attached to a ticket. | `Comment`, `tb_comments` |
 | **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`). | `TicketHistory`, `TicketHistoryService` |
 | **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`. | `TicketHistoryAction` |
@@ -212,7 +213,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 19. **Finish date** — moving to a `DONE` finish status sets `finished_at`; moving out of a `DONE` finish status clears `finished_at`. `CANCELED` does not set finish date.
 20. **Version changelog** — derived, not persisted separately. Includes non-canceled tickets linked by target version, observed version, or phase deliverable version. Excludes tickets in a `CANCELED` finish status; they reappear when moved out of canceled. Sorted by finish date ascending (nulls last) within grouped sections.
 21. **Ticket create — no default phase** — new tickets have no phase unless the user selects one from **planned** and **active** phases in the create form.
-22. **Phase/version history** — changes to phase, observed version, target version, and finish date on tickets are logged via `TicketHistoryService`.
+22. **Phase/version history** — changes to phase, observed version, target version, due date, and finish date on tickets are logged via `TicketHistoryService`.
 23. **Phase/version admin roles** — phase and version CRUD: `PROJECT_MANAGER` and `ADMIN`; version changelog read: any authenticated user.
 24. **Project membership** — a user must be a **project member** to be set as ticket **assignee** on that project.
 25. **Project owner** — each project has exactly one **project owner** with the project-manager role, assigned at creation. Only the project owner or an **admin** may update the project, manage allocation, or change project configuration. **Owner transfer:** admin or the current project owner may assign a new owner on edit; the new owner must have the project-manager role and need not already be a **project member** — they are added as a member when the transfer completes.
@@ -224,6 +225,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 31. **Show at home** — optional per saved query (`show_at_home`); when enabled, the owner's query appears as a home section (one section per flagged query; snapshot per visit).
 32. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter.
 33. **Search indexing** — PostgreSQL **`tsvector` + GIN** indexes on ticket and comment text columns (`search_vector`).
+34. **Due date** — optional user-planned deadline on a ticket (`due_date`); independent of workflow **finish date** (`finished_at`).
 
 ---
 

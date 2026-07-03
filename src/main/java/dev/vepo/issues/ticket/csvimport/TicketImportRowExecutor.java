@@ -46,6 +46,7 @@ public class TicketImportRowExecutor {
                                                                    category.getId(),
                                                                    projectId,
                                                                    row.priority(),
+                                                                   null,
                                                                    null),
                                            username);
 

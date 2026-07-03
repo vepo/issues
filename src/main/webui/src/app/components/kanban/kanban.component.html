@@ -47,6 +47,11 @@
     </div>
   </header>
 
+  <app-context-hint
+    hintId="kanban"
+    i18n-message
+    message="Arraste cards entre colunas para mover o status do ticket." />
+
   <div class="board">
     @for (status of statuses; track status.id) {
       <div

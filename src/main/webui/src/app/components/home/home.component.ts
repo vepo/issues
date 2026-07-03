@@ -5,12 +5,13 @@ import { RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { HomeActivity, HomeService, HomeTicket } from '../../services/home.service';
 import { HomeSavedQuerySection } from '../../services/saved-query.service';
+import { ContextHintComponent } from '../context-hint/context-hint.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
-  imports: [CommonModule, RouterModule, DatePipe, MatIconModule],
+  imports: [CommonModule, RouterModule, DatePipe, MatIconModule, ContextHintComponent],
   standalone: true
 })
 export class HomeComponent implements OnInit {

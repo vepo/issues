@@ -70,6 +70,7 @@ export class TicketViewComponent implements OnInit {
     description: ['', [Validators.required, Validators.minLength(5)]],
     categoryId: [null as number | null, Validators.required],
     priority: ['MEDIUM', Validators.required],
+    dueDate: [null as string | null],
     observedVersionId: [null as number | null],
     targetVersionId: [null as number | null],
     phaseId: [null as number | null]
@@ -151,6 +152,7 @@ export class TicketViewComponent implements OnInit {
       description: this.ticket.description,
       categoryId: category?.id ?? null,
       priority: this.ticket.priority ?? 'MEDIUM',
+      dueDate: this.ticket.dueDate ?? null,
       observedVersionId: this.ticket.observedVersionId ?? null,
       targetVersionId: this.ticket.targetVersionId ?? null,
       phaseId: this.ticket.phaseId ?? null
@@ -245,6 +247,7 @@ export class TicketViewComponent implements OnInit {
       description: value.description,
       categoryId: value.categoryId,
       priority: value.priority as UpdateTicketRequest['priority'],
+      dueDate: value.dueDate || undefined,
       planningFields: {
         phaseId: value.phaseId ?? null,
         observedVersionId: value.observedVersionId ?? null,

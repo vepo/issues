@@ -1,5 +1,6 @@
 package dev.vepo.issues.ticket.search.query;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -111,6 +112,7 @@ final class TicketQueryPredicateBuilder extends TicketQueryBaseVisitor<Predicate
             case "created", "createdat" -> dateCompare(ticket.get("createdAt"), op, (String) value);
             case "updated", "updatedat" -> dateCompare(ticket.get("updatedAt"), op, (String) value);
             case "finished", "finishedat" -> dateCompare(ticket.get("finishedAt"), op, (String) value);
+            case "duedate", "due" -> localDateCompare(ticket.get("dueDate"), op, (String) value);
             default -> throw new InvalidQueryException("Unknown field: %s".formatted(field));
         };
     }
@@ -132,6 +134,7 @@ final class TicketQueryPredicateBuilder extends TicketQueryBaseVisitor<Predicate
             case "targetversion" -> cb.isNull(ticket.get("targetVersion"));
             case "observedversion" -> cb.isNull(ticket.get("observedVersion"));
             case "finished", "finishedat" -> cb.isNull(ticket.get("finishedAt"));
+            case "duedate", "due" -> cb.isNull(ticket.get("dueDate"));
             case "description" -> cb.or(cb.isNull(ticket.get("description")), cb.equal(ticket.get("description"), ""));
             default -> throw new InvalidQueryException("IS EMPTY not supported for field: %s".formatted(field));
         };
@@ -223,6 +226,24 @@ final class TicketQueryPredicateBuilder extends TicketQueryBaseVisitor<Predicate
             case "<" -> cb.lessThan(path, dateTime);
             case ">=" -> cb.greaterThanOrEqualTo(path, dateTime);
             case "<=" -> cb.lessThanOrEqualTo(path, dateTime);
+            default -> throw new InvalidQueryException("Operator %s not supported for date field".formatted(op));
+        };
+    }
+
+    private Predicate localDateCompare(Expression<LocalDate> path, String op, String value) {
+        LocalDate date;
+        try {
+            date = LocalDate.parse(value);
+        } catch (DateTimeParseException ex) {
+            throw new InvalidQueryException("Invalid date value: %s".formatted(value), ex);
+        }
+        return switch (op) {
+            case "=" -> cb.equal(path, date);
+            case "!=" -> cb.notEqual(path, date);
+            case ">" -> cb.greaterThan(path, date);
+            case "<" -> cb.lessThan(path, date);
+            case ">=" -> cb.greaterThanOrEqualTo(path, date);
+            case "<=" -> cb.lessThanOrEqualTo(path, date);
             default -> throw new InvalidQueryException("Operator %s not supported for date field".formatted(op));
         };
     }

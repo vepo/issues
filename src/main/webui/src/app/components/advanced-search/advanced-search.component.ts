@@ -4,13 +4,14 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { QueryLanguageHelpComponent } from '../query-language-help/query-language-help.component';
+import { ContextHintComponent } from '../context-hint/context-hint.component';
 import { Ticket } from '../../services/ticket.service';
 import { SavedQueryService } from '../../services/saved-query.service';
 
 @Component({
   selector: 'app-advanced-search',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MatButtonModule, QueryLanguageHelpComponent],
+  imports: [CommonModule, FormsModule, RouterLink, MatButtonModule, QueryLanguageHelpComponent, ContextHintComponent],
   templateUrl: './advanced-search.component.html',
   styleUrl: './advanced-search.component.scss'
 })

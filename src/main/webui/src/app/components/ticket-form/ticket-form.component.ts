@@ -51,6 +51,7 @@ export class TicketFormComponent implements OnInit {
     description: new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(1200)]),
     categoryId: new FormControl(-1, [Validators.required, Validators.min(1)]),
     priority: new FormControl<CreateTicketRequest['priority']>('MEDIUM', [Validators.required]),
+    dueDate: new FormControl<string | null>(null),
     phaseId: new FormControl<number | null>(null),
   });
 
@@ -118,7 +119,7 @@ export class TicketFormComponent implements OnInit {
       this.ticketForm.markAllAsTouched();
       return;
     }
-    const { title, description, categoryId, projectId, priority, phaseId } = this.ticketForm.getRawValue();
+    const { title, description, categoryId, projectId, priority, dueDate, phaseId } = this.ticketForm.getRawValue();
     if (!title || !description || categoryId == null || categoryId < 1 || projectId == null || projectId < 1 || !priority) {
       return;
     }
@@ -128,6 +129,7 @@ export class TicketFormComponent implements OnInit {
       categoryId,
       projectId,
       priority,
+      dueDate: dueDate || undefined,
       phaseId: phaseId ?? undefined,
     });
   }

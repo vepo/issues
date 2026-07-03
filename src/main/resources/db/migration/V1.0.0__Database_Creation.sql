@@ -113,6 +113,7 @@ CREATE TABLE tb_tickets (
     priority    VARCHAR(16) NOT NULL DEFAULT 'MEDIUM',
     deleted     BOOLEAN DEFAULT false,
     finished_at TIMESTAMP(6) WITH TIME ZONE,
+    due_date    DATE,
     observed_version_id BIGINT REFERENCES tb_versions,
     target_version_id   BIGINT REFERENCES tb_versions,
     phase_id            BIGINT REFERENCES tb_phases,

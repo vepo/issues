@@ -68,6 +68,10 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Data de vencimento</mat-label>
+          <input matInput type="date" formControlName="dueDate" />
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
           <mat-label i18n>Fase</mat-label>
           <mat-select formControlName="phaseId">
             <mat-option [value]="null" i18n>Nenhuma</mat-option>
@@ -119,6 +123,10 @@
         <dd>{{ ticket.assignee?.name || '—' }}</dd>
         <dt i18n>Status</dt>
         <dd>{{ ticket.status | normalize }}</dd>
+        @if (ticket.dueDate) {
+          <dt i18n>Data de vencimento</dt>
+          <dd>{{ ticket.dueDate }}</dd>
+        }
         @if (ticket.finishedAt) {
           <dt i18n>Data de conclusão</dt>
           <dd>{{ ticket.finishedAt | date: 'short' }}</dd>

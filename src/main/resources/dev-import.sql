@@ -335,6 +335,9 @@ BEGIN
                             NOW(), 
                             NOW());
 
+    UPDATE tb_tickets SET due_date = CURRENT_DATE + INTERVAL '14 days' WHERE identifier = 'ISS-014';
+    UPDATE tb_tickets SET due_date = CURRENT_DATE + INTERVAL '7 days' WHERE identifier = 'ISS-016';
+
     INSERT INTO tb_ticket_history (action, field, old_value, new_value, timestamp, ticket_id, user_id)
     SELECT 'CREATED', NULL, NULL, NULL, NOW() - INTERVAL '7 days', t.id, user_cto_id
     FROM tb_tickets t WHERE t.identifier = 'ISS-001';

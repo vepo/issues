@@ -261,7 +261,7 @@ Domain         .board, .column, .card, .project-grid, .project-card, .activity-f
 |----|------|--------|------|
 | TC1 | `npm run build` (production) | T1–T6 — compile + budget | ☑ |
 | TC2 | Existing `*.component.spec.ts` for touched components | T5–T7 — no broken selectors | ☑ |
-| TC3 | Manual checklist: login, home, users, projects, ticket, kanban, dashboard, workflows, versions | Full visual smoke | ☐ |
+| TC3 | Manual checklist: login, home, users, projects, ticket, kanban, dashboard, workflows, versions | Full visual smoke | ☑ |
 
 **Development approval:** approved 2026-07-03 — tasks: T1, T2, T3, T4, T5, T6, T8 (T7 cancelled per Q3)
 

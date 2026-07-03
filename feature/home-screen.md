@@ -26,6 +26,7 @@ Global shell (search, **Novo**, notifications, **Conta**) stays in `app.html` �
 |--------|----------|
 | Row 1 (2 cols) | **Tickets atuais** table \| **Tickets atribuídos** table |
 | Row 2 (full) | **Atividade** feed (comments + status changes) |
+| Row 3+ (optional) | One table per owned saved query with **Exibir na página inicial** ([ticket-search](ticket-search.md) S3); section omitted when query returns no rows |
 | Columns | Identifier (link), title, project (link to hub), status, priority, updated |
 | Empty states | Per-section guidance when no rows |
 
@@ -37,6 +38,8 @@ Global shell (search, **Novo**, notifications, **Conta**) stays in `app.html` �
 │  (open, scoped)          │  (assignee = me, open)       │
 ├──────────────────────────┴──────────────────────────────┤
 │  Atividade (full width, static snapshot)                  │
+├─────────────────────────────────────────────────────────┤
+│  (optional) Saved query sections — one per show-at-home   │
 └─────────────────────────────────────────────────────────┘
 ```
 

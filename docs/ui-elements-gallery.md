@@ -440,6 +440,15 @@ Unread count badge (`.unread-box` / `.unread`) — `$base-error-color`. Items na
 
 ## 9. Feedback
 
+### 9.0 Context hint (`.context-hint`)
+
+| Property | Value |
+|----------|-------|
+| **Purpose** | Dismissible onboarding banner below page header |
+| **Markup** | `<aside class="context-hint">` + `.context-hint__message` + `.context-hint__close` button |
+| **Behavior** | **Fechar** sets `localStorage` key `issues.hint.dismissed.{hintId}` |
+| **Screens** | Home, Kanban, Advanced search |
+
 ### 9.1 Toast (`app-toast`)
 
 | Type | Class | Style |

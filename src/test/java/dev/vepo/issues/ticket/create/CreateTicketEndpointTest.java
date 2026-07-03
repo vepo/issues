@@ -51,6 +51,27 @@ class CreateTicketEndpointTest {
     }
 
     @Test
+    @DisplayName("Should create ticket with optional due date")
+    void shouldCreateTicketWithDueDate() {
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "title": "Ticket With Due Date",
+                         "description": "This ticket has a planned due date.",
+                         "projectId": %d,
+                         "categoryId": %d,
+                         "dueDate": "2026-08-15"
+                     }""".formatted(fixtures.project().id(), fixtures.bug().getId()))
+               .post("/api/tickets")
+               .then()
+               .statusCode(201)
+               .body("dueDate", equalTo("2026-08-15"));
+    }
+
+    @Test
     @DisplayName("It should be possible to create a ticket assigned to a phase")
     void shouldCreateTicketWithPhaseAssignment() {
         var phaseId = given().header(fixtures.pmAuthenticatedHeader())

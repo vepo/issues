@@ -218,9 +218,9 @@ Legend: ✅ Compliant · ⚠️ Partial · ❌ Gap · **Fix** = action taken or 
 
 | Item | Heuristic | Priority |
 |------|-----------|----------|
-| In-app help / onboarding tooltip | H10 | Low |
+| — | — | — |
 
-Most items from the 2026-07-02 audit are addressed (password confirm, workflows UI, account page, per-widget loading copy).
+Context hints (H10) addressed 2026-07-03 — see [onboarding-hints.md](../feature/onboarding-hints.md).
 
 ---
 

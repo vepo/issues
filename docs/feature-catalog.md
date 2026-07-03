@@ -7,7 +7,7 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Login | `/login` | public | Open app → enter email/password → submit → redirect home |
 | Password reset request | `/login/reset-password` | public | Login → "Forgot password" → enter email → submit |
 | Password reset confirm | `/login/reset-password/:token` | public | Open email link → enter new password twice → submit → login |
-| Home | `/` | authenticated | Login → land on personal hub: **Tickets atuais**, **Tickets atribuídos**, **Atividade** (static snapshot) |
+| Home | `/` | authenticated | Login → personal hub: **Tickets atuais**, **Tickets atribuídos**, **Atividade** (static snapshot); optional sections for owned saved queries with **Exibir na página inicial** |
 | Project hub | `/projects/:projectId` | authenticated (project member or admin) | Home → project name → hub: **Kanban**, **Painel**, **Versões**, **Fases**; lists phases and versions; owner PM or admin also **Editar**, **Alocação**, **Nova fase** / **Nova versão** |
 | Project allocation | `/projects/:projectId/allocation` | project owner PM, admin | Project hub → **Alocação** → list members → add user → remove (blocked when member has open assigned tickets; UI lists those tickets) |
 | Account settings | `/account/settings` | authenticated | Menu → Conta → view profile → change password (current + new) or use recovery link |

@@ -1,5 +1,6 @@
 package dev.vepo.issues.ticket;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record TicketResponse(long id,
@@ -15,6 +16,7 @@ public record TicketResponse(long id,
                              long status,
                              String priority,
                              LocalDateTime finishedAt,
+                             LocalDate dueDate,
                              Long observedVersionId,
                              String observedVersionLabel,
                              Long targetVersionId,
@@ -35,6 +37,7 @@ public record TicketResponse(long id,
                                   ticket.getStatus().getId(),
                                   ticket.getPriority().name(),
                                   ticket.getFinishedAt(),
+                                  ticket.getDueDate(),
                                   ticket.getObservedVersion() != null ? ticket.getObservedVersion().getId() : null,
                                   ticket.getObservedVersion() != null ? ticket.getObservedVersion().getLabel() : null,
                                   ticket.getTargetVersion() != null ? ticket.getTargetVersion().getId() : null,

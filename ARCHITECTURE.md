@@ -257,10 +257,9 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 
 | Item | Status |
 |------|--------|
-| Workflow update API/UI | Partial — edit name, start status, and transitions; status list fixed after create |
-| Due date on tickets | Not implemented |
-| Server-persisted dashboard layouts | Uses browser `localStorage` only |
-| In-app onboarding tooltips | Not implemented |
+| Workflow update API/UI | Partial — edit name, start status, and transitions; status list fixed after create (**blocked:** [workflow-configuration.md](feature/workflow-configuration.md) Q1/Q2 open) |
+| Server-persisted dashboard layouts | Uses browser `localStorage` only (**blocked:** [project-dashboard.md](feature/project-dashboard.md) Q1 open) |
+| Deleted ticket restore UI | Not implemented (**blocked:** [ticket-management.md](feature/ticket-management.md) Q1 open) |
 
 ## 14. OpenAPI → TypeScript codegen
 

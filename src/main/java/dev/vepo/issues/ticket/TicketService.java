@@ -1,5 +1,6 @@
 package dev.vepo.issues.ticket;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -146,6 +147,7 @@ public class TicketService {
                                 project,
                                 project.getWorkflow().getStart());
         ticket.setPriority(Objects.nonNull(request.priority()) ? request.priority() : TicketPriority.MEDIUM);
+        ticket.setDueDate(request.dueDate());
         ticket.setPhase(phaseService.requireAssignablePhase(project.getId(), request.phaseId()));
         repository.save(ticket);
         historyService.logTicketCreated(ticket, author);
@@ -175,6 +177,13 @@ public class TicketService {
         if (!entity.getPriority().equals(request.priority())) {
             historyService.logPriorityChanged(entity, user, entity.getPriority().name(), request.priority().name());
         }
+        if (!Objects.equals(entity.getDueDate(), request.dueDate())) {
+            historyService.logFieldChanged(entity,
+                                           user,
+                                           "dueDate",
+                                           formatDueDate(entity.getDueDate()),
+                                           formatDueDate(request.dueDate()));
+        }
         if (Objects.nonNull(request.planningFields())) {
             applyPhaseChange(entity,
                              user,
@@ -199,6 +208,7 @@ public class TicketService {
         entity.setDescription(request.description());
         entity.setCategory(newCategory);
         entity.setPriority(request.priority());
+        entity.setDueDate(request.dueDate());
         entity.setUpdatedAt(LocalDateTime.now());
 
         return TicketResponse.load(entity);
@@ -397,6 +407,10 @@ public class TicketService {
     }
 
     private String formatDateTime(LocalDateTime value) {
+        return Objects.nonNull(value) ? value.toString() : null;
+    }
+
+    private static String formatDueDate(LocalDate value) {
         return Objects.nonNull(value) ? value.toString() : null;
     }
 

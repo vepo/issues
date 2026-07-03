@@ -823,6 +823,29 @@ main {
   }
 }
 
+.context-hint {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: colors.$space-md;
+  margin-bottom: colors.$space-md;
+  padding: colors.$space-md colors.$space-lg;
+  background: colors.$surface-muted;
+  border: 1px solid colors.$border-subtle;
+  border-radius: colors.$radius-none;
+
+  &__message {
+    margin: 0;
+    flex: 1;
+    color: colors.$text-primary;
+    line-height: 1.5;
+  }
+
+  &__close {
+    flex-shrink: 0;
+  }
+}
+
 .empty-state {
   padding: colors.$space-xl colors.$space-lg;
   text-align: center;

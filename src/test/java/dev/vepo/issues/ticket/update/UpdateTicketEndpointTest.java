@@ -64,4 +64,27 @@ class UpdateTicketEndpointTest {
                .statusCode(404)
                .body("message", equalTo("Category does not found! categoryId=9999"));
     }
+
+    @Test
+    @DisplayName("Should update ticket due date")
+    void shouldUpdateTicketDueDate() {
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "title": "%s",
+                         "description": "%s",
+                         "categoryId": %d,
+                         "priority": "MEDIUM",
+                         "dueDate": "2026-09-01"
+                     }""".formatted(fixtures.ticket().title(),
+                                    fixtures.ticket().description(),
+                                    fixtures.feature().getId()))
+               .post("/api/tickets/" + fixtures.ticket().id())
+               .then()
+               .statusCode(200)
+               .body("dueDate", equalTo("2026-09-01"));
+    }
 }
