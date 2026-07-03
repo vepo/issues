@@ -1,7 +1,7 @@
 # Categories
 
-**Feature version:** 1  
-**Status:** done  
+**Feature version:** 2  
+**Status:** planned  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -46,12 +46,12 @@ Administrators manage ticket categories: name and display color. Categories clas
 | Tests | `ListCategoriesEndpointTest`, `CreateCategoryEndpointTest`, `UpdateCategoryEndpointTest` |
 | Docs | domain-spec (Category), feature-catalog (Category list), README § Tickets & workflow |
 
-### Open questions
+### Feature questions
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| Q1 | Should categories be deletable when referenced by tickets? | open | |
-| Q2 | Does category rename need explicit UX beyond FK propagation? | open | |
+| FQ1 | Should categories be deletable when referenced by tickets? | answered | **No** — forbid delete when any ticket references the category |
+| FQ2 | Does category rename need explicit UX beyond FK propagation? | answered | **No special UX** — tickets reference category **by id** (`category_id`), not name; rename updates display only |
 
 ## Changelog
 
@@ -83,3 +83,25 @@ Administrators manage ticket categories: name and display color. Categories clas
 | FC4 | `feature-catalog.md` — Category list row | Impact / Docs | ☑ |
 
 **Implementation notes:** `categories-view.component.ts`; `ListCategoriesEndpoint` used by filters and ticket forms.
+
+### Category delete guard — 2026-07-03
+
+**Version:** 2  
+**Status:** planned
+
+**Description:** Enforce non-deletion of categories referenced by tickets; confirm tickets use `category_id` FK (already id-based).
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| [ticket-import](ticket-import.md) | Import still resolves category by name at import time |
+| [ticket-management](ticket-management.md) | Category picker by id |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Delete rejected when tickets reference category | FQ1 | ☐ |
+| FC2 | Rename does not require ticket bulk update | FQ2 | ☐ |
+| FC3 | `domain-specification.md` — category id reference | Docs | ☐ |

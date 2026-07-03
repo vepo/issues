@@ -1,7 +1,7 @@
 # Project dashboard
 
-**Feature version:** 1  
-**Status:** done  
+**Feature version:** 2  
+**Status:** planned  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -42,20 +42,20 @@ Per-project analytics page with configurable widget layout: pie charts (tickets 
 | Packages / files | `dashboards.pie.LoadPieDashboardEndpoint`, `dashboards.table.LoadTableDashboardEndpoint`, `dashboards.kpi.LoadKpiDashboardEndpoint` |
 | API | `GET /projects/{id}/dashboard/pie/{type}`, `/dashboard/table/{type}`, `/dashboard/kpi/{type}` |
 | UI | `/project/:projectId/dashboard`; `dashboard` component (Chart.js/ng2-charts) |
-| Schema / seed | Reads `tb_tickets`, workflow statuses; no dedicated dashboard tables |
+| Schema / seed | Reads `tb_tickets`, workflow statuses; **`tb_dashboard_layouts`** (per user per project) |
 | Tests | `LoadPieDashboardEndpointTest`, `LoadTableDashboardEndpointTest`, `LoadKpiDashboardEndpointTest` |
 | Docs | domain-spec (Dashboard, Dashboard widget types), feature-catalog (Project dashboard), README § Views & analytics |
 
 ### Risks
 
-- Widget layout persisted in browser `localStorage` only (ARCHITECTURE §13).
+- Large projects may need aggregated SQL or caching for chart endpoints (**FQ2**).
 
-### Open questions
+### Feature questions
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| Q1 | Should dashboard layout be persisted server-side? | open | |
-| Q2 | Are chart query optimizations needed for large ticket volumes? | open | |
+| FQ1 | Should dashboard layout be persisted server-side? | answered | **Yes** — persist widget layout per user per project on server |
+| FQ2 | Are chart query optimizations needed for large ticket volumes? | answered | **Yes** — optimize dashboard chart/table queries for scale |
 
 ## Changelog
 
@@ -85,3 +85,24 @@ Per-project analytics page with configurable widget layout: pie charts (tickets 
 | FC4 | `feature-catalog.md` — Project dashboard row | Impact / Docs | ☑ |
 
 **Implementation notes:** `dashboard.component.ts`; `DashboardType` enum drives widget types; Chart.js visualizations.
+
+### Server layout persistence and query optimization — 2026-07-03
+
+**Version:** 2  
+**Status:** planned
+
+**Description:** Replace `localStorage` layout with server persistence; optimize pie/table/KPI queries for large ticket volumes.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| [kanban-board](kanban-board.md) | Shared project navigation unchanged |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Layout saved and restored from server per user/project | FQ1 | ☐ |
+| FC2 | Chart endpoints perform acceptably on large datasets | FQ2 | ☐ |
+| FC3 | ARCHITECTURE §13 gap closed | Docs | ☐ |

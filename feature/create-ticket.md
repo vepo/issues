@@ -1,7 +1,7 @@
 # Create ticket
 
-**Feature version:** 1  
-**Status:** done  
+**Feature version:** 2  
+**Status:** planned  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -49,11 +49,11 @@ Create new tickets globally (`/tickets/new`) or within a project (`/project/:pro
 | Tests | `CreateTicketEndpointTest` |
 | Docs | domain-spec (Identifier, Ticket template), feature-catalog (Create ticket rows), README § Tickets & workflow |
 
-### Open questions
+### Feature questions
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| Q1 | Should ticket template be optional when enabled but PM has not configured all fields? | open | |
+| FQ1 | Should ticket template be optional when enabled but PM has not configured all fields? | answered | **Yes** — when template is enabled, only configured fields pre-fill; user may submit without filling template-only fields |
 
 ## Changelog
 
@@ -85,3 +85,24 @@ Create new tickets globally (`/tickets/new`) or within a project (`/project/:pro
 | FC4 | `feature-catalog.md` — Create ticket rows | Impact / Docs | ☑ |
 
 **Implementation notes:** `create-ticket.component.ts`, `ticket-form.component.ts`; identifier generation in create flow.
+
+### Partial ticket template pre-fill — 2026-07-03
+
+**Version:** 2  
+**Status:** planned
+
+**Description:** When **Usar template de ticket** is enabled, pre-fill only fields the PM configured; do not require template-only fields on create.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| [project-administration](project-administration.md) | Template fields remain optional individually |
+| [ticket-management](ticket-management.md) | Create validation unchanged for required ticket fields |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Create succeeds with partial template pre-fill | FQ1 | ☐ |
+| FC2 | `domain-specification.md` — ticket template invariant updated | Docs | ☐ |

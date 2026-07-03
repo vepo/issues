@@ -1,7 +1,7 @@
 # Project administration
 
-**Feature version:** 1  
-**Status:** done  
+**Feature version:** 2  
+**Status:** planned  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -28,7 +28,7 @@ Project managers create and edit projects: name, prefix, required description, a
 
 | Region | Elements |
 |--------|----------|
-| Form | Name, prefix, description, workflow, ticket template section |
+| Form | Name, prefix (read-only when project has tickets), description, workflow, ticket template section |
 | Template | Checkbox **Usar template de ticket**; default field values |
 
 ```
@@ -51,12 +51,16 @@ Project managers create and edit projects: name, prefix, required description, a
 | Tests | `CreateProjectEndpointTest`, `UpdateProjectEndpointTest`, `ListProjectsEndpointTest`, `FindProjectByIdEndpointTest`, `FindProjectWorkflowEndpointTest`, `ListProjectStatusesEndpointTest` |
 | Docs | domain-spec (Project, Ticket template), feature-catalog (Project list/create/edit), README § Projects & administration |
 
-### Open questions
+### Risks
+
+- Prefix immutability must be enforced in API when `tb_tickets` rows exist for the project.
+
+### Feature questions
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| Q1 | Should project prefix be immutable after tickets exist? | open | |
-| Q2 | Will projects ever support multiple workflows? | not valid | One workflow per project is the current invariant |
+| FQ1 | Should project prefix be immutable after tickets exist? | answered | **Yes** — prefix cannot change once the project has tickets |
+| FQ2 | Will projects ever support multiple workflows? | not valid | One workflow per project is the current invariant |
 
 ## Changelog
 
@@ -87,3 +91,25 @@ Project managers create and edit projects: name, prefix, required description, a
 | FC4 | `feature-catalog.md` — Project rows | Impact / Docs | ☑ |
 
 **Implementation notes:** `project-edit.component.ts`; template fields embedded on `Project` entity.
+
+### Immutable project prefix — 2026-07-03
+
+**Version:** 2  
+**Status:** planned
+
+**Description:** Reject prefix changes on update when the project has one or more tickets; UI shows prefix read-only in that case.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| [ticket-management](ticket-management.md) | Identifiers remain stable |
+| [create-ticket](create-ticket.md) | Identifier generation unchanged |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Prefix read-only on edit when tickets exist | Wireframe, FQ1 | ☐ |
+| FC2 | API rejects prefix change when tickets exist | FQ1 | ☐ |
+| FC3 | `domain-specification.md` — prefix immutability | Docs | ☐ |

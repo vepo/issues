@@ -1,7 +1,7 @@
 # Ticket management
 
-**Feature version:** 2  
-**Status:** done  
+**Feature version:** 3  
+**Status:** planned  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -23,7 +23,7 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 |--------|----------|
 | Header | Identifier, title, status move, assignee, subscribe |
 | Fields | Project, category, priority, description (rich text), **Data de vencimento** (optional), phase/versions when enabled |
-| Actions | Save, delete (admin/PM), transition buttons |
+| Actions | Save, delete (admin/PM), **Restaurar** on soft-deleted tickets (admin/PM), transition buttons |
 | Comments | Add comment form + thread |
 | Atividade | Merged feed: comments + history (`.activity-feed`) |
 
@@ -43,16 +43,22 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 | Area | Effect |
 |------|--------|
 | Bounded contexts | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business`; reactions in `notifications`, `mailer` |
-| Packages / files | `ticket.create`, `ticket.update`, `ticket.delete`, `ticket.move`, `ticket.assign`, `ticket.find`, `ticket.list`, `ticket.subscribe`, `ticket.comments.*`, `ticket.history.*`, `TicketHistoryService` |
-| API | `GET/POST /tickets`, `GET /tickets/{id}`, expanded find by id/identifier, `POST /tickets/{id}/move`, assign, delete, subscribe/unsubscribe, comments, `GET /tickets/{id}/history` |
+| Packages / files | `ticket.create`, `ticket.update`, `ticket.delete`, `ticket.restore`, `ticket.move`, `ticket.assign`, `ticket.find`, `ticket.list`, `ticket.subscribe`, `ticket.comments.*`, `ticket.history.*`, `TicketHistoryService` |
+| API | `GET/POST /tickets`, `GET /tickets/{id}`, expanded find by id/identifier, `POST /tickets/{id}/move`, assign, delete, **restore**, subscribe/unsubscribe, comments, `GET /tickets/{id}/history` |
 | UI | `/ticket/:ticketIdentifier`; `ticket-view`, `ticket-activity-feed`, `rich-text-editor` components; `ticket.service` |
 | Schema / seed | `tb_tickets`, `tb_comments`, `tb_ticket_history`, `tb_tickets_subscribers`; sample tickets in `dev-import.sql` |
-| Tests | `CreateTicketEndpointTest`, `UpdateTicketEndpointTest`, `DeleteTicketEndpointTest`, `MoveTicketEndpointTest`, `UpdateAssigneeEndpointTest`, `Find*EndpointTest`, `ListTicketsEndpointTest`, `AddCommentEndpointTest`, `ListCommentsEndpointTest`, `GetTicketHistoryEndpointTest`, `TicketHistoryServiceTest`, `SubscribeTicketEndpointTest`, `HistoryDisplayTest` |
+| Tests | `CreateTicketEndpointTest`, `UpdateTicketEndpointTest`, `DeleteTicketEndpointTest`, **`RestoreTicketEndpointTest`**, `MoveTicketEndpointTest`, `UpdateAssigneeEndpointTest`, `Find*EndpointTest`, `ListTicketsEndpointTest`, `AddCommentEndpointTest`, `ListCommentsEndpointTest`, `GetTicketHistoryEndpointTest`, `TicketHistoryServiceTest`, `SubscribeTicketEndpointTest`, `HistoryDisplayTest` |
 | Docs | domain-spec (Ticket, Comment, History, Subscriber, Activity feed), feature-catalog (Ticket detail), README § Tickets & workflow |
 
 ### Risks
 
-- None for due date scope (CSV import and Kanban badge deferred).
+- Restore must re-include ticket in search/lists without breaking identifier uniqueness or history continuity.
+
+### Feature questions
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| FQ9 | Should deleted tickets be restorable from the UI? | answered | **Yes** — admin/PM may restore soft-deleted tickets from ticket detail |
 
 ### Feature questions (due date — v2)
 
@@ -66,12 +72,6 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 | FQ6 | Query language? | answered | `dueDate` / `due` with date comparators + IS EMPTY / IS NOT EMPTY |
 | FQ7 | History? | answered | `FIELD_CHANGED` field `"dueDate"` |
 | FQ8 | UI label? | answered | PT-BR **Data de vencimento** |
-
-### Open questions
-
-| # | Question | Status | Answer |
-|---|----------|--------|--------|
-| Q1 | Should deleted tickets be restorable from the UI? | open | |
 
 ## Changelog
 
@@ -173,3 +173,27 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 | FC6 | ARCHITECTURE §13 gap closed | Docs | ☑ |
 
 **Implementation notes:** `due_date` on `tb_tickets`; create/update API + UI; query language `dueDate`/`due`; history via `FIELD_CHANGED`. `mvn verify` + `npm run build` green (2026-07-03).
+
+### Restore soft-deleted tickets — 2026-07-03
+
+**Version:** 3  
+**Status:** planned
+
+**Description:** Allow admin and project-manager to **restore** soft-deleted tickets from the UI; ticket reappears in lists and search; history logs restoration.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| [ticket-search](ticket-search.md) | Restored tickets included in query results again |
+| [kanban-board](kanban-board.md) | Restored tickets visible on board |
+| [notifications](notifications.md) | Optional notification on restore (TBD in architecture) |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | **Restaurar** action on soft-deleted ticket detail | Wireframe, FQ9 | ☐ |
+| FC2 | Restored ticket visible in lists and search | FQ9 | ☐ |
+| FC3 | History logs restore event | FQ9 | ☐ |
+| FC4 | `domain-specification.md` — restore invariant | Docs | ☐ |

@@ -1,7 +1,7 @@
 # Account settings
 
-**Feature version:** 1  
-**Status:** done  
+**Feature version:** 2  
+**Status:** planned  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -21,7 +21,7 @@ Authenticated users view their profile (name, email, roles) and change password 
 
 | Region | Elements |
 |--------|----------|
-| Profile panel | Name, email, roles (read-only) |
+| Profile panel | Name, email (editable), roles (read-only) |
 | Password panel | Senha atual, Nova senha, Confirmar; **Salvar** |
 
 ```
@@ -29,7 +29,7 @@ Authenticated users view their profile (name, email, roles) and change password 
 │  Conta                                      │
 ├─────────────────────────────────────────────┤
 │  Perfil                                     │
-│  Nome: …    Email: …    Papéis: …           │
+│  Nome [……]  Email [……]    Papéis: … (read-only)           │
 ├─────────────────────────────────────────────┤
 │  Alterar senha                              │
 │  Senha atual [________]                     │
@@ -44,18 +44,18 @@ Authenticated users view their profile (name, email, roles) and change password 
 | Area | Effect |
 |------|--------|
 | Bounded contexts | `auth` |
-| Packages / files | `auth.me.MeEndpoint`, `auth.changepassword.ChangePasswordEndpoint` |
-| API | `GET /auth/me`, `POST /auth/change-password` |
+| Packages / files | `auth.me.MeEndpoint`, `auth.changepassword.ChangePasswordEndpoint`, **`auth.updateprofile.UpdateProfileEndpoint`** |
+| API | `GET /auth/me`, `POST /auth/change-password`, **`POST /auth/profile`** |
 | UI | `/account/settings`; `account-settings` component |
 | Schema / seed | `tb_users` (password hash update) |
-| Tests | `MeEndpointTest`, `ChangePasswordEndpointTest` |
+| Tests | `MeEndpointTest`, `ChangePasswordEndpointTest`, **`UpdateProfileEndpointTest`** |
 | Docs | feature-catalog (Account settings row), README § Authentication |
 
-### Open questions
+### Feature questions
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| Q1 | Should users edit name and email in account settings (self-service)? | open | |
+| FQ1 | Should users edit name and email in account settings (self-service)? | answered | **Yes** — editable name and email on `/account/settings` |
 
 ## Changelog
 
@@ -84,3 +84,25 @@ Authenticated users view their profile (name, email, roles) and change password 
 | FC4 | `feature-catalog.md` — Account settings row | Impact / Docs | ☑ |
 
 **Implementation notes:** `account-settings.component.ts`; `ChangePasswordEndpoint` validates current password before update.
+
+### Self-service profile edit — 2026-07-03
+
+**Version:** 2  
+**Status:** planned
+
+**Description:** Authenticated users update their own name and email on account settings; roles remain read-only.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| User management | Admin still edits other users; account settings is self-service only |
+| Authentication | Profile changes reflected on next `GET /auth/me` |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Profile form matches **Wireframe** (editable name/email) | Wireframe, FQ1 | ☐ |
+| FC2 | `POST /auth/profile` updates own user only | FQ1 | ☐ |
+| FC3 | Email uniqueness validated | FQ1 | ☐ |

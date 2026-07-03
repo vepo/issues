@@ -49,14 +49,14 @@ Transactional email via Quarkus Mailer and Qute templates: password reset links 
 | UI | Password reset request page triggers email; ticket changes trigger background send |
 | Schema / seed | `tb_password_reset_tokens` for recovery links |
 | Tests | Covered indirectly via `ResetPasswordEndpointTest`, `ConfirmPasswordResetEndpointTest`; mailer mocked in tests |
-| Docs | domain-spec (Password recovery, Ticket change email), README § Notifications & email |
+| Docs | domain-spec (Password recovery, Ticket change email), README § Notifications & email, **Docker deployment SMTP env vars** |
 
-### Open questions
+### Feature questions
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| Q1 | How is production SMTP configured separately from `%dev` mailer settings? | open | |
-| Q2 | Are deliverability, rate limits, and template localization required? | open | |
+| FQ1 | How is production SMTP configured separately from `%dev` mailer settings? | answered | **Docker environment variables** for production SMTP (host, port, credentials, from address) |
+| FQ2 | Are deliverability, rate limits, and template localization required? | answered | **No** — out of scope; basic transactional email only |
 
 ## Changelog
 
@@ -85,4 +85,4 @@ Transactional email via Quarkus Mailer and Qute templates: password reset links 
 | FC3 | Recovery flow sends email on request | Summary | ☑ |
 | FC4 | `domain-specification.md` — email terms | Impact / Docs | ☑ |
 
-**Implementation notes:** `MailerService.java`; Qute templates `resetPassword.html`, `notifyTicketChange.html`; `%dev` SMTP settings in `application.properties`.
+**Implementation notes:** `MailerService.java`; Qute templates `resetPassword.html`, `notifyTicketChange.html`; `%dev` SMTP settings in `application.properties`; production SMTP via Quarkus `%prod` config bound to Docker env vars (**FQ1**).

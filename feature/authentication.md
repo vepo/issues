@@ -1,7 +1,7 @@
 # Authentication
 
-**Feature version:** 1  
-**Status:** done  
+**Feature version:** 2  
+**Status:** planned  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -53,19 +53,23 @@ JWT-based login and password recovery for Issues. Users authenticate with email 
 | Area | Effect |
 |------|--------|
 | Bounded contexts | `auth` (Identity & access), `mailer` (recovery email) |
-| Packages / files | `auth.login`, `auth.me`, `auth.recovery`, `auth.changepassword`; `PasswordResetToken`; `MailerService` |
-| API | `POST /auth/login`, `GET /auth/me`, `POST /auth/recovery`, `POST /auth/recovery/confirm` |
-| UI | `/login`, `/login/reset-password`, `/login/reset-password/:token`; `login`, `password-reset-request`, `password-reset` components; `auth.service`, `auth.guard`, `auth.interceptor` |
+| Packages / files | `auth.login`, `auth.me`, `auth.recovery`, `auth.changepassword`, **`auth.refresh`**; `PasswordResetToken`; `MailerService` |
+| API | `POST /auth/login`, `GET /auth/me`, `POST /auth/recovery`, `POST /auth/recovery/confirm`, **`POST /auth/refresh`** |
+| UI | `/login`, `/login/reset-password`, `/login/reset-password/:token`; `login`, `password-reset-request`, `password-reset` components; `auth.service`, `auth.guard`, `auth.interceptor` — **refresh token** handling in interceptor |
 | Schema / seed | `tb_users`, `tb_password_reset_tokens`; dev personas in `dev-import.sql` |
-| Tests | `LoginEndpointTest`, `MeEndpointTest`, `ResetPasswordEndpointTest`, `ConfirmPasswordResetEndpointTest` |
+| Tests | `LoginEndpointTest`, `MeEndpointTest`, `ResetPasswordEndpointTest`, `ConfirmPasswordResetEndpointTest`, **`RefreshTokenEndpointTest`** |
 | Docs | domain-spec (Session, Password recovery), feature-catalog (Login, Password reset rows), README § Authentication |
 
-### Open questions
+### Risks
+
+- Production JWT key rotation requires coordinated key material and refresh-token invalidation strategy.
+
+### Feature questions
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| Q1 | How should JWT key rotation be handled in production? | open | |
-| Q2 | Should the app support token refresh, or remain single long-lived JWT? | open | |
+| FQ1 | How should JWT key rotation be handled in production? | answered | **Yes** — support key rotation in production (multiple valid signing keys during rollover) |
+| FQ2 | Should the app support token refresh, or remain single long-lived JWT? | answered | **Yes** — add refresh-token flow; short-lived access JWT + refresh token |
 
 ## Changelog
 
@@ -96,3 +100,27 @@ JWT-based login and password recovery for Issues. Users authenticate with email 
 | FC5 | JWT returned on successful login | Summary | ☑ |
 
 **Implementation notes:** `auth.login.LoginEndpoint`, `auth.recovery.*`, `auth.me.MeEndpoint`; Angular `auth.service.ts` stores token; SmallRye JWT RS256 per `application.properties`.
+
+### JWT refresh and key rotation — 2026-07-03
+
+**Version:** 2  
+**Status:** planned
+
+**Description:** Short-lived access JWT with refresh token; production JWT signing key rotation with overlapping valid keys.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| All authenticated routes | Interceptor refreshes access token before expiry |
+| Account settings | Session continuity via refresh |
+| — | None identified beyond auth layer |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | `POST /auth/refresh` issues new access token | FQ2 | ☐ |
+| FC2 | Angular interceptor refreshes on 401/expiry | FQ2 | ☐ |
+| FC3 | Production key rotation documented and configurable | FQ1 | ☐ |
+| FC4 | `domain-specification.md` — Session / refresh terms | Docs | ☐ |

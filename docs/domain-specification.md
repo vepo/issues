@@ -78,7 +78,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **User** (role) | Default role; create and work on tickets. | `Role.USER` — label: "User" |
 | **Administrator** | Full user management. | `Role.ADMIN` — label: "Admin" |
 | **Project manager** | Create projects and workflows; soft-delete tickets. | `Role.PROJECT_MANAGER` |
-| **Session** | Authenticated state via JWT Bearer token. | `AuthenticationEndpoint`, Angular `auth.service` |
+| **Session** | Authenticated state via JWT Bearer token; **refresh token** renews access without re-login. | `AuthenticationEndpoint`, Angular `auth.service` |
 | **Password recovery** | Self-service flow to reset password via email link. | `AuthenticationEndpoint` `/auth/recovery` |
 | **Password reset token** | Single-use secret sent by email. | `PasswordResetToken` |
 
@@ -133,12 +133,12 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | **Identifier** | Human-readable ticket key: `{project.prefix}-{seq}` (e.g. `ISS-003`). | `Ticket.identifier`, URL `/ticket/:ticketIdentifier` |
 | **Title** | Short summary of the ticket. | `Ticket.title` |
 | **Description** | Longer explanation of the work. | `Ticket.description` |
-| **Category** | Classification label with display color (e.g. Feature, Bug). | `Category`, `tb_categories` |
+| **Category** | Classification label with display color (e.g. Feature, Bug). Tickets reference category **by id** (`category_id`). | `Category`, `tb_categories` |
 | **Assignee** | User responsible for the ticket (optional). | `Ticket.assignee` |
 | **Author** | User who created the ticket. | `Ticket.author` |
 | **Current status** | Ticket's position in the project workflow. | `Ticket.status` → `WorkflowStatus` |
 | **Priority** | Ticket urgency level. | `TicketPriority` enum: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`; `Ticket.priority` |
-| **Soft delete** | Ticket marked deleted without physical removal. | `Ticket.deleted`; excluded from search |
+| **Soft delete** | Ticket marked deleted without physical removal; may be **restored** by admin/PM. | `Ticket.deleted`; excluded from search until restored |
 | **Move (ticket)** | Change ticket status following workflow transition rules. | `POST /tickets/{id}/move`, `MoveTicketRequest` |
 | **Phase (on ticket)** | Optional assignment of a ticket to a project phase. | `Ticket.phase`; UI **Fase** |
 | **Observed version** | Version where the change was observed or shipped. | `Ticket.observedVersion`; UI **Versão observada** |
@@ -194,12 +194,12 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 
 1. **Ticket identifier** — Auto-generated on create as `{project.prefix}-{zeroPaddedSeq}`; unique per project.
 2. **Workflow enforcement** — `moveTicket` must validate that a transition exists in the project's workflow from current status to target status.
-3. **Soft delete** — Deleted tickets are excluded from search and list queries; only admin and project-manager may delete.
+3. **Soft delete** — Deleted tickets are excluded from search and list queries; only admin and project-manager may delete. **Restore** — admin/PM may restore a soft-deleted ticket; it reappears in lists and search.
 4. **History** — Create, field changes, assign, move, subscribe/unsubscribe, and delete actions are logged via `TicketHistoryService` as structured events. Comments appear in the activity feed only (not duplicated in history).
 5. **Notifications** — Fired asynchronously on status move; delivered to ticket subscribers via SSE and optionally email.
 6. **Roles** — Endpoint access enforced via `@RolesAllowed`; class-level `@DenyAll` on protected resources.
 7. **Request/Response contract** — HTTP body types are records named `*Request` / `*Response` (ArchUnit enforced).
-8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, title, description, category, and priority must satisfy the same constraints as `CreateTicketRequest`. The create-ticket UI pre-fills the form from the template; the user may edit before submit.
+8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, only **configured** template fields pre-fill the create form; the user may submit without filling unconfigured template fields. Required ticket fields still follow `CreateTicketRequest` validation.
 9. **Project description** — Required on create and update (`CreateProjectRequest.description` must not be blank).
 10. **CSV import** — CSV parsed on the server (OpenCSV); upload and rows stored in `tb_ticket_imports` / `tb_ticket_import_rows` before mapping and execution. **Project-scoped** imports fix `project_id` on the batch; **global** imports leave `project_id` null and require a **project column** mapping — each row's project is resolved by name (case-insensitive). Author is the importing user; identifiers are always auto-generated (never read from CSV). Category resolved by name; assignee by email; status by workflow status name within the row's project workflow. Optional priority defaults to `MEDIUM`. Partial import: valid rows are created; invalid rows are reported per row without rolling back siblings. Status on import: ticket is created at workflow start; if a different status is mapped, a direct transition from start to that status must exist (multi-hop paths are not supported).
 11. **One active phase per project** — activating phase B **completes** the previously active phase; never two `ACTIVE` phases in the same project.
@@ -226,6 +226,14 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 32. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter.
 33. **Search indexing** — PostgreSQL **`tsvector` + GIN** indexes on ticket and comment text columns (`search_vector`).
 34. **Due date** — optional user-planned deadline on a ticket (`due_date`); independent of workflow **finish date** (`finished_at`).
+35. **Project prefix immutability** — once a project has at least one ticket, its **prefix** cannot change.
+36. **Category delete** — a category cannot be deleted while any ticket references it (`category_id` FK).
+37. **Kanban drag validation** — client blocks drag/drop to columns with no valid workflow transition; server remains authoritative on `moveTicket`.
+38. **User removal** — a user cannot be deleted while they are **assignee** on tickets whose status is not workflow **start**, **done**, or **canceled** finish status.
+39. **Self-registration** — new users may register via a public registration flow (default role `user`).
+40. **Account profile** — authenticated users may update their own name and email on account settings.
+41. **Notifications pagination** — notification list uses **infinite scroll** with paginated API; SSE client **auto-reconnects** after network drop.
+42. **Production email** — SMTP configured via Docker environment variables in production; deliverability/rate-limit/i18n email features out of scope.
 
 ---
 
