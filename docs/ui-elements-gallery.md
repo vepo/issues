@@ -460,12 +460,26 @@ Wrapped in `.page.page--wide` with standard `.page-header`. Inner `.page-panel` 
 | `MatDialog` | Create ticket |
 | `MatMenu` / `MatMenuItem` | User + notification menus |
 | `MatCheckbox` | User edit roles |
+| `MatStepper` | CSV ticket import wizard |
 | `CdkDrag` / `CdkDropList` | Kanban, dashboard |
 | `baseChart` (ng2-charts) | Dashboard pie charts |
 
+| `MatStepper` | `ticket-import-wizard` | Linear wizard: upload → column mapping → preview → results |
+| Hidden file input | `ticket-import-wizard` | `.btn` label wrapping `<input type="file" accept=".csv">`; streams file to `POST .../import/upload` |
+
 ---
 
-## 13. Style review findings
+## 13. CSV import wizard
+
+| Element | Class / component | Properties | Style | Behavior |
+|---------|-------------------|------------|-------|----------|
+| Wizard shell | `mat-stepper` linear | 4 steps | Inside `.page-panel` | Step 1: file; 2: mapping; 3: preview table; 4: results |
+| Preview table | `.import-preview-table` | Row #, title, category, status, validation | Bordered table, `.import-row-invalid` for errors | Populated from `POST .../import/preview` |
+| Step actions | `.step-actions` | Back / Next / Import | `.btn` + `.btn-secondary` | Import advances to results on success |
+
+---
+
+## 14. Style review findings
 
 ### 2026-07-02 — flat UI pass
 
@@ -497,7 +511,7 @@ Wrapped in `.page.page--wide` with standard `.page-header`. Inner `.page-panel` 
 
 ---
 
-## 14. Adding a new element — checklist
+## 15. Adding a new element — checklist
 
 1. Search this gallery — can an existing element be reused?
 2. If new: add SCSS to `colors.scss` / `styles.scss` (not ad-hoc hex in components).

@@ -783,6 +783,14 @@ main {
   color: colors.$text-muted;
 }
 
+.account-hint {
+  margin-top: colors.$space-md;
+
+  a {
+    margin-left: colors.$space-xs;
+  }
+}
+
 .left-aligned {
   text-align: left;
 }
@@ -1286,6 +1294,10 @@ form {
   color: colors.$text-primary;
   background: colors.$surface-muted;
   border-left: 3px solid transparent;
+
+  .identifier & {
+    margin-left: colors.$space-sm;
+  }
 
   &__dot {
     width: 0.5rem;
@@ -2078,4 +2090,240 @@ form.edit {
 .mat-mdc-snack-bar-container,
 .mat-mdc-option {
   border-radius: colors.$radius-none !important;
+}
+
+.import-step {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-md;
+  margin-bottom: colors.$space-lg;
+
+  &__intro {
+    margin: 0;
+    color: colors.$text-secondary;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 52rem;
+  }
+}
+
+.import-meta {
+  color: colors.$text-muted;
+  margin: 0;
+}
+
+.import-wizard {
+  .mat-stepper-horizontal {
+    background: transparent;
+  }
+
+  .mat-horizontal-stepper-header-container {
+    margin-bottom: colors.$space-md;
+  }
+
+  .mat-horizontal-content-container {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .mat-horizontal-stepper-content {
+    overflow: visible;
+  }
+}
+
+.import-mapping {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-lg;
+  margin-bottom: colors.$space-md;
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: colors.$space-sm;
+  }
+
+  &__heading {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: colors.$text-secondary;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: colors.$space-sm colors.$space-lg;
+    align-items: start;
+  }
+
+  mat-form-field.form-field {
+    margin-bottom: 0;
+    width: 100%;
+  }
+
+  .mat-mdc-form-field-hint {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.step-actions {
+  display: flex;
+  gap: colors.$space-sm;
+  margin-top: colors.$space-md;
+}
+
+.import-preview-table-wrap {
+  overflow-x: auto;
+}
+
+.import-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th,
+  td {
+    border: 1px solid colors.$border-subtle;
+    padding: colors.$space-xs colors.$space-sm;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: colors.$surface-muted;
+    font-weight: 600;
+  }
+}
+
+.import-row-invalid {
+  background: rgba(colors.$base-error-color, 0.06);
+}
+
+.import-validation-result {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-xs;
+}
+
+.import-error-list,
+.import-suggestion-list {
+  margin: 0;
+  padding-left: colors.$space-md;
+}
+
+.import-error-list {
+  list-style: disc;
+}
+
+.import-row-fix {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-xs;
+  margin-top: colors.$space-xs;
+  min-width: 12rem;
+
+  &__label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: colors.$text-secondary;
+  }
+
+  &__link {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  mat-form-field.form-field {
+    margin-bottom: 0;
+    width: 100%;
+  }
+}
+
+.error-list {
+  margin: 0;
+  padding-left: colors.$space-lg;
+}
+
+.import-summary {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-md;
+  margin-bottom: colors.$space-lg;
+
+  &__title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  &__highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: colors.$space-md;
+    margin: 0;
+
+    div {
+      background: colors.$surface-muted;
+      border: 1px solid colors.$border-subtle;
+      padding: colors.$space-sm colors.$space-md;
+    }
+
+    dt {
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: colors.$text-secondary;
+    }
+
+    dd {
+      margin: colors.$space-xs 0 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: colors.$text-primary;
+    }
+  }
+
+  &__heading {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: colors.$text-secondary;
+  }
+}
+
+.import-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th,
+  td {
+    border: 1px solid colors.$border-subtle;
+    padding: colors.$space-xs colors.$space-sm;
+    text-align: left;
+  }
+
+  th {
+    background: colors.$surface-muted;
+    font-weight: 600;
+  }
+}
+
+@media only screen and (max-width: 750px) {
+  .import-mapping__grid {
+    grid-template-columns: 1fr;
+  }
 }

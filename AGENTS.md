@@ -9,12 +9,13 @@ Read these before changing code or tests:
 | [docs/feature-catalog.md](docs/feature-catalog.md) | UI routes and navigation paths |
 | [docs/ui-elements-gallery.md](docs/ui-elements-gallery.md) | UI element catalog — flat UI principles, properties, style, behavior |
 | [docs/conventions-checklist.md](docs/conventions-checklist.md) | Doc debt and agent setup status |
+| [feature/](feature/) | Change request analysis — impact and changelog per initiative |
 | [.cursor/rules/](.cursor/rules/) | Four pillars + file-scoped detail |
 | [.cursor/agents/](.cursor/agents/) | Project subagents (specialized behaviour) |
 
 **Not in production yet**: This project is not in production yet. There is no need to keep legacy or update any production environment. Schema changes: amend `V1.0.0__Database_Creation.sql` only — see [issues-flyway.mdc](.cursor/rules/issues-flyway.mdc).
 
-**Workflow:** domain spec → correct package → create tests (TDD) → tiered test runs → `mvn verify` once → update docs when API or routes change.
+**Workflow:** change request analysis (`feature/<feature-slug>.md`) → domain spec → correct package → create tests (TDD) → tiered test runs → `mvn verify` once → update docs when API or routes change.
 
 **API codegen:** after backend endpoint changes, run `mvn test` then `cd src/main/webui && npm run generate:api`. Endpoints live in `{context}.{action}` subpackages — one HTTP method per class (e.g. `user.create.CreateUserEndpoint`).
 
@@ -34,7 +35,7 @@ Read these before changing code or tests:
 | 3. Coding quality | [issues-quality.mdc](.cursor/rules/issues-quality.mdc) | Finish gate, ReadLints, `mvn verify`, standards index |
 | 4. Platform usage | [issues-platform.mdc](.cursor/rules/issues-platform.mdc) | Java 21, Quarkus, Angular, approved libraries, tooling boundaries |
 
-Additional always-on rules: [issues-core.mdc](.cursor/rules/issues-core.mdc), [domain-model.mdc](.cursor/rules/domain-model.mdc), [issues-layered-architecture.mdc](.cursor/rules/issues-layered-architecture.mdc), [issues-bounded-contexts.mdc](.cursor/rules/issues-bounded-contexts.mdc), [static-analysis.mdc](.cursor/rules/static-analysis.mdc), [development-experience.mdc](.cursor/rules/development-experience.mdc), [feature-catalog.mdc](.cursor/rules/feature-catalog.mdc), [readme.mdc](.cursor/rules/readme.mdc) (keep README features and quick start current).
+Additional always-on rules: [change-request-analysis.mdc](.cursor/rules/change-request-analysis.mdc) (impact doc before code), [issues-core.mdc](.cursor/rules/issues-core.mdc), [domain-model.mdc](.cursor/rules/domain-model.mdc), [issues-layered-architecture.mdc](.cursor/rules/issues-layered-architecture.mdc), [issues-bounded-contexts.mdc](.cursor/rules/issues-bounded-contexts.mdc), [static-analysis.mdc](.cursor/rules/static-analysis.mdc), [development-experience.mdc](.cursor/rules/development-experience.mdc), [feature-catalog.mdc](.cursor/rules/feature-catalog.mdc), [readme.mdc](.cursor/rules/readme.mdc) (keep README features and quick start current).
 
 No content is duplicated across pillars — each hub links to file-scoped rules for detail.
 
@@ -98,5 +99,7 @@ Example: *"Use tdd-red to create a test for …"*
 **Frontend:** service → component → route → `*.spec.ts` when behaviour is non-trivial.
 
 **Full-stack:** align API contract with Angular service; update [feature-catalog.md](docs/feature-catalog.md) when adding routes.
+
+**Frontend finish gate:** `npm run build` (regenerates API client via `prebuild`) — not bare `ng build`.
 
 **Tests:** use `Given` for seed data; run `mvn test` for backend, `npm test` in `src/main/webui` for frontend.

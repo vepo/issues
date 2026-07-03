@@ -9,6 +9,10 @@
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
         <span i18n>Novo ticket</span>
       </a>
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'tickets', 'import']">
+        <mat-icon fontIcon="upload_file" aria-hidden="true"></mat-icon>
+        <span i18n>Importar CSV</span>
+      </a>
       <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'dashboard']">
         <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
         <span i18n>Painel</span>

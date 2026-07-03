@@ -9,9 +9,10 @@ Canonical references: [ARCHITECTURE.md](../../ARCHITECTURE.md), [docs/domain-spe
 
 ## Before any change
 
-1. Read **domain specification** (Ubiquitous Language) for ticket, workflow, project, or notification work.
-2. Read **ARCHITECTURE.md** §5 (package layout), §11 (naming), §12 (feature workflow).
-3. Follow patterns in the package you edit.
+1. **Change request analysis** — create or update `feature/<feature-slug>.md` (impact + changelog) per [change-request-analysis.mdc](change-request-analysis.mdc). No code until done.
+2. Read **domain specification** (Ubiquitous Language) for ticket, workflow, project, or notification work.
+3. Read **ARCHITECTURE.md** §5 (package layout), §11 (naming), §12 (feature workflow).
+4. Follow patterns in the package you edit.
 
 ## Domain vocabulary in code and tests
 
@@ -47,7 +48,7 @@ Bounded context rules: [issues-bounded-contexts.mdc](issues-bounded-contexts.mdc
 
 ## Feature workflow
 
-Domain spec → correct package → **create tests** (TDD below) → tiered runs ([issues-testing.mdc](issues-testing.mdc)) → `mvn verify` ([issues-quality.mdc](issues-quality.mdc)).
+Change request analysis (`feature/<feature-slug>.md`) → domain spec → correct package → **create tests** (TDD below) → tiered runs ([issues-testing.mdc](issues-testing.mdc)) → `mvn verify` ([issues-quality.mdc](issues-quality.mdc)).
 
 ## TDD — development guidance
 

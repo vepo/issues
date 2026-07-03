@@ -107,6 +107,10 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Subscriber** | User watching a ticket; receives notifications on changes. | `Ticket.subscribers`, M:N `tb_tickets_subscribers` |
 | **Subscribe** | Add a user to ticket subscribers. | `PUT /tickets/{id}/subscribe` |
 | **Unsubscribe** | Remove a subscriber from a ticket. | `DELETE /tickets/{id}/subscribe/{subscriberId}` |
+| **CSV import** | Bulk creation of tickets from a CSV file. May be **project-scoped** (fixed project) or **global** (project resolved per row from a mapped column). | `POST /projects/{projectId}/tickets/import/upload` or `POST /tickets/import/upload`; UI at `/project/:projectId/tickets/import` or `/tickets/import` |
+| **Column mapping** | User-defined association between CSV header names and ticket fields (title, description, category, priority, assignee, status, and optionally project). | `ColumnMapping`, import wizard step 2 |
+| **Import row** | One CSV data row after column mapping, validated and stored before ticket creation. | `TicketImportRow`, `tb_ticket_import_rows` |
+| **Ticket import batch** | Server-side persisted CSV upload with parsed rows awaiting mapping and execution. | `TicketImport`, `tb_ticket_imports` |
 
 ### Notifications & real-time
 
@@ -144,6 +148,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 7. **Request/Response contract** — HTTP body types are records named `*Request` / `*Response` (ArchUnit enforced).
 8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, title, description, category, and priority must satisfy the same constraints as `CreateTicketRequest`. The create-ticket UI pre-fills the form from the template; the user may edit before submit.
 9. **Project description** — Required on create and update (`CreateProjectRequest.description` must not be blank).
+10. **CSV import** — CSV parsed on the server (OpenCSV); upload and rows stored in `tb_ticket_imports` / `tb_ticket_import_rows` before mapping and execution. **Project-scoped** imports fix `project_id` on the batch; **global** imports leave `project_id` null and require a **project column** mapping — each row's project is resolved by name (case-insensitive). Author is the importing user; identifiers are always auto-generated (never read from CSV). Category resolved by name; assignee by email; status by workflow status name within the row's project workflow. Optional priority defaults to `MEDIUM`. Partial import: valid rows are created; invalid rows are reported per row without rolling back siblings. Status on import: ticket is created at workflow start; if a different status is mapped, a direct transition from start to that status must exist (multi-hop paths are not supported).
 
 ---
 

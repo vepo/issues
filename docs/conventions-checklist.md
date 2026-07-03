@@ -11,6 +11,7 @@ Tracks gaps between documentation and code, and agentic development setup status
 | `docs/domain-specification.md` | Done |
 | `docs/feature-catalog.md` | Done |
 | `.cursor/rules/` (pillars + file-scoped) | Done |
+| `change-request-analysis.mdc` + `feature/` change docs | Done |
 | `.cursor/agents/` (TDD + domain + docs) | Done |
 | `.cursor/commands/` (fix tests, Sonar, coverage, structure review) | Done |
 | `readme.mdc` (keep README features current) | Done |

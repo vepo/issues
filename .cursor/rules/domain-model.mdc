@@ -19,8 +19,9 @@ This specification MUST contain a dedicated section titled **"Ubiquitous Languag
 
 Before implementing any change, you MUST:
 
-1. **Read the domain specification** completely, especially the Ubiquitous Language section.
-2. **Question the change against the domain**:
+1. **Complete change request analysis** — `feature/<feature-slug>.md` with impact and changelog ([change-request-analysis.mdc](change-request-analysis.mdc)).
+2. **Read the domain specification** completely, especially the Ubiquitous Language section.
+3. **Question the change against the domain**:
    - Does this change affect the domain (new entities, events, or business rules)?
    - Does the domain allow the intended implementation?
    - Do we need to extend the domain specification?

@@ -60,6 +60,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 - **Comments** — discussion thread on each ticket
 - **Ticket history** — structured audit log (create, field changes, assign, move, subscribe, delete) merged with comments in the **Atividade** feed
 - **Subscribers** — watch tickets and receive alerts on changes
+- **CSV import** — bulk-create tickets from a CSV file; project-scoped (from Kanban) or global (header Importar, project per row from CSV column); server parses with OpenCSV, stores rows in database, then column-mapping wizard creates tickets
 
 ### Projects & administration
 

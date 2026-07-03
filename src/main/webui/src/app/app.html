@@ -23,6 +23,10 @@
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
         <span i18n>Novo</span>
       </a>
+      <a class="btn btn-compact btn-header" matButton="outlined" routerLink="/tickets/import">
+        <mat-icon fontIcon="upload_file" aria-hidden="true"></mat-icon>
+        <span i18n>Importar</span>
+      </a>
     }
 
     <div class="grow-space"></div>
@@ -44,6 +48,10 @@
           <button mat-menu-item [routerLink]="'/account/settings'">
             <mat-icon matMenuItemIcon fontIcon="person"></mat-icon>
             <span i18n>Conta</span>
+          </button>
+          <button mat-menu-item [routerLink]="'/tickets/import'">
+            <mat-icon matMenuItemIcon fontIcon="upload_file"></mat-icon>
+            <span i18n>Importar CSV</span>
           </button>
           @if (hasAdminMenu()) {
             <button mat-menu-item [matMenuTriggerFor]="adminMenu">

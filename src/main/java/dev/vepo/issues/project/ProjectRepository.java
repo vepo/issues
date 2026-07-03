@@ -35,4 +35,11 @@ public class ProjectRepository {
                  .getResultStream()
                  .findFirst();
     }
+
+    public Optional<Project> findByNameIgnoreCase(String name) {
+        return em.createQuery("FROM Project WHERE lower(name) = lower(:name)", Project.class)
+                 .setParameter("name", name)
+                 .getResultStream()
+                 .findFirst();
+    }
 }

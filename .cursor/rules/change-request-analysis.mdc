@@ -1,0 +1,78 @@
+---
+description: Change request analysis before any implementation — feature impact doc and changelog
+alwaysApply: true
+---
+
+# Change request analysis (before implementation)
+
+**Do not write production or test code** until the change request analysis is complete. Template: [feature/README.md](../../feature/README.md).
+
+## When required
+
+| Trigger | Analysis required |
+|---------|-------------------|
+| New behaviour, API, UI route, schema | Yes — create or extend `feature/<feature-slug>.md` |
+| Refactor touching multiple packages or bounded contexts | Yes |
+| Bug fix with cross-feature side effects | Yes — append changelog entry |
+| Typo, comment-only, formatter, docs-only (no behaviour) | No |
+
+## Process
+
+### 0. Resolve `<feature-slug>` (before creating the file)
+
+The slug names a **high-level capability or user-facing feature**, not a single task or implementation step.
+
+| Good (capability) | Bad (task or implementation) |
+|-------------------|------------------------------|
+| `ticket-import` | `fix-csv-parser-bug` |
+| `account-settings` | `add-password-field-validation` |
+| `kanban-board` | `refactor-drag-drop-handler` |
+
+**Extract the slug**
+
+1. **Name the capability** — what product area or feature-catalog row does this belong to? (e.g. Import tickets, Account settings, Kanban board).
+2. **Derive slug** — 2–4 words, kebab-case, noun phrase; align with [feature-catalog.md](../../docs/feature-catalog.md) feature names or bounded context when possible.
+3. **Search for a related feature doc** — before creating a new file:
+   - List `feature/*.md` (exclude `README.md`).
+   - Skim summaries and changelog titles in existing files.
+   - Cross-check [feature-catalog.md](../../docs/feature-catalog.md) and [domain-specification.md](../../docs/domain-specification.md) for the same capability.
+4. **Decide**
+
+   | Finding | Action |
+   |---------|--------|
+   | Clear match to an existing `feature/<slug>.md` | **Extend** that file — add a changelog entry; refresh Impact only if footprint changed |
+   | No related doc; capability is distinct | **Create** `feature/<feature-slug>.md` |
+   | Multiple candidates or unclear fit | **Stop and ask** — present 2–3 options (extend existing vs new slug). **Do not assume.** |
+
+**When in doubt, ask.** Examples that require user confirmation: bug fix vs new sub-capability; refactor spanning two features; request could extend `ticket-import` or belong under `kanban-board`.
+
+### 1. Create or open `feature/<feature-slug>.md`
+
+Kebab-case slug, stable for the lifetime of the capability. Re-run step 0 if the request grows into a different feature area.
+
+### 2. Impact — document scope before coding:
+   - Bounded contexts and packages ([issues-bounded-contexts.mdc](issues-bounded-contexts.mdc))
+   - API / OpenAPI / Angular surfaces
+   - Schema (`V1.0.0__Database_Creation.sql`), seed data, migrations
+   - Tests and docs to update
+   - Risks and open questions
+### 3. Changelog — one entry per discrete change request (append; do not rewrite history):
+   - **Change name** — short title (e.g. `Add ticket CSV export`)
+   - **Impact on other features** — list affected capabilities, routes, or contexts; write `None identified` when isolated
+
+## Order with other gates
+
+```
+Change request analysis → domain spec review → package placement → TDD → implementation
+```
+
+Domain checklist: [domain-model.mdc](domain-model.mdc). Feature workflow: [issues-model.mdc](issues-model.mdc).
+
+## During implementation
+
+- Mark changelog entry status: `planned` → `in-progress` → `done`.
+- If scope grows, add a **new** changelog entry; update the Impact section if the overall feature footprint changes.
+
+## After implementation
+
+Close the loop in the same `feature/<feature-slug>.md` entry (files touched, tests run). User-facing doc updates remain in [documentation.mdc](documentation.mdc) — do not duplicate route tables in feature docs.

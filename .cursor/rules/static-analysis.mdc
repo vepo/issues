@@ -23,8 +23,11 @@ mvn verify
 When Angular files changed, also run:
 
 ```bash
+cd src/main/webui && npm run build
 cd src/main/webui && npm test -- --no-watch --browsers=ChromeHeadless
 ```
+
+`npm run build` runs `generate:api` (via `prebuild`) then `ng build` — required before marking done; do not rely on `ng build` alone after API changes.
 
 Formatting (optional, faster feedback):
 
@@ -48,6 +51,7 @@ Pre-existing issues in unrelated files: fix only if trivial; do not scope-creep.
 ## Do not finish while
 
 - `mvn verify` fails on your branch.
+- `npm run build` fails when `src/main/webui/**` was changed.
 - Linter reports new problems in files you changed.
 - You knowingly left failing tests in touched code.
 

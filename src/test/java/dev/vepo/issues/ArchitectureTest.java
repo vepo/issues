@@ -26,6 +26,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
@@ -38,7 +39,9 @@ class ArchitectureTest {
             public void check(JavaMethod method, ConditionEvents events) {
                 method.getParameters()
                       .stream()
-                      .filter(p -> !p.isAnnotatedWith(PathParam.class) && !p.isAnnotatedWith(QueryParam.class) && !p.isAnnotatedWith(Context.class))
+                      .filter(p -> !p.isAnnotatedWith(PathParam.class) && !p.isAnnotatedWith(QueryParam.class) && !p.isAnnotatedWith(Context.class)
+                              && !p.isAnnotatedWith(HeaderParam.class))
+                      .filter(p -> !p.getType().getName().equals("java.io.InputStream"))
                       .filter(p -> !p.getType().getName().endsWith("Request"))
                       .map(p -> SimpleConditionEvent.violated(method, "Method %s has body parameter %s that is not a Request".formatted(method.getFullName(),
                                                                                                                                         p.getType().getName())))

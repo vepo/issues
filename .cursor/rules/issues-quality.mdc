@@ -10,7 +10,7 @@ alwaysApply: true
 1. **Mid-task:** tiered tests per [issues-testing.mdc](issues-testing.mdc).
 2. **Backend scope:** affected `*Test` classes pass.
 3. **Full suite:** `mvn verify` — same as [`.github/workflows/build.yml`](../../.github/workflows/build.yml) backend portion.
-4. **Frontend scope:** `npm test` in `src/main/webui` when Angular files changed.
+4. **Frontend scope:** `npm run build` then `npm test` in `src/main/webui` when Angular files changed.
 5. **IDE:** `ReadLints` on edited paths — fix **new** warnings.
 
 Skip gates for docs-only, `.mdc`-only, or comment-only edits.
@@ -26,6 +26,7 @@ Pre-existing issues elsewhere: fix only if trivial; no scope creep.
 ## Do not finish while
 
 - `mvn verify` fails on backend changes you made.
+- `npm run build` fails on frontend changes you made.
 - New linter problems in files you changed.
 - Failing tests remain in touched code.
 

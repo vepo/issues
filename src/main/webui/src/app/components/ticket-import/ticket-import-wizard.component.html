@@ -1,0 +1,310 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Importar tickets via CSV</h1>
+      @if (projectScoped) {
+        <p class="page-subtitle" i18n>
+          Projeto: {{ project?.name ?? projectId }} — carregue o arquivo, associe as colunas e confirme a importação.
+        </p>
+      } @else {
+        <p class="page-subtitle" i18n>
+          Associe a coluna de projeto e os demais campos — cada linha será criada no projeto indicado no CSV.
+        </p>
+      }
+    </div>
+    <div class="page-header__actions">
+      <button type="button" class="btn btn-secondary" matButton="outlined" (click)="cancel()" i18n>Cancelar</button>
+    </div>
+  </header>
+
+  <section class="edit page-panel import-wizard">
+    <mat-stepper linear>
+      <mat-step [completed]="canProceedFromUpload()" label="Arquivo" i18n-label>
+        <div class="import-step">
+          <label class="btn" matButton="filled">
+            <mat-icon fontIcon="upload_file" aria-hidden="true"></mat-icon>
+            <span i18n>Selecionar CSV</span>
+            <input type="file" accept=".csv,text/csv" hidden (change)="onFileSelected($event)" />
+          </label>
+
+          @if (fileName) {
+            <p class="import-meta"><strong i18n>Arquivo:</strong> {{ fileName }}</p>
+          }
+          @if (uploadResult) {
+            <p class="import-meta" i18n>{{ uploadResult.rowCount }} linha(s) · {{ headers.length }} coluna(s)</p>
+            @if (uploadResult.truncated) {
+              <p class="error" i18n>Arquivo truncado no servidor (máximo de 500 linhas).</p>
+            }
+          }
+          @if (isUploading) {
+            <p i18n>Enviando arquivo…</p>
+          }
+          @if (uploadError) {
+            <p class="error">{{ uploadError }}</p>
+          }
+        </div>
+        <div class="step-actions">
+          <button type="button" class="btn" matButton="filled" matStepperNext [disabled]="!canProceedFromUpload()" i18n>Próximo</button>
+        </div>
+      </mat-step>
+
+      <mat-step [stepControl]="mappingForm" label="Colunas" i18n-label>
+        <div class="import-step">
+          <p class="import-step__intro" i18n>
+            Associe cada campo do ticket à coluna correspondente no CSV. Os exemplos abaixo vêm da primeira linha do arquivo.
+          </p>
+          <form [formGroup]="mappingForm" class="import-mapping">
+            <section class="import-mapping__section">
+              <h2 class="import-mapping__heading" i18n>Campos obrigatórios</h2>
+              <div class="import-mapping__grid">
+                @for (field of requiredMappingFields(); track field.key) {
+                  <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
+                    <mat-label>{{ field.label }}</mat-label>
+                    <mat-select [formControlName]="field.key" [required]="field.required">
+                      @for (header of headerOptions(); track header) {
+                        <mat-option [value]="header">{{ header }}</mat-option>
+                      }
+                    </mat-select>
+                    <mat-hint [title]="sampleValue(mappingForm.get(field.key)?.value)">
+                      Exemplo: {{ sampleValueShort(mappingForm.get(field.key)?.value) }}
+                    </mat-hint>
+                  </mat-form-field>
+                }
+              </div>
+            </section>
+
+            @if (optionalMappingFields().length) {
+              <section class="import-mapping__section">
+                <h2 class="import-mapping__heading" i18n>Campos opcionais</h2>
+                <div class="import-mapping__grid">
+                  @for (field of optionalMappingFields(); track field.key) {
+                    <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
+                      <mat-label>{{ field.label }}</mat-label>
+                      <mat-select [formControlName]="field.key">
+                        <mat-option [value]="''" i18n>Não importar</mat-option>
+                        @for (header of headerOptions(); track header) {
+                          <mat-option [value]="header">{{ header }}</mat-option>
+                        }
+                      </mat-select>
+                      <mat-hint [title]="sampleValue(mappingForm.get(field.key)?.value)">
+                        Exemplo: {{ sampleValueShort(mappingForm.get(field.key)?.value) }}
+                      </mat-hint>
+                    </mat-form-field>
+                  }
+                </div>
+              </section>
+            }
+          </form>
+        </div>
+        <div class="step-actions">
+          <button type="button" class="btn btn-secondary" matButton="outlined" matStepperPrevious i18n>Voltar</button>
+          <button
+            type="button"
+            class="btn"
+            matButton="filled"
+            matStepperNext
+            [disabled]="mappingForm.invalid"
+            (click)="saveMappingAndPreview()"
+            i18n>
+            Próximo
+          </button>
+        </div>
+      </mat-step>
+
+      <mat-step label="Pré-visualização" i18n-label>
+        <div class="import-step">
+          @if (isPreviewLoading) {
+            <p i18n>Validando linhas…</p>
+          } @else if (previewError) {
+            <p class="error">{{ previewError }}</p>
+          } @else {
+            <p class="import-meta" i18n>{{ validCount }} válida(s), {{ invalidCount }} com erro</p>
+            @if (invalidCount > 0) {
+              <p class="import-step__intro" i18n>Corrija os erros abaixo antes de importar.</p>
+            }
+            <div class="import-preview-table-wrap">
+              <table class="import-preview-table">
+                <thead>
+                  <tr>
+                    <th i18n>Linha</th>
+                    @if (!projectScoped) {
+                      <th i18n>Projeto</th>
+                    }
+                    <th i18n>Título</th>
+                    <th i18n>Categoria</th>
+                    <th i18n>Status</th>
+                    <th i18n>Resultado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of previewRows; track row.rowNumber) {
+                    <tr [class.import-row-invalid]="!row.valid">
+                      <td>{{ row.rowNumber }}</td>
+                      @if (!projectScoped) {
+                        <td>{{ row.preview?.projectName || '—' }}</td>
+                      }
+                      <td>{{ row.preview?.title }}</td>
+                      <td>{{ row.preview?.categoryName }}</td>
+                      <td>{{ row.preview?.statusName || '—' }}</td>
+                      <td>
+                        @if (row.valid) {
+                          <span i18n>OK</span>
+                        } @else {
+                          <div class="import-validation-result">
+                            @if (row.errors?.length) {
+                              <ul class="import-error-list">
+                                @for (error of row.errors; track error) {
+                                  <li class="error">{{ error }}</li>
+                                }
+                              </ul>
+                            }
+
+                            @if (hasProjectError(row)) {
+                              <div class="import-row-fix">
+                                <span class="import-row-fix__label" i18n>Escolha o projeto</span>
+                                <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
+                                  <mat-select
+                                    [value]="row.preview?.projectName ?? ''"
+                                    [disabled]="isFixingRow(row)"
+                                    (selectionChange)="correctProject(row, $event.value)">
+                                    @for (projectOption of projects; track projectOption.id) {
+                                      <mat-option [value]="projectOption.name">{{ projectOption.name }}</mat-option>
+                                    }
+                                  </mat-select>
+                                </mat-form-field>
+                                <a class="import-row-fix__link" routerLink="/projects" i18n>Criar projeto</a>
+                              </div>
+                            }
+
+                            @if (hasStatusError(row)) {
+                              <div class="import-row-fix">
+                                <span class="import-row-fix__label" i18n>Escolha o status</span>
+                                <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
+                                  <mat-select
+                                    [value]="row.preview?.statusName ?? ''"
+                                    [disabled]="isFixingRow(row) || statusOptionsForRow(row).length === 0"
+                                    (selectionChange)="correctStatus(row, $event.value)">
+                                    <mat-option value="" i18n>Status inicial</mat-option>
+                                    @for (status of statusOptionsForRow(row); track status) {
+                                      <mat-option [value]="status">{{ status }}</mat-option>
+                                    }
+                                  </mat-select>
+                                </mat-form-field>
+                              </div>
+                            }
+
+                            @if (hasAssigneeError(row)) {
+                              <div class="import-row-fix">
+                                <span class="import-row-fix__label" i18n>Escolha o responsável</span>
+                                <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
+                                  <mat-select
+                                    [value]="row.preview?.assigneeEmail ?? ''"
+                                    [disabled]="isFixingRow(row)"
+                                    (selectionChange)="correctAssignee(row, $event.value)">
+                                    <mat-option value="" i18n>Sem responsável</mat-option>
+                                    @for (user of users; track user.id) {
+                                      <mat-option [value]="user.email">{{ user.name }} ({{ user.email }})</mat-option>
+                                    }
+                                  </mat-select>
+                                </mat-form-field>
+                                <a class="import-row-fix__link" routerLink="/users" i18n>Criar usuário</a>
+                              </div>
+                            }
+                          </div>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+        <div class="step-actions">
+          <button type="button" class="btn btn-secondary" matButton="outlined" matStepperPrevious i18n>Voltar</button>
+          <button
+            type="button"
+            class="btn"
+            matButton="filled"
+            [disabled]="validCount === 0 || isPreviewLoading || isImporting"
+            (click)="importValidRows()"
+            i18n>
+            Importar válidas
+          </button>
+        </div>
+      </mat-step>
+
+      <mat-step label="Resultado" i18n-label>
+        <div class="import-step">
+          @if (isImporting) {
+            <p i18n>Importando tickets…</p>
+          } @else if (importResult) {
+            <div class="import-summary">
+              <h2 class="import-summary__title" i18n>Resumo da importação</h2>
+              <dl class="import-summary__highlights">
+                <div>
+                  <dt i18n>Tickets importados</dt>
+                  <dd>{{ importResult.summary?.importedCount ?? importResult.created.length }}</dd>
+                </div>
+                <div>
+                  <dt i18n>Projetos impactados</dt>
+                  <dd>{{ importResult.summary?.projectsImpacted ?? 0 }}</dd>
+                </div>
+              </dl>
+
+              @if (importResult.summary?.ticketsByProject?.length) {
+                <h3 class="import-summary__heading" i18n>Distribuição por projeto</h3>
+                <table class="import-summary-table">
+                  <thead>
+                    <tr>
+                      <th i18n>Projeto</th>
+                      <th i18n>Tickets</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of importResult.summary?.ticketsByProject; track item.name) {
+                      <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.count }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+
+              @if (importResult.summary?.ticketsByStatus?.length) {
+                <h3 class="import-summary__heading" i18n>Distribuição por status</h3>
+                <table class="import-summary-table">
+                  <thead>
+                    <tr>
+                      <th i18n>Status</th>
+                      <th i18n>Tickets</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of importResult.summary?.ticketsByStatus; track item.name) {
+                      <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.count }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </div>
+
+            @if (importResult.errors.length) {
+              <ul class="error-list">
+                @for (error of importResult.errors; track error.rowNumber) {
+                  <li class="error" i18n>Linha {{ error.rowNumber }}: {{ error.message }}</li>
+                }
+              </ul>
+            }
+            <a class="btn" matButton="filled" [routerLink]="resultLink()" i18n>Concluir</a>
+            <button type="button" class="btn btn-secondary" matButton="outlined" (click)="resetWizard()" i18n>Importar outro arquivo</button>
+          }
+        </div>
+      </mat-step>
+    </mat-stepper>
+  </section>
+</div>

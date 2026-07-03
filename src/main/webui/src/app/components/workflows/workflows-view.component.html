@@ -26,7 +26,7 @@
           <div class="row {{ $even ? 'even' : 'odd' }}">
             <div>{{ entry.id }}</div>
             <div class="left-aligned">{{ entry.name }}</div>
-            <div class="left-aligned">{{ entry.statuses?.join(', ') }}</div>
+            <div class="left-aligned">{{ entry.statuses.join(', ') }}</div>
             <div class="left-aligned">{{ entry.start }}</div>
             <div>
               <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="['/workflows', entry.id]">

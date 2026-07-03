@@ -15,6 +15,8 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Ticket search | `/search` | authenticated | Menu → search → enter term → open ticket |
 | Create ticket | `/tickets/new` | authenticated | Header → Novo → select project → fill form → create |
 | Create ticket (project) | `/project/:projectId/tickets/new` | authenticated | Kanban → Novo ticket → form pre-filled from template → create |
+| Import tickets (CSV, project) | `/project/:projectId/tickets/import` | authenticated | Kanban → Importar CSV → upload file → map columns → preview → import valid rows |
+| Import tickets (CSV, global) | `/tickets/import` | authenticated | Header **Importar** or user menu → Importar CSV → upload file → map project + columns → preview → import valid rows |
 | User list | `/users` | admin | Menu → users → list |
 | Create user | `/users/new` | admin | Users → new → fill form → save |
 | Edit user | `/users/:userId` | admin | Users → select user → edit → save |

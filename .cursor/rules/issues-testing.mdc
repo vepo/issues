@@ -14,9 +14,9 @@ Run the **smallest scope that catches your regression** after substantive edits.
 | Trivial / compile-only edit | Skip until next substantive change |
 | One backend package edited | Single test class or `mvn test -Dtest=ClassName` |
 | REST endpoint changed | Related `*EndpointTest` + `ArchitectureTest` if DTOs changed |
-| Angular component/service changed | `cd src/main/webui && npm test -- --include='**/affected.spec.ts'` |
+| Angular component/service changed | `cd src/main/webui && npm run build` then `npm test -- --include='**/affected.spec.ts'` |
 | Task done (backend) | `mvn verify` |
-| Task done (full-stack) | `mvn verify` + Angular tests (CI runs both) |
+| Task done (full-stack) | `mvn verify` + `npm run build` + Angular tests (CI runs both) |
 
 ```bash
 # All backend tests
@@ -29,6 +29,7 @@ mvn test -Dtest=TicketEndpointTest#methodName
 mvn test -Dtest=ArchitectureTest
 
 # Frontend (headless)
+cd src/main/webui && npm run build
 cd src/main/webui && npm test -- --no-watch --browsers=ChromeHeadless
 
 # Dev mode (manual)
