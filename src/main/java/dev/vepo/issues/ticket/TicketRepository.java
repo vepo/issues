@@ -113,7 +113,8 @@ public class TicketRepository {
     }
 
     public Stream<TicketHistory> findHistoryByTicketId(Long id) {
-        return em.createQuery("FROM TicketHistory where ticket.id = :id", TicketHistory.class)
+        return em.createQuery("FROM TicketHistory h WHERE h.ticket.id = :id ORDER BY h.timestamp DESC, h.id DESC",
+                              TicketHistory.class)
                  .setParameter("id", id)
                  .getResultStream();
     }

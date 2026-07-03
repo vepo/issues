@@ -3,7 +3,10 @@
   <header class="page-header">
     <div>
       <h1 class="page-title">#{{ ticket.identifier }} — {{ ticket.title }}</h1>
-      <p class="page-subtitle">{{ ticket.project.name }} · {{ ticket.status | normalize }}</p>
+      <p class="page-subtitle">
+        {{ ticket.project.name }}
+        <span class="status-badge">{{ ticket.status | normalize }}</span>
+      </p>
     </div>
     <div class="page-header__actions">
       <button class="btn" matButton="filled" (click)="toggle()">
@@ -50,94 +53,65 @@
       <dd>{{ ticket.description }}</dd>
     </dl>
 
-    <nav class="tabs" aria-label="Seções do ticket">
-      <button
-        type="button"
-        class="tab-button"
-        [class.active]="activeTab === 'history'"
-        (click)="setActiveTab('history')"
-        i18n>
-        Histórico
-      </button>
-      <button
-        type="button"
-        class="tab-button"
-        [class.active]="activeTab === 'comments'"
-        (click)="setActiveTab('comments')"
-        i18n>
-        Comentários
-      </button>
-    </nav>
+    <section class="activity-section" aria-labelledby="activity-heading">
+      <h2 id="activity-heading" class="activity-section__title" i18n>Atividade</h2>
 
-    @if (activeTab === 'history') {
-      @if (ticket.history && ticket.history.length > 0) {
-        <div class="table">
-          <div class="header" i18n>Histórico de alterações</div>
-          <div class="body">
-            <div class="sub-header">
-              <div i18n>Data</div>
-              <div i18n>Usuário</div>
-              <div i18n>Alteração</div>
-            </div>
-            @for (entry of ticket.history; track entry.timestamp) {
-              <div class="row {{ $even ? 'even' : 'odd' }}">
-                <div>{{ entry.timestamp | date: 'medium' }}</div>
-                <div>{{ entry.user?.email }}</div>
-                <div>{{ entry.description }}</div>
-              </div>
+      <div class="comment-form">
+        <h3 i18n>Adicionar comentário</h3>
+        <app-rich-text-editor
+          [value]="newComment"
+          [disabled]="submittingComment"
+          placeholder="Digite seu comentário..."
+          (valueChange)="onCommentChange($event)">
+        </app-rich-text-editor>
+        <div class="form-actions">
+          <button
+            class="btn"
+            matButton="filled"
+            (click)="addComment()"
+            [disabled]="!newComment.trim() || submittingComment">
+            @if (submittingComment) {
+              <span i18n>Enviando...</span>
+            } @else {
+              <span i18n>Publicar comentário</span>
             }
-          </div>
-        </div>
-      } @else {
-        <div class="empty-state" i18n>Nenhuma atividade registrada para este ticket.</div>
-      }
-    }
-
-    @if (activeTab === 'comments') {
-      <div class="comments-section">
-        <div class="comment-form">
-          <h3 i18n>Adicionar comentário</h3>
-          <app-rich-text-editor
-            [value]="newComment"
-            [disabled]="submittingComment"
-            placeholder="Digite seu comentário..."
-            (valueChange)="onCommentChange($event)">
-          </app-rich-text-editor>
-          <div class="form-actions">
-            <button
-              class="btn"
-              matButton="filled"
-              (click)="addComment()"
-              [disabled]="!newComment.trim() || submittingComment">
-              @if (submittingComment) {
-                <span i18n>Enviando...</span>
-              } @else {
-                <span i18n>Publicar comentário</span>
-              }
-            </button>
-          </div>
-        </div>
-
-        <div class="comments-list">
-          <h3 i18n>Comentários ({{ comments.length }})</h3>
-          @if (loadingComments) {
-            <div class="loading" i18n>Carregando comentários...</div>
-          } @else if (comments.length > 0) {
-            @for (comment of comments; track comment.id) {
-              <div class="comment">
-                <div class="comment-header">
-                  <span class="comment-author">{{ comment.author.name }}</span>
-                  <span class="comment-date">{{ comment.createdAt | date: 'medium' }}</span>
-                </div>
-                <div class="comment-content" [innerHTML]="comment.content"></div>
-              </div>
-            }
-          } @else {
-            <div class="empty-state" i18n>Nenhum comentário ainda. Seja o primeiro a comentar.</div>
-          }
+          </button>
         </div>
       </div>
-    }
+
+      <div class="filter-chips" role="group" aria-label="Filtrar atividade" i18n-aria-label>
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="activeFilter === 'all'"
+          (click)="setActiveFilter('all')"
+          i18n>
+          Todos
+        </button>
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="activeFilter === 'comments'"
+          (click)="setActiveFilter('comments')"
+          i18n>
+          Comentários
+        </button>
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="activeFilter === 'changes'"
+          (click)="setActiveFilter('changes')"
+          i18n>
+          Alterações
+        </button>
+      </div>
+
+      @if (loadingComments) {
+        <div class="loading" i18n>Carregando atividade...</div>
+      } @else {
+        <app-ticket-activity-feed [items]="filteredActivity()"></app-ticket-activity-feed>
+      }
+    </section>
   </section>
 </div>
 }

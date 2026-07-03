@@ -1,6 +1,8 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Project, ProjectsService, ProjectWorkflow } from '../../services/projects.service';
 import { ProjectStatus } from '../../services/status.service';
@@ -10,7 +12,7 @@ import { NormalizePipe } from '../pipes/normalize.pipe';
 @Component({
   selector: 'app-kanban',
   templateUrl: './kanban.component.html',
-  imports: [CommonModule, DragDropModule, RouterLink, NormalizePipe],
+  imports: [CommonModule, DragDropModule, RouterLink, NormalizePipe, MatButtonModule, MatIconModule],
   standalone: true
 })
 export class KanbanComponent implements OnInit {

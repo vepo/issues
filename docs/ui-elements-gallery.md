@@ -49,6 +49,7 @@ Issues uses **flat UI design** — minimal ornament, bold color blocks, and typo
 | `$shadow-toast` | `0 1px 3px rgba(0,0,0,.1)` | Toast feedback |
 | `$radius-none` | `0` | Square corners — Metro-influenced flat geometry |
 | `$space-sm` / `$space-md` / `$space-lg` | 8 / 16 / 24 px | Spacing grid |
+| `$shell-padding-x` | `1rem` (16px) | Horizontal inset for header, footer, main, context bar — full-width chrome |
 
 Material theme CSS variables are aligned to `$base-active-color` in `styles.scss`.
 
@@ -61,33 +62,47 @@ Material theme CSS variables are aligned to `$base-active-color` in `styles.scss
 | Property | Value |
 |----------|-------|
 | **Location** | `app/app.html` |
-| **Visibility** | Always; search/status/create only when authenticated |
+| **Visibility** | Always; search/create only when authenticated |
 
-**Style:** Navy background (`$base-background-color`), white text, flex row, flat rectangular controls, wraps on mobile.
+**Style:** Navy background (`$base-background-color`), white text, flat rectangular controls. Full-width bar; content in `.shell-inner` with horizontal padding `$shell-padding-x` only (GitHub-style — no max-width cap on chrome).
 
-**Layout (left → right):**
+**Layout (left → right, inside `.shell-inner`):**
 - **Brand** (`.brand`) — ticket icon + "Issues" wordmark → `/`
-- **Search** (`.search-bar`) — flat rectangular input + square submit button (authenticated)
-- **Status** (`.toolbar-select`) — flat rectangular dropdown on navy chrome
+- **Search** (`.search-bar`) — flat rectangular input; submit on Enter (authenticated)
 - **Novo** — compact primary button
-- **Actions** (`.header-actions`) — notification icon + hamburger menu icon
+- **Actions** (`.header-actions`) — notification icon + user menu icon
 
 **Behavior:**
 - **Brand** → `/` with `brand-active` on home
-- **Search** — `.search-bar` form; submit via button or Enter → `/search`
-- **Status** — `.toolbar-select`; change navigates to `/search` with query params
+- **Search** — `.search-bar` form; Enter → `/search` with `q` query param only
 - **Novo** — opens `CreateTicketModalComponent` dialog
 - **Notificações** — icon-only `matIconButton` + badge (`app-notification`)
-- **Menu** — icon-only hamburger `matIconButton` + `mat-menu`; role-gated items
+- **User menu** — `person` icon + `mat-menu`: email header, Conta, Administração submenu (role-gated), Sair
 - **Acessar** — shown when logged out → `/login`
 
-### 1.2 Main content (`main.container`)
+**Status filter:** moved to search results page (`.filter-chips` on `/search`), not in global header.
 
-Flex-grow content area; horizontal margin `$space-xl` (reduced on mobile).
+### 1.2 Context bar (`.context-bar`)
 
-### 1.3 Footer (`.main-footer`)
+| Property | Value |
+|----------|-------|
+| **Location** | `app-context-bar` between header and `main` |
+| **Visibility** | Authenticated; project kanban/dashboard and ticket routes only |
 
-Copyright + **Documentação da API** link (`/openapi`). Navy background, white text.
+**Style:** `$surface-toolbar` background, bottom border `$border-subtle`, reuses `.breadcrumb` inside `.shell-inner`.
+
+**Breadcrumbs:**
+- `/project/:id/kanban` — Início › {project} › Kanban
+- `/project/:id/dashboard` — Início › {project} › Painel
+- `/ticket/:id` — Início › {project} › #{identifier}
+
+### 1.3 Main content (`main.container`)
+
+Flex-grow content area; horizontal padding `$shell-padding-x` (reduced on mobile).
+
+### 1.4 Footer (`.main-footer`)
+
+Copyright + **Documentação da API** link (`/openapi`). Navy background, white text. Uses `.shell-inner` for alignment with header.
 
 ---
 
@@ -137,7 +152,7 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 |----------|-------|
 | **Directive** | `matIconButton` |
 | **Style** | White icon on navy; flat square hover (`$radius-none`) |
-| **Used in** | Hamburger menu, notification bell |
+| **Used in** | User menu, notification bell |
 
 ### 2.6 Brand link (`.brand`)
 
@@ -186,17 +201,19 @@ Dashboard widget header; borderless, muted text, red on hover.
 
 | Property | Value |
 |----------|-------|
-| **Markup** | `form` with leading icon, `input[type="search"]`, square `.search-bar__action` submit |
+| **Markup** | `form` with leading icon, `input[type="search"]`; submit on Enter |
 | **Style** | White flat bar, light shadow, focus ring on `:focus-within`; `$radius-none` |
-| **Behavior** | Submit button or implicit form submit → `/search` with query params |
+| **Behavior** | Form submit or Enter → `/search` with `q` query param |
 
-### 3.3 Header toolbar select (`.toolbar-select`)
+### 3.3 Status filter chips on search (`.filter-chips` / `.filter-chip`)
 
 | Property | Value |
 |----------|-------|
-| **Markup** | Native `select` with `[ngValue]` for `Status` objects |
-| **Width** | min 120px (100% on mobile) |
-| **Behavior** | Change triggers search navigation |
+| **Location** | `search-tickets.component.html` |
+| **Markup** | `.filter-chip` buttons including **Todos** (`statusId = -1`) |
+| **Behavior** | Click updates `/search` query params (`q`, optional `status`) |
+
+**Note:** Status filtering was removed from the global header (formerly `.toolbar-select`).
 
 ### 3.4 Native filter input (`input[type="text"]` in tables)
 
@@ -333,7 +350,7 @@ Table layout showing active search filters (term, status). Muted toolbar backgro
 | **Body** | CSS `display: table`; rows `.row.even` / `.row.odd` neutral zebra |
 | **Empty** | `div.table.empty` — dashed muted panel |
 
-**Used in:** users list, projects list, ticket history.
+**Used in:** users list, projects list.
 
 ### 6.2 Embedded data table (`div.data-table`)
 
@@ -343,6 +360,8 @@ Table layout showing active search filters (term, status). Muted toolbar backgro
 | **Structure** | Same `.header` / `.body` / `.row` pattern as page table |
 
 **Used in:** dashboard KPI and table widgets.
+
+Note: ticket detail activity uses `.activity-feed` (see §10.1), not `div.data-table`.
 
 ---
 
@@ -403,8 +422,19 @@ Plain text: `Carregando...`, `Enviando...` on buttons and dashboard widgets.
 | Title row | `#identifier - title` + Observar/Ignorar toggle |
 | Metadata | Projeto, Categoria, Descrição, Autor, Responsável, Status |
 | Subscriber chips | `span.labels > span.label` |
-| Tabs | Histórico / Comentários |
+| Activity section | `.activity-section` — comment form + `.filter-chip` filters + `.activity-feed` timeline |
 | Comment form | Rich text + submit; disabled while posting |
+
+### 10.1 Activity feed (`.activity-feed`)
+
+| Property | Value |
+|----------|-------|
+| **Location** | `ticket-activity-feed.component.html`, `ticket-view.component.html` |
+| **Structure** | `.activity-item` rows with `.activity-item__icon`, actor, summary, timestamp |
+| **Comment row** | `.activity-item--comment` + `.activity-item__comment` (rich HTML) |
+| **Change row** | `.activity-item__change` with strikethrough old → new values |
+| **Filters** | `.filter-chips` → `.filter-chip` (`Todos` / `Comentários` / `Alterações`) |
+| **Behavior** | Merges ticket history API + comments; newest first; SSE refresh on status move |
 
 ---
 

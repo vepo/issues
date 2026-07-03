@@ -77,6 +77,26 @@ body {
 .mat-mdc-button-base.btn {
   border-radius: colors.$radius-none;
 
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    line-height: 1.25;
+  }
+
+  mat-icon,
+  .mat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    line-height: 1;
+  }
+
   &:not(:last-child) {
     margin-right: colors.$space-sm;
   }
@@ -118,10 +138,19 @@ body {
 }
 
 .main-header {
-  padding: colors.$space-sm colors.$space-md;
-  gap: colors.$space-md;
-  flex-wrap: wrap;
-  min-height: 56px;
+  padding: 0 colors.$shell-padding-x;
+  min-height: 48px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  .shell-inner {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    gap: colors.$space-md;
+    flex-wrap: nowrap;
+    padding: colors.$space-sm 0;
+  }
 
   .brand {
     display: inline-flex;
@@ -162,12 +191,12 @@ body {
     display: inline-flex;
     align-items: center;
     gap: colors.$space-xs;
-    min-width: min(320px, 100%);
-    max-width: 420px;
-    flex: 1 1 240px;
+    min-width: min(160px, 100%);
+    max-width: none;
+    flex: 1 1 auto;
     background: colors.$surface-card;
     border-radius: colors.$radius-none;
-    padding: 3px 3px 3px colors.$space-md;
+    padding: colors.$space-xs colors.$space-md;
     border: 1px solid rgba(255, 255, 255, 0.25);
     box-shadow: colors.$shadow-card;
     transition: border-color 0.15s ease;
@@ -204,75 +233,6 @@ body {
         outline: none;
         box-shadow: none;
         border: none;
-      }
-    }
-
-    &__action {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      border: none;
-      border-radius: colors.$radius-none;
-      background: colors.$base-active-color;
-      color: colors.$surface-card;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: background-color 0.15s ease;
-
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-        color: colors.$surface-card;
-      }
-
-      &:hover {
-        background: colors.$base-active-hover-color;
-      }
-
-      &:focus-visible {
-        @include focus-ring;
-      }
-    }
-  }
-
-  .toolbar-select {
-    display: inline-flex;
-    align-items: center;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid colors.$header-button-border;
-    border-radius: colors.$radius-none;
-    padding: 0 colors.$space-md;
-
-    select {
-      border: none;
-      background: transparent;
-      margin: 0;
-      padding: 0 colors.$space-lg 0 colors.$space-xs;
-      min-height: 0;
-      height: 100%;
-      color: colors.$surface-card;
-      font-size: 0.875rem;
-      cursor: pointer;
-      box-shadow: none;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right center;
-
-      &:focus,
-      &:focus-visible {
-        outline: none;
-        box-shadow: none;
-        border: none;
-      }
-
-      option {
-        color: colors.$text-primary;
-        background: colors.$surface-card;
       }
     }
   }
@@ -369,14 +329,27 @@ h6 {
 }
 
 .main-footer {
-  div {
-    padding: colors.$space-sm colors.$space-md;
-    color: colors.$surface-card;
+  justify-content: center;
+  padding: colors.$space-sm colors.$shell-padding-x;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.875rem;
+
+  .shell-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: colors.$space-md;
   }
 
-  a {
+  &__copy {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  &__link {
     color: colors.$surface-card;
     text-decoration: none;
+    transition: opacity 0.15s ease;
 
     &:visited,
     &:focus-visible {
@@ -385,6 +358,7 @@ h6 {
 
     &:hover {
       text-decoration: underline;
+      opacity: 0.95;
     }
 
     &:focus-visible {
@@ -403,37 +377,51 @@ main {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  margin: auto colors.$space-xl;
-  padding-bottom: colors.$space-xl;
+  margin: 0 auto;
+  padding: 0 colors.$shell-padding-x colors.$space-xl;
+  width: 100%;
+  box-sizing: border-box;
   overflow: auto;
+}
+
+.shell-inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: colors.$space-md;
+}
+
+.context-bar {
+  background: colors.$surface-toolbar;
+  border-bottom: 1px solid colors.$border-subtle;
+  padding: colors.$space-xs colors.$shell-padding-x;
+
+  .shell-inner {
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb {
+    margin: 0;
+  }
 }
 
 .main-footer,
 .main-header {
   background-color: colors.$base-background-color;
   color: colors.$surface-card;
-  padding: 0;
   display: flex;
   flex-grow: 0;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 
   button.btn {
     height: auto;
     padding: colors.$space-xs colors.$space-lg;
   }
 
-  div {
-    flex-grow: 0;
-
-    &.grow-space {
-      flex-grow: 1;
-    }
-
-    display: inline;
-
-    &:not(:last-child) {
-      margin-right: colors.$space-md;
-    }
+  .grow-space {
+    flex-grow: 1;
   }
 
   nav {
@@ -469,12 +457,18 @@ main {
     font-size: 1.5rem;
     font-weight: 600;
     line-height: 1.3;
+    letter-spacing: -0.01em;
   }
 
   .page-subtitle {
     margin: 0;
     color: colors.$text-secondary;
     font-size: 0.95rem;
+    line-height: 1.5;
+
+    .status-badge {
+      margin-left: colors.$space-sm;
+    }
   }
 
   &__actions {
@@ -483,6 +477,56 @@ main {
     gap: colors.$space-sm;
     flex-shrink: 0;
   }
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: colors.$space-xs;
+  margin: 0 0 colors.$space-md;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: colors.$text-secondary;
+  list-style: none;
+
+  a {
+    color: colors.$base-active-color;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      color: colors.$base-highlight-color;
+      text-decoration: underline;
+    }
+  }
+
+  mat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: colors.$text-muted;
+  }
+
+  &__current {
+    color: colors.$text-primary;
+    font-weight: 500;
+  }
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem colors.$space-sm;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  background: colors.$base-secondary-bg-color;
+  color: colors.$base-secondary-color;
+  border-radius: colors.$radius-none;
+  vertical-align: middle;
 }
 
 .page-panel {
@@ -694,6 +738,11 @@ main {
     margin: 0;
     font-size: 0.85rem;
     color: colors.$text-muted;
+
+    .status-badge {
+      margin-left: colors.$space-xs;
+      vertical-align: baseline;
+    }
   }
 
   &__title {
@@ -719,13 +768,15 @@ main {
 }
 
 .empty-state {
-  padding: colors.$space-xl;
+  padding: colors.$space-xl colors.$space-lg;
   text-align: center;
-  color: colors.$text-muted;
-  font-style: italic;
+  color: colors.$text-secondary;
+  font-style: normal;
   background: colors.$surface-muted;
   border: 1px dashed colors.$border-subtle;
   border-radius: colors.$radius-none;
+  line-height: 1.6;
+  font-size: 0.9375rem;
 }
 
 .text-muted {
@@ -863,6 +914,12 @@ main {
   .description {
     margin-bottom: colors.$space-sm;
     color: colors.$text-secondary;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .identifier {
@@ -946,6 +1003,7 @@ main {
       flex-grow: 1;
       min-height: 40px;
       padding: 4px;
+      gap: colors.$space-sm;
       transition: background-color 0.15s ease;
 
       .card {
@@ -1000,6 +1058,24 @@ main {
   }
 }
 
+mat-form-field.form-field {
+  width: 100%;
+  display: block;
+  margin-bottom: colors.$space-sm;
+
+  &.form-field--compact {
+  }
+
+  &.form-field--textarea {
+    textarea.mat-mdc-input-element {
+      min-height: 7rem;
+      line-height: 1.5;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+  }
+}
+
 form {
   .form-field {
     display: block;
@@ -1012,6 +1088,102 @@ form {
   .mat-mdc-form-field-error {
     font-size: 0.8rem;
     color: colors.$base-error-color;
+  }
+}
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-xs;
+}
+
+.create-ticket-dialog {
+  .mat-mdc-dialog-surface {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  h2[mat-dialog-title],
+  .mat-mdc-dialog-title {
+    margin: 0;
+    padding: colors.$space-md colors.$space-lg;
+    background: colors.$base-background-color;
+    color: colors.$surface-card;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  mat-dialog-content,
+  .mat-mdc-dialog-content {
+    padding: colors.$space-lg;
+    margin: 0;
+    max-height: 65vh;
+  }
+
+  mat-dialog-actions,
+  .mat-mdc-dialog-actions {
+    padding: colors.$space-md colors.$space-lg;
+    margin: 0;
+    min-height: auto;
+    border-top: 1px solid colors.$border-subtle;
+    background: colors.$surface-toolbar;
+    gap: colors.$space-sm;
+  }
+}
+
+.filter-bar {
+  margin-bottom: colors.$space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-md;
+
+  &__label {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: colors.$text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: colors.$space-md;
+  }
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: colors.$space-sm;
+}
+
+.filter-chip {
+  border: 1px solid colors.$border-default;
+  background: colors.$surface-card;
+  color: colors.$text-primary;
+  padding: colors.$space-xs colors.$space-md;
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: colors.$base-active-color;
+  }
+
+  &--active {
+    background: colors.$base-active-color;
+    border-color: colors.$base-active-color;
+    color: colors.$surface-card;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
   }
 }
 
@@ -1035,10 +1207,6 @@ form {
 
 .mat-mdc-tooltip-surface {
   overflow: auto;
-}
-
-.mdc-text-field {
-  padding: 0;
 }
 
 .form-header {
@@ -1079,6 +1247,17 @@ form {
     border-bottom: solid 0.5px colors.$border-subtle;
   }
 
+  .menu-user-header {
+    padding: colors.$space-sm colors.$space-xl;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: colors.$text-secondary;
+    border-bottom: 1px solid colors.$border-subtle;
+    pointer-events: none;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
   &.notifications {
     .mat-mdc-menu-content {
       .mat-mdc-menu-item {
@@ -1098,6 +1277,13 @@ form {
       font-size: 0.85rem;
       border-radius: colors.$radius-none;
 
+      .mat-icon {
+        margin-right: colors.$space-sm;
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
+      }
+
       &:hover {
         background-color: colors.$base-secondary-bg-color;
         color: colors.$text-primary;
@@ -1108,10 +1294,14 @@ form {
 
 @media only screen and (max-width: 750px) {
   .main-header {
-    flex-direction: column;
-    align-items: stretch;
-    padding: colors.$space-sm colors.$space-md;
-    gap: colors.$space-sm;
+    padding: 0 colors.$shell-padding-x;
+
+    .shell-inner {
+      flex-direction: column;
+      align-items: stretch;
+      flex-wrap: wrap;
+      gap: colors.$space-sm;
+    }
 
     .brand {
       width: 100%;
@@ -1123,14 +1313,6 @@ form {
       flex: 1 1 100%;
     }
 
-    .toolbar-select {
-      width: 100%;
-
-      select {
-        width: 100%;
-      }
-    }
-
     .btn-compact {
       width: 100%;
     }
@@ -1140,9 +1322,13 @@ form {
       justify-content: flex-end;
     }
 
-    div.grow-space {
+    .grow-space {
       display: none;
     }
+  }
+
+  .context-bar {
+    padding: colors.$space-xs colors.$shell-padding-x;
   }
 
   .box .card,
@@ -1156,15 +1342,20 @@ form {
   }
 
   .main-footer {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    padding: colors.$space-sm colors.$space-md;
+    padding: colors.$space-sm colors.$shell-padding-x;
+
+    .shell-inner {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: colors.$space-sm;
+    }
   }
 
   main {
-    margin: auto colors.$space-md;
+    padding-left: colors.$shell-padding-x;
+    padding-right: colors.$shell-padding-x;
   }
 
   .page-header {
@@ -1200,7 +1391,7 @@ div.data-table {
   background-color: colors.$surface-card;
   color: colors.$text-primary;
   width: 100%;
-  border: 1px solid colors.$border-subtle;
+  border: none;
   border-radius: colors.$radius-none;
   overflow: hidden;
   font-size: 0.9rem;
@@ -1208,8 +1399,12 @@ div.data-table {
   .header {
     display: flex;
     font-weight: 600;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     background-color: colors.$surface-toolbar;
     border-bottom: 1px solid colors.$border-subtle;
+    color: colors.$text-secondary;
 
     .header-cell,
     > div {
@@ -1221,10 +1416,12 @@ div.data-table {
   .body {
     .row {
       display: flex;
+      transition: background-color 0.12s ease;
 
       > div {
         flex: 1;
         padding: colors.$space-sm colors.$space-md;
+        vertical-align: middle;
       }
 
       &.even {
@@ -1234,7 +1431,20 @@ div.data-table {
       &.odd {
         background-color: colors.$surface-muted;
       }
+
+      &:hover {
+        background-color: colors.$surface-toolbar;
+      }
     }
+  }
+
+  &--empty {
+    padding: colors.$space-xl colors.$space-lg;
+    text-align: center;
+    color: colors.$text-secondary;
+    font-size: 0.9375rem;
+    background: colors.$surface-muted;
+    border-top: 1px dashed colors.$border-subtle;
   }
 }
 
@@ -1334,6 +1544,14 @@ form.edit {
     flex-direction: column;
     gap: colors.$space-sm;
     margin: colors.$space-md 0;
+
+    .mat-mdc-checkbox {
+      margin: colors.$space-xs 0;
+    }
+  }
+
+  mat-form-field.form-field {
+    margin-bottom: colors.$space-md;
   }
 
   .actions {
@@ -1418,6 +1636,190 @@ form.edit {
         line-height: 1.5;
       }
     }
+  }
+}
+
+.activity-section {
+  margin-top: colors.$space-xl;
+  padding-top: colors.$space-lg;
+  border-top: 1px solid colors.$border-subtle;
+
+  &__title {
+    margin: 0 0 colors.$space-lg;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: colors.$text-primary;
+  }
+
+  .comment-form {
+    background: colors.$surface-muted;
+    padding: colors.$space-lg;
+    border-radius: colors.$radius-none;
+    margin-bottom: colors.$space-lg;
+    border: 1px solid colors.$border-subtle;
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: colors.$space-md;
+      color: colors.$text-primary;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
+
+  .loading {
+    padding: colors.$space-xl;
+    text-align: center;
+    color: colors.$text-muted;
+    font-style: italic;
+    background: colors.$surface-muted;
+    border: 1px dashed colors.$border-subtle;
+    border-radius: colors.$radius-none;
+  }
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: colors.$space-xs;
+  margin-bottom: colors.$space-lg;
+}
+
+.filter-chip {
+  background: colors.$surface-card;
+  border: 1px solid colors.$border-subtle;
+  padding: colors.$space-xs colors.$space-md;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: colors.$text-secondary;
+  border-radius: colors.$radius-none;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    color: colors.$base-active-color;
+    border-color: colors.$base-active-color;
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &.active {
+    color: colors.$base-active-color;
+    border-color: colors.$base-active-color;
+    background: colors.$surface-muted;
+    font-weight: 600;
+  }
+}
+
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-md;
+}
+
+.activity-item {
+  display: flex;
+  gap: colors.$space-md;
+  background: colors.$surface-card;
+  border: 1px solid colors.$border-subtle;
+  border-radius: colors.$radius-none;
+  padding: colors.$space-md;
+
+  &__icon {
+    flex-shrink: 0;
+    color: colors.$base-active-color;
+    padding-top: 2px;
+
+    mat-icon {
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: colors.$space-xs colors.$space-sm;
+    margin-bottom: colors.$space-sm;
+  }
+
+  &__actor {
+    font-weight: 600;
+    color: colors.$base-active-color;
+  }
+
+  &__summary {
+    color: colors.$text-primary;
+    font-size: 0.9375rem;
+  }
+
+  &__date {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: colors.$text-muted;
+    white-space: nowrap;
+  }
+
+  &__change {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: colors.$space-sm;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  &__old {
+    color: colors.$text-muted;
+    text-decoration: line-through;
+    word-break: break-word;
+  }
+
+  &__new {
+    color: colors.$text-primary;
+    font-weight: 500;
+    word-break: break-word;
+  }
+
+  &__arrow {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: colors.$text-muted;
+  }
+
+  &__comment {
+    color: colors.$text-primary;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  &__toggle {
+    margin-top: colors.$space-sm;
+    background: none;
+    border: none;
+    padding: 0;
+    color: colors.$base-active-color;
+    cursor: pointer;
+    font-size: 0.875rem;
+    text-decoration: underline;
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  &--comment {
+    border-left: 3px solid colors.$base-active-color;
   }
 }
 

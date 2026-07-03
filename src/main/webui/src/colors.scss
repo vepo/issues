@@ -65,3 +65,6 @@ $radius-none: 0;
 $header-button-bg: rgba(255, 255, 255, 0.12);
 $header-button-border: rgba(255, 255, 255, 0.35);
 $header-button-hover-bg: rgba(255, 255, 255, 0.2);
+
+// App shell alignment (GitHub-style: full-width chrome, content inset only)
+$shell-padding-x: 1rem;

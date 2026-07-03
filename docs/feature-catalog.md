@@ -10,7 +10,7 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Home | `/` | authenticated | Login → land on home |
 | Kanban board | `/project/:projectId/kanban` | authenticated | Home → select project → view columns by status → drag/move ticket |
 | Project dashboard | `/project/:projectId/dashboard` | authenticated | Home → select project → dashboard → view charts/KPIs |
-| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → view/edit/comment/move |
+| Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → **Atividade** feed (comments + changes), filter chips, comment form, observe toggle |
 | Ticket search | `/search` | authenticated | Menu → search → enter term → open ticket |
 | User list | `/users` | admin | Menu → users → list |
 | Create user | `/users/new` | admin | Users → new → fill form → save |

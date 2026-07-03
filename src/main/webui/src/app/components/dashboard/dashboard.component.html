@@ -5,8 +5,15 @@
       <p class="page-subtitle" i18n>Indicadores e widgets do projeto</p>
     </div>
     <div class="page-header__actions">
+      @if (project) {
+        <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'kanban']">
+          <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
+          <span i18n>Kanban</span>
+        </button>
+      }
       <button matButton="filled" (click)="toggleEdit()" class="btn">
-        {{ isEditing ? 'Salvar layout' : 'Editar layout' }}
+        <mat-icon [fontIcon]="isEditing ? 'save' : 'edit'" aria-hidden="true"></mat-icon>
+        <span>{{ isEditing ? 'Salvar layout' : 'Editar layout' }}</span>
       </button>
     </div>
   </header>
@@ -15,7 +22,7 @@
   <div class="dashboard-container">
     @if (isEditing) {
     <div class="widgets-panel">
-      <h3>Widgets Disponíveis</h3>
+      <h3 i18n>Widgets disponíveis</h3>
       <div 
         cdkDropList
         #availableList="cdkDropList"
@@ -50,7 +57,9 @@
           
           <div class="widget-header">
             <h4>{{ widget.title }}</h4>
-            <button (click)="removeWidget($index)" class="btn-remove">×</button>
+            <button type="button" (click)="removeWidget($index)" class="btn-remove" aria-label="Remover widget">
+              <mat-icon fontIcon="close" aria-hidden="true"></mat-icon>
+            </button>
           </div>
           
           <div class="widget-content">

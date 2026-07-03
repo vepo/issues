@@ -57,7 +57,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 - **Move ticket** — status changes validated against workflow rules
 - **Categories** — classify tickets with name and color
 - **Comments** — discussion thread on each ticket
-- **Ticket history** — immutable audit log of create, update, assign, move, comment, and delete actions
+- **Ticket history** — structured audit log (create, field changes, assign, move, subscribe, delete) merged with comments in the **Atividade** feed
 - **Subscribers** — watch tickets and receive alerts on changes
 
 ### Projects & administration
@@ -72,7 +72,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 - **Kanban board** — columns by workflow status; move tickets between stages
 - **Project dashboard** — charts (tickets by day, status, priority), recent tickets table, performance KPIs
 - **Global search** — full-text ticket search across projects
-- **Ticket detail** — expanded view with history, comments, assignee, and status actions
+- **Ticket detail** — expanded view with unified **Atividade** feed (comments + history), assignee, and status actions
 
 ### Notifications & email
 

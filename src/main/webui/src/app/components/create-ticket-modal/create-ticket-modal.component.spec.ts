@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { CreateTicketModalComponent } from './create-ticket-modal.component';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogActions, MatDialogContent, MatDialogTitle, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -53,6 +53,9 @@ describe('CreateTicketModalComponent', () => {
                 MatInputModule,
                 MatButtonModule,
                 MatSelectModule,
+                MatDialogTitle,
+                MatDialogContent,
+                MatDialogActions,
                 NoopAnimationsModule,
                 CreateTicketModalComponent
             ],

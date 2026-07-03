@@ -1,86 +1,100 @@
 <header class="main-header">
-  <a routerLink="/" class="brand" routerLinkActive="brand-active" [routerLinkActiveOptions]="{ exact: true }"
-    aria-label="Issues — página inicial">
-    <mat-icon fontIcon="confirmation_number" aria-hidden="true"></mat-icon>
-    <span class="brand-name">Issues</span>
-  </a>
+  <div class="shell-inner">
+    <a routerLink="/" class="brand" routerLinkActive="brand-active" [routerLinkActiveOptions]="{ exact: true }"
+      aria-label="Issues — página inicial">
+      <mat-icon fontIcon="confirmation_number" aria-hidden="true"></mat-icon>
+      <span class="brand-name">Issues</span>
+    </a>
 
-  @if (isAuthenticated()) {
-  <form class="search-bar" (submit)="onSearchSubmit($event)">
-    <mat-icon class="search-bar__leading" fontIcon="search" aria-hidden="true"></mat-icon>
-    <input
-      class="search-bar__input"
-      type="search"
-      [(ngModel)]="searchTerm"
-      name="searchTerm"
-      i18n-placeholder
-      placeholder="Buscar tickets..."
-    />
-    <button type="submit" class="search-bar__action" aria-label="Buscar tickets">
-      <mat-icon fontIcon="search" aria-hidden="true"></mat-icon>
-    </button>
-  </form>
+    @if (isAuthenticated()) {
+      <form class="search-bar" (submit)="onSearchSubmit($event)">
+        <mat-icon class="search-bar__leading" fontIcon="search" aria-hidden="true"></mat-icon>
+        <input
+          class="search-bar__input"
+          type="search"
+          [(ngModel)]="searchTerm"
+          name="searchTerm"
+          i18n-placeholder
+          placeholder="Buscar tickets..."
+        />
+      </form>
 
-  <div class="toolbar-select">
-    <label class="visually-hidden" for="header-status" i18n>Filtrar por status</label>
-    <select id="header-status" [(ngModel)]="selectStatus" (ngModelChange)="onChange($event)">
-      @for (status of statuses; track status.id) {
-        <option [ngValue]="status">{{ status.name | normalize }}</option>
-      }
-    </select>
+      <button class="btn btn-compact" matButton="filled" type="button" (click)="openCreateTicketDialog()">
+        <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+        <span i18n>Novo</span>
+      </button>
+    }
+
+    <div class="grow-space"></div>
+
+    @if (isAuthenticated()) {
+      <div class="header-actions">
+        <app-notification></app-notification>
+        <button
+          matIconButton
+          class="btn-icon-header"
+          [matMenuTriggerFor]="userMenu"
+          aria-label="Menu do usuário">
+          <mat-icon fontIcon="person" aria-hidden="true"></mat-icon>
+        </button>
+        <mat-menu #userMenu="matMenu" class="menu-panel">
+          @if (userEmail()) {
+            <div class="menu-user-header">{{ userEmail() }}</div>
+          }
+          <button mat-menu-item [routerLink]="'/account/settings'">
+            <mat-icon matMenuItemIcon fontIcon="person"></mat-icon>
+            <span i18n>Conta</span>
+          </button>
+          @if (hasAdminMenu()) {
+            <button mat-menu-item [matMenuTriggerFor]="adminMenu">
+              <mat-icon matMenuItemIcon fontIcon="admin_panel_settings"></mat-icon>
+              <span i18n>Administração</span>
+            </button>
+          }
+          <div class="divider"></div>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon matMenuItemIcon fontIcon="logout"></mat-icon>
+            <span i18n>Sair</span>
+          </button>
+        </mat-menu>
+        <mat-menu #adminMenu="matMenu" class="menu-panel">
+          <ng-container *role="'admin'">
+            <button mat-menu-item [routerLink]="'/users'">
+              <mat-icon matMenuItemIcon fontIcon="group"></mat-icon>
+              <span i18n>Usuários</span>
+            </button>
+          </ng-container>
+          <ng-container *role="'project-manager'">
+            <button mat-menu-item [routerLink]="'/workflows'">
+              <mat-icon matMenuItemIcon fontIcon="handyman"></mat-icon>
+              <span i18n>Processos</span>
+            </button>
+            <button mat-menu-item [routerLink]="'/projects'">
+              <mat-icon matMenuItemIcon fontIcon="work"></mat-icon>
+              <span i18n>Projetos</span>
+            </button>
+          </ng-container>
+        </mat-menu>
+      </div>
+    } @else {
+      <div class="header-actions">
+        <button class="btn-header" matButton="outlined" [routerLink]="'/login'">
+          <mat-icon aria-hidden="true" fontIcon="login"></mat-icon>
+          <span i18n>Acessar</span>
+        </button>
+      </div>
+    }
   </div>
-
-  <button class="btn btn-compact" matButton="filled" type="button" (click)="openCreateTicketDialog()">
-    <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-    <span i18n>Novo</span>
-  </button>
-  }
-
-  <div class="grow-space"></div>
-
-  @if (isAuthenticated()) {
-  <div class="header-actions">
-    <app-notification></app-notification>
-    <button
-      matIconButton
-      class="btn-icon-header"
-      [matMenuTriggerFor]="menu"
-      aria-label="Abrir menu">
-      <mat-icon fontIcon="menu" aria-hidden="true"></mat-icon>
-    </button>
-    <mat-menu #menu="matMenu" class="menu-panel">
-      <button mat-menu-item [routerLink]="'/account/settings'">
-        <mat-icon fontIcon="person"></mat-icon><span i18n>Conta</span>
-      </button>
-      <button mat-menu-item *role="'admin'" [routerLink]="'/users'">
-        <mat-icon fontIcon="group"></mat-icon><span i18n>Usuários</span>
-      </button>
-      <div class="divider" *role="'project-manager'"></div>
-      <button mat-menu-item *role="'project-manager'" [routerLink]="'/workflows'">
-        <mat-icon fontIcon="handyman"></mat-icon><span i18n>Processos</span>
-      </button>
-      <button mat-menu-item *role="'project-manager'" [routerLink]="'/projects'">
-        <mat-icon fontIcon="work"></mat-icon><span i18n>Projetos</span>
-      </button>
-      <div class="divider"></div>
-      <button mat-menu-item (click)="logout()">
-        <mat-icon fontIcon="logout"></mat-icon><span i18n>Sair</span>
-      </button>
-    </mat-menu>
-  </div>
-  } @else {
-  <div class="header-actions">
-    <button class="btn-header" matButton="outlined" [routerLink]="'/login'">
-      <mat-icon aria-hidden="true" fontIcon="login"></mat-icon>
-      <span i18n>Acessar</span>
-    </button>
-  </div>
-  }
 </header>
+@if (isAuthenticated()) {
+  <app-context-bar />
+}
 <main class="container">
   <router-outlet />
 </main>
 <footer class="main-footer">
-  <div i18n>© 2026 Issues. Todos os direitos reservados.</div>
-  <div><a href="/openapi" target="_blank" i18n>Documentação da API</a></div>
+  <div class="shell-inner">
+    <span class="main-footer__copy" i18n>© 2026 Issues. Todos os direitos reservados.</span>
+    <a class="main-footer__link" href="/openapi" target="_blank" rel="noopener noreferrer" i18n>Documentação da API</a>
+  </div>
 </footer>

@@ -16,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
-    { provide: BASE_PATH, useValue: '/api' },
+    { provide: BASE_PATH, useValue: '' },
     { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
     JwtHelperService,
     provideCharts(withDefaultRegisterables())

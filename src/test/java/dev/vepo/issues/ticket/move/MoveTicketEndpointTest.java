@@ -3,6 +3,11 @@ package dev.vepo.issues.ticket.move;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,6 +44,25 @@ class MoveTicketEndpointTest {
                .then()
                .statusCode(200)
                .body("status", is(inProgress.getId().intValue()));
+
+        List<?> history = given().header(fixtures.userAuthenticatedHeader())
+                                 .accept(ContentType.JSON)
+                                 .when()
+                                 .get("/api/tickets/" + fixtures.ticket().id() + "/history")
+                                 .then()
+                                 .statusCode(200)
+                                 .extract()
+                                 .jsonPath()
+                                 .getList("");
+
+        @SuppressWarnings("unchecked")
+        var statusChange = history.stream()
+                                  .map(entry -> (Map<String, Object>) entry)
+                                  .filter(e -> "STATUS_CHANGED".equals(e.get("action")))
+                                  .findFirst()
+                                  .orElseThrow();
+        assertEquals("status", statusChange.get("field"));
+        assertEquals("In progress", statusChange.get("newValue"));
     }
 
     @Test

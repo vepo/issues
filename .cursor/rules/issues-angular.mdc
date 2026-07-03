@@ -24,7 +24,7 @@ Before any template, style, or interaction change:
 
 - API types and clients: OpenAPI codegen → `src/app/generated/` (gitignored). Regenerate with `npm run generate:api` after `mvn test`.
 - Facades in `services/*.service.ts` wrap generated `*Api` classes — components inject facades, not generated services directly.
-- `BASE_PATH` is `/api` (relative) — no hardcoded `localhost:8080`.
+- OpenAPI paths already include `/api`; set `BASE_PATH` to `''` in `app.config.ts` (do not double the prefix).
 - Attach JWT via `auth.interceptor.ts`.
 - SSE stays hand-written in `sse.client.ts`.
 

@@ -36,7 +36,7 @@ public class SubscribeTicketEndpoint {
     @Path("/{id}/subscribe")
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "subscribeTicket", summary = "Subscribe to ticket")
-    public TicketExpandedResponse subscribe(@PathParam("id") Long id, SubscribeTicketRequest request) {
-        return ticketService.subscribe(id, request);
+    public TicketExpandedResponse subscribe(@PathParam("id") Long id, SubscribeTicketRequest request, @Context SecurityContext securityContext) {
+        return ticketService.subscribe(id, request, securityContext.getUserPrincipal().getName());
     }
 }

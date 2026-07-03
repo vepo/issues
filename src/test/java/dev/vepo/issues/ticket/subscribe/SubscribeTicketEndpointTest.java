@@ -2,6 +2,7 @@ package dev.vepo.issues.ticket.subscribe;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.IntStream;
 
@@ -54,6 +55,16 @@ class SubscribeTicketEndpointTest {
                             .body("subscribers.size()", Matchers.equalTo(1))
                             .body("subscribers[0].username", equalTo(authUser.username()));
                  });
+        var historyAfterSubscribe = given().header(fixtures.userAuthenticatedHeader())
+                                           .accept(ContentType.JSON)
+                                           .when()
+                                           .get("/api/tickets/" + fixtures.ticket().id() + "/history")
+                                           .then()
+                                           .statusCode(200)
+                                           .extract()
+                                           .jsonPath()
+                                           .getList("action");
+        assertTrue(historyAfterSubscribe.contains("SUBSCRIBED"));
         // unsubscribe
         // execute the operation again to verify its idempotent
         IntStream.range(0, 10)
@@ -75,5 +86,15 @@ class SubscribeTicketEndpointTest {
                             .body("id", equalTo((int) fixtures.ticket().id()))
                             .body("subscribers.size()", Matchers.equalTo(0));
                  });
+        var historyAfterUnsubscribe = given().header(fixtures.userAuthenticatedHeader())
+                                             .accept(ContentType.JSON)
+                                             .when()
+                                             .get("/api/tickets/" + fixtures.ticket().id() + "/history")
+                                             .then()
+                                             .statusCode(200)
+                                             .extract()
+                                             .jsonPath()
+                                             .getList("action");
+        assertTrue(historyAfterUnsubscribe.contains("UNSUBSCRIBED"));
     }
 }

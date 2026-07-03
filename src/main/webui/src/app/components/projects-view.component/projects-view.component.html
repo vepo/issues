@@ -13,16 +13,15 @@
   </header>
 
   <section class="page-panel page-panel--flush">
-    <div class="table">
-      <div class="header" i18n>Lista de projetos</div>
+    <div class="data-table">
+      <div class="header">
+        <div class="header-cell">ID</div>
+        <div class="header-cell left-aligned" i18n>Nome</div>
+        <div class="header-cell left-aligned" i18n>Descrição</div>
+        <div class="header-cell left-aligned" i18n>Prefixo</div>
+        <div class="header-cell" i18n>Ações</div>
+      </div>
       <div class="body">
-        <div class="sub-header">
-          <div>ID</div>
-          <div class="left-aligned" i18n>Nome</div>
-          <div class="left-aligned" i18n>Descrição</div>
-          <div class="left-aligned" i18n>Prefixo</div>
-          <div i18n>Ações</div>
-        </div>
         @for (entry of projects; track entry.id) {
           <div class="row {{ $even ? 'even' : 'odd' }}">
             <div>{{ entry.id }}</div>
@@ -39,7 +38,7 @@
         }
       </div>
       @if (projects.length === 0) {
-        <div class="table empty" i18n>Nenhum projeto cadastrado.</div>
+        <div class="data-table--empty" i18n>Nenhum projeto cadastrado.</div>
       }
     </div>
   </section>

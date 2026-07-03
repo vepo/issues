@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -16,7 +16,17 @@ import { CreateTicketRequest, TicketService } from '../../services/ticket.servic
   selector: 'app-create-ticket-modal',
   templateUrl: './create-ticket-modal.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatOptionModule]
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions
+  ]
 })
 export class CreateTicketModalComponent implements OnInit {
   private readonly dialogRef = inject<MatDialogRef<CreateTicketModalComponent>>(MatDialogRef);

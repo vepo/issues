@@ -33,9 +33,9 @@
       <mat-label i18n>Prefixo</mat-label>
       <input matInput formControlName="prefix" required />
     </mat-form-field>
-    <mat-form-field class="form-field" appearance="outline">
+    <mat-form-field class="form-field form-field--textarea" appearance="outline">
       <mat-label i18n>Descrição</mat-label>
-      <textarea matInput formControlName="description" required rows="4"></textarea>
+      <textarea matInput formControlName="description" required rows="5"></textarea>
     </mat-form-field>
     <div class="actions form-actions">
       <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()" i18n>Cancelar</button>

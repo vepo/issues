@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "generate:api": "openapi-generator-cli generate -i ../../../target/openapi/openapi.yaml -g typescript-angular -o src/app/generated --additional-properties=ngVersion=20.1.3,providedInRoot=true,apiModulePrefix=Issues,basePath=/api,serviceSuffix=Api"
+    "generate:api": "openapi-generator-cli generate -i ../../../target/openapi/openapi.yaml -g typescript-angular -o src/app/generated --additional-properties=ngVersion=20.1.3,providedInRoot=true,apiModulePrefix=Issues,basePath=,serviceSuffix=Api"
   },
   "prettier": {
     "overrides": [

@@ -1,0 +1,45 @@
+@if (items.length > 0) {
+  <div class="activity-feed">
+    @for (item of items; track trackActivityItem(item)) {
+      <article class="activity-item" [class.activity-item--comment]="item.kind === 'comment'">
+        <div class="activity-item__icon" aria-hidden="true">
+          <mat-icon [fontIcon]="activityIcon(item)"></mat-icon>
+        </div>
+        <div class="activity-item__body">
+          <header class="activity-item__header">
+            <span class="activity-item__actor">{{ item.userName }}</span>
+            <span class="activity-item__summary">{{ activitySummary(item) }}</span>
+            <time class="activity-item__date">{{ item.timestamp | date: 'medium' }}</time>
+          </header>
+
+          @if (item.kind === 'comment') {
+            <div class="activity-item__comment" [innerHTML]="item.content"></div>
+          } @else if (hasValueChange(item)) {
+            <div class="activity-item__change">
+              @if (item.oldValue) {
+                <span class="activity-item__old">{{ displayValue(item.oldValue, item) }}</span>
+              }
+              @if (item.oldValue && item.newValue) {
+                <mat-icon fontIcon="arrow_forward" class="activity-item__arrow" aria-hidden="true"></mat-icon>
+              }
+              @if (item.newValue) {
+                <span class="activity-item__new">{{ displayValue(item.newValue, item) }}</span>
+              }
+            </div>
+            @if (shouldTruncate(item.oldValue) || shouldTruncate(item.newValue)) {
+              <button type="button" class="activity-item__toggle" (click)="toggleExpanded(item)">
+                @if (isExpanded(item)) {
+                  <span i18n>Mostrar menos</span>
+                } @else {
+                  <span i18n>Mostrar mais</span>
+                }
+              </button>
+            }
+          }
+        </div>
+      </article>
+    }
+  </div>
+} @else {
+  <div class="empty-state" i18n>Nenhuma atividade registrada para este ticket.</div>
+}

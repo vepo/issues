@@ -93,14 +93,29 @@
             }
 
             .btn-remove {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
               border: none;
               background: none;
-              font-size: 18px;
               cursor: pointer;
               color: colors.$text-muted;
+              padding: colors.$space-xs;
+              line-height: 1;
+
+              mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+              }
 
               &:hover {
                 color: colors.$base-error-color;
+              }
+
+              &:focus-visible {
+                outline: 2px solid colors.$focus-ring-color;
+                outline-offset: 2px;
               }
             }
           }

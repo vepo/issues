@@ -1,38 +1,69 @@
-import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
+import { Subject, filter, takeUntil } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { Comment, CreateCommentRequest, TicketExpanded, TicketService } from '../../services/ticket.service';
+import { NotificationService } from '../../services/notification.service';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
+import { TicketActivityFeedComponent } from '../ticket-activity-feed/ticket-activity-feed.component';
+import {
+  ActivityFilter,
+  ActivityItem,
+  buildActivityFeed,
+  filterActivity,
+} from '../ticket-activity-feed/activity-feed.utils';
 
 @Component({
   selector: 'app-ticket-view',
   templateUrl: './ticket-view.component.html',
-  imports: [DatePipe, NormalizePipe, FormsModule, RichTextEditorComponent, MatButtonModule, MatIconModule]
+  imports: [
+    NormalizePipe,
+    FormsModule,
+    RichTextEditorComponent,
+    TicketActivityFeedComponent,
+    MatButtonModule,
+    MatIconModule,
+  ],
 })
-export class TicketViewComponent implements OnInit {
+export class TicketViewComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly ticketService = inject(TicketService);
   private readonly authService = inject(AuthService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly destroy$ = new Subject<void>();
 
   ticket?: TicketExpanded;
   comments: Comment[] = [];
   newComment: string = '';
-  activeTab: 'history' | 'comments' = 'history';
+  activeFilter: ActivityFilter = 'all';
   loadingComments = false;
   submittingComment = false;
+  activityItems: ActivityItem[] = [];
 
   ngOnInit(): void {
     this.route.data.subscribe(({ ticket }) => {
       this.ticket = ticket;
       if (this.ticket) {
         this.loadComments();
+        this.refreshActivity();
       }
     });
+
+    this.notificationService.listen()
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(event => event.type === 'ticket-moved' && event.ticketId === this.ticket?.id),
+      )
+      .subscribe(() => this.reloadTicket());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadComments(): void {
@@ -43,11 +74,11 @@ export class TicketViewComponent implements OnInit {
       next: (comments) => {
         this.comments = comments;
         this.loadingComments = false;
+        this.refreshActivity();
       },
-      error: (error) => {
-        console.error('Error loading comments:', error);
+      error: () => {
         this.loadingComments = false;
-      }
+      },
     });
   }
 
@@ -59,17 +90,15 @@ export class TicketViewComponent implements OnInit {
 
     this.ticketService.addComment(this.ticket.id, request).subscribe({
       next: (comment) => {
-        this.comments.unshift(comment); // Add to beginning
+        this.comments.unshift(comment);
         this.newComment = '';
         this.submittingComment = false;
-
-        // Reload ticket to get updated history
+        this.refreshActivity();
         this.reloadTicket();
       },
-      error: (error) => {
-        console.error('Error adding comment:', error);
+      error: () => {
         this.submittingComment = false;
-      }
+      },
     });
   }
 
@@ -86,27 +115,39 @@ export class TicketViewComponent implements OnInit {
 
     if (this.isSubscribed()) {
       this.ticketService.removeSubscription(this.ticket?.id, this.authService.getAuthUserId())
-        .subscribe(ticket => this.ticket = ticket);
+        .subscribe(ticket => {
+          this.ticket = ticket;
+          this.refreshActivity();
+        });
     } else {
       this.ticketService.addSubscription(this.ticket?.id, this.authService.getAuthUserId())
-        .subscribe(ticket => this.ticket = ticket);
+        .subscribe(ticket => {
+          this.ticket = ticket;
+          this.refreshActivity();
+        });
     }
   }
 
   reloadTicket(): void {
     if (!this.ticket) return;
 
-    this.ticketService.findExpandedById(this.ticket.id).subscribe({
+    this.ticketService.findExpandedByIdentifier(this.ticket.identifier).subscribe({
       next: (updatedTicket) => {
         this.ticket = updatedTicket;
+        this.refreshActivity();
       },
-      error: (error) => {
-        console.error('Error reloading ticket:', error);
-      }
     });
   }
 
-  setActiveTab(tab: 'history' | 'comments'): void {
-    this.activeTab = tab;
+  setActiveFilter(filter: ActivityFilter): void {
+    this.activeFilter = filter;
   }
-} 
+
+  filteredActivity(): ActivityItem[] {
+    return filterActivity(this.activityItems, this.activeFilter);
+  }
+
+  private refreshActivity(): void {
+    this.activityItems = buildActivityFeed(this.ticket?.history ?? [], this.comments);
+  }
+}

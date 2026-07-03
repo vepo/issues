@@ -99,7 +99,9 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Soft delete** | Ticket marked deleted without physical removal. | `Ticket.deleted`; excluded from search |
 | **Move (ticket)** | Change ticket status following workflow transition rules. | `POST /tickets/{id}/move`, `MoveTicketRequest` |
 | **Comment** | Text note attached to a ticket. | `Comment`, `tb_comments` |
-| **Ticket history** | Immutable audit log of actions on a ticket. | `TicketHistory`, `TicketHistoryService` |
+| **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`). | `TicketHistory`, `TicketHistoryService` |
+| **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`. | `TicketHistoryAction` |
+| **Activity feed** | Unified chronological UI on ticket detail merging comments and history events. | Ticket detail **Atividade** section |
 | **Subscriber** | User watching a ticket; receives notifications on changes. | `Ticket.subscribers`, M:N `tb_tickets_subscribers` |
 | **Subscribe** | Add a user to ticket subscribers. | `PUT /tickets/{id}/subscribe` |
 | **Unsubscribe** | Remove a subscriber from a ticket. | `DELETE /tickets/{id}/subscribe/{subscriberId}` |
@@ -134,7 +136,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 1. **Ticket identifier** — Auto-generated on create as `{project.prefix}-{zeroPaddedSeq}`; unique per project.
 2. **Workflow enforcement** — `moveTicket` must validate that a transition exists in the project's workflow from current status to target status.
 3. **Soft delete** — Deleted tickets are excluded from search and list queries; only admin and project-manager may delete.
-4. **History** — Create, update, assign, move, comment, and delete actions are logged via `TicketHistoryService`.
+4. **History** — Create, field changes, assign, move, subscribe/unsubscribe, and delete actions are logged via `TicketHistoryService` as structured events. Comments appear in the activity feed only (not duplicated in history).
 5. **Notifications** — Fired asynchronously on status move; delivered to ticket subscribers via SSE and optionally email.
 6. **Roles** — Endpoint access enforced via `@RolesAllowed`; class-level `@DenyAll` on protected resources.
 7. **Request/Response contract** — HTTP body types are records named `*Request` / `*Response` (ArchUnit enforced).

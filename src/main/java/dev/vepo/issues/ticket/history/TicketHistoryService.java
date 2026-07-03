@@ -18,59 +18,58 @@ public class TicketHistoryService {
     }
 
     public void logTicketCreated(Ticket ticket, User user) {
-        createHistoryEntry(ticket, user, "Ticket created");
+        createEntry(ticket, user, TicketHistoryAction.CREATED, null, null, null, null);
     }
 
-    public void logTicketUpdated(Ticket ticket, User user, String changes) {
-        createHistoryEntry(ticket, user, "Ticket updated: " + changes);
+    public void logFieldChanged(Ticket ticket, User user, String field, String oldValue, String newValue) {
+        createEntry(ticket, user, TicketHistoryAction.FIELD_CHANGED, field, oldValue, newValue, null);
     }
 
     public void logStatusChanged(Ticket ticket, User user, String fromStatus, String toStatus) {
-        createHistoryEntry(ticket, user, "Status changed from '%s' to '%s'".formatted(fromStatus, toStatus));
+        createEntry(ticket,
+                    user,
+                    TicketHistoryAction.STATUS_CHANGED,
+                    "status",
+                    HistoryDisplay.formatStatus(fromStatus),
+                    HistoryDisplay.formatStatus(toStatus),
+                    null);
     }
 
     public void logAssigneeChanged(Ticket ticket, User user, String fromAssignee, String toAssignee) {
-        String description;
-        if (fromAssignee == null && toAssignee != null) {
-            description = "Assigned to '%s'".formatted(toAssignee);
-        } else if (fromAssignee != null && toAssignee == null) {
-            description = "Unassigned";
-        } else {
-            description = "Assignee changed from '%s' to '%s'".formatted(fromAssignee, toAssignee);
-        }
-        createHistoryEntry(ticket, user, description);
+        createEntry(ticket, user, TicketHistoryAction.ASSIGNEE_CHANGED, "assignee", fromAssignee, toAssignee, null);
     }
 
-    public void logCommentAdded(Ticket ticket, User user) {
-        createHistoryEntry(ticket, user, "Comment added");
+    public void logSubscribed(Ticket ticket, User user, String subscriberName) {
+        createEntry(ticket, user, TicketHistoryAction.SUBSCRIBED, "subscriber", null, subscriberName, null);
     }
 
-    public void logCategoryChanged(Ticket ticket, User user, String fromCategory, String toCategory) {
-        createHistoryEntry(ticket, user, "Category changed from '%s' to '%s'".formatted(fromCategory, toCategory));
+    public void logUnsubscribed(Ticket ticket, User user, String subscriberName) {
+        createEntry(ticket, user, TicketHistoryAction.UNSUBSCRIBED, "subscriber", subscriberName, null, null);
     }
 
     public void logTicketDeleted(Ticket ticket, User user) {
-        createHistoryEntry(ticket, user, "Ticket deleted");
+        createEntry(ticket, user, TicketHistoryAction.DELETED, null, null, null, null);
     }
 
     public void logTicketRestored(Ticket ticket, User user) {
-        createHistoryEntry(ticket, user, "Ticket restored");
+        createEntry(ticket, user, TicketHistoryAction.RESTORED, null, null, null, null);
     }
 
-    public void logPriorityChanged(Ticket ticket, User user, String fromPriority, String toPriority) {
-        createHistoryEntry(ticket, user, "Priority changed from '%s' to '%s'".formatted(fromPriority, toPriority));
-    }
-
-    public void logDueDateChanged(Ticket ticket, User user, String fromDueDate, String toDueDate) {
-        createHistoryEntry(ticket, user, "Due date changed from '%s' to '%s'".formatted(fromDueDate, toDueDate));
-    }
-
-    public void logCustomAction(Ticket ticket, User user, String action) {
-        createHistoryEntry(ticket, user, action);
-    }
-
-    private void createHistoryEntry(Ticket ticket, User user, String description) {
-        var history = new TicketHistory(ticket, user, description, Instant.now());
+    private void createEntry(Ticket ticket,
+                             User user,
+                             TicketHistoryAction action,
+                             String field,
+                             String oldValue,
+                             String newValue,
+                             Long referenceId) {
+        var history = new TicketHistory(ticket,
+                                        user,
+                                        action,
+                                        field,
+                                        oldValue,
+                                        newValue,
+                                        referenceId,
+                                        Instant.now());
         historyRepository.save(history);
     }
 }

@@ -1,89 +1,66 @@
-<div class="modal">
-  <div class="header">
-    <h2 mat-dialog-title i18n>Criar Ticket</h2>
-  </div>
-  <div class="body">
-    <form [formGroup]="ticketForm">
-      <!-- Project -->
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Projeto</mat-label>
-        <mat-select formControlName="projectId">
-          <mat-option [value]="-1" disabled i18n>Selecione um projeto...</mat-option>
-          @for (proj of projects; track proj.id) {
-          <mat-option [value]="proj.id">{{proj.name}}</mat-option>
-          }
-        </mat-select>
-        @if (projectId && projectId.touched && projectId.invalid && projectId.hasError('min')) {
-        <mat-error i18n>
-          Um projeto deve ser selecionado!
-        </mat-error>
-        }
-      </mat-form-field>
-      <!-- Title -->
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Título</mat-label>
-        <input matInput placeholder="Insira o título do ticket..." formControlName="title" />
-        @if (title && title.touched && title.invalid && title.hasError('required')) {
-        <mat-error i18n>
-          Título é um campo obrigatório!
-        </mat-error>
-        }
+<h2 mat-dialog-title i18n>Novo ticket</h2>
 
-        @if (title && title.touched && title.invalid && title.hasError('minlength')) {
-        <mat-error i18n>
-          Título deve ter ao menos 5 caracters!
-        </mat-error>
+<mat-dialog-content>
+  <form [formGroup]="ticketForm" class="dialog-form">
+    <mat-form-field class="form-field" appearance="outline">
+      <mat-label i18n>Projeto</mat-label>
+      <mat-select formControlName="projectId">
+        <mat-option [value]="-1" disabled i18n>Selecione um projeto...</mat-option>
+        @for (proj of projects; track proj.id) {
+          <mat-option [value]="proj.id">{{ proj.name }}</mat-option>
         }
+      </mat-select>
+      @if (projectId && projectId.touched && projectId.invalid && projectId.hasError('min')) {
+        <mat-error i18n>Um projeto deve ser selecionado!</mat-error>
+      }
+    </mat-form-field>
 
-        @if (title && title.touched && title.invalid && title.hasError('maxlength')) {
-        <mat-error i18n>
-          Título deve ter ao menos 255 caracters!
-        </mat-error>
-        }
-      </mat-form-field>
-      <!-- Description -->
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Descrição</mat-label>
-        <textarea matInput formControlName="description" rows="4"></textarea>
-        @if (description && description.touched && description.invalid && description.hasError('required')) {
-        <mat-error i18n>
-          Descrição é um campo obrigatório!
-        </mat-error>
-        }
+    <mat-form-field class="form-field" appearance="outline">
+      <mat-label i18n>Título</mat-label>
+      <input matInput placeholder="Insira o título do ticket..." formControlName="title" />
+      @if (title && title.touched && title.invalid && title.hasError('required')) {
+        <mat-error i18n>Título é um campo obrigatório!</mat-error>
+      }
+      @if (title && title.touched && title.invalid && title.hasError('minlength')) {
+        <mat-error i18n>Título deve ter ao menos 5 caracteres!</mat-error>
+      }
+      @if (title && title.touched && title.invalid && title.hasError('maxlength')) {
+        <mat-error i18n>Título deve ter no máximo 255 caracteres!</mat-error>
+      }
+    </mat-form-field>
 
-        @if (description && description.touched && description.invalid && description.hasError('minlength')) {
-        <mat-error i18n>
-          Descrição deve ter ao menos 5 caracters!
-        </mat-error>
-        }
+    <mat-form-field class="form-field form-field--textarea" appearance="outline">
+      <mat-label i18n>Descrição</mat-label>
+      <textarea matInput formControlName="description" rows="5"></textarea>
+      @if (description && description.touched && description.invalid && description.hasError('required')) {
+        <mat-error i18n>Descrição é um campo obrigatório!</mat-error>
+      }
+      @if (description && description.touched && description.invalid && description.hasError('minlength')) {
+        <mat-error i18n>Descrição deve ter ao menos 5 caracteres!</mat-error>
+      }
+      @if (description && description.touched && description.invalid && description.hasError('maxlength')) {
+        <mat-error i18n>Descrição deve ter no máximo 1200 caracteres!</mat-error>
+      }
+    </mat-form-field>
 
-        @if (description && description.touched && description.invalid && description.hasError('maxlength')) {
-        <mat-error i18n>
-          Descrição deve ter ao menos 1200 caracters!
-        </mat-error>
+    <mat-form-field class="form-field" appearance="outline">
+      <mat-label i18n>Categoria</mat-label>
+      <mat-select formControlName="categoryId" required>
+        <mat-option [value]="-1" disabled i18n>Selecione uma categoria...</mat-option>
+        @for (cat of categories; track cat.id) {
+          <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
         }
-      </mat-form-field>
-      <!-- Category -->
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Categoria</mat-label>
-        <mat-select formControlName="categoryId" name="categoryId" required>
-          <mat-option [value]="-1" disabled i18n>Selecione uma categoria...</mat-option>
-          @for (cat of categories; track cat.id) {
-          <mat-option [value]="cat.id">{{cat.name}}</mat-option>
-          }
-        </mat-select>
-        @if (categoryId && categoryId.touched && categoryId.invalid && categoryId.hasError('min')) {
-        <mat-error i18n>
-          Uma categoria deve ser selecionada!
-        </mat-error>
-        }
-      </mat-form-field>
-    </form>
-  </div>
-  <div class="actions">
-    <div class="form-actions">
-      <button matButton="outlined" class="btn btn-secondary" (click)="close()" i18n>Cancelar</button>
-      <button matButton="filled" class="btn" [disabled]="ticketForm.invalid" (click)="createTicket()" i18n>Criar</button>
-    </div>
-  </div>
-</div>
+      </mat-select>
+      @if (categoryId && categoryId.touched && categoryId.invalid && categoryId.hasError('min')) {
+        <mat-error i18n>Uma categoria deve ser selecionada!</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton="outlined" class="btn btn-secondary" type="button" (click)="close()" i18n>Cancelar</button>
+  <button matButton="filled" class="btn" type="button" [disabled]="ticketForm.invalid" (click)="createTicket()" i18n>
+    Criar
+  </button>
+</mat-dialog-actions>

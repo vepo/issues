@@ -12,61 +12,66 @@
     </div>
   </header>
 
+  <section class="filter-bar page-panel" aria-label="Filtros de usuários">
+    <p class="filter-bar__label" i18n>Filtros</p>
+    <div class="filter-bar__fields">
+      <mat-form-field class="form-field form-field--compact" appearance="outline">
+        <mat-label i18n>Nome</mat-label>
+        <input
+          matInput
+          type="text"
+          [(ngModel)]="filter.name"
+          (ngModelChange)="filterChanged('name')"
+        />
+      </mat-form-field>
+      <mat-form-field class="form-field form-field--compact" appearance="outline">
+        <mat-label i18n>E-mail</mat-label>
+        <input
+          matInput
+          type="email"
+          [(ngModel)]="filter.email"
+          (ngModelChange)="filterChanged('email')"
+        />
+      </mat-form-field>
+    </div>
+    <div class="filter-chips" role="group" aria-label="Filtrar por perfil">
+      <button
+        type="button"
+        class="filter-chip"
+        [class.filter-chip--active]="filter.roles.indexOf('admin') !== -1"
+        (click)="toggleRole('admin')"
+        i18n>
+        Administrador
+      </button>
+      <button
+        type="button"
+        class="filter-chip"
+        [class.filter-chip--active]="filter.roles.indexOf('project-manager') !== -1"
+        (click)="toggleRole('project-manager')"
+        i18n>
+        Gerente de projetos
+      </button>
+      <button
+        type="button"
+        class="filter-chip"
+        [class.filter-chip--active]="filter.roles.indexOf('user') !== -1"
+        (click)="toggleRole('user')"
+        i18n>
+        Usuário
+      </button>
+    </div>
+  </section>
+
   <section class="page-panel page-panel--flush">
-    <div class="table">
-      <div class="header" i18n>Lista de usuários</div>
+    <div class="data-table">
+      <div class="header">
+        <div class="header-cell">ID</div>
+        <div class="header-cell" i18n>Nome</div>
+        <div class="header-cell" i18n>E-mail</div>
+        <div class="header-cell" i18n>Perfis</div>
+        <div class="header-cell" i18n>Ações</div>
+      </div>
       <div class="body">
-        <div class="sub-header">
-          <div>ID</div>
-          <div i18n>Nome</div>
-          <div i18n>E-mail</div>
-          <div i18n>Perfis</div>
-          <div i18n>Ações</div>
-        </div>
-        <div class="sub-header sub-header--filter">
-          <div><em i18n>Filtros</em></div>
-          <div>
-            <input
-              class="filter-input"
-              type="text"
-              i18n-placeholder
-              placeholder="Nome..."
-              [(ngModel)]="filter.name"
-              (ngModelChange)="filterChanged('name')"
-            />
-          </div>
-          <div>
-            <input
-              class="filter-input"
-              type="text"
-              i18n-placeholder
-              placeholder="E-mail..."
-              [(ngModel)]="filter.email"
-              (ngModelChange)="filterChanged('email')"
-            />
-          </div>
-          <div class="role-filters">
-            <mat-checkbox
-              [checked]="filter.roles.indexOf('admin') !== -1"
-              (change)="toggleRole('admin')"
-              i18n>
-              Administrador
-            </mat-checkbox>
-            <mat-checkbox
-              [checked]="filter.roles.indexOf('project-manager') !== -1"
-              (change)="toggleRole('project-manager')"
-              i18n>
-              Gerente de projetos
-            </mat-checkbox>
-            <mat-checkbox
-              [checked]="filter.roles.indexOf('user') !== -1"
-              (change)="toggleRole('user')"
-              i18n>
-              Usuário
-            </mat-checkbox>
-          </div>
-          <div></div>
-        </div>
         @for (entry of users; track entry.id) {
           <div class="row {{ $even ? 'even' : 'odd' }}">
             <div>{{ entry.id }}</div>
@@ -95,7 +100,7 @@
         }
       </div>
       @if (users.length === 0) {
-        <div class="table empty" i18n>Nenhum usuário encontrado com os filtros aplicados.</div>
+        <div class="data-table--empty" i18n>Nenhum usuário encontrado com os filtros aplicados.</div>
       }
     </div>
   </section>

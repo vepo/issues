@@ -125,28 +125,22 @@ public class TicketService {
     @Transactional
     public TicketResponse update(long id, UpdateTicketRequest request, String username) {
         var entity = requireTicket(id);
-        var changes = new StringBuilder();
-        var hasChanges = false;
+        var user = requireUserByUsername(username);
 
         if (!entity.getTitle().equals(request.title())) {
-            changes.append("title");
-            hasChanges = true;
+            historyService.logFieldChanged(entity, user, "title", entity.getTitle(), request.title());
         }
         if (!entity.getDescription().equals(request.description())) {
-            if (hasChanges) {
-                changes.append(", ");
-            }
-            changes.append("description");
-            hasChanges = true;
+            historyService.logFieldChanged(entity, user, "description", entity.getDescription(), request.description());
         }
         var newCategory = categoryRepository.findById(request.categoryId())
                                             .orElseThrow(() -> categoryNotFound(request.categoryId()));
         if (!entity.getCategory().equals(newCategory)) {
-            if (hasChanges) {
-                changes.append(", ");
-            }
-            changes.append("category");
-            hasChanges = true;
+            historyService.logFieldChanged(entity,
+                                           user,
+                                           "category",
+                                           entity.getCategory().getName(),
+                                           newCategory.getName());
         }
 
         entity.setTitle(request.title());
@@ -154,10 +148,6 @@ public class TicketService {
         entity.setCategory(newCategory);
         entity.setUpdatedAt(LocalDateTime.now());
 
-        var user = requireUserByUsername(username);
-        if (hasChanges) {
-            historyService.logTicketUpdated(entity, user, changes.toString());
-        }
         return TicketResponse.load(entity);
     }
 
@@ -172,7 +162,9 @@ public class TicketService {
         entity.setUpdatedAt(LocalDateTime.now());
 
         var user = requireUserByUsername(username);
-        historyService.logAssigneeChanged(entity, user, fromAssignee, toAssignee);
+        if (!java.util.Objects.equals(fromAssignee, toAssignee)) {
+            historyService.logAssigneeChanged(entity, user, fromAssignee, toAssignee);
+        }
         return TicketResponse.load(entity);
     }
 
@@ -195,7 +187,6 @@ public class TicketService {
         var ticket = requireTicket(id);
         var user = requireUserByUsername(username);
         var comment = repository.saveComment(new Comment(ticket, user, request.content()));
-        historyService.logCommentAdded(ticket, user);
         return CommentResponse.load(comment);
     }
 
@@ -245,18 +236,29 @@ public class TicketService {
     }
 
     @Transactional
-    public TicketExpandedResponse subscribe(long id, SubscribeTicketRequest request) {
+    public TicketExpandedResponse subscribe(long id, SubscribeTicketRequest request, String username) {
         var ticket = requireTicket(id);
+        var subscriber = requireUserById(request.subscriberId());
+        var actor = requireUserByUsername(username);
+        if (ticket.getSubscribers().stream().anyMatch(u -> u.getId().equals(subscriber.getId()))) {
+            return TicketExpandedResponse.load(ticket, loadHistory(id));
+        }
         ticket.getSubscribers()
-              .add(requireUserById(request.subscriberId()));
+              .add(subscriber);
+        historyService.logSubscribed(ticket, actor, subscriber.getName());
         return TicketExpandedResponse.load(repository.save(ticket), loadHistory(id));
     }
 
     @Transactional
-    public TicketExpandedResponse unsubscribe(long id, long subscriberId) {
+    public TicketExpandedResponse unsubscribe(long id, long subscriberId, String username) {
         var ticket = requireTicket(id);
-        ticket.getSubscribers()
-              .removeIf(user -> subscriberId == user.getId());
+        var subscriber = requireUserById(subscriberId);
+        var actor = requireUserByUsername(username);
+        var wasSubscribed = ticket.getSubscribers()
+                                  .removeIf(user -> subscriberId == user.getId());
+        if (wasSubscribed) {
+            historyService.logUnsubscribed(ticket, actor, subscriber.getName());
+        }
         return TicketExpandedResponse.load(repository.save(ticket), loadHistory(id));
     }
 

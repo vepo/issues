@@ -1,184 +1,133 @@
 package dev.vepo.issues.ticket.history;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.time.LocalDateTime;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import dev.vepo.issues.categories.Category;
-import dev.vepo.issues.project.Project;
-import dev.vepo.issues.ticket.Ticket;
-import dev.vepo.issues.user.User;
-import dev.vepo.issues.workflow.WorkflowStatus;
+import dev.vepo.issues.Given;
+import dev.vepo.issues.ticket.TicketRepository;
+import dev.vepo.issues.ticket.TicketTestFixtures;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 @QuarkusTest
 class TicketHistoryServiceTest {
 
     @Inject
-    private TicketHistoryService historyService;
+    TicketHistoryService historyService;
 
     @Inject
-    private TicketHistoryRepository historyRepository;
+    TicketHistoryRepository historyRepository;
 
-    private Ticket ticket;
-    private User user;
-    private User assignee;
-    private Category category;
-    private Project project;
-    private WorkflowStatus status;
+    @Inject
+    TicketRepository ticketRepository;
+
+    private TicketTestFixtures fixtures;
 
     @BeforeEach
     void setUp() {
-        user = new User();
-        user.setId(1L);
-        user.setName("Test User");
-        user.setEmail("test@example.com");
-
-        assignee = new User();
-        assignee.setId(2L);
-        assignee.setName("Assignee User");
-        assignee.setEmail("assignee@example.com");
-
-        category = new Category();
-        category.setId(1L);
-        category.setName("Bug");
-
-        project = new Project();
-        project.setId(1L);
-        project.setName("Test Project");
-
-        status = new WorkflowStatus();
-        status.setId(1L);
-        status.setName("TODO");
-
-        ticket = new Ticket();
-        ticket.setId(1L);
-        ticket.setTitle("Test Ticket");
-        ticket.setDescription("Test Description");
-        ticket.setAuthor(user);
-        ticket.setAssignee(assignee);
-        ticket.setCategory(category);
-        ticket.setProject(project);
-        ticket.setStatus(status);
-        ticket.setCreatedAt(LocalDateTime.now());
-        ticket.setUpdatedAt(LocalDateTime.now());
+        fixtures = TicketTestFixtures.create();
     }
 
     @Test
-    @DisplayName("Should log ticket creation")
-    @Transactional
+    @DisplayName("Should persist structured entry when ticket is created")
     void shouldLogTicketCreation() {
-        historyService.logTicketCreated(ticket, user);
-        assertNotNull(historyService);
+        Given.transaction(() -> {
+            var ticket = ticketRepository.findById(fixtures.ticket().id()).orElseThrow();
+            var user = Given.user("user@issues.vepo.dev");
+
+            historyService.logTicketCreated(ticket, user);
+
+            var created = historyRepository.findByTicketId(ticket.getId())
+                                           .stream()
+                                           .filter(e -> e.action == TicketHistoryAction.CREATED)
+                                           .findFirst()
+                                           .orElseThrow();
+            assertEquals(TicketHistoryAction.CREATED, created.action);
+            assertNull(created.field);
+            assertEquals(user.getId(), created.user.getId());
+        });
     }
 
     @Test
-    @DisplayName("Should log ticket update with changes")
-    @Transactional
-    void shouldLogTicketUpdate() {
-        historyService.logTicketUpdated(ticket, user, "title, description");
-        assertNotNull(historyService);
+    @DisplayName("Should persist field change with old and new values")
+    void shouldLogFieldChange() {
+        Given.transaction(() -> {
+            var ticket = ticketRepository.findById(fixtures.ticket().id()).orElseThrow();
+            var user = Given.user("user@issues.vepo.dev");
+
+            historyService.logFieldChanged(ticket, user, "title", "Old Title", "New Title");
+
+            var entry = historyRepository.findByTicketId(ticket.getId())
+                                         .stream()
+                                         .filter(e -> e.action == TicketHistoryAction.FIELD_CHANGED)
+                                         .findFirst()
+                                         .orElseThrow();
+            assertEquals("title", entry.field);
+            assertEquals("Old Title", entry.oldValue);
+            assertEquals("New Title", entry.newValue);
+        });
     }
 
     @Test
-    @DisplayName("Should log status change")
-    @Transactional
-    void shouldLogStatusChange() {
-        historyService.logStatusChanged(ticket, user, "TODO", "IN_PROGRESS");
-        assertNotNull(historyService);
+    @DisplayName("Should normalize status names when logging status change")
+    void shouldLogStatusChangeWithNormalizedNames() {
+        Given.transaction(() -> {
+            var ticket = ticketRepository.findById(fixtures.ticket().id()).orElseThrow();
+            var user = Given.user("user@issues.vepo.dev");
+
+            historyService.logStatusChanged(ticket, user, "TODO", "IN_PROGRESS");
+
+            var entry = historyRepository.findByTicketId(ticket.getId())
+                                         .stream()
+                                         .filter(e -> e.action == TicketHistoryAction.STATUS_CHANGED)
+                                         .findFirst()
+                                         .orElseThrow();
+            assertEquals("status", entry.field);
+            assertEquals("Todo", entry.oldValue);
+            assertEquals("In Progress", entry.newValue);
+        });
     }
 
     @Test
-    @DisplayName("Should log assignee change from one user to another")
-    @Transactional
-    void shouldLogAssigneeChange() {
-        historyService.logAssigneeChanged(ticket, user, "Old Assignee", "New Assignee");
-        assertNotNull(historyService);
-    }
-
-    @Test
-    @DisplayName("Should log assignee assignment when previously unassigned")
-    @Transactional
+    @DisplayName("Should persist assignee change including assignment from unassigned")
     void shouldLogAssigneeAssignment() {
-        historyService.logAssigneeChanged(ticket, user, null, "New Assignee");
-        assertNotNull(historyService);
+        Given.transaction(() -> {
+            var ticket = ticketRepository.findById(fixtures.ticket().id()).orElseThrow();
+            var user = Given.user("user@issues.vepo.dev");
+
+            historyService.logAssigneeChanged(ticket, user, null, "New Assignee");
+
+            var entry = historyRepository.findByTicketId(ticket.getId())
+                                         .stream()
+                                         .filter(e -> e.action == TicketHistoryAction.ASSIGNEE_CHANGED)
+                                         .findFirst()
+                                         .orElseThrow();
+            assertEquals("assignee", entry.field);
+            assertNull(entry.oldValue);
+            assertEquals("New Assignee", entry.newValue);
+        });
     }
 
     @Test
-    @DisplayName("Should log assignee unassignment")
-    @Transactional
-    void shouldLogAssigneeUnassignment() {
-        historyService.logAssigneeChanged(ticket, user, "Old Assignee", null);
-        assertNotNull(historyService);
-    }
+    @DisplayName("Should persist subscribe and unsubscribe events")
+    void shouldLogSubscribeAndUnsubscribe() {
+        Given.transaction(() -> {
+            var ticket = ticketRepository.findById(fixtures.ticket().id()).orElseThrow();
+            var user = Given.user("user@issues.vepo.dev");
 
-    @Test
-    @DisplayName("Should log category change")
-    @Transactional
-    void shouldLogCategoryChange() {
-        historyService.logCategoryChanged(ticket, user, "Bug", "Feature");
-        assertNotNull(historyService);
-    }
+            historyService.logSubscribed(ticket, user, "Observer");
+            historyService.logUnsubscribed(ticket, user, "Observer");
 
-    @Test
-    @DisplayName("Should log comment addition")
-    @Transactional
-    void shouldLogCommentAdded() {
-        historyService.logCommentAdded(ticket, user);
-        assertNotNull(historyService);
-    }
-
-    @Test
-    @DisplayName("Should log ticket deletion")
-    @Transactional
-    void shouldLogTicketDeleted() {
-        historyService.logTicketDeleted(ticket, user);
-        assertNotNull(historyService);
-    }
-
-    @Test
-    @DisplayName("Should log ticket restoration")
-    @Transactional
-    void shouldLogTicketRestored() {
-        historyService.logTicketRestored(ticket, user);
-        assertNotNull(historyService);
-    }
-
-    @Test
-    @DisplayName("Should log priority change")
-    @Transactional
-    void shouldLogPriorityChange() {
-        historyService.logPriorityChanged(ticket, user, "Low", "High");
-        assertNotNull(historyService);
-    }
-
-    @Test
-    @DisplayName("Should log due date change")
-    @Transactional
-    void shouldLogDueDateChange() {
-        historyService.logDueDateChanged(ticket, user, "2024-01-01", "2024-02-01");
-        assertNotNull(historyService);
-    }
-
-    @Test
-    @DisplayName("Should log custom action")
-    @Transactional
-    void shouldLogCustomAction() {
-        historyService.logCustomAction(ticket, user, "Custom action performed");
-        assertNotNull(historyService);
-    }
-
-    @Test
-    @DisplayName("Should create history entry with correct data")
-    @Transactional
-    void shouldCreateHistoryEntryWithCorrectData() {
-        historyService.logTicketCreated(ticket, user);
-        assertNotNull(historyService);
+            var entries = historyRepository.findByTicketId(ticket.getId());
+            assertEquals(2,
+                         entries.stream()
+                                .filter(e -> e.action == TicketHistoryAction.SUBSCRIBED
+                                        || e.action == TicketHistoryAction.UNSUBSCRIBED)
+                                .count());
+        });
     }
 }

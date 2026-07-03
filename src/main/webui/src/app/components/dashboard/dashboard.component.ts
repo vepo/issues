@@ -3,8 +3,9 @@ import { AsyncPipe, KeyValuePipe } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ChartConfiguration } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { Observable, shareReplay } from 'rxjs';
@@ -14,7 +15,7 @@ import { NormalizePipe } from '../pipes/normalize.pipe';
 
 @Component({
   selector: 'app-dashboard.component',
-  imports: [DragDropModule, MatButtonModule, MatSelectModule, FormsModule, BaseChartDirective, AsyncPipe, KeyValuePipe, NormalizePipe],
+  imports: [DragDropModule, MatButtonModule, MatIconModule, MatSelectModule, FormsModule, BaseChartDirective, AsyncPipe, KeyValuePipe, NormalizePipe, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })

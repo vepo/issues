@@ -35,7 +35,8 @@ public class UnsubscribeTicketEndpoint {
     @Path("/{id}/subscribe/{subscriberId}")
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "unsubscribeTicket", summary = "Unsubscribe from ticket")
-    public TicketExpandedResponse unsubscribe(@PathParam("id") Long id, @PathParam("subscriberId") long subscriberId) {
-        return ticketService.unsubscribe(id, subscriberId);
+    public TicketExpandedResponse unsubscribe(@PathParam("id") Long id, @PathParam("subscriberId") long subscriberId,
+                                              @Context SecurityContext securityContext) {
+        return ticketService.unsubscribe(id, subscriberId, securityContext.getUserPrincipal().getName());
     }
 }

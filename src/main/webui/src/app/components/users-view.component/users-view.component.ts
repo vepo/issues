@@ -1,14 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { emptyFilter, User, UserSearchFilter, UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-users-view.component',
-  imports: [MatIcon, MatButton, MatCheckboxModule, FormsModule, RouterLink],
+  imports: [MatIcon, MatButton, MatFormFieldModule, MatInputModule, FormsModule, RouterLink],
   templateUrl: './users-view.component.html'
 })
 export class UsersViewComponent implements OnInit {

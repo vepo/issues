@@ -2,6 +2,12 @@ package dev.vepo.issues.ticket.history;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,9 +28,8 @@ class GetTicketHistoryEndpointTest {
     }
 
     @Test
-    @DisplayName("It should be possible to get ticket history")
+    @DisplayName("It should return structured ticket history in descending order")
     void shouldGetTicketHistoryTest() {
-        // First make some changes to generate history
         given().header(fixtures.userAuthenticatedHeader())
                .contentType(ContentType.JSON)
                .accept(ContentType.JSON)
@@ -39,13 +44,25 @@ class GetTicketHistoryEndpointTest {
                .then()
                .statusCode(200);
 
-        // Get history
-        given().header(fixtures.userAuthenticatedHeader())
-               .accept(ContentType.JSON)
-               .when()
-               .get("/api/tickets/" + fixtures.ticket().id() + "/history")
-               .then()
-               .statusCode(200)
-               .body("$.size()", greaterThan(0));
+        List<?> history = given().header(fixtures.userAuthenticatedHeader())
+                                 .accept(ContentType.JSON)
+                                 .when()
+                                 .get("/api/tickets/" + fixtures.ticket().id() + "/history")
+                                 .then()
+                                 .statusCode(200)
+                                 .body("$.size()", greaterThan(0))
+                                 .body("action", hasItem("FIELD_CHANGED"))
+                                 .extract()
+                                 .jsonPath()
+                                 .getList("");
+
+        @SuppressWarnings("unchecked")
+        var titleChange = history.stream()
+                                 .map(entry -> (Map<String, Object>) entry)
+                                 .filter(e -> "title".equals(e.get("field")))
+                                 .findFirst()
+                                 .orElseThrow();
+        assertEquals(fixtures.ticket().title(), titleChange.get("oldValue"));
+        assertEquals("Updated Title for History", titleChange.get("newValue"));
     }
 }

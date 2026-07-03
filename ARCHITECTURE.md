@@ -244,7 +244,7 @@ mvn test                              # export spec
 cd src/main/webui && npm run generate:api   # → src/app/generated/ (gitignored)
 ```
 
-Angular facades in `services/` wrap generated `*Api` classes; `BASE_PATH` is `/api` (relative). SSE (`sse.client.ts`) stays hand-written.
+Angular facades in `services/` wrap generated `*Api` classes. OpenAPI paths include `/api`, so `BASE_PATH` is `''`. SSE (`sse.client.ts`) stays hand-written.
 
 CI order: `mvn test` → `npm run generate:api` → `ng test` → `mvn verify`.
 

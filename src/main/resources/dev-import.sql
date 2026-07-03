@@ -280,4 +280,20 @@ BEGIN
                             done_id,
                             NOW(), 
                             NOW());
+
+    INSERT INTO tb_ticket_history (action, field, old_value, new_value, timestamp, ticket_id, user_id)
+    SELECT 'CREATED', NULL, NULL, NULL, NOW() - INTERVAL '7 days', t.id, user_cto_id
+    FROM tb_tickets t WHERE t.identifier = 'ISS-001';
+
+    INSERT INTO tb_ticket_history (action, field, old_value, new_value, timestamp, ticket_id, user_id)
+    SELECT 'STATUS_CHANGED', 'status', 'Todo', 'Done', NOW() - INTERVAL '5 days', t.id, user_cto_id
+    FROM tb_tickets t WHERE t.identifier = 'ISS-001';
+
+    INSERT INTO tb_ticket_history (action, field, old_value, new_value, timestamp, ticket_id, user_id)
+    SELECT 'CREATED', NULL, NULL, NULL, NOW() - INTERVAL '2 days', t.id, user_cto_id
+    FROM tb_tickets t WHERE t.identifier = 'ISS-004';
+
+    INSERT INTO tb_ticket_history (action, field, old_value, new_value, timestamp, ticket_id, user_id)
+    SELECT 'FIELD_CHANGED', 'title', 'Configuração da Build', 'Configuração da Build Integrada', NOW() - INTERVAL '1 day', t.id, user_cto_id
+    FROM tb_tickets t WHERE t.identifier = 'ISS-004';
 END $$;

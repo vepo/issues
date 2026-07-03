@@ -6,6 +6,29 @@
     </div>
   </header>
 
+  <section class="filter-bar page-panel" aria-label="Filtros de busca">
+    <p class="filter-bar__label" i18n>Status</p>
+    <div class="filter-chips" role="group" aria-label="Filtrar por status">
+      <button
+        type="button"
+        class="filter-chip"
+        [class.filter-chip--active]="isStatusActive(-1)"
+        (click)="selectStatus(-1)"
+        i18n>
+        Todos
+      </button>
+      @for (status of statuses; track status.id) {
+        <button
+          type="button"
+          class="filter-chip"
+          [class.filter-chip--active]="isStatusActive(status.id)"
+          (click)="selectStatus(status.id)">
+          {{ status.name | normalize }}
+        </button>
+      }
+    </div>
+  </section>
+
   @if (term || statusName(statusId)) {
     <section class="filter-summary" aria-label="Filtros aplicados">
       @if (term) {
@@ -39,7 +62,7 @@
           <p class="project-card__description">{{ ticket.description }}</p>
           <p class="metadata">
             <span i18n>Projeto:</span> {{ projectName(ticket.project) }} ·
-            <span i18n>Status:</span> {{ statusName(ticket.status) }}
+            <span class="status-badge">{{ statusName(ticket.status) }}</span>
           </p>
         </a>
       }

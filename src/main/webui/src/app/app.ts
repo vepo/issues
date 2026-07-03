@@ -5,13 +5,11 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { map } from 'rxjs';
+import { ContextBarComponent } from './components/context-bar/context-bar.component';
 import { CreateTicketModalComponent } from './components/create-ticket-modal/create-ticket-modal.component';
 import { NotificationComponent } from './components/notification/notification.component';
-import { NormalizePipe } from './components/pipes/normalize.pipe';
 import { RoleDirective } from './directives/role.directive';
 import { AuthService } from './services/auth.service';
-import { Status, StatusService } from './services/status.service';
 
 @Component({
   selector: 'app-root',
@@ -20,82 +18,65 @@ import { Status, StatusService } from './services/status.service';
     RouterLink,
     RouterLinkActive,
     FormsModule,
-    NormalizePipe,
     MatButtonModule,
     MatDialogModule,
     NotificationComponent,
     MatIconModule,
     MatMenuModule,
-    RoleDirective
+    RoleDirective,
+    ContextBarComponent
   ],
   templateUrl: './app.html'
 })
 export class AppComponent implements OnInit {
   private readonly router = inject(Router);
-  private readonly statusService = inject(StatusService);
   private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
 
-  anyStatus: Status = { id: -1, name: 'Todos' };
   title = 'issues';
-  searchTerm: string = '';
-  statuses: Status[] = [this.anyStatus];
-  selectStatus: Status = this.anyStatus;
-
-  compareStatus = (first: Status, second: Status): boolean => first?.id === second?.id;
+  searchTerm = '';
 
   onSearchSubmit(event: Event) {
     event.preventDefault();
-    this.goToSearch(this.searchTerm.trim(), this.selectStatus);
+    this.goToSearch(this.searchTerm.trim());
   }
 
-  onSearchKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      this.goToSearch(this.searchTerm.trim(), this.selectStatus);
-    }
-  }
-
-  goToSearch(term: string, status: Status) {
-    let params: any = {};
-
-    if (status != this.anyStatus) {
-      params['status'] = status.id;
-    }
-
-    if (term && term.trim().length > 0) {
+  goToSearch(term: string) {
+    const params: Record<string, string> = {};
+    if (term.length > 0) {
       params['q'] = term;
     }
-
     this.router.navigate(['/search'], { queryParams: params });
   }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.searchTerm = params['q'] || this.searchTerm;
-      let statusId = Number(params['status'] || this.selectStatus.id);
-      this.statusService.findAll()
-        .pipe(map(statuses => [this.anyStatus, ...statuses]))
-        .subscribe(statuses => {
-          this.statuses = statuses;
-          this.selectStatus = this.statuses.find(s => s.id == statusId) || this.anyStatus;
-        });
+      if (params['q'] !== undefined) {
+        this.searchTerm = params['q'] || '';
+      }
     });
-  }
-
-  onChange(event: Status) {
-    this.goToSearch(this.searchTerm.trim(), this.selectStatus);
   }
 
   openCreateTicketDialog() {
     this.dialog.open(CreateTicketModalComponent, {
-      width: '750px',
-      disableClose: true
+      width: '560px',
+      maxWidth: '95vw',
+      panelClass: 'create-ticket-dialog',
+      autoFocus: 'first-titled-element'
     });
   }
 
   isAuthenticated(): boolean {
     return this.authService.isLoggedIn();
+  }
+
+  userEmail(): string | null {
+    return this.authService.getEmail();
+  }
+
+  hasAdminMenu(): boolean {
+    return this.authService.hasRole('admin') || this.authService.hasRole('project-manager');
   }
 
   logout() {
