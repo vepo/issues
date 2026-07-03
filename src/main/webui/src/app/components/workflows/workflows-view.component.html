@@ -13,13 +13,13 @@
   </header>
 
   <section class="page-panel page-panel--flush">
-    <div class="data-table">
+    <div class="data-table data-table--layout-table">
       <div class="header">
         <div class="header-cell">ID</div>
         <div class="header-cell left-aligned" i18n>Nome</div>
         <div class="header-cell left-aligned" i18n>Status</div>
         <div class="header-cell left-aligned" i18n>Início</div>
-        <div class="header-cell" i18n>Ações</div>
+        <div class="header-cell header-cell--actions" i18n>Ações</div>
       </div>
       <div class="body">
         @for (entry of workflows; track entry.id) {
@@ -28,7 +28,7 @@
             <div class="left-aligned">{{ entry.name }}</div>
             <div class="left-aligned">{{ entry.statuses.join(', ') }}</div>
             <div class="left-aligned">{{ entry.start }}</div>
-            <div>
+            <div class="cell-actions">
               <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="['/workflows', entry.id]">
                 <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
                 <span i18n>Editar</span>

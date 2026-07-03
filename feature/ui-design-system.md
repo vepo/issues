@@ -170,7 +170,7 @@ Every UI element should compose from this set:
 
 ```
 Shell          .main-header, .context-bar, .shell-inner, main.container, .main-footer
-Page           .page, .page--wide, .page-header, .page-title, .page-subtitle, .page-header__actions
+Page           .page, .page-header, .page-title, .page-subtitle, .page-header__actions
 Panel          .page-panel, .page-panel--flush
 Auth           .page-auth, .auth-card, .auth-card__header, .auth-card__body
 Navigation     .breadcrumb, .tabs, .tab-button, .tab-button--active

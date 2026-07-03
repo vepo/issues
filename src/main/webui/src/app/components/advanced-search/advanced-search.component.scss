@@ -1,0 +1,64 @@
+@use "../../../colors";
+
+.advanced-search__results {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.advanced-search__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.advanced-search__section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.advanced-search__list-panel {
+  max-height: min(28rem, 45vh);
+  overflow: auto;
+}
+
+.advanced-search__detail-panel {
+  min-height: min(28rem, 45vh);
+  max-height: min(36rem, 50vh);
+  overflow: auto;
+}
+
+.advanced-search__detail-header {
+  margin: 0 0 colors.$space-md;
+  padding-bottom: colors.$space-sm;
+  border-bottom: 1px solid colors.$border-subtle;
+}
+
+.advanced-search__detail-title {
+  margin: 0 0 colors.$space-xs;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.advanced-search__detail-meta {
+  margin: 0;
+  font-size: 0.875rem;
+  color: colors.$text-secondary;
+}
+
+.advanced-search__description {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: colors.$text-primary;
+}
+
+@media (max-width: 900px) {
+  .advanced-search__results {
+    grid-template-columns: 1fr;
+  }
+}

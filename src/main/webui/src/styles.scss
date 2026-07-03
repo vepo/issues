@@ -444,14 +444,10 @@ main {
 }
 
 .page {
-  max-width: 1120px;
-  margin: 0 auto;
   width: 100%;
+  margin: 0;
   padding: colors.$space-lg 0 colors.$space-xl;
-
-  &--wide {
-    max-width: none;
-  }
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -564,7 +560,7 @@ main {
 
   &--flush {
     padding: 0;
-    overflow: hidden;
+    overflow-x: auto;
   }
 }
 
@@ -621,6 +617,39 @@ main {
       margin: 0 0 colors.$space-md;
       line-height: 1.5;
     }
+  }
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-sm;
+
+  > label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: colors.$text-secondary;
+    margin: 0;
+  }
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  line-height: 1.5;
+  padding: colors.$space-sm colors.$space-md;
+  border: 1px solid colors.$border-subtle;
+  border-radius: colors.$radius-none;
+  background: colors.$surface-card;
+  color: colors.$text-primary;
+  resize: vertical;
+
+  &:focus {
+    outline: 2px solid colors.$base-active-color;
+    outline-offset: 0;
+    border-color: colors.$base-active-color;
   }
 }
 
@@ -1715,59 +1744,128 @@ div.data-table {
   width: 100%;
   border: none;
   border-radius: colors.$radius-none;
-  overflow: hidden;
   font-size: 0.9rem;
 
   .header {
-    display: flex;
     font-weight: 600;
     font-size: 0.8125rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+    color: colors.$text-secondary;
+  }
+
+  .header-cell,
+  .header > div,
+  .body .row > div {
+    padding: colors.$table-cell-padding-y colors.$table-cell-padding-x;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  .header-cell,
+  .header > div {
     background-color: colors.$surface-toolbar;
     border-bottom: 1px solid colors.$border-subtle;
-    color: colors.$text-secondary;
+  }
+
+  .body .row {
+    transition: background-color 0.12s ease;
+  }
+
+  // Admin / CRUD lists — CSS table; action column shrink-wraps, data cells wrap.
+  &--layout-table {
+    display: table;
+    table-layout: auto;
+    border-collapse: collapse;
+
+    .header {
+      display: table-row;
+    }
 
     .header-cell,
-    > div {
-      flex: 1;
-      padding: colors.$table-cell-padding-y colors.$table-cell-padding-x;
-      text-align: left;
+    .header > div {
+      display: table-cell;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .header-cell--actions {
-      flex: 0 0 7.5rem;
-      text-align: center;
+      width: 1%;
+      white-space: nowrap;
+      overflow-wrap: normal;
+      word-break: normal;
     }
-  }
 
-  .body {
-    .row {
-      display: flex;
-      align-items: center;
-      transition: background-color 0.12s ease;
+    .body {
+      display: table-row-group;
+    }
+
+    .body .row {
+      display: table-row;
 
       > div {
-        flex: 1;
-        padding: colors.$table-cell-padding-y colors.$table-cell-padding-x;
-        vertical-align: middle;
-        text-align: left;
+        display: table-cell;
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
 
       .cell-actions {
-        flex: 0 0 7.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: colors.$space-xs colors.$space-sm;
+        display: table-cell;
+        width: 1%;
+        white-space: nowrap;
+        overflow-wrap: normal;
+        word-break: normal;
+        padding: colors.$space-xs colors.$table-cell-padding-x;
+
+        .btn {
+          display: inline-flex;
+          vertical-align: middle;
+          margin-right: colors.$space-xs;
+
+          &:last-child {
+            margin-right: 0;
+          }
+        }
       }
 
       .cell-color {
-        display: flex;
-        align-items: center;
-        gap: colors.$space-xs;
+        display: table-cell;
+
+        .category-swatch {
+          display: inline-block;
+          vertical-align: middle;
+          margin-right: colors.$space-xs;
+        }
       }
 
+      &.even > div {
+        background-color: colors.$surface-card;
+      }
+
+      &.odd > div {
+        background-color: colors.$surface-muted;
+      }
+
+      &:hover > div {
+        background-color: colors.$surface-toolbar;
+      }
+    }
+
+    > .data-table--empty {
+      display: table-caption;
+      caption-side: bottom;
+    }
+  }
+
+  // Home hub ticket tables — CSS grid with fixed column tracks.
+  &--layout-grid {
+    .header,
+    .body .row {
+      display: grid;
+      align-items: center;
+    }
+
+    .body .row {
       &.even {
         background-color: colors.$surface-card;
       }
@@ -1783,40 +1881,110 @@ div.data-table {
   }
 
   &--cols-id-name-color-actions {
-    .header,
-    .body .row {
-      display: grid;
-      grid-template-columns: 4.5rem minmax(8rem, 1.5fr) minmax(8rem, 1fr) 7.5rem;
-      align-items: center;
+    .header-cell:nth-child(1),
+    .body .row > div:nth-child(1) {
+      width: 4.5rem;
+      white-space: nowrap;
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+  }
+
+  &--cols-projects-list {
+    .header-cell:nth-child(1),
+    .body .row > div:nth-child(1) {
+      width: 4.5rem;
+      white-space: nowrap;
+      overflow-wrap: normal;
+      word-break: normal;
     }
 
-    .header-cell--actions,
-    .cell-actions {
-      justify-self: center;
-      text-align: center;
+    .header-cell:nth-child(4),
+    .body .row > div:nth-child(4) {
+      white-space: nowrap;
+      overflow-wrap: normal;
+      word-break: normal;
     }
   }
 
   &--cols-home-tickets {
-    overflow-x: auto;
-
     .header,
     .body .row {
-      display: grid;
-      grid-template-columns: 5.5rem minmax(7rem, 1.4fr) minmax(5.5rem, 1fr) minmax(4.5rem, 0.9fr) 5rem minmax(5.5rem, 1fr);
-      align-items: center;
+      grid-template-columns:
+        5.5rem minmax(7rem, 1.4fr) minmax(5.5rem, 1fr) minmax(4.5rem, 0.9fr) 5rem minmax(5.5rem, 1fr);
       min-width: 36rem;
     }
   }
 
-  &--empty {
-    padding: colors.$space-xl colors.$space-lg;
-    text-align: center;
-    color: colors.$text-secondary;
-    font-size: 0.9375rem;
-    background: colors.$surface-muted;
-    border-top: 1px dashed colors.$border-subtle;
+  &--cols-home-saved-query {
+    .header,
+    .body .row {
+      grid-template-columns: 5.5rem minmax(7rem, 1fr) 5rem;
+    }
   }
+
+  &--cols-search-results {
+    table-layout: fixed;
+
+    .header-cell:nth-child(1),
+    .body .row > div:nth-child(1) {
+      width: 5.5rem;
+    }
+
+    .header-cell:nth-child(2),
+    .body .row > div:nth-child(2) {
+      width: auto;
+    }
+
+    .header-cell:nth-child(3),
+    .body .row > div:nth-child(3) {
+      width: 5.5rem;
+    }
+
+    .body .row.row--clickable {
+      cursor: pointer;
+    }
+
+    .body .row.row--selected > div {
+      background-color: colors.$surface-toolbar;
+      box-shadow: inset 3px 0 0 colors.$base-active-color;
+    }
+  }
+
+  &--cols-query-help {
+    table-layout: fixed;
+
+    .header-cell:nth-child(1),
+    .body .row > div:nth-child(1) {
+      width: 22%;
+    }
+
+    .header-cell:nth-child(2),
+    .body .row > div:nth-child(2) {
+      width: 28%;
+    }
+
+    .header-cell:nth-child(3),
+    .body .row > div:nth-child(3) {
+      width: 50%;
+    }
+
+    .body .row > div {
+      font-size: 0.8125rem;
+      line-height: 1.45;
+      vertical-align: top;
+    }
+  }
+}
+
+div.data-table--empty {
+  display: block;
+  padding: colors.$space-xl colors.$space-lg;
+  text-align: center;
+  color: colors.$text-secondary;
+  font-size: 0.9375rem;
+  background: colors.$surface-muted;
+  border-top: 1px dashed colors.$border-subtle;
 }
 
 form.edit {
@@ -1892,17 +2060,44 @@ form.edit {
 .ticket-actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  gap: colors.$space-sm colors.$space-md;
+  align-items: center;
+  width: 100%;
+  gap: colors.$space-md colors.$space-xl;
   margin: colors.$space-lg 0;
   padding: colors.$space-md 0;
   border-top: 1px solid colors.$border-subtle;
   border-bottom: 1px solid colors.$border-subtle;
+  box-sizing: border-box;
 
-  .form-field {
-    flex: 1 1 12rem;
-    min-width: 10rem;
+  &__group {
+    display: flex;
+    align-items: center;
+    gap: colors.$space-sm;
+    flex: 1 1 calc(50% - #{colors.$space-xl * 0.5});
+    min-width: min(100%, 16rem);
+  }
+
+  .form-field.form-field--control {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    max-width: none;
     margin-bottom: 0;
+
+    .mat-mdc-text-field-wrapper {
+      width: 100%;
+    }
+  }
+
+  .btn {
+    margin-right: 0;
+    flex-shrink: 0;
+  }
+}
+
+@media only screen and (max-width: 750px) {
+  .ticket-actions__group {
+    flex: 1 1 100%;
   }
 }
 

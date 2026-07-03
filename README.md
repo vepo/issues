@@ -80,7 +80,8 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 - **Home hub** — personal work view: open tickets in your projects, tickets assigned to you, and recent activity (comments + status changes)
 - **Kanban board** — columns by workflow status; move tickets between stages
 - **Project dashboard** — charts (tickets by day, status, priority), recent tickets table, performance KPIs
-- **Global search** — full-text ticket search across projects
+- **Global search** — simple term search and **query language** (ANTLR, plain text) across ticket fields including comments
+- **Saved queries** — name, share by link, optional home sections, clone for non-owners
 - **Ticket detail** — expanded view with unified **Atividade** feed (comments + history), assignee, and status actions
 
 ### Notifications & email

@@ -1,0 +1,57 @@
+<details class="query-language-help">
+  <summary class="query-language-help__toggle" i18n>Ajuda da linguagem de consulta</summary>
+
+  <div class="query-language-help__body">
+    <p class="query-language-help__intro text-muted" i18n>
+      Sintaxe inspirada em JQL, exclusiva do Issues. Combine cláusulas com <code>AND</code> e <code>OR</code>,
+      agrupe com parênteses e use aspas duplas para textos. Opcionalmente termine com
+      <code>ORDER BY campo ASC</code> ou <code>DESC</code>.
+    </p>
+
+    <h3 class="query-language-help__heading" i18n>Campos</h3>
+    <div class="page-panel page-panel--flush query-language-help__table-panel">
+      <div class="data-table data-table--layout-table data-table--cols-query-help">
+        <div class="header">
+          <div class="header-cell" i18n>Campo</div>
+          <div class="header-cell" i18n>Operadores</div>
+          <div class="header-cell" i18n>Descrição</div>
+        </div>
+        <div class="body">
+          @for (field of fields; track field.name) {
+            <div class="row {{ $even ? 'even' : 'odd' }}">
+              <div><code>{{ field.name }}</code></div>
+              <div>{{ field.operators }}</div>
+              <div>{{ field.description }}</div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <h3 class="query-language-help__heading" i18n>Operadores e funções</h3>
+    <ul class="query-language-help__list">
+      <li i18n><code>=</code> e <code>!=</code> — igualdade (texto sem diferenciar maiúsculas)</li>
+      <li i18n><code>~</code> — contém (busca parcial)</li>
+      <li i18n><code>IN ( "A", "B" )</code> e <code>NOT IN</code> — apenas para <code>project</code></li>
+      <li i18n><code>IS EMPTY</code> / <code>IS NOT EMPTY</code> — campos opcionais (ver tabela)</li>
+      <li i18n><code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code> — datas em formato ISO-8601</li>
+      <li i18n><code>me()</code> e <code>currentUser()</code> — usuário autenticado em <code>assignee</code> ou <code>author</code></li>
+    </ul>
+
+    <h3 class="query-language-help__heading" i18n>Ordenação</h3>
+    <p class="query-language-help__note text-muted" i18n>
+      <code>ORDER BY</code> aceita: <code>created</code>, <code>updated</code>, <code>finished</code>,
+      <code>title</code>, <code>identifier</code>, <code>priority</code>.
+    </p>
+
+    <h3 class="query-language-help__heading" i18n>Exemplos</h3>
+    <div class="query-language-help__examples">
+      @for (example of examples; track example.query) {
+        <div class="query-language-help__example">
+          <span class="query-language-help__example-label">{{ example.label }}</span>
+          <pre class="query-language-help__example-code">{{ example.query }}</pre>
+        </div>
+      }
+    </div>
+  </div>
+</details>

@@ -4,6 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { HomeActivity, HomeService, HomeTicket } from '../../services/home.service';
+import { HomeSavedQuerySection } from '../../services/saved-query.service';
 
 @Component({
   selector: 'app-home',
@@ -18,16 +19,19 @@ export class HomeComponent implements OnInit {
   currentTickets: HomeTicket[] = [];
   assignedTickets: HomeTicket[] = [];
   activity: HomeActivity[] = [];
+  savedQuerySections: HomeSavedQuerySection[] = [];
 
   ngOnInit(): void {
     forkJoin({
       current: this.homeService.listCurrentTickets(),
       assigned: this.homeService.listAssignedTickets(),
-      activity: this.homeService.listActivity()
-    }).subscribe(({ current, assigned, activity }) => {
+      activity: this.homeService.listActivity(),
+      savedQueries: this.homeService.listSavedQuerySections()
+    }).subscribe(({ current, assigned, activity, savedQueries }) => {
       this.currentTickets = current;
       this.assignedTickets = assigned;
       this.activity = activity;
+      this.savedQuerySections = savedQueries.filter(section => section.tickets.length > 0);
     });
   }
 

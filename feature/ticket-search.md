@@ -1,7 +1,7 @@
 # Ticket search
 
 **Feature version:** 2  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03); query language extension [GitHub issue #4](https://github.com/vepo/issues/issues/4) (2026-07-03)
 
 ## Summary
@@ -315,11 +315,13 @@ Run `npm run generate:api` after new endpoints.
 ### Query language, saved queries, and home sections — 2026-07-03
 
 **Version:** 2  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** [GitHub issue #4](https://github.com/vepo/issues/issues/4) — Issues query language (plain text, ANTLR, JQL-inspired not compatible); saved queries with share link; list + edit + delete; clone for other users' queries; optional home sections.
 
-**Development approval:** pending
+**Development approval:** approved 2026-07-03 — tasks: T1–T16
+
+**Implementation notes:** ANTLR grammar `TicketQuery.g4`; `TicketQueryRepository` + `TicketQueryLanguageService`; saved-query endpoints under `/api/saved-queries`; home sections via `GET /api/home/saved-queries`. PostgreSQL `search_vector` GIN columns on tickets/comments. Tests: backend query/saved-query/home endpoint tests + Angular specs. `mvn verify` green; `npm run build` + targeted Angular tests green.
 
 **Impact on other features:**
 
@@ -384,56 +386,56 @@ Run `npm run generate:api` after new endpoints.
 
 | ID | Task | Done |
 |----|------|------|
-| T1 | Flyway baseline: `tb_saved_queries`; `tsvector` + GIN on `tb_tickets` and `tb_comments` | ☐ |
-| T2 | ANTLR 4: `TicketQuery.g4`, Maven plugin/runtime, generated lexer/parser compile in CI | ☐ |
-| T3 | `TicketQueryCriteriaBuilder` + `TicketQueryLanguageService` — plain text → ANTLR → JPA criteria + tsvector | ☐ |
-| T4 | `SearchTicketsByQueryEndpoint` + `SearchTicketsByQueryRequest` | ☐ |
-| T5 | `SavedQuery` entity + `SavedQueryRepository` + `SavedQueryService` (CRUD, ownership, clone) | ☐ |
-| T6 | Saved-query endpoints: create, list, find-by-slug, update, delete, clone | ☐ |
-| T7 | `ListHomeSavedQuerySectionsEndpoint` + `HomeService` — one call, all show-at-home sections | ☐ |
-| T8 | `dev-import.sql` — sample saved queries for local exploration | ☐ |
-| T9 | Angular routes + `SavedQueryService` facade (after API codegen) | ☐ |
-| T10 | `advanced-search` component — plain text query editor, execute, save | ☐ |
-| T11 | `saved-query-list` component — list, open, edit, delete | ☐ |
-| T12 | `saved-query-edit` component — name, query text, show-at-home, save, delete | ☐ |
-| T13 | `saved-query-view` component — results, copy link, edit/clone by ownership | ☐ |
-| T14 | Home component — saved-query sections from `GET /home/saved-queries` | ☐ |
-| T15 | `/search` page — link to advanced + **Minhas consultas** | ☐ |
-| T16 | Docs: `domain-specification.md`, `feature-catalog.md`, `README.md`, `ARCHITECTURE.md` §13 | ☐ |
+| T1 | Flyway baseline: `tb_saved_queries`; `tsvector` + GIN on `tb_tickets` and `tb_comments` | ☑ |
+| T2 | ANTLR 4: `TicketQuery.g4`, Maven plugin/runtime, generated lexer/parser compile in CI | ☑ |
+| T3 | `TicketQueryCriteriaBuilder` + `TicketQueryLanguageService` — plain text → ANTLR → JPA criteria + tsvector | ☑ |
+| T4 | `SearchTicketsByQueryEndpoint` + `SearchTicketsByQueryRequest` | ☑ |
+| T5 | `SavedQuery` entity + `SavedQueryRepository` + `SavedQueryService` (CRUD, ownership, clone) | ☑ |
+| T6 | Saved-query endpoints: create, list, find-by-slug, update, delete, clone | ☑ |
+| T7 | `ListHomeSavedQuerySectionsEndpoint` + `HomeService` — one call, all show-at-home sections | ☑ |
+| T8 | `dev-import.sql` — sample saved queries for local exploration | ☑ |
+| T9 | Angular routes + `SavedQueryService` facade (after API codegen) | ☑ |
+| T10 | `advanced-search` component — plain text query editor, execute, save | ☑ |
+| T11 | `saved-query-list` component — list, open, edit, delete | ☑ |
+| T12 | `saved-query-edit` component — name, query text, show-at-home, save, delete | ☑ |
+| T13 | `saved-query-view` component — results, copy link, edit/clone by ownership | ☑ |
+| T14 | Home component — saved-query sections from `GET /home/saved-queries` | ☑ |
+| T15 | `/search` page — link to advanced + **Minhas consultas** | ☑ |
+| T16 | Docs: `domain-specification.md`, `feature-catalog.md`, `README.md`, `ARCHITECTURE.md` §13 | ☑ |
 
 #### Test coverage
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | `TicketQueryLanguageServiceTest` | T2, T3 — ANTLR parse, all fields, comment, errors | ☐ |
-| TC2 | `SearchTicketsByQueryEndpointTest` | T3, T4 — POST query, global scope, project filter | ☐ |
-| TC3 | `SavedQueryEndpointTest` | T5, T6 — CRUD, owner-only edit/delete, clone non-owner | ☐ |
-| TC4 | `HomeSavedQuerySectionsEndpointTest` | T7 — show-at-home filter, single response shape | ☐ |
-| TC5 | `ArchitectureTest` | T4, T6 — new Request/Response records | ☐ |
-| TC6 | `advanced-search.component.spec.ts` | T10 | ☐ |
-| TC7 | `saved-query-list.component.spec.ts` | T11 | ☐ |
-| TC8 | `saved-query-edit.component.spec.ts` | T12 | ☐ |
-| TC9 | `saved-query-view.component.spec.ts` | T13 | ☐ |
-| TC10 | `home.component.spec.ts` (extend) | T14 — saved-query sections | ☐ |
+| TC1 | `TicketQueryLanguageServiceTest` | T2, T3 — ANTLR parse, all fields, comment, errors | ☑ |
+| TC2 | `SearchTicketsByQueryEndpointTest` | T3, T4 — POST query, global scope, project filter | ☑ |
+| TC3 | `SavedQueryEndpointTest` | T5, T6 — CRUD, owner-only edit/delete, clone non-owner | ☑ |
+| TC4 | `HomeSavedQuerySectionsEndpointTest` | T7 — show-at-home filter, single response shape | ☑ |
+| TC5 | `ArchitectureTest` | T4, T6 — new Request/Response records | ☑ |
+| TC6 | `advanced-search.component.spec.ts` | T10 | ☑ |
+| TC7 | `saved-query-list.component.spec.ts` | T11 | ☑ |
+| TC8 | `saved-query-edit.component.spec.ts` | T12 | ☑ |
+| TC9 | `saved-query-view.component.spec.ts` | T13 | ☑ |
+| TC10 | `home.component.spec.ts` (extend) | T14 — saved-query sections | ☑ |
 
 #### Feature checklist
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Query language documented; ANTLR rejects invalid plain text syntax | S1, **FQ3**, **FQ4**, **AQ4** | ☐ |
-| FC2 | Query search all fields + comment; deleted excluded | S1, **FQ4** | ☐ |
-| FC3 | PostgreSQL tsvector + GIN on ticket and comment text | S1, **FQ2**, **AQ1** | ☐ |
-| FC4 | Advanced search page matches **Wireframe** | Wireframe | ☐ |
-| FC5 | List page `/search/queries` with open, edit, delete | S2, Wireframe | ☐ |
-| FC6 | Edit page: name, query, show-at-home, save, delete | S2, Wireframe, **FQ10** | ☐ |
-| FC7 | Share URL `/search/q/:slug`; authenticated | S2, **FQ6** | ☐ |
-| FC8 | Owner **Editar**; non-owner **Clonar** only (**FQ7**) | S2, Wireframe | ☐ |
-| FC9 | Home sections for owned queries with show-at-home | S3, **FQ8**, **FQ10** | ☐ |
-| FC10 | Header simple search unchanged | S4, **FQ9** | ☐ |
-| FC11 | `domain-specification.md` updated | Docs | ☐ |
-| FC12 | `feature-catalog.md` + `README.md` updated | Docs | ☐ |
-| FC13 | `ARCHITECTURE.md` §13 updated | Architecture | ☐ |
-| FC14 | Dev seed sample saved queries | S2 | ☐ |
+| FC1 | Query language documented; ANTLR rejects invalid plain text syntax | S1, **FQ3**, **FQ4**, **AQ4** | ☑ |
+| FC2 | Query search all fields + comment; deleted excluded | S1, **FQ4** | ☑ |
+| FC3 | PostgreSQL tsvector + GIN on ticket and comment text | S1, **FQ2**, **AQ1** | ☑ |
+| FC4 | Advanced search page matches **Wireframe** | Wireframe | ☑ |
+| FC5 | List page `/search/queries` with open, edit, delete | S2, Wireframe | ☑ |
+| FC6 | Edit page: name, query, show-at-home, save, delete | S2, Wireframe, **FQ10** | ☑ |
+| FC7 | Share URL `/search/q/:slug`; authenticated | S2, **FQ6** | ☑ |
+| FC8 | Owner **Editar**; non-owner **Clonar** only (**FQ7**) | S2, Wireframe | ☑ |
+| FC9 | Home sections for owned queries with show-at-home | S3, **FQ8**, **FQ10** | ☑ |
+| FC10 | Header simple search unchanged | S4, **FQ9** | ☑ |
+| FC11 | `domain-specification.md` updated | Docs | ☑ |
+| FC12 | `feature-catalog.md` + `README.md` updated | Docs | ☑ |
+| FC13 | `ARCHITECTURE.md` §13 updated | Architecture | ☑ |
+| FC14 | Dev seed sample saved queries | S2 | ☑ |
 
 ## Changelog (continued)
 

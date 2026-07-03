@@ -1,0 +1,31 @@
+<div class="page">
+  <header class="page-header">
+    <h1 class="page-title" i18n>Editar consulta</h1>
+  </header>
+
+  <section class="page-panel form-stack">
+    <label i18n>Nome</label>
+    <input class="form-control" [(ngModel)]="name" />
+
+    <label>
+      <input type="checkbox" [(ngModel)]="showAtHome" />
+      <span i18n>Exibir na página inicial</span>
+    </label>
+
+    <label i18n>Consulta</label>
+    <app-query-language-help />
+    <textarea class="form-control" rows="8" [(ngModel)]="queryText"></textarea>
+
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
+
+    <div class="form-actions">
+      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/queries" i18n>Cancelar</a>
+      @if (id) {
+        <button type="button" class="btn btn-cancel" matButton="filled" (click)="deleteQuery()" i18n>Excluir</button>
+      }
+      <button type="button" class="btn" matButton="filled" (click)="save()" i18n>Salvar</button>
+    </div>
+  </section>
+</div>

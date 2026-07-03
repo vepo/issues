@@ -1,0 +1,34 @@
+@if (savedQuery) {
+  <div class="page">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">{{ savedQuery.name }}</h1>
+        <p class="page-subtitle" i18n>por {{ savedQuery.ownerName }}</p>
+      </div>
+      <div class="page-header__actions">
+        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="copyLink()" i18n>Copiar link</button>
+        @if (isOwner) {
+          <a class="btn" matButton="filled" [routerLink]="['/search/queries', savedQuery.id, 'edit']" i18n>Editar</a>
+        } @else {
+          <button type="button" class="btn" matButton="filled" (click)="cloneQuery()" i18n>Clonar</button>
+        }
+      </div>
+    </header>
+
+    <section class="page-panel">
+      <pre class="query-preview">{{ savedQuery.query }}</pre>
+    </section>
+
+    <div class="project-grid">
+      @for (ticket of tickets; track ticket.id) {
+        <a class="project-card project-card--interactive" [routerLink]="['/ticket', ticket.identifier || ticket.id]">
+          <div class="identifier">#{{ ticket.identifier || ticket.id }}</div>
+          <h2 class="project-card__title">{{ ticket.title }}</h2>
+        </a>
+      }
+    </div>
+    @if (tickets.length === 0) {
+      <div class="empty-state" i18n>Nenhum ticket encontrado.</div>
+    }
+  </div>
+}

@@ -1,4 +1,4 @@
-<div class="page page--wide">
+<div class="page">
   <header class="page-header">
     <div>
       <h1 class="page-title" i18n>Painel — {{ project?.name }}</h1>
@@ -123,7 +123,7 @@
               <!-- KPIs serão renderizados aqui -->
               @let kpiData = loadKpiData(widget) | async;
               @if (kpiData) {
-                <div class="data-table">
+                <div class="data-table data-table--layout-table">
                   <div class="header">
                     <div class="header-cell">Métrica</div>
                     <div class="header-cell">Valor</div>
@@ -152,7 +152,7 @@
               <!-- Tabela será renderizada aqui -->
               @let tableData = loadTableData(widget) | async;
                 @if (tableData) {
-                  <div class="data-table">
+                  <div class="data-table data-table--layout-table">
                     <div class="header">
                       @for (column of tableData.columns; track $index) {
                         <div class="header-cell">{{ column }}</div>

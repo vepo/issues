@@ -8,7 +8,7 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Password reset request | `/login/reset-password` | public | Login → "Forgot password" → enter email → submit |
 | Password reset confirm | `/login/reset-password/:token` | public | Open email link → enter new password twice → submit → login |
 | Home | `/` | authenticated | Login → land on personal hub: **Tickets atuais**, **Tickets atribuídos**, **Atividade** (static snapshot) |
-| Project hub | `/projects/:projectId` | authenticated (project member or admin) | Home → click project name → hub with **Kanban**, **Painel**; owner PM or admin also see **Editar** and **Alocação** |
+| Project hub | `/projects/:projectId` | authenticated (project member or admin) | Home → project name → hub: **Kanban**, **Painel**, **Versões**, **Fases**; lists phases and versions; owner PM or admin also **Editar**, **Alocação**, **Nova fase** / **Nova versão** |
 | Project allocation | `/projects/:projectId/allocation` | project owner PM, admin | Project hub → **Alocação** → list members → add user → remove (blocked when member has open assigned tickets; UI lists those tickets) |
 | Account settings | `/account/settings` | authenticated | Menu → Conta → view profile → change password (current + new) or use recovery link |
 | Kanban board | `/project/:projectId/kanban` | authenticated (project member or admin) | Project hub → **Kanban** → view columns by status → drag/move ticket; **filter by phase** (all / active / unplanned / **pick any phase**); phase badge on cards |
@@ -20,7 +20,11 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Create phase | `/project/:projectId/phases/new` | project-manager, admin | Fases → Nova fase → objective, deliverables, deliverable version → save |
 | Phase detail | `/project/:projectId/phases/:phaseId` | authenticated | Fases → select phase → edit; PM can **Ativar** (planned) or **Concluir** (active) |
 | Ticket detail | `/ticket/:ticketIdentifier` | authenticated | Kanban or search → click ticket → edit fields (incl. phase, planned/shipped version), assign, move status, delete (admin/PM), comments, observe |
-| Ticket search | `/search` | authenticated | Menu → search → enter term → open ticket |
+| Ticket search (simple) | `/search` | authenticated | Menu → search → enter term → open ticket |
+| Advanced search (query language) | `/search/advanced` | authenticated | Search → **Busca avançada** → enter query → **Executar** |
+| Saved queries list | `/search/queries` | authenticated | **Minhas consultas** → open, edit, delete |
+| Saved query edit | `/search/queries/new`, `/search/queries/:id/edit` | authenticated | Name, query text, **Exibir na página inicial**, save |
+| Shared saved query | `/search/q/:slug` | authenticated | Copy link; owner **Editar**; others **Clonar** |
 | Create ticket | `/tickets/new` | authenticated | Header → Novo → select project → fill form → optional **fase** → create |
 | Create ticket (project) | `/project/:projectId/tickets/new` | authenticated | Kanban → Novo ticket → form pre-filled from template → optional **fase** → create |
 | Import tickets (CSV, project) | `/project/:projectId/tickets/import` | authenticated | Kanban → Importar CSV → upload file → map columns → preview → import valid rows |
@@ -28,7 +32,7 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | User list | `/users` | admin | Menu → users → list |
 | Create user | `/users/new` | admin | Users → new → fill form → save |
 | Edit user | `/users/:userId` | admin | Users → select user → edit → save |
-| Project list | `/projects` | project-manager, admin | Menu → projects → list (scoped: owned projects for PM; all for admin) |
+| Project list | `/projects` | project-manager, admin | User menu → **Projetos** → list; **Abrir** hub, **Fases**, **Versões**, **Editar** per row (scoped: owned projects for PM; all for admin) |
 | Create project | `/projects/new` | project-manager | Projects → new → fill form (optional ticket template; creator becomes owner and member) → save |
 | Edit project | `/projects/:projectId/edit` | project owner PM, admin | Project hub → **Editar** → update fields and **owner** (admin or current owner) → save |
 | Workflow list | `/workflows` | project-manager, admin | Menu → Administração → Processos → list workflows → Editar |

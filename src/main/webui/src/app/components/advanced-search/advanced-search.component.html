@@ -1,0 +1,111 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Busca avançada</h1>
+      <p class="page-subtitle" i18n>Consulta em linguagem de busca do Issues (texto simples)</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/queries" i18n>Minhas consultas</a>
+      <a class="btn btn-secondary" matButton="outlined" routerLink="/search" i18n>Busca simples</a>
+    </div>
+  </header>
+
+  <section class="page-panel form-stack">
+    <label for="advanced-search-query" i18n>Consulta</label>
+    <app-query-language-help />
+    <textarea
+      id="advanced-search-query"
+      class="form-control"
+      rows="6"
+      [(ngModel)]="queryText"
+      i18n-placeholder
+      placeholder='project = "Issues" AND status = "To Do"'
+    ></textarea>
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn"
+        matButton="filled"
+        (click)="runSearch()"
+        [disabled]="loading || !queryText.trim()"
+        i18n
+      >
+        Executar
+      </button>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        matButton="outlined"
+        (click)="saveQuery()"
+        [disabled]="!queryText.trim()"
+        i18n
+      >
+        Salvar consulta
+      </button>
+    </div>
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
+  </section>
+
+  @if (loading) {
+    <div class="empty-state" i18n>Executando consulta…</div>
+  } @else if (!searched) {
+    <div class="empty-state" i18n>Informe uma consulta e clique em Executar.</div>
+  } @else if (tickets.length === 0) {
+    <div class="empty-state" i18n>Nenhum ticket encontrado.</div>
+  } @else {
+    <div class="advanced-search__results">
+      <section class="advanced-search__section">
+        <h2 class="advanced-search__section-title" i18n>Resultados ({{ tickets.length }})</h2>
+        <div class="page-panel page-panel--flush advanced-search__list-panel">
+          <div class="data-table data-table--layout-table data-table--cols-search-results">
+            <div class="header">
+              <div class="header-cell" i18n>ID</div>
+              <div class="header-cell" i18n>Título</div>
+              <div class="header-cell" i18n>Prioridade</div>
+            </div>
+            <div class="body">
+              @for (ticket of tickets; track ticket.id) {
+                <div
+                  class="row row--clickable {{ $even ? 'even' : 'odd' }}"
+                  [class.row--selected]="isSelected(ticket)"
+                  role="button"
+                  tabindex="0"
+                  (click)="selectTicket(ticket)"
+                  (keydown.enter)="selectTicket(ticket)"
+                  (keydown.space)="selectTicket(ticket); $event.preventDefault()"
+                >
+                  <div>#{{ ticket.identifier || ticket.id }}</div>
+                  <div>{{ ticket.title }}</div>
+                  <div>{{ ticket.priority }}</div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="advanced-search__section">
+        <h2 class="advanced-search__section-title" i18n>Descrição</h2>
+        <div class="page-panel advanced-search__detail-panel">
+          @if (selectedTicket) {
+            <header class="advanced-search__detail-header">
+              <h3 class="advanced-search__detail-title">
+                <a [routerLink]="['/ticket', selectedTicket.identifier || selectedTicket.id]">
+                  #{{ selectedTicket.identifier || selectedTicket.id }} — {{ selectedTicket.title }}
+                </a>
+              </h3>
+              <p class="advanced-search__detail-meta">{{ selectedTicket.priority }}</p>
+            </header>
+            <p class="advanced-search__description">
+              {{ selectedTicket.description || '—' }}
+            </p>
+          } @else {
+            <div class="data-table--empty" i18n>Selecione um ticket na lista.</div>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</div>

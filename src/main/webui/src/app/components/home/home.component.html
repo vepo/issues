@@ -10,7 +10,7 @@
     <section class="home-hub__section">
       <h2 class="home-section__title" i18n>Tickets atuais</h2>
       <div class="page-panel page-panel--flush home-hub__panel">
-        <div class="data-table data-table--cols-home-tickets">
+        <div class="data-table data-table--layout-grid data-table--cols-home-tickets">
           <div class="header">
             <div class="header-cell" i18n>ID</div>
             <div class="header-cell" i18n>Título</div>
@@ -45,7 +45,7 @@
     <section class="home-hub__section">
       <h2 class="home-section__title" i18n>Tickets atribuídos</h2>
       <div class="page-panel page-panel--flush home-hub__panel">
-        <div class="data-table data-table--cols-home-tickets">
+        <div class="data-table data-table--layout-grid data-table--cols-home-tickets">
           <div class="header">
             <div class="header-cell" i18n>ID</div>
             <div class="header-cell" i18n>Título</div>
@@ -77,6 +77,34 @@
       </div>
     </section>
   </div>
+
+  @for (section of savedQuerySections; track section.savedQuery.id) {
+    <section class="home-hub__section">
+      <h2 class="home-section__title">
+        <a [routerLink]="['/search/q', section.savedQuery.slug]">{{ section.savedQuery.name }}</a>
+      </h2>
+      <div class="page-panel page-panel--flush home-hub__panel">
+        <div class="data-table data-table--layout-grid data-table--cols-home-saved-query">
+          <div class="header">
+            <div class="header-cell" i18n>ID</div>
+            <div class="header-cell" i18n>Título</div>
+            <div class="header-cell" i18n>Prioridade</div>
+          </div>
+          <div class="body">
+            @for (ticket of section.tickets; track ticket.id) {
+              <div class="row">
+                <div>
+                  <a [routerLink]="['/ticket', ticket.identifier]">{{ ticket.identifier }}</a>
+                </div>
+                <div>{{ ticket.title }}</div>
+                <div>{{ ticket.priority }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+  }
 
   <section class="home-hub__section home-activity">
     <h2 class="home-section__title" i18n>Atividade</h2>

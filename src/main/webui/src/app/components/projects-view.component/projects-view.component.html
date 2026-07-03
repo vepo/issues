@@ -2,7 +2,7 @@
   <header class="page-header">
     <div>
       <h1 class="page-title" i18n>Projetos</h1>
-      <p class="page-subtitle" i18n>Configure projetos e processos de trabalho</p>
+      <p class="page-subtitle" i18n>Abra um projeto para Kanban, fases, versões e alocação de membros</p>
     </div>
     <div class="page-header__actions">
       <button class="btn" matButton="filled" [routerLink]="['/', 'projects', 'new']">
@@ -13,26 +13,40 @@
   </header>
 
   <section class="page-panel page-panel--flush">
-    <div class="data-table">
+    <div class="data-table data-table--layout-table data-table--cols-projects-list">
       <div class="header">
         <div class="header-cell">ID</div>
         <div class="header-cell left-aligned" i18n>Nome</div>
         <div class="header-cell left-aligned" i18n>Descrição</div>
         <div class="header-cell left-aligned" i18n>Prefixo</div>
-        <div class="header-cell" i18n>Ações</div>
+        <div class="header-cell header-cell--actions" i18n>Ações</div>
       </div>
       <div class="body">
         @for (entry of projects; track entry.id) {
           <div class="row {{ $even ? 'even' : 'odd' }}">
             <div>{{ entry.id }}</div>
-            <div class="left-aligned">{{ entry.name }}</div>
+            <div class="left-aligned">
+              <a [routerLink]="['/projects', entry.id]">{{ entry.name }}</a>
+            </div>
             <div class="left-aligned">{{ entry.description }}</div>
             <div class="left-aligned">{{ entry.prefix }}</div>
-            <div>
-              <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/', 'projects', entry.id]">
+            <div class="cell-actions">
+              <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', entry.id]">
+                <mat-icon fontIcon="open_in_new" aria-hidden="true"></mat-icon>
+                <span i18n>Abrir</span>
+              </a>
+              <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', entry.id, 'phases']">
+                <mat-icon fontIcon="timeline" aria-hidden="true"></mat-icon>
+                <span i18n>Fases</span>
+              </a>
+              <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', entry.id, 'versions']">
+                <mat-icon fontIcon="new_releases" aria-hidden="true"></mat-icon>
+                <span i18n>Versões</span>
+              </a>
+              <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', entry.id, 'edit']">
                 <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
                 <span i18n>Editar</span>
-              </button>
+              </a>
             </div>
           </div>
         }

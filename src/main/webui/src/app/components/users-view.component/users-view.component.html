@@ -63,13 +63,13 @@
   </section>
 
   <section class="page-panel page-panel--flush">
-    <div class="data-table">
+    <div class="data-table data-table--layout-table">
       <div class="header">
         <div class="header-cell">ID</div>
         <div class="header-cell" i18n>Nome</div>
         <div class="header-cell" i18n>E-mail</div>
         <div class="header-cell" i18n>Perfis</div>
-        <div class="header-cell" i18n>Ações</div>
+        <div class="header-cell header-cell--actions" i18n>Ações</div>
       </div>
       <div class="body">
         @for (entry of users; track entry.id) {
@@ -90,7 +90,7 @@
                 }
               </span>
             </div>
-            <div>
+            <div class="cell-actions">
               <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/', 'users', entry.id]">
                 <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
                 <span i18n>Editar</span>

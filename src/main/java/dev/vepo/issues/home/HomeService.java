@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import dev.vepo.issues.project.ProjectAccessService;
+import dev.vepo.issues.ticket.search.saved.HomeSavedQuerySectionResponse;
+import dev.vepo.issues.ticket.search.saved.SavedQueryService;
 import dev.vepo.issues.ticket.Ticket;
 import dev.vepo.issues.ticket.TicketRepository;
 import dev.vepo.issues.ticket.comments.Comment;
@@ -19,11 +21,13 @@ public class HomeService {
 
     private final ProjectAccessService accessService;
     private final TicketRepository ticketRepository;
+    private final SavedQueryService savedQueryService;
 
     @Inject
-    public HomeService(ProjectAccessService accessService, TicketRepository ticketRepository) {
+    public HomeService(ProjectAccessService accessService, TicketRepository ticketRepository, SavedQueryService savedQueryService) {
         this.accessService = accessService;
         this.ticketRepository = ticketRepository;
+        this.savedQueryService = savedQueryService;
     }
 
     @Transactional
@@ -53,6 +57,11 @@ public class HomeService {
                         .forEach(history -> items.add(HomeActivityResponse.fromStatusChange(history)));
         items.sort(Comparator.comparing(HomeActivityResponse::occurredAt).reversed());
         return items;
+    }
+
+    @Transactional
+    public List<HomeSavedQuerySectionResponse> listSavedQuerySections(String username) {
+        return savedQueryService.listHomeSections(username);
     }
 
     private List<Long> scopeIds(String username) {

@@ -12,6 +12,10 @@ import { ProjectAllocationComponent } from './components/projects/project-alloca
 import { ProjectHubComponent } from './components/projects/project-hub.component';
 import { ProjectsViewComponent } from './components/projects-view.component/projects-view.component';
 import { SearchTicketsComponent } from './components/search-tickets/search-tickets.component';
+import { AdvancedSearchComponent } from './components/advanced-search/advanced-search.component';
+import { SavedQueryListComponent } from './components/saved-query-list/saved-query-list.component';
+import { SavedQueryEditComponent } from './components/saved-query-edit/saved-query-edit.component';
+import { SavedQueryViewComponent } from './components/saved-query-view/saved-query-view.component';
 import { TicketViewComponent } from './components/ticket-view/ticket-view.component';
 import { UsersEditComponent } from './components/users-edit.component/users-edit.component';
 import { UsersViewComponent } from './components/users-view.component/users-view.component';
@@ -120,6 +124,31 @@ export const routes: Routes = [
   {
     path: 'search',
     component: SearchTicketsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'search/advanced',
+    component: AdvancedSearchComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'search/queries',
+    component: SavedQueryListComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'search/queries/new',
+    component: SavedQueryEditComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'search/queries/:id/edit',
+    component: SavedQueryEditComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'search/q/:slug',
+    component: SavedQueryViewComponent,
     canActivate: [authGuard],
   },
   {

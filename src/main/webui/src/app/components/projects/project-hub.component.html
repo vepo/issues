@@ -1,4 +1,4 @@
-<div class="page">
+<div class="page project-hub">
   <nav class="breadcrumb" aria-label="Navegação">
     <a routerLink="/" i18n>Início</a>
     <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
@@ -19,6 +19,14 @@
         <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
         <span i18n>Painel</span>
       </a>
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'versions']">
+        <mat-icon fontIcon="new_releases" aria-hidden="true"></mat-icon>
+        <span i18n>Versões</span>
+      </a>
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'phases']">
+        <mat-icon fontIcon="timeline" aria-hidden="true"></mat-icon>
+        <span i18n>Fases</span>
+      </a>
       @if (canManage()) {
         <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', project?.id, 'edit']">
           <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
@@ -31,4 +39,94 @@
       }
     </div>
   </header>
+
+  <div class="project-hub__planning">
+    <section class="project-hub__section">
+      <div class="project-hub__section-header">
+        <h2 class="project-hub__section-title" i18n>Fases</h2>
+        <div class="project-hub__section-actions">
+          <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'phases']">
+            <span i18n>Ver todas</span>
+          </a>
+          @if (canManage()) {
+            <a class="btn" matButton="filled" [routerLink]="['/project', project?.id, 'phases', 'new']">
+              <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+              <span i18n>Nova fase</span>
+            </a>
+          }
+        </div>
+      </div>
+      <div class="page-panel page-panel--flush">
+        <div class="data-table data-table--layout-table">
+          <div class="header">
+            <div class="header-cell" i18n>Nome</div>
+            <div class="header-cell" i18n>Status</div>
+            <div class="header-cell header-cell--actions" i18n>Ações</div>
+          </div>
+          <div class="body">
+            @for (phase of phases; track phase.id) {
+              <div class="row {{ $even ? 'even' : 'odd' }} {{ phase.status === 'ACTIVE' ? 'row--active' : '' }}">
+                <div>{{ phase.name }}</div>
+                <div>
+                  <span class="status-badge">{{ statusLabel(phase.status) }}</span>
+                </div>
+                <div class="cell-actions">
+                  <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'phases', phase.id]">
+                    <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
+                    <span i18n>Detalhes</span>
+                  </a>
+                </div>
+              </div>
+            }
+          </div>
+          @if (phases.length === 0) {
+            <div class="data-table--empty" i18n>Nenhuma fase cadastrada.</div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="project-hub__section">
+      <div class="project-hub__section-header">
+        <h2 class="project-hub__section-title" i18n>Versões</h2>
+        <div class="project-hub__section-actions">
+          <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'versions']">
+            <span i18n>Ver todas</span>
+          </a>
+          @if (canManage()) {
+            <a class="btn" matButton="filled" [routerLink]="['/project', project?.id, 'versions', 'new']">
+              <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+              <span i18n>Nova versão</span>
+            </a>
+          }
+        </div>
+      </div>
+      <div class="page-panel page-panel--flush">
+        <div class="data-table data-table--layout-table">
+          <div class="header">
+            <div class="header-cell" i18n>Rótulo</div>
+            <div class="header-cell" i18n>Descrição</div>
+            <div class="header-cell header-cell--actions" i18n>Ações</div>
+          </div>
+          <div class="body">
+            @for (version of versions; track version.id) {
+              <div class="row {{ $even ? 'even' : 'odd' }}">
+                <div>{{ version.label }}</div>
+                <div>{{ version.description || '—' }}</div>
+                <div class="cell-actions">
+                  <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'versions', version.id]">
+                    <mat-icon fontIcon="article" aria-hidden="true"></mat-icon>
+                    <span i18n>Registro de alterações</span>
+                  </a>
+                </div>
+              </div>
+            }
+          </div>
+          @if (versions.length === 0) {
+            <div class="data-table--empty" i18n>Nenhuma versão cadastrada.</div>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
 </div>

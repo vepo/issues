@@ -1,13 +1,5 @@
 @if (ticket) {
 <div class="page">
-  <nav class="breadcrumb" aria-label="Navegação">
-    <a routerLink="/" i18n>Início</a>
-    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
-    <a [routerLink]="['/project', ticket.project.id, 'kanban']">{{ ticket.project.name }}</a>
-    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
-    <span class="breadcrumb__current">#{{ ticket.identifier }}</span>
-  </nav>
-
   <header class="page-header">
     <div>
       <h1 class="page-title">#{{ ticket.identifier }} — {{ ticket.title }}</h1>
@@ -122,9 +114,9 @@
         <dt i18n>Prioridade</dt>
         <dd>{{ ticket.priority }}</dd>
         <dt i18n>Autor</dt>
-        <dd>{{ ticket.author.name }}</dd>
+        <dd>{{ ticket.author?.name || '—' }}</dd>
         <dt i18n>Responsável</dt>
-        <dd>{{ ticket.assignee.name || '—' }}</dd>
+        <dd>{{ ticket.assignee?.name || '—' }}</dd>
         <dt i18n>Status</dt>
         <dd>{{ ticket.status | normalize }}</dd>
         @if (ticket.finishedAt) {
@@ -161,26 +153,31 @@
     }
 
     <div class="ticket-actions">
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Responsável</mat-label>
-        <mat-select [(ngModel)]="selectedAssigneeId" name="assignee">
-          @for (user of users; track user.id) {
-            <mat-option [value]="user.id">{{ user.name }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="saveAssignee()" i18n>Atualizar responsável</button>
+      <div class="ticket-actions__group">
+        <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n>Responsável</mat-label>
+          <mat-select [(ngModel)]="selectedAssigneeId" name="assignee">
+            <mat-option [value]="null" i18n>Não atribuído</mat-option>
+            @for (user of users; track user.id) {
+              <mat-option [value]="user.id">{{ user.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="saveAssignee()" i18n>Atualizar responsável</button>
+      </div>
 
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Mover para</mat-label>
-        <mat-select [(ngModel)]="selectedStatusId" name="status">
-          <mat-option [value]="currentStatusId()">{{ ticket.status | normalize }} (atual)</mat-option>
-          @for (status of allowedTargetStatuses(); track status.id) {
-            <mat-option [value]="status.id">{{ status.name | normalize }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="moveTicket()" i18n>Mover ticket</button>
+      <div class="ticket-actions__group">
+        <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n>Mover para</mat-label>
+          <mat-select [(ngModel)]="selectedStatusId" name="status">
+            <mat-option [value]="currentStatusId()">{{ ticket.status | normalize }} (atual)</mat-option>
+            @for (status of allowedTargetStatuses(); track status.id) {
+              <mat-option [value]="status.id">{{ status.name | normalize }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="moveTicket()" i18n>Mover ticket</button>
+      </div>
     </div>
 
     <nav class="tabs" aria-label="Seções do ticket">
@@ -204,7 +201,7 @@
 
     @if (activeTab === 'history') {
       @if (ticket.history && ticket.history.length > 0) {
-        <div class="data-table">
+        <div class="data-table data-table--layout-table">
           <div class="header">
             <div class="header-cell" i18n>Data</div>
             <div class="header-cell" i18n>Usuário</div>

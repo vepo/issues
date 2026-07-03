@@ -1,0 +1,44 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Minhas consultas</h1>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn" matButton="filled" routerLink="/search/queries/new" i18n>Nova consulta</a>
+    </div>
+  </header>
+
+  @if (queries.length === 0) {
+    <div class="empty-state">
+      <span i18n>Nenhuma consulta salva.</span>
+      <a routerLink="/search/advanced" i18n>Busca avançada</a>
+    </div>
+  } @else {
+    <section class="page-panel page-panel--flush">
+      <div class="data-table data-table--layout-table">
+        <div class="header">
+          <div class="header-cell" i18n>Nome</div>
+          <div class="header-cell" i18n>Consulta</div>
+          <div class="header-cell" i18n>Home</div>
+          <div class="header-cell" i18n>Atualizado</div>
+          <div class="header-cell header-cell--actions" i18n>Ações</div>
+        </div>
+        <div class="body">
+          @for (query of queries; track query.id) {
+            <div class="row {{ $even ? 'even' : 'odd' }}">
+              <div>{{ query.name }}</div>
+              <div class="query-preview">{{ query.query }}</div>
+              <div>{{ query.showAtHome ? 'Sim' : 'Não' }}</div>
+              <div>{{ query.updatedAt | date: 'short' }}</div>
+              <div class="cell-actions">
+                <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/search/q', query.slug]" i18n>Abrir</a>
+                <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/search/queries', query.id, 'edit']" i18n>Editar</a>
+                <button type="button" class="btn btn-cancel" matButton="filled" (click)="deleteQuery(query)" i18n>Excluir</button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+</div>

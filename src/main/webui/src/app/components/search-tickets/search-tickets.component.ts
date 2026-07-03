@@ -1,3 +1,4 @@
+import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,7 +11,7 @@ import { NormalizePipe } from '../pipes/normalize.pipe';
   selector: 'app-search-tickets',
   templateUrl: './search-tickets.component.html',
   standalone: true,
-  imports: [CommonModule, RouterLink, NormalizePipe]
+  imports: [CommonModule, RouterLink, MatButtonModule, NormalizePipe]
 })
 export class SearchTicketsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

@@ -266,8 +266,7 @@ Standard wrapper for every authenticated route.
 
 | Class | Purpose |
 |-------|---------|
-| `.page` | Max-width content, vertical padding, `$surface-page` background |
-| `.page--wide` | Full-width variant (kanban, dashboard) |
+| `.page` | Full-width content within `main` shell padding; vertical padding |
 | `.page-header` | Flex row: title block + `.page-header__actions` |
 | `.page-title` | H1 — primary screen title |
 | `.page-subtitle` | Muted one-line context |
@@ -355,7 +354,7 @@ Table layout showing active search filters (term, status). Muted toolbar backgro
 | Property | Value |
 |----------|-------|
 | **Location** | `ticket-view.component.html` |
-| **Style** | Flex wrap row; top/bottom border; compact `.form-field` for assignee/status + secondary buttons |
+| **Style** | Full-width flex row; two `.ticket-actions__group` columns (50% each); `.form-field--control` grows inside each group; buttons fixed width |
 | **Behavior** | Update assignee; move ticket to allowed status |
 
 ### 4.14 Version changelog section (`.changelog-section`)
@@ -399,8 +398,9 @@ Table layout showing active search filters (term, status). Muted toolbar backgro
 | Property | Value |
 |----------|-------|
 | **Chrome** | Light gray header (`.header`); zebra rows in `.body` |
-| **Structure** | `.header-cell`, `.row.even` / `.row.odd`, `.cell-actions`, `.data-table--empty` |
-| **Modifiers** | `data-table--cols-id-name-color-actions` (categories grid columns); `data-table--cols-home-tickets` (home ticket tables — ID, title, project, status, priority, updated) |
+| **Layout** | Two layout modifiers — never mix on one table: `data-table--layout-grid` (home hub ticket columns via grid tracks) and `data-table--layout-table` (admin CRUD lists via CSS table; action column shrink-wraps) |
+| **Structure** | `.header-cell`, `.row.even` / `.row.odd`, `.cell-actions` (table layout only), `.data-table--empty` |
+| **Modifiers** | Grid: `data-table--cols-home-tickets`, `data-table--cols-home-saved-query`. Table: `data-table--cols-id-name-color-actions`, `data-table--cols-projects-list`, `data-table--cols-search-results`, `data-table--cols-query-help` |
 
 **Used in:** users, projects, categories, workflows, versions, ticket history, dashboard widgets.
 
@@ -487,7 +487,7 @@ Plain text: `Carregando...`, `Enviando...` on buttons and dashboard widgets.
 
 ## 11. Dashboard (`.dashboard-configurator`)
 
-Wrapped in `.page.page--wide` with standard `.page-header`. Inner `.page-panel` contains `.dashboard-container` (edit + view modes).
+Wrapped in `.page` with standard `.page-header`. Inner `.page-panel` contains `.dashboard-container` (edit + view modes).
 
 | Mode | UI |
 |------|-----|

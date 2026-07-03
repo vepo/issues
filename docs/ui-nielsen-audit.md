@@ -165,7 +165,7 @@ Legend: ✅ Compliant · ⚠️ Partial · ❌ Gap · **Fix** = action taken or 
 
 | Element | Review | Status |
 |---------|--------|--------|
-| `.page--wide` + header | H4 now aligned with other pages | ✅ **Fix:** layout pass |
+| `.page` + header | H4 now aligned with other pages | ✅ **Fix:** layout pass |
 | Editar layout toggle | H3 reversible edit mode | ✅ |
 | Widget grid | H8 content-focused | ✅ |
 | Loading placeholders | H1 | ⚠️ Generic "Carregando gráfico…" for table/KPI too |

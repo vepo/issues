@@ -1,0 +1,109 @@
+@use "../../../colors";
+
+.query-language-help {
+  margin: 0 0 colors.$space-sm;
+  border: 1px solid colors.$border-subtle;
+  border-radius: colors.$radius-none;
+  background: colors.$surface-muted;
+
+  &__toggle {
+    display: flex;
+    align-items: center;
+    gap: colors.$space-xs;
+    padding: colors.$space-sm colors.$space-md;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: colors.$base-active-color;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::before {
+      content: "▸";
+      font-size: 0.75rem;
+      transition: transform 0.15s ease;
+    }
+  }
+
+  &[open] > &__toggle::before {
+    transform: rotate(90deg);
+  }
+
+  &__body {
+    padding: 0 colors.$space-md colors.$space-md;
+    border-top: 1px solid colors.$border-subtle;
+  }
+
+  &__intro {
+    margin: colors.$space-md 0;
+    line-height: 1.5;
+    font-size: 0.875rem;
+  }
+
+  &__heading {
+    margin: colors.$space-md 0 colors.$space-sm;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  &__table-panel {
+    max-height: min(16rem, 35vh);
+    overflow: auto;
+  }
+
+  &__list {
+    margin: 0 0 colors.$space-md;
+    padding-left: 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+
+    code {
+      font-size: 0.8125rem;
+    }
+  }
+
+  &__note {
+    margin: 0 0 colors.$space-md;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  &__examples {
+    display: flex;
+    flex-direction: column;
+    gap: colors.$space-sm;
+  }
+
+  &__example-label {
+    display: block;
+    margin-bottom: colors.$space-xs;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: colors.$text-secondary;
+  }
+
+  &__example-code {
+    margin: 0;
+    padding: colors.$space-sm colors.$space-md;
+    font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: colors.$surface-card;
+    border: 1px solid colors.$border-subtle;
+    border-radius: colors.$radius-none;
+  }
+
+  code {
+    font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+    font-size: 0.8125rem;
+    background: colors.$surface-card;
+    padding: 0.1em 0.35em;
+    border: 1px solid colors.$border-subtle;
+  }
+}

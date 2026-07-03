@@ -46,18 +46,18 @@
   }
 
   <section class="page-panel page-panel--flush">
-    <div class="data-table">
+    <div class="data-table data-table--layout-table">
       <div class="header">
         <div class="header-cell left-aligned" i18n>Nome</div>
         <div class="header-cell left-aligned" i18n>E-mail</div>
-        <div class="header-cell" i18n>Ações</div>
+        <div class="header-cell header-cell--actions" i18n>Ações</div>
       </div>
       <div class="body">
         @for (member of members; track member.id) {
           <div class="row {{ $even ? 'even' : 'odd' }}">
             <div class="left-aligned">{{ member.name }}</div>
             <div class="left-aligned">{{ member.email }}</div>
-            <div>
+            <div class="cell-actions">
               <button class="btn btn-secondary" matButton="outlined" type="button" (click)="removeMember(member)">
                 <mat-icon fontIcon="person_remove" aria-hidden="true"></mat-icon>
                 <span i18n>Remover</span>

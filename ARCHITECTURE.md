@@ -85,9 +85,15 @@ dev.vepo.issues/
 │   └── list/                  # ListCategoriesEndpoint
 ├── ticket/                    # TicketService, TicketPaths
 │   ├── list/ search/ find/ create/ update/ assign/ delete/ move/
+│   ├── search/query/          # ANTLR query language (SearchTicketsByQueryEndpoint)
+│   ├── search/saved/          # SavedQuery CRUD + clone
 │   ├── comments/list/ comments/add/
 │   ├── history/               # TicketHistoryService + GetTicketHistoryEndpoint
 │   └── subscribe/             # Subscribe / Unsubscribe endpoints
+├── home/                      # HomeService — current/assigned tickets, activity, saved-query sections
+│   ├── tickets/current/ tickets/assigned/
+│   ├── activity/
+│   └── savedqueries/
 ├── notifications/             # NotificationService, SSE register + read status
 │   ├── register/
 │   └── read/
@@ -155,7 +161,7 @@ Base path: `/api`. OpenAPI at `/openapi.yaml`; Swagger UI at `/openapi`.
 
 Base path: `/api`. OpenAPI at `/openapi.yaml`; Swagger UI at `/openapi`. Test profile exports spec to `target/openapi/openapi.yaml` for TypeScript codegen.
 
-Each row is one endpoint class (39 total). Path prefixes come from `{Context}Paths`.
+Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 
 | Area | Example class | Path |
 |------|---------------|------|
@@ -170,6 +176,10 @@ Each row is one endpoint class (39 total). Path prefixes come from `{Context}Pat
 | Projects | `project.*` | `/projects` (+ workflow, status subpaths) |
 | Project tickets | `project.tickets.list.ListProjectTicketsEndpoint` | `GET /projects/{id}/tickets` |
 | Tickets | `ticket.*` | `/tickets` (+ comments, history, subscribe) |
+| Ticket search | `ticket.search.SearchTicketsEndpoint` | `GET /tickets/search` |
+| Query language | `ticket.search.query.SearchTicketsByQueryEndpoint` | `POST /tickets/search/query` |
+| Saved queries | `ticket.search.saved.*` | `/saved-queries` (CRUD, by-slug, clone) |
+| Home | `home.tickets.*`, `home.activity.*`, `home.savedqueries.*` | `/home/tickets/*`, `/home/activity`, `/home/saved-queries` |
 | Workflows | `workflow.list.ListWorkflowsEndpoint` | `GET /workflows` |
 | Workflows | `workflow.create.CreateWorkflowEndpoint` | `POST /workflows` |
 | Phases | `phase.*` | `/projects/{id}/phases` |
@@ -190,7 +200,11 @@ Each row is one endpoint class (39 total). Path prefixes come from `{Context}Pat
 | `/` | Home | Landing (auth required) |
 | `/project/:projectId/kanban` | Kanban | Board view |
 | `/project/:projectId/dashboard` | Dashboard | Analytics |
-| `/search` | SearchTickets | Global ticket search |
+| `/search` | SearchTickets | Simple term search |
+| `/search/advanced` | AdvancedSearch | Query language editor |
+| `/search/queries` | SavedQueryList | Saved queries list |
+| `/search/queries/new`, `/search/queries/:id/edit` | SavedQueryEdit | Create/edit saved query |
+| `/search/q/:slug` | SavedQueryView | Shared saved query + results |
 | `/ticket/:ticketIdentifier` | TicketView | Ticket detail |
 | `/users`, `/users/new`, `/users/:userId` | Users CRUD | User admin |
 | `/projects`, `/projects/new`, `/projects/:projectId` | Projects CRUD | Project admin |

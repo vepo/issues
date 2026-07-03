@@ -53,6 +53,12 @@
             <mat-icon matMenuItemIcon fontIcon="upload_file"></mat-icon>
             <span i18n>Importar CSV</span>
           </button>
+          <ng-container *role="'project-manager'">
+            <button mat-menu-item [routerLink]="'/projects'">
+              <mat-icon matMenuItemIcon fontIcon="work"></mat-icon>
+              <span i18n>Projetos</span>
+            </button>
+          </ng-container>
           @if (hasAdminMenu()) {
             <button mat-menu-item [matMenuTriggerFor]="adminMenu">
               <mat-icon matMenuItemIcon fontIcon="admin_panel_settings"></mat-icon>
@@ -80,10 +86,6 @@
             <button mat-menu-item [routerLink]="'/workflows'">
               <mat-icon matMenuItemIcon fontIcon="handyman"></mat-icon>
               <span i18n>Processos</span>
-            </button>
-            <button mat-menu-item [routerLink]="'/projects'">
-              <mat-icon matMenuItemIcon fontIcon="work"></mat-icon>
-              <span i18n>Projetos</span>
             </button>
           </ng-container>
         </mat-menu>

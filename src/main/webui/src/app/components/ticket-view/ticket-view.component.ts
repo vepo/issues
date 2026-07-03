@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ProjectMembersService } from '../../services/project-members.service';
 import { Category, CategoryService } from '../../services/category.service';
@@ -33,8 +33,7 @@ import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.co
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatIconModule,
-    RouterLink
+    MatIconModule
   ]
 })
 export class TicketViewComponent implements OnInit {

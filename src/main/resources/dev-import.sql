@@ -365,4 +365,8 @@ BEGIN
         target_version_id = ver_1_0_0_id,
         finished_at = NOW() - INTERVAL '3 days'
     WHERE identifier IN ('ISS-001', 'ISS-002', 'ISS-003', 'ISS-005', 'ISS-006', 'ISS-015', 'ISS-017');
+
+    INSERT INTO tb_saved_queries (slug, name, query_text, show_at_home, owner_id, created_at, updated_at)
+    SELECT 'dev-open-tickets', 'Tickets abertos', 'status = "TODO"', true, id, NOW(), NOW()
+    FROM tb_users WHERE email = 'user@issues.vepo.dev';
 END $$;

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { HomeSavedQuerySection } from './saved-query.service';
 
 export interface HomeTicket {
   id: number;
@@ -40,5 +41,9 @@ export class HomeService {
 
   listActivity(): Observable<HomeActivity[]> {
     return this.http.get<HomeActivity[]>('/api/home/activity');
+  }
+
+  listSavedQuerySections(): Observable<HomeSavedQuerySection[]> {
+    return this.http.get<HomeSavedQuerySection[]>('/api/home/saved-queries');
   }
 }
