@@ -35,6 +35,7 @@ export class AccountSettingsComponent implements OnInit {
   passwordError = '';
   isSavingProfile = false;
   isSavingPassword = false;
+  changePasswordEnabled = true;
 
   profileForm: FormGroup = this.formBuilder.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -48,6 +49,9 @@ export class AccountSettingsComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.authService.getCapabilities().subscribe(capabilities => {
+      this.changePasswordEnabled = capabilities.changePassword === true;
+    });
     this.authService.me().subscribe({
       next: (user: CurrentUser) => {
         this.user = user;

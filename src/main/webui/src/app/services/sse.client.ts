@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { EMPTY, Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject, firstValueFrom } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
@@ -16,6 +16,7 @@ export class ServerSideEventsClient {
 
   private open = false;
   private readonly dataSubject = new Subject<ServerSideEvent>();
+  private readonly reconnectedSubject = new Subject<void>();
   private abortController: AbortController | null = null;
   private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private activeUrl: string | null = null;
@@ -23,15 +24,18 @@ export class ServerSideEventsClient {
   private contentType: string | null = null;
 
   connect(url: string): Observable<ServerSideEvent> {
-    const token = this.authService.getToken();
-    if (!token) {
+    if (!this.authService.getToken()) {
       return EMPTY;
     }
 
     this.open = true;
     this.activeUrl = url;
-    this.startConnection(url, token);
+    void this.startConnection(url, false);
     return this.dataSubject.asObservable();
+  }
+
+  reconnected(): Observable<void> {
+    return this.reconnectedSubject.asObservable();
   }
 
   close(): void {
@@ -42,11 +46,30 @@ export class ServerSideEventsClient {
     this.abortController = null;
   }
 
-  private startConnection(url: string, token: string): void {
+  private async startConnection(url: string, isReconnect: boolean): Promise<void> {
     this.clearReconnect();
     this.abortController?.abort();
     this.abortController = new AbortController();
-    void this.connectWithFetchAPI(url, token, this.abortController.signal);
+
+    const token = await this.resolveAccessToken();
+    if (!token || !this.open || this.activeUrl !== url) {
+      return;
+    }
+
+    await this.connectWithFetchAPI(url, token, this.abortController.signal, isReconnect);
+  }
+
+  private async resolveAccessToken(): Promise<string | null> {
+    const token = this.authService.getToken();
+    if (token) {
+      return token;
+    }
+    try {
+      await firstValueFrom(this.authService.refreshToken());
+      return this.authService.getToken();
+    } catch {
+      return null;
+    }
   }
 
   private clearReconnect(): void {
@@ -56,7 +79,7 @@ export class ServerSideEventsClient {
     }
   }
 
-  private scheduleReconnect(url: string, token: string): void {
+  private scheduleReconnect(url: string): void {
     if (!this.open || this.reconnectTimeout) {
       return;
     }
@@ -64,12 +87,17 @@ export class ServerSideEventsClient {
     this.reconnectTimeout = setTimeout(() => {
       this.reconnectTimeout = null;
       if (this.open && this.activeUrl === url) {
-        this.startConnection(url, token);
+        void this.startConnection(url, true);
       }
     }, 3000);
   }
 
-  private async connectWithFetchAPI(url: string, token: string, signal: AbortSignal): Promise<void> {
+  private async connectWithFetchAPI(
+    url: string,
+    token: string,
+    signal: AbortSignal,
+    isReconnect: boolean,
+  ): Promise<void> {
     try {
       const response = await fetch(url, {
         headers: {
@@ -80,8 +108,24 @@ export class ServerSideEventsClient {
         cache: 'no-store'
       });
 
+      if (response.status === 401) {
+        try {
+          await firstValueFrom(this.authService.refreshToken());
+        } catch {
+          /* fall through to reconnect schedule */
+        }
+        if (this.open && !signal.aborted) {
+          this.scheduleReconnect(url);
+        }
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(`SSE connection failed: ${response.status}`);
+      }
+
+      if (isReconnect) {
+        this.reconnectedSubject.next();
       }
 
       const reader = response.body?.getReader();
@@ -101,7 +145,7 @@ export class ServerSideEventsClient {
       }
 
       if (this.open && !signal.aborted) {
-        this.scheduleReconnect(url, token);
+        this.scheduleReconnect(url);
       }
     } catch (error) {
       if (signal.aborted || !this.open) {
@@ -109,7 +153,7 @@ export class ServerSideEventsClient {
       }
 
       console.warn('SSE connection lost; retrying shortly.', error);
-      this.scheduleReconnect(url, token);
+      this.scheduleReconnect(url);
     }
   }
 

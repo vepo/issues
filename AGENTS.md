@@ -7,6 +7,7 @@ Read these before changing code or tests:
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Stack, packages, patterns, API map, naming, feature workflow |
 | [docs/domain-specification.md](docs/domain-specification.md) | Ubiquitous language, bounded contexts, invariants |
 | [docs/feature-catalog.md](docs/feature-catalog.md) | UI routes and navigation paths |
+| [docs/backlog.md](docs/backlog.md) | Ordered product backlog (ideas and priority) |
 | [docs/ui-elements-gallery.md](docs/ui-elements-gallery.md) | UI element catalog — flat UI principles, properties, style, behavior |
 | [docs/conventions-checklist.md](docs/conventions-checklist.md) | Doc debt and agent setup status |
 | [feature/](feature/) | Feature analysis, tasks, approval, and changelog per capability |
@@ -35,7 +36,7 @@ Read these before changing code or tests:
 | 3. Coding quality | [issues-quality.mdc](.cursor/rules/issues-quality.mdc) | Finish gate, ReadLints, `mvn verify`, standards index |
 | 4. Platform usage | [issues-platform.mdc](.cursor/rules/issues-platform.mdc) | Java 21, Quarkus, Angular, approved libraries, tooling boundaries |
 
-Additional always-on rules: [development-process.mdc](.cursor/rules/development-process.mdc) (five-phase gate + TDD), [change-request-analysis.mdc](.cursor/rules/change-request-analysis.mdc) (phase 1 feature analysis), [architecture-design.mdc](.cursor/rules/architecture-design.mdc) (phase 2 architecture design), [issues-core.mdc](.cursor/rules/issues-core.mdc), [domain-model.mdc](.cursor/rules/domain-model.mdc), [issues-layered-architecture.mdc](.cursor/rules/issues-layered-architecture.mdc), [issues-bounded-contexts.mdc](.cursor/rules/issues-bounded-contexts.mdc), [static-analysis.mdc](.cursor/rules/static-analysis.mdc), [development-experience.mdc](.cursor/rules/development-experience.mdc), [feature-catalog.mdc](.cursor/rules/feature-catalog.mdc), [readme.mdc](.cursor/rules/readme.mdc) (keep README features and quick start current).
+Additional always-on rules: [development-process.mdc](.cursor/rules/development-process.mdc) (five-phase gate + TDD), [change-request-analysis.mdc](.cursor/rules/change-request-analysis.mdc) (phase 1 feature analysis), [architecture-design.mdc](.cursor/rules/architecture-design.mdc) (phase 2 architecture design), [backlog-management.mdc](.cursor/rules/backlog-management.mdc) (ordered product backlog), [issues-core.mdc](.cursor/rules/issues-core.mdc), [domain-model.mdc](.cursor/rules/domain-model.mdc), [issues-layered-architecture.mdc](.cursor/rules/issues-layered-architecture.mdc), [issues-bounded-contexts.mdc](.cursor/rules/issues-bounded-contexts.mdc), [static-analysis.mdc](.cursor/rules/static-analysis.mdc), [development-experience.mdc](.cursor/rules/development-experience.mdc), [feature-catalog.mdc](.cursor/rules/feature-catalog.mdc), [readme.mdc](.cursor/rules/readme.mdc) (keep README features and quick start current).
 
 No content is duplicated across pillars — each hub links to file-scoped rules for detail.
 

@@ -4,14 +4,14 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 
 | Feature | Route | Roles | Steps (happy path) |
 |---------|-------|-------|-------------------|
-| Login | `/login` | public | Open app → enter email/password → submit → redirect home; link to **Criar conta** |
-| Register | `/login/register` | public | Login → Criar conta → username, name, email, password (8+ with upper/lower/digit) → submit → login |
-| Password reset request | `/login/reset-password` | public | Login → "Forgot password" → enter email → submit |
+| Login | `/login` | public | Open app → enter email/password → submit → redirect home; **Criar conta** / **Recuperar senha** only when `GET /auth/capabilities` reports LOCAL password recovery |
+| Register | `/login/register` | public | Login → Criar conta (LOCAL only) → username, name, email, password (8+ with upper/lower/digit) → submit → login |
+| Password reset request | `/login/reset-password` | public | Login → "Forgot password" (LOCAL only) → enter email → submit |
 | Password reset confirm | `/login/reset-password/:token` | public | Open email link → enter new password twice → submit → login |
 | Home | `/` | authenticated | Login → personal hub: **Tickets atuais**, **Tickets atribuídos**, **Atividade** (static snapshot); optional sections for owned saved queries with **Exibir na página inicial** |
 | Project hub | `/projects/:projectId` | authenticated (project member or admin) | Home → project name → hub: **Kanban**, **Painel**, **Versões**, **Fases**; lists phases and versions; owner PM or admin also **Editar**, **Alocação**, **Nova fase** / **Nova versão** |
 | Project allocation | `/projects/:projectId/allocation` | project owner PM, admin | Project hub → **Alocação** → list members → add user → remove (blocked when member has open assigned tickets; UI lists those tickets) |
-| Account settings | `/account/settings` | authenticated | Menu → Conta → edit name/email, save profile → change password (current + new) or use recovery link |
+| Account settings | `/account/settings` | authenticated | Menu → Conta → edit name/email, save profile → change password (LOCAL only, via capabilities) or use recovery link |
 | Kanban board | `/project/:projectId/kanban` | authenticated (project member or admin) | Header **Projetos** → project name → board; or Project hub → **Kanban** → view columns by status → drag/move ticket; **filter by phase** (all / active / unplanned / **pick any phase**); **Faixa** swimlanes (none / assignee / priority); WIP `n/limit` on columns; phase badge on cards |
 | Project dashboard | `/project/:projectId/dashboard` | authenticated (project member or admin) | Project hub → **Painel** → default widgets on first visit; **Editar layout** customizes and saves layout per user on the server; recent tickets capped at 20 |
 | Version catalog | `/project/:projectId/versions` | authenticated | Kanban → Versões → list SemVer labels → open changelog |
@@ -41,15 +41,16 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Create workflow | `/workflows/new` | project-manager, admin | Workflows → Novo processo → status table (optional WIP) + transitions table → save |
 | Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, start status, transitions, WIP limits (status names fixed) |
 | Category list | `/categories` | admin | Menu → Administração → Categorias → list; Nova categoria or Editar dialog with color picker; Excluir with confirm (blocked when tickets or project templates reference the category) |
-| Notifications (SSE) | (global, background) | authenticated | Login → SSE registers → badge updates on ticket changes |
+| Notifications (SSE) | (global, background) | authenticated | Login → SSE registers (live events) → badge updates; dropdown loads paginated list with infinite scroll; SSE auto-reconnects after network drop |
 
 ## API-only features (no dedicated UI page)
 
 | Feature | API | Notes |
 |---------|-----|-------|
 | List statuses | `GET /status` | Used by filters and admin |
-| Confirm password reset | `POST /auth/recovery/confirm` | Used by password reset confirm page |
-| Change password | `POST /auth/change-password` | Used by account settings while logged in |
+| Confirm password reset | `POST /auth/recovery/confirm` | LOCAL only; used by password reset confirm page |
+| Change password | `POST /auth/change-password` | LOCAL only; used by account settings |
+| Auth capabilities | `GET /auth/capabilities` | Public; drives login/account password UI (`passwordRecovery`, `changePassword`) |
 
 ## Dev personas (from `dev-import.sql`)
 

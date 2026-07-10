@@ -34,6 +34,11 @@ erDiagram
     Ticket }o--o| Category : classified_by
     Ticket ||--o{ Comment : has
     Ticket ||--o{ TicketHistory : audited_by
+    Ticket ||--o{ CustomFieldValue : has
+    Project ||--o{ CustomField : defines
+    Workflow ||--o{ CustomField : defines
+    CustomField ||--o{ EnumOption : offers
+    CustomField ||--o{ CustomFieldValue : valued_as
     User ||--o{ Notification : receives
 ```
 
@@ -47,10 +52,11 @@ Issues is a **modular monolith**: one deployable, feature packages under `dev.ve
 |---------|----------|---------------|
 | **Platform** | `infra` | JDK/Jakarta only |
 | **Identity & access** | `auth`, `user` | platform |
-| **Project administration** | `project` | platform, identity, workflow |
-| **Workflow configuration** | `workflow` | platform |
+| **Project administration** | `project` | platform, identity, workflow, customfield |
+| **Workflow configuration** | `workflow` | platform, customfield |
+| **Custom fields** | `customfield` | platform |
 | **Phase & version planning** | `phase` | platform, project, workflow |
-| **Ticket management** | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business` | platform, identity, project, workflow, categories, phase |
+| **Ticket management** | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business` | platform, identity, project, workflow, categories, phase, customfield |
 | **Classification** | `categories` | platform |
 | **Notifications** | `notifications` | platform, identity, ticket |
 | **Analytics** | `dashboards` | platform, project, ticket, workflow |
@@ -104,10 +110,24 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Phase start status** | Optional status on a workflow; when a **phase** is **activated**, each assigned ticket moves here if a valid transition exists. | `Workflow.phaseStart`; UI **Status inicial da fase** |
 | **Finish status** | Workflow status marked as terminal with outcome **done** or **canceled**. | `WorkflowFinishStatus`, `tb_workflow_finish_statuses` |
 | **Finish outcome** | Classification of a finish status: `DONE` or `CANCELED`. | `FinishOutcome` enum |
-| **Ticket template** | Optional default field values for new tickets in a project: title, description, category, priority. | Embedded on `Project`, `tb_projects` template columns |
+| **Ticket template** | Optional default field values for new tickets in a project: built-in fields (title, description, category, priority) and, when configured, **custom field** defaults for in-scope project/workflow fields. | Embedded / related on `Project`; custom defaults planned — [feature/custom-fields.md](../feature/custom-fields.md) |
 | **Template enabled** | Project manager opted in; when true, at least one template field must be configured; only configured fields pre-fill the create form. | `Project.ticketTemplateEnabled`; UI checkbox **Usar template de ticket** |
 | **Phase template objective** | Default plain-text **objective** copied into each new phase for the project. | `Project.phaseTemplateObjective` |
 | **Phase template deliverable** | Default **deliverable** row copied into each new phase for the project. | `tb_project_phase_deliverable_templates` |
+| **Custom field** | Named, typed attribute that extends ticket data beyond **built-in ticket fields**. Defined on a **project** or a **workflow**. | `customfield.CustomField`; [feature/custom-fields.md](../feature/custom-fields.md) |
+| **Custom field type** | Allowed type: `STRING`, `TEXT`, `INTEGER`, `BOOLEAN`, `ENUM`. | `CustomFieldType` |
+| **Custom field key** | Stable machine identifier for a custom field; immutable after create; unique within owner and across a project’s in-scope union. | `CustomField.key` |
+| **String (custom field)** | Short plain text; per-field max length ≤ platform cap **255**. | Distinct from **Title** |
+| **Text (custom field)** | Long text using the same storage/editor model as **Description** (max **1200**). | Distinct from **Description** |
+| **Integer (custom field)** | Whole number with optional min and max bounds. | |
+| **Boolean (custom field)** | True/false; optional fields may be unset (null). | UI: checkbox |
+| **Enum (custom field)** | Single choice from a fixed set of **enum options**. | Single-select in v1 |
+| **Enum option** | One allowed value/label for an enum custom field; ordered; cannot be removed while in use. | |
+| **Project custom field** | Custom field defined on a **project**. | |
+| **Workflow custom field** | Custom field defined on a **workflow**. | |
+| **Status-required custom field** | A **workflow custom field** that must have a valid value when creating at or moving into configured **statuses**. Globally required workflow fields imply all statuses. | `tb_custom_field_status_required` |
+| **Built-in ticket field** | Fixed ticket attributes (title, description, category, priority, assignee, phase, versions, due date, …). | Contrast with **custom field** |
+| **In-scope custom fields** | Enabled **project custom fields** ∪ enabled **workflow custom fields** for the ticket’s project (union by **key**). | |
 
 ### Phases & versions
 
@@ -157,9 +177,10 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | **Subscribe** | Add a user to ticket subscribers. | `PUT /tickets/{id}/subscribe` |
 | **Unsubscribe** | Remove a subscriber from a ticket. | `DELETE /tickets/{id}/subscribe/{subscriberId}` |
 | **CSV import** | Bulk creation of tickets from a CSV file. May be **project-scoped** (fixed project) or **global** (project resolved per row from a mapped column). | `POST /projects/{projectId}/tickets/import/upload` or `POST /tickets/import/upload`; UI at `/project/:projectId/tickets/import` or `/tickets/import` |
-| **Column mapping** | User-defined association between CSV header names and ticket fields (title, description, category, priority, assignee, status, and optionally project). | `ColumnMapping`, import wizard step 2 |
+| **Column mapping** | User-defined association between CSV header names and ticket fields (title, description, category, priority, assignee, status, optionally project, and **custom fields** when in scope). | `ColumnMapping`, import wizard step 2; custom field mapping planned |
 | **Import row** | One CSV data row after column mapping, validated and stored before ticket creation. | `TicketImportRow`, `tb_ticket_import_rows` |
 | **Ticket import batch** | Server-side persisted CSV upload with parsed rows awaiting mapping and execution. | `TicketImport`, `tb_ticket_imports` |
+| **Custom field value** | The value stored on a **ticket** for one in-scope **custom field**. | Planned — part of ticket consistency boundary |
 
 ### Notifications & real-time
 
@@ -186,7 +207,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | **Recent tickets** | Table of the **20** most recently updated non-deleted tickets in the project. | `recent-tickets` |
 | **Performance KPI** | Summary metrics for project throughput. | `performance-kpi` |
 | **Search** | Full-text ticket search across projects. | `/search`, `GET /tickets/search` |
-| **Query language** | Issues-native **plain text** search syntax, parsed with **ANTLR**; inspired by Jira JQL — **not JQL-compatible**; field predicates over tickets and comments. | `POST /tickets/search/query`; `TicketQuery.g4` |
+| **Query language** | Issues-native **plain text** search syntax, parsed with **ANTLR**; inspired by Jira JQL — **not JQL-compatible**; field predicates over tickets, comments, and (planned) **custom fields**. | `POST /tickets/search/query`; `TicketQuery.g4` |
 | **Saved query** | Named, persisted query text owned by a user; shareable via stable URL slug; optional **show at home** flag. | `tb_saved_queries`; `/search/q/:slug`, `/search/queries` |
 | **Show at home** (saved query) | When enabled on edit, owned saved query renders as a ticket table section on the home screen. | Home `/` |
 | **Clone saved query** | Non-owner copies another user's saved query into a new owned query (required before edit). | `POST …/saved-queries/{id}/clone` |
@@ -206,7 +227,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 5. **Notifications** — Fired asynchronously on status move; delivered to ticket subscribers via SSE and optionally email.
 6. **Roles** — Endpoint access enforced via `@RolesAllowed`; class-level `@DenyAll` on protected resources.
 7. **Request/Response contract** — HTTP body types are records named `*Request` / `*Response` (ArchUnit enforced).
-8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, only **configured** template fields pre-fill the create form; the user may submit without filling unconfigured template fields. Required ticket fields still follow `CreateTicketRequest` validation.
+8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, only **configured** template fields pre-fill the create form; the user may submit without filling unconfigured template fields. Required ticket fields still follow `CreateTicketRequest` validation. Template may include **custom field** defaults for in-scope fields ([feature/custom-fields.md](../feature/custom-fields.md) **FQ5**).
 9. **Project description** — Required on create and update (`CreateProjectRequest.description` must not be blank).
 10. **CSV import** — CSV parsed on the server (OpenCSV); upload and rows stored in `tb_ticket_imports` / `tb_ticket_import_rows` before mapping and execution. **Project-scoped** imports fix `project_id` on the batch; **global** imports leave `project_id` null and require a **project column** mapping — each row's project is resolved by name (case-insensitive). Author is the importing user; identifiers are always auto-generated (never read from CSV). Category resolved by name; assignee by email; status by workflow status name within the row's project workflow. Optional priority defaults to `MEDIUM`. Partial import: valid rows are created; invalid rows are reported per row without rolling back siblings. Status on import: ticket is created at workflow start; if a different status is mapped, a direct transition from start to that status must exist (multi-hop paths are not supported).
 11. **One active phase per project** — activating phase B **completes** the previously active phase; never two `ACTIVE` phases in the same project.
@@ -250,6 +271,17 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 47. **External user provisioning** — LDAP/ENDPOINT success auto-creates a local **User** when none exists for the email; LDAP re-syncs roles from group→role map on every login; ENDPOINT assigns **USER** on create and does not overwrite roles later.
 48. **Local password ops** — password recovery and change-password are allowed only when the active provider is LOCAL; non-LOCAL users may have a null `encoded_password`.
 49. **Password policy** — local passwords (registration, change-password, reset confirm) must be 8–64 characters and include at least one uppercase letter, one lowercase letter, and one digit.
+52. **Custom field definition before value** — a ticket may only store a writable **custom field value** for an **in-scope** (enabled) custom field. Orphan values from a former workflow are retained read-only until cleared.
+53. **Custom field type validation** — values must match the field’s type (string ≤ min(configured, 255); text ≤ 1200; integer min/max; boolean; enum ∈ options). Key and type are immutable after create.
+54. **Custom field required** — globally required fields enforced on create and update. **Status-required** workflow fields enforced on move into listed statuses and on create when start status is listed. Globally required workflow fields imply all statuses.
+55. **Custom field key uniqueness** — keys unique per owner; for a project, project ∪ workflow keys must not collide (enforced on definition create and on project workflow change).
+56. **Enum option in use** — an **enum option** cannot be removed while any ticket stores that option.
+57. **Custom field delete** — hard delete blocked while any ticket has a value (including soft-deleted tickets); soft-disable (`enabled=false`) hides the field from forms and keeps values.
+58. **Custom fields in import** — CSV **column mapping** maps headers to custom fields by **key**; row must resolve to a project that has that key in scope.
+59. **Custom fields in query language** — predicates use `cf.<key>` with type-appropriate operators.
+60. **Custom field history** — value changes logged as `FIELD_CHANGED` with `field` = custom field **key**.
+61. **Custom field roles** — project definitions: project owner or admin; workflow definitions: project-manager or admin; values: same roles as ticket create/update.
+62. **Custom field notifications** — custom field value changes do not trigger notifications or email in the current product scope.
 
 ---
 
@@ -258,11 +290,12 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | Aggregate | Root | Consistency boundary |
 |-----------|------|---------------------|
 | User | `User` | Credentials, roles, profile |
-| Project | `Project` | Name, prefix, workflow assignment, phase template, **owner**, **members** |
+| Project | `Project` | Name, prefix, workflow assignment, phase template, **owner**, **members**, ticket template (incl. custom field defaults) |
 | Workflow | `Workflow` | Statuses, transitions, phase start status, finish statuses |
+| Custom field | `CustomField` | Key, label, type, required, enabled, owner (project XOR workflow), enum options, status-required links |
 | Phase | `Phase` | Lifecycle, objective, deliverables, deliverable version |
 | Version | `Version` | SemVer label, changelog (derived) |
-| Ticket | `Ticket` | Title, status, assignee, phase, versions, finish date, subscribers, comments (via services) |
+| Ticket | `Ticket` | Title, status, assignee, phase, versions, finish date, subscribers, comments, **custom field values** |
 | Notification | `Notification` | Read state per user per event |
 
 ---
@@ -278,6 +311,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | Version | `phase.Version`, `phase.VersionService` |
 | Notification | `notifications.Notification`, `notifications.NotificationsEndpoint` |
 | Audit | `ticket.history.TicketHistoryService` |
+| Custom field | `customfield.CustomField`, `customfield.CustomFieldService` |
 
 ---
 

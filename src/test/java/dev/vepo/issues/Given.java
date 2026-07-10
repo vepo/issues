@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dev.vepo.issues.auth.AuthProvider;
 import dev.vepo.issues.auth.AuthResponse;
 import dev.vepo.issues.auth.LoginResponse;
 import dev.vepo.issues.auth.PasswordEncoder;
@@ -274,7 +275,8 @@ public class Given {
                                                                          name,
                                                                          email,
                                                                          inject(PasswordEncoder.class).hashPassword("password"),
-                                                                         roles)));
+                                                                         roles,
+                                                                         AuthProvider.LOCAL)));
         }
     }
 

@@ -1,7 +1,7 @@
 # Authentication
 
 **Feature version:** 3  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** 2026-07-10 (multi-provider); baseline 2026-07-03
 
 ## Summary
@@ -255,7 +255,7 @@ flowchart TD
 ### Pluggable auth providers (LOCAL / LDAP / ENDPOINT) — 2026-07-10
 
 **Version:** 3  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Single active credential provider selected by `AUTH_PROVIDER`. LOCAL keeps current behaviour. LDAP and ENDPOINT verify externally, auto-provision Users (LDAP role sync from groups; ENDPOINT default USER). Public capabilities endpoint gates password UI. Session remains Issues JWT + refresh.
 
@@ -272,44 +272,46 @@ flowchart TD
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | `AUTH_PROVIDER` selects exactly one of local, ldap, endpoint | FQ3, FQ4 | ☐ |
-| FC2 | LOCAL login behaviour unchanged (password hash + JWT) | FQ3 | ☐ |
-| FC3 | LDAP login auto-creates/updates User and maps roles from group map | FQ5 | ☐ |
-| FC4 | ENDPOINT login uses 200+JSON contract; new users get USER only | FQ5, FQ6 | ☐ |
-| FC5 | Recovery and change-password rejected when not LOCAL | Scope | ☐ |
-| FC6 | `GET /auth/capabilities` drives login/account password UI | Wireframe | ☐ |
-| FC7 | Login wireframe: recovery link only when LOCAL | Wireframe | ☐ |
-| FC8 | Account settings: password block only when LOCAL | Wireframe | ☐ |
-| FC9 | Domain-spec + feature-catalog + README env docs updated | Impact / Docs | ☐ |
-| FC10 | `encoded_password` nullable; `auth_provider` on User | Architecture | ☐ |
-| FC11 | Providers registered via CDI in the main module; no ServiceLoader discovery | AQ6 | ☐ |
+| FC1 | `AUTH_PROVIDER` selects exactly one of local, ldap, endpoint | FQ3, FQ4 | ☑ |
+| FC2 | LOCAL login behaviour unchanged (password hash + JWT) | FQ3 | ☑ |
+| FC3 | LDAP login auto-creates/updates User and maps roles from group map | FQ5 | ☑ |
+| FC4 | ENDPOINT login uses 200+JSON contract; new users get USER only | FQ5, FQ6 | ☑ |
+| FC5 | Recovery and change-password rejected when not LOCAL | Scope | ☑ |
+| FC6 | `GET /auth/capabilities` drives login/account password UI | Wireframe | ☑ |
+| FC7 | Login wireframe: recovery link only when LOCAL | Wireframe | ☑ |
+| FC8 | Account settings: password block only when LOCAL | Wireframe | ☑ |
+| FC9 | Domain-spec + feature-catalog + README env docs updated | Impact / Docs | ☑ |
+| FC10 | `encoded_password` nullable; `auth_provider` on User | Architecture | ☑ |
+| FC11 | Providers registered via CDI in the main module; no ServiceLoader discovery | AQ6 | ☑ |
 
 #### Tasks
 
 | ID | Task | Done |
 |----|------|------|
-| T1 | Schema: `auth_provider` + nullable `encoded_password`; update `User` entity | ☐ |
-| T2 | CDI `CredentialAuthenticator` SPI + LOCAL impl in same module (**AQ6**: no ServiceLoader / separate JARs) | ☐ |
-| T3 | Refactor `AuthenticationService.login` to use authenticator + user provision/update | ☐ |
-| T4 | LDAP: `LdapDirectoryClient` + `LdapCredentialAuthenticator` + group→role map | ☐ |
-| T5 | ENDPOINT: HTTP client authenticator + response record parsing | ☐ |
-| T6 | Guard recovery + change-password for LOCAL only | ☐ |
-| T7 | `GET /auth/capabilities` endpoint + `AuthCapabilitiesResponse` | ☐ |
-| T8 | Config properties + `application.properties` comments / defaults | ☐ |
-| T9 | Backend tests: LOCAL regression, capabilities, non-LOCAL password ops, LDAP/ENDPOINT authenticators | ☐ |
-| T10 | Angular: capabilities fetch; gate login recovery + account password | ☐ |
-| T11 | OpenAPI codegen (`npm run generate:api`) | ☐ |
-| T12 | Docs: domain-spec, feature-catalog, README env table, ARCHITECTURE API row | ☐ |
+| T1 | Schema: `auth_provider` + nullable `encoded_password`; update `User` entity | ☑ |
+| T2 | CDI `CredentialAuthenticator` SPI + LOCAL impl in same module (**AQ6**: no ServiceLoader / separate JARs) | ☑ |
+| T3 | Refactor `AuthenticationService.login` to use authenticator + user provision/update | ☑ |
+| T4 | LDAP: `LdapDirectoryClient` + `LdapCredentialAuthenticator` + group→role map | ☑ |
+| T5 | ENDPOINT: HTTP client authenticator + response record parsing | ☑ |
+| T6 | Guard recovery + change-password for LOCAL only | ☑ |
+| T7 | `GET /auth/capabilities` endpoint + `AuthCapabilitiesResponse` | ☑ |
+| T8 | Config properties + `application.properties` comments / defaults | ☑ |
+| T9 | Backend tests: LOCAL regression, capabilities, non-LOCAL password ops, LDAP/ENDPOINT authenticators | ☑ |
+| T10 | Angular: capabilities fetch; gate login recovery + account password | ☑ |
+| T11 | OpenAPI codegen (`npm run generate:api`) | ☑ |
+| T12 | Docs: domain-spec, feature-catalog, README env table, ARCHITECTURE API row | ☑ |
 
 #### Test coverage
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | `LoginEndpointTest` — LOCAL login still issues tokens | T2, T3 | ☐ |
-| TC2 | `GetAuthCapabilitiesEndpointTest` — LOCAL vs ldap/endpoint flags | T7 | ☐ |
-| TC3 | Recovery/change-password return 400 when provider not LOCAL | T6 | ☐ |
-| TC4 | `LdapCredentialAuthenticatorTest` (or client mock) — provision + role map | T4 | ☐ |
-| TC5 | `EndpointCredentialAuthenticatorTest` — 200 body provisions USER; 401 fails | T5 | ☐ |
-| TC6 | Angular login + account-settings specs — hide password UI when capabilities false | T10 | ☐ |
+| TC1 | `LoginEndpointTest` — LOCAL login still issues tokens | T2, T3 | ☑ |
+| TC2 | `GetAuthCapabilitiesEndpointTest` — LOCAL vs ldap/endpoint flags | T7 | ☑ |
+| TC3 | Recovery/change-password return 400 when provider not LOCAL | T6 | ☑ |
+| TC4 | `LdapCredentialAuthenticatorTest` (or client mock) — provision + role map | T4 | ☑ |
+| TC5 | `EndpointCredentialAuthenticatorTest` — 200 body provisions USER; 401 fails | T5 | ☑ |
+| TC6 | Angular login + account-settings specs — hide password UI when capabilities false | T10 | ☑ |
 
-**Development approval:** _(awaiting task IDs)_
+**Development approval:** approved 2026-07-10 — tasks: T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12
+
+**Implementation notes:** CDI `CredentialAuthenticator` (local/ldap/endpoint); `GET /auth/capabilities`; nullable `encoded_password` + `auth_provider`. Angular gates recovery/register/change-password via capabilities. `mvn verify` + `npm run build` + login/account-settings specs green (2026-07-10).

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import dev.vepo.issues.auth.AuthProvider;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -36,7 +37,8 @@ public class UserService {
                                                               request.name(),
                                                               request.email(),
                                                               passwordDefault,
-                                                              parseRoles(request.roles()))));
+                                                              parseRoles(request.roles()),
+                                                              AuthProvider.LOCAL)));
     }
 
     @Transactional

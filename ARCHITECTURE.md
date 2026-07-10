@@ -190,7 +190,8 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Dashboards | `dashboards.pie/table/kpi.Load*DashboardEndpoint` | `/projects/{id}/dashboard/{pie\|table\|kpi}/{type}` |
 | Dashboards | `dashboards.layout.GetDashboardLayoutEndpoint` | `GET /projects/{id}/dashboard/layout` |
 | Dashboards | `dashboards.layout.SaveDashboardLayoutEndpoint` | `PUT /projects/{id}/dashboard/layout` |
-| Notifications | `notifications.register.RegisterNotificationsEndpoint` | `GET /notifications/register` (SSE) |
+| Notifications | `notifications.list.ListNotificationsEndpoint` | `GET /notifications?page=&size=` |
+| Notifications | `notifications.register.RegisterNotificationsEndpoint` | `GET /notifications/register` (SSE, live only) |
 | Notifications | `notifications.read.UpdateNotificationReadEndpoint` | `POST /notifications/{id}/read` |
 
 ## 8. Frontend routes
@@ -265,7 +266,9 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Kanban swimlanes + WIP limits | Done — [kanban-board.md](feature/kanban-board.md) v2; `tb_workflow_wip_limits`; hard enforce on `moveTicket`; Faixa toolbar |
 | Header **Projetos** menu (all users → Kanban) | Done — [project-navigation.md](feature/project-navigation.md) v1; `GET /projects` viewable scope |
 | Immutable project prefix | Done — [project-administration.md](feature/project-administration.md) v2; `prefixLocked` on `ProjectResponse`; reject prefix change when tickets exist |
-| Pluggable auth (LOCAL / LDAP / ENDPOINT) | Planned — [authentication.md](feature/authentication.md) v3; `AUTH_PROVIDER` + CDI SPI in-module (**AQ6**: no ServiceLoader / separate provider JARs) |
+| Pluggable auth (LOCAL / LDAP / ENDPOINT) | Done — [authentication.md](feature/authentication.md) v3; `AUTH_PROVIDER` + CDI `CredentialAuthenticator`; `GET /auth/capabilities` |
+| Notifications SSE reconnect + infinite scroll | Done — [notifications.md](feature/notifications.md) v2; `GET /notifications` page API; SSE live-only; client reconnect + token refresh |
+| Custom fields (project/workflow defs, ticket values) | Planned — [custom-fields.md](feature/custom-fields.md) v1; `customfield` package; nested `/projects|workflows/{id}/custom-fields`; ticket values; import `cf` keys; query `cf.<key>` |
 
 ## 14. OpenAPI → TypeScript codegen
 

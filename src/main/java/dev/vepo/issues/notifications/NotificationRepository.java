@@ -1,5 +1,6 @@
 package dev.vepo.issues.notifications;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -22,6 +23,21 @@ public class NotificationRepository {
         return this.em.createQuery("FROM Notification n WHERE n.receive.username = :username", Notification.class)
                       .setParameter("username", username)
                       .getResultStream();
+    }
+
+    public List<Notification> findPage(String username, int page, int size) {
+        return this.em.createQuery("FROM Notification n WHERE n.receive.username = :username ORDER BY n.createdAt DESC, n.id DESC",
+                                   Notification.class)
+                      .setParameter("username", username)
+                      .setFirstResult(page * size)
+                      .setMaxResults(size)
+                      .getResultList();
+    }
+
+    public long countByUsername(String username) {
+        return this.em.createQuery("SELECT COUNT(n) FROM Notification n WHERE n.receive.username = :username", Long.class)
+                      .setParameter("username", username)
+                      .getSingleResult();
     }
 
     public Optional<Notification> findById(long id) {

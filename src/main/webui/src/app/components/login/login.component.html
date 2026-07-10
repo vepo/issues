@@ -32,12 +32,14 @@
           <mat-icon fontIcon="login" aria-hidden="true"></mat-icon>
           <span i18n>Entrar</span>
         </button>
-        <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="'/login/register'">
-          <span i18n>Criar conta</span>
-        </button>
-        <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="'/login/reset-password'">
-          <span i18n>Recuperar senha</span>
-        </button>
+        @if (passwordRecovery) {
+          <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="'/login/register'">
+            <span i18n>Criar conta</span>
+          </button>
+          <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="'/login/reset-password'">
+            <span i18n>Recuperar senha</span>
+          </button>
+        }
       </div>
     </form>
   </div>

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { catchError, map, Observable, tap, throwError } from 'rxjs';
+import { catchError, map, Observable, of, shareReplay, tap, throwError } from 'rxjs';
 import { AuthApi } from '../generated/api/auth.service';
+import { AuthCapabilitiesResponse } from '../generated/model/authCapabilitiesResponse';
 import { AuthResponse as GeneratedAuthResponse } from '../generated/model/authResponse';
 import { ConfirmPasswordResetRequest } from '../generated/model/confirmPasswordResetRequest';
 import { LoginRequest } from '../generated/model/loginRequest';
@@ -11,16 +12,33 @@ import { asLoaded, Loaded } from '../core/required-types';
 
 export type CurrentUser = Loaded<GeneratedAuthResponse>;
 export type AuthResponse = LoginResponse;
+export type AuthCapabilities = Loaded<AuthCapabilitiesResponse>;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly api = inject(AuthApi);
   private readonly tokenKey = 'jwt_token';
   private readonly refreshTokenKey = 'jwt_refresh_token';
+  private capabilities$?: Observable<AuthCapabilities>;
 
   login(email: string, password: string) {
     return this.api.login({ email, password } as LoginRequest)
                    .pipe(tap(res => this.storeTokens(res)));
+  }
+
+  getCapabilities(): Observable<AuthCapabilities> {
+    if (!this.capabilities$) {
+      this.capabilities$ = this.api.getAuthCapabilities().pipe(
+        map(asLoaded),
+        catchError(() => of({
+          provider: 'local',
+          passwordRecovery: true,
+          changePassword: true,
+        } as AuthCapabilities)),
+        shareReplay(1),
+      );
+    }
+    return this.capabilities$;
   }
 
   refreshToken(): Observable<LoginResponse> {

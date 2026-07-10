@@ -1,0 +1,41 @@
+---
+description: Keep docs/backlog.md ordered and updated for product ideas
+alwaysApply: true
+---
+
+# Backlog management
+
+Canonical backlog: [docs/backlog.md](../../docs/backlog.md).
+
+## Always
+
+- Treat the backlog as an **ordered table** — column **Order** (integer, lower = higher priority).
+- When adding, removing, promoting, completing, or deprioritizing ideas, **update the table** and **renumber Order** so active (`idea` / `ready`) ranks stay contiguous starting at 1.
+- Prefer **reordering** over long prose lists; keep one row per idea.
+
+## When to update
+
+| Trigger | Action |
+|---------|--------|
+| User asks for ideas / backlog / prioritization | Propose rows; write them into `docs/backlog.md` if accepted |
+| New product idea in chat (not starting analysis yet) | Add `idea` row; assign Order |
+| Starting feature analysis for a backlog idea | Status → `promoted`; link `feature/<slug>.md` |
+| Feature changelog marked `done` | Matching backlog row → `done` (or remove from active ranks and renumber) |
+| User rejects an idea | Status → `wont`; renumber remaining |
+| User says “prioritize X” / “move Y up” | Reorder **Order** values; do not invent silent priority changes |
+
+## Do not
+
+- Put implementation tasks (T1, T2…) in the backlog — those live in `feature/*.md`.
+- Duplicate the full feature analysis in the backlog — one-line **Why / notes** + slug + link.
+- Start phase 5 coding from a backlog row alone — still follow [development-process.mdc](development-process.mdc).
+
+## Relation to feature docs
+
+```
+backlog idea → feature analysis (feature/<slug>.md) → … → done
+     ↑                      ↓
+  Order / Status      Status: promoted + Feature doc link
+```
+
+Promoted work may keep a backlog row for visibility until `done`.

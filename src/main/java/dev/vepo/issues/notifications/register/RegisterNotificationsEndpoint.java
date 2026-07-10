@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import dev.vepo.issues.notifications.NotificationChannelRegistry;
 import dev.vepo.issues.notifications.NotificationPaths;
-import dev.vepo.issues.notifications.NotificationRepository;
-import dev.vepo.issues.notifications.UserNotificationEvent;
 import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -20,7 +18,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
-import jakarta.ws.rs.sse.Sse;
 import jakarta.ws.rs.sse.SseEventSink;
 
 @DenyAll
@@ -32,16 +29,10 @@ public class RegisterNotificationsEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(RegisterNotificationsEndpoint.class);
 
     private final NotificationChannelRegistry channelRegistry;
-    private final NotificationRepository notificationRepository;
-    private final Sse sse;
 
     @Inject
-    public RegisterNotificationsEndpoint(NotificationChannelRegistry channelRegistry,
-                                         NotificationRepository notificationRepository,
-                                         Sse sse) {
+    public RegisterNotificationsEndpoint(NotificationChannelRegistry channelRegistry) {
         this.channelRegistry = channelRegistry;
-        this.notificationRepository = notificationRepository;
-        this.sse = sse;
     }
 
     @GET
@@ -52,11 +43,5 @@ public class RegisterNotificationsEndpoint {
     public void register(@Context SseEventSink eventSink, @Context SecurityContext context) {
         logger.info("Register channel! principal={}", context.getUserPrincipal().getName());
         channelRegistry.register(context.getUserPrincipal().getName(), eventSink);
-        notificationRepository.findAll(context.getUserPrincipal().getName())
-                              .forEach(notification -> eventSink.send(sse.newEventBuilder()
-                                                                         .id("ticket-change")
-                                                                         .mediaType(MediaType.APPLICATION_JSON_TYPE)
-                                                                         .data(UserNotificationEvent.load(notification))
-                                                                         .build()));
     }
 }

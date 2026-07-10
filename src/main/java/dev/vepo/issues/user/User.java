@@ -2,7 +2,10 @@ package dev.vepo.issues.user;
 
 import java.util.Set;
 
+import dev.vepo.issues.auth.AuthProvider;
+import dev.vepo.issues.auth.AuthProviderConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,8 +31,12 @@ public class User {
     @Column(nullable = false)
     private String email;
 
-    @Column(name = "encoded_password", nullable = false)
+    @Column(name = "encoded_password")
     private String encodedPassword;
+
+    @Convert(converter = AuthProviderConverter.class)
+    @Column(name = "auth_provider", nullable = false)
+    private AuthProvider authProvider = AuthProvider.LOCAL;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -40,11 +47,16 @@ public class User {
     public User() {}
 
     public User(String username, String name, String email, String encodedPassword, Set<Role> roles) {
+        this(username, name, email, encodedPassword, roles, AuthProvider.LOCAL);
+    }
+
+    public User(String username, String name, String email, String encodedPassword, Set<Role> roles, AuthProvider authProvider) {
         this.username = username;
         this.name = name;
         this.email = email;
         this.encodedPassword = encodedPassword;
         this.roles = roles;
+        this.authProvider = authProvider == null ? AuthProvider.LOCAL : authProvider;
         this.deleted = false;
     }
 
@@ -86,6 +98,14 @@ public class User {
 
     public void setEncodedPassword(String encodedPassword) {
         this.encodedPassword = encodedPassword;
+    }
+
+    public AuthProvider getAuthProvider() {
+        return authProvider;
+    }
+
+    public void setAuthProvider(AuthProvider authProvider) {
+        this.authProvider = authProvider == null ? AuthProvider.LOCAL : authProvider;
     }
 
     public Set<Role> getRoles() {

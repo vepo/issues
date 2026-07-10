@@ -50,38 +50,40 @@
   </section>
 
   <section class="page-panel">
-    <h2 class="section-title" i18n>Alterar senha</h2>
-    <form class="edit dialog-form" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Senha atual</mat-label>
-        <input matInput type="password" formControlName="currentPassword" required autocomplete="current-password" />
-      </mat-form-field>
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Nova senha</mat-label>
-        <input matInput type="password" formControlName="newPassword" required autocomplete="new-password" />
-      </mat-form-field>
-      <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Confirmar nova senha</mat-label>
-        <input matInput type="password" formControlName="confirmPassword" required autocomplete="new-password" />
-        @if (passwordsMismatch()) {
-          <mat-error i18n>As senhas não coincidem</mat-error>
+    @if (changePasswordEnabled) {
+      <h2 class="section-title" i18n>Alterar senha</h2>
+      <form class="edit dialog-form" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Senha atual</mat-label>
+          <input matInput type="password" formControlName="currentPassword" required autocomplete="current-password" />
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Nova senha</mat-label>
+          <input matInput type="password" formControlName="newPassword" required autocomplete="new-password" />
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Confirmar nova senha</mat-label>
+          <input matInput type="password" formControlName="confirmPassword" required autocomplete="new-password" />
+          @if (passwordsMismatch()) {
+            <mat-error i18n>As senhas não coincidem</mat-error>
+          }
+        </mat-form-field>
+        @if (passwordMessage) {
+          <p class="success-message" role="status">{{ passwordMessage }}</p>
         }
-      </mat-form-field>
-      @if (passwordMessage) {
-        <p class="success-message" role="status">{{ passwordMessage }}</p>
-      }
-      @if (passwordError) {
-        <p class="error" role="alert">{{ passwordError }}</p>
-      }
-      <div class="form-actions">
-        <button class="btn" matButton="filled" type="submit" [disabled]="passwordForm.invalid || passwordsMismatch() || isSavingPassword">
-          <span i18n>{{ isSavingPassword ? 'Salvando...' : 'Alterar senha' }}</span>
-        </button>
-      </div>
-      <p class="text-muted account-hint">
-        <span i18n>Esqueceu a senha?</span>
-        <a routerLink="/login/reset-password" i18n>Recuperar senha</a>
-      </p>
-    </form>
+        @if (passwordError) {
+          <p class="error" role="alert">{{ passwordError }}</p>
+        }
+        <div class="form-actions">
+          <button class="btn" matButton="filled" type="submit" [disabled]="passwordForm.invalid || passwordsMismatch() || isSavingPassword">
+            <span i18n>{{ isSavingPassword ? 'Salvando...' : 'Alterar senha' }}</span>
+          </button>
+        </div>
+        <p class="text-muted account-hint">
+          <span i18n>Esqueceu a senha?</span>
+          <a routerLink="/login/reset-password" i18n>Recuperar senha</a>
+        </p>
+      </form>
+    }
   </section>
 </div>

@@ -88,14 +88,20 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 ### Notifications & email
 
 - **In-app notifications** — persisted alerts with mark-as-read
-- **Real-time delivery** — SSE channel registers on login; pushes on ticket changes
+- **Real-time delivery** — SSE channel registers on login for live pushes; dropdown loads history via paginated API with infinite scroll; SSE auto-reconnects after network drop
 - **Email** — password reset and ticket change notifications (Mailer + Qute)
 
 ### Authentication
 
-- **Login** — short-lived JWT access token plus refresh token (`POST /auth/refresh`)
-- **Password recovery** — email link with token; confirm page sets new password
-- **Account** — edit name and email at `/account/settings`; change password with current password
+- **Login** — short-lived JWT access token plus refresh token (`POST /auth/refresh`); credentials verified by the active provider (`AUTH_PROVIDER`: `local`, `ldap`, or `endpoint`)
+- **Password recovery** — email link with token; LOCAL provider only (hidden when capabilities say otherwise)
+- **Account** — edit name and email at `/account/settings`; change password only when LOCAL
+
+| Env / property | Purpose |
+|----------------|---------|
+| `AUTH_PROVIDER` / `auth.provider` | `local` (default), `ldap`, or `endpoint` |
+| `AUTH_LDAP_*` / `auth.ldap.*` | LDAP URL, base DN, bind, filters, group→role map |
+| `AUTH_ENDPOINT_URL` / `auth.endpoint.url` | External credential POST URL |
 
 Production JWT signing key rotation: configure `mp.jwt.verify.publickey.location` to a JWKS resource listing current and previous public keys during rollover (see `application.properties` comments).
 
@@ -107,6 +113,8 @@ Production JWT signing key rotation: configure `mp.jwt.verify.publickey.location
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Stack, packages, API map, patterns, naming |
 | [docs/domain-specification.md](docs/domain-specification.md) | Ubiquitous language and business rules |
 | [docs/feature-catalog.md](docs/feature-catalog.md) | UI routes, roles, and click paths |
+| [docs/backlog.md](docs/backlog.md) | Ordered product backlog |
+| [docs/ui-elements-gallery.md](docs/ui-elements-gallery.md) | UI element catalog |
 | [docs/conventions-checklist.md](docs/conventions-checklist.md) | Doc debt and agent setup status |
 | [.cursor/rules/](.cursor/rules/) | Cursor project rules |
 

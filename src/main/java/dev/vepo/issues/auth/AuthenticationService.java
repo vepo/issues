@@ -1,5 +1,6 @@
 package dev.vepo.issues.auth;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -14,16 +15,19 @@ import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
 import dev.vepo.issues.user.UserResponse;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class AuthenticationService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+    private static final String LOCAL_PASSWORD_OPS_ONLY =
+            "Password operations are only available with local authentication";
+    private static final int USERNAME_MAX_LENGTH = 15;
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
@@ -31,6 +35,8 @@ public class AuthenticationService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtTokenIssuer jwtTokenIssuer;
     private final MailerService mailerService;
+    private final Instance<CredentialAuthenticator> authenticators;
+    private final AuthProvider activeProvider;
     private final int refreshTokenDays;
 
     @Inject
@@ -40,6 +46,8 @@ public class AuthenticationService {
                                  RefreshTokenRepository refreshTokenRepository,
                                  JwtTokenIssuer jwtTokenIssuer,
                                  MailerService mailerService,
+                                 Instance<CredentialAuthenticator> authenticators,
+                                 @ConfigProperty(name = "auth.provider", defaultValue = "local") String authProviderConfig,
                                  @ConfigProperty(name = "auth.refresh-token-days", defaultValue = "30") int refreshTokenDays) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
@@ -47,11 +55,23 @@ public class AuthenticationService {
         this.refreshTokenRepository = refreshTokenRepository;
         this.jwtTokenIssuer = jwtTokenIssuer;
         this.mailerService = mailerService;
+        this.authenticators = authenticators;
+        this.activeProvider = AuthProvider.fromConfig(authProviderConfig);
         this.refreshTokenDays = refreshTokenDays;
+    }
+
+    public AuthCapabilitiesResponse capabilities() {
+        var local = activeProvider.isLocal();
+        return new AuthCapabilitiesResponse(activeProvider.configValue(), local, local);
+    }
+
+    public AuthProvider activeProvider() {
+        return activeProvider;
     }
 
     @Transactional
     public UserResponse register(RegisterUserRequest request) {
+        requireLocalPasswordOperations();
         userRepository.findByUsername(request.username())
                       .ifPresent(existing -> {
                           throw new BadRequestException("Username already in use");
@@ -64,12 +84,14 @@ public class AuthenticationService {
                             request.name(),
                             request.email(),
                             passwordEncoder.hashPassword(request.password()),
-                            Set.of(Role.USER));
+                            Set.of(Role.USER),
+                            AuthProvider.LOCAL);
         return UserResponse.load(userRepository.save(user));
     }
 
     @Transactional
     public void confirmPasswordReset(ConfirmPasswordResetRequest request) {
+        requireLocalPasswordOperations();
         var resetToken = passwordResetTokenRepository.findByToken(request.token())
                                                      .orElseThrow(() -> new BadRequestException("Invalid or expired reset token"));
         if (!resetToken.isValid()) {
@@ -83,6 +105,7 @@ public class AuthenticationService {
 
     @Transactional
     public void changePassword(String username, ChangePasswordRequest request) {
+        requireLocalPasswordOperations();
         var user = userRepository.findByUsername(username)
                                  .orElseThrow(() -> new NotFoundException("User not found!"));
         if (!passwordEncoder.matches(request.currentPassword(), user.getEncodedPassword())) {
@@ -108,6 +131,7 @@ public class AuthenticationService {
 
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
+        requireLocalPasswordOperations();
         userRepository.findByEmailOrUsername(request.credential())
                       .ifPresentOrElse(user -> {
                           passwordResetTokenRepository.invalidateAllUserTokens(user.getId());
@@ -120,18 +144,17 @@ public class AuthenticationService {
 
     @Transactional
     public LoginResponse login(LoginRequest request) {
-        return userRepository.findByEmail(request.email())
-                             .filter(u -> passwordEncoder.matches(request.password(), u.getEncodedPassword()))
-                             .map(this::issueTokens)
-                             .orElseThrow(() -> new NotAuthorizedException("Invalid credentials!", request));
+        var identity = resolveAuthenticator().authenticate(request.email(), request.password());
+        var user = resolveOrProvisionUser(identity);
+        return issueTokens(user);
     }
 
     @Transactional
     public LoginResponse refresh(RefreshTokenRequest request) {
         var refreshToken = refreshTokenRepository.findByToken(request.refreshToken())
-                                                 .orElseThrow(() -> new NotAuthorizedException("Invalid refresh token"));
+                                                 .orElseThrow(AuthFailures::invalidRefreshToken);
         if (!refreshToken.isValid()) {
-            throw new NotAuthorizedException("Invalid refresh token");
+            throw AuthFailures.invalidRefreshToken();
         }
         refreshTokenRepository.revokeToken(refreshToken.getToken());
         return issueTokens(refreshToken.getUser());
@@ -141,6 +164,96 @@ public class AuthenticationService {
         return userRepository.findByUsername(username)
                              .map(AuthResponse::load)
                              .orElseThrow(() -> new NotFoundException("User not found!"));
+    }
+
+    private CredentialAuthenticator resolveAuthenticator() {
+        return authenticators.stream()
+                             .filter(authenticator -> authenticator.provider() == activeProvider)
+                             .findFirst()
+                             .orElseThrow(() -> new IllegalStateException(
+                                                                          "No CredentialAuthenticator registered for provider %s".formatted(activeProvider)));
+    }
+
+    private User resolveOrProvisionUser(VerifiedIdentity identity) {
+        return userRepository.findByEmail(identity.email())
+                             .map(existing -> updateExistingUser(existing, identity))
+                             .orElseGet(() -> createExternalUser(identity));
+    }
+
+    private User updateExistingUser(User user, VerifiedIdentity identity) {
+        if (identity.name() != null && !identity.name().isBlank()) {
+            user.setName(identity.name());
+        }
+        user.setAuthProvider(identity.provider());
+        if (identity.syncRoles()) {
+            user.setRoles(new HashSet<>(identity.roles()));
+        }
+        return user;
+    }
+
+    private User createExternalUser(VerifiedIdentity identity) {
+        if (identity.provider() == AuthProvider.LOCAL) {
+            throw AuthFailures.invalidCredentials();
+        }
+        var preferredUsername = identity.username() != null && !identity.username().isBlank()
+                                                                                              ? identity.username()
+                                                                                              : emailLocalPart(identity.email());
+        var username = allocateUniqueUsername(preferredUsername);
+        var name = identity.name() != null && !identity.name().isBlank()
+                                                                         ? identity.name()
+                                                                         : username;
+        var roles = identity.roles() == null || identity.roles().isEmpty()
+                                                                           ? Set.of(Role.USER)
+                                                                           : new HashSet<>(identity.roles());
+        var user = new User(username, name, identity.email(), null, roles, identity.provider());
+        return userRepository.save(user);
+    }
+
+    String allocateUniqueUsername(String preferred) {
+        var base = sanitizeUsername(preferred);
+        if (base.isEmpty()) {
+            base = "user";
+        }
+        if (userRepository.findByUsername(base).isEmpty()) {
+            return base;
+        }
+        var suffix = 1;
+        while (suffix < 10_000) {
+            var suffixText = Integer.toString(suffix);
+            var maxBaseLength = USERNAME_MAX_LENGTH - suffixText.length();
+            var truncated = base.length() <= maxBaseLength ? base : base.substring(0, maxBaseLength);
+            var candidate = truncated + suffixText;
+            if (userRepository.findByUsername(candidate).isEmpty()) {
+                return candidate;
+            }
+            suffix++;
+        }
+        throw new IllegalStateException("Unable to allocate unique username for %s".formatted(preferred));
+    }
+
+    static String sanitizeUsername(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        var sanitized = raw.replaceAll("[^a-zA-Z0-9._-]", "");
+        if (sanitized.length() > USERNAME_MAX_LENGTH) {
+            return sanitized.substring(0, USERNAME_MAX_LENGTH);
+        }
+        return sanitized;
+    }
+
+    static String emailLocalPart(String email) {
+        if (email == null || email.isBlank()) {
+            return "user";
+        }
+        var at = email.indexOf('@');
+        return at > 0 ? email.substring(0, at) : email;
+    }
+
+    private void requireLocalPasswordOperations() {
+        if (!activeProvider.isLocal()) {
+            throw new BadRequestException(LOCAL_PASSWORD_OPS_ONLY);
+        }
     }
 
     private LoginResponse issueTokens(User user) {

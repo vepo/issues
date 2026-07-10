@@ -164,7 +164,7 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 
 | Capability | File | Feature version | Status |
 |------------|------|-----------------|--------|
-| Authentication (login, password recovery) | `feature/authentication.md` | 1 | done |
+| Authentication (login, password recovery) | `feature/authentication.md` | 3 | done |
 | Account settings | `feature/account-settings.md` | 1 | done |
 | Ticket management (detail, comments, history, subscribe) | `feature/ticket-management.md` | 1 | done |
 | Ticket search (query language, saved queries) | `feature/ticket-search.md` | 2 | done |
@@ -176,12 +176,13 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 | User management | `feature/user-management.md` | 2 | done |
 | Workflow configuration | `feature/workflow-configuration.md` | 1 | done |
 | Categories | `feature/categories.md` | 2 | done |
-| Notifications (SSE, in-app) | `feature/notifications.md` | 1 | done |
+| Notifications (SSE, in-app) | `feature/notifications.md` | 2 | done |
 | Email delivery | `feature/email-delivery.md` | 1 | done |
 | Phase and version management | `feature/phase-management.md` | 4 | planned |
 | UI design system (class consistency) | `feature/ui-design-system.md` | 1 | done |
 | Home screen (personal work hub) | `feature/home-screen.md` | 1 | tasks-ready |
 | Project navigation (header Projetos) | `feature/project-navigation.md` | 1 | done |
+| Custom fields (project/workflow definitions, ticket values) | `feature/custom-fields.md` | 1 | tasks-ready |
 
 ## Versioning
 

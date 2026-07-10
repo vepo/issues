@@ -15,6 +15,7 @@ Single Maven module; logical boundaries in `dev.vepo.issues.*`. Full table: [doc
 | Identity & access | `auth`, `user` |
 | Project administration | `project` |
 | Workflow configuration | `workflow` |
+| Custom fields | `customfield` |
 | Phase & version planning | `phase` |
 | Ticket management | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business` |
 | Classification | `categories` |

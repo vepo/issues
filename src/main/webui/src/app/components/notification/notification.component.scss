@@ -49,6 +49,11 @@
   pointer-events: none;
 }
 
+.notifications-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
 .menu-empty {
   padding: colors.$space-md colors.$space-lg;
   color: colors.$text-muted;
