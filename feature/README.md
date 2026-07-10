@@ -172,7 +172,7 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 | Import tickets (CSV) | `feature/ticket-import.md` | 1 | done |
 | Kanban board | `feature/kanban-board.md` | 1 | done |
 | Project dashboard | `feature/project-dashboard.md` | 2 | done |
-| Project administration | `feature/project-administration.md` | 1 | done |
+| Project administration | `feature/project-administration.md` | 2 | done |
 | User management | `feature/user-management.md` | 2 | done |
 | Workflow configuration | `feature/workflow-configuration.md` | 1 | done |
 | Categories | `feature/categories.md` | 2 | done |

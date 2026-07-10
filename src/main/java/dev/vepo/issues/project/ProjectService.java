@@ -4,6 +4,7 @@ import java.util.List;
 
 import dev.vepo.issues.categories.CategoryRepository;
 import dev.vepo.issues.ticket.TicketPriority;
+import dev.vepo.issues.ticket.TicketRepository;
 import dev.vepo.issues.user.Role;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
@@ -24,6 +25,7 @@ public class ProjectService {
     private final ProjectAccessService accessService;
     private final ProjectMemberService memberService;
     private final UserRepository userRepository;
+    private final TicketRepository ticketRepository;
 
     @Inject
     public ProjectService(ProjectRepository repository,
@@ -31,13 +33,15 @@ public class ProjectService {
                           CategoryRepository categoryRepository,
                           ProjectAccessService accessService,
                           ProjectMemberService memberService,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          TicketRepository ticketRepository) {
         this.repository = repository;
         this.workflowRepository = workflowRepository;
         this.categoryRepository = categoryRepository;
         this.accessService = accessService;
         this.memberService = memberService;
         this.userRepository = userRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     @Transactional
@@ -45,7 +49,7 @@ public class ProjectService {
         var user = accessService.requireUser(username);
         return accessService.listProjectsForUser(user)
                             .stream()
-                            .map(ProjectResponse::load)
+                            .map(this::toResponse)
                             .toList();
     }
 
@@ -68,7 +72,7 @@ public class ProjectService {
         if (!owner.getId().equals(creator.getId())) {
             memberService.ensureMember(project, creator);
         }
-        return ProjectResponse.load(project);
+        return toResponse(project);
     }
 
     @Transactional
@@ -76,6 +80,9 @@ public class ProjectService {
         accessService.requireManage(projectId, username);
         var user = accessService.requireUser(username);
         var project = accessService.requireProject(projectId);
+        if (!project.getPrefix().equals(request.prefix()) && ticketRepository.countProjectTickets(projectId) > 0) {
+            throw new BadRequestException("Project prefix cannot be changed while the project has tickets");
+        }
         project.setName(request.name());
         project.setPrefix(request.prefix());
         project.setDescription(request.description());
@@ -83,12 +90,16 @@ public class ProjectService {
         applyTicketTemplate(project, request.ticketTemplate());
         applyPhaseTemplate(project, request.phaseTemplate());
         applyOwnerTransfer(project, request.ownerId(), user);
-        return ProjectResponse.load(repository.save(project));
+        return toResponse(repository.save(project));
     }
 
     public ProjectResponse findById(long projectId, String username) {
         accessService.requireView(projectId, username);
-        return ProjectResponse.load(accessService.requireProject(projectId));
+        return toResponse(accessService.requireProject(projectId));
+    }
+
+    private ProjectResponse toResponse(Project project) {
+        return ProjectResponse.load(project, ticketRepository.countProjectTickets(project.getId()) > 0);
     }
 
     public WorkflowResponse findWorkflow(long projectId, String username) {

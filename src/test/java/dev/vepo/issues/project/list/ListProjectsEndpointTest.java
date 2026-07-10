@@ -29,10 +29,11 @@ class ListProjectsEndpointTest {
     private WorkflowResponse workflow;
     private Header userAuthenticatedHeader;
     private Header pmAuthenticatedHeader;
+    private ProjectTestFixtures fixtures;
 
     @BeforeEach
     void setup() {
-        var fixtures = ProjectTestFixtures.create();
+        this.fixtures = ProjectTestFixtures.create();
         this.workflow = fixtures.workflow();
         this.userAuthenticatedHeader = fixtures.userAuthenticatedHeader();
         this.pmAuthenticatedHeader = fixtures.pmAuthenticatedHeader();
@@ -154,6 +155,72 @@ class ListProjectsEndpointTest {
                .then()
                .statusCode(200)
                .body("find { it.id == %d }.name".formatted(projectId), is(projectName));
+    }
+
+    @Test
+    @DisplayName("List projects should expose prefixLocked false without tickets and true with tickets")
+    void shouldExposePrefixLockedOnListProjects() {
+        var emptySuffix = UUID.randomUUID().toString().substring(0, 6);
+        var emptyProjectId = given().header(pmAuthenticatedHeader)
+                                    .accept(ContentType.JSON)
+                                    .when()
+                                    .contentType(ContentType.JSON)
+                                    .body("""
+                                          {
+                                              "name": "List Prefix Empty %s",
+                                              "description": "No tickets yet.",
+                                              "prefix": "LE%s",
+                                              "workflowId": %d
+                                          }""".formatted(emptySuffix, emptySuffix.substring(0, 2), workflow.id()))
+                                    .post("/api/projects")
+                                    .then()
+                                    .statusCode(201)
+                                    .extract()
+                                    .jsonPath()
+                                    .getLong("id");
+
+        var lockedSuffix = UUID.randomUUID().toString().substring(0, 6);
+        var lockedProjectId = given().header(pmAuthenticatedHeader)
+                                     .accept(ContentType.JSON)
+                                     .when()
+                                     .contentType(ContentType.JSON)
+                                     .body("""
+                                           {
+                                               "name": "List Prefix Locked %s",
+                                               "description": "Has a ticket.",
+                                               "prefix": "LL%s",
+                                               "workflowId": %d
+                                           }""".formatted(lockedSuffix, lockedSuffix.substring(0, 2), workflow.id()))
+                                     .post("/api/projects")
+                                     .then()
+                                     .statusCode(201)
+                                     .extract()
+                                     .jsonPath()
+                                     .getLong("id");
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "title": "Locks list prefixLocked",
+                         "description": "Creates prefix lock for list response.",
+                         "projectId": %d,
+                         "categoryId": %d
+                     }""".formatted(lockedProjectId, fixtures.category().getId()))
+               .post("/api/tickets")
+               .then()
+               .statusCode(201);
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects")
+               .then()
+               .statusCode(200)
+               .body("find { it.id == %d }.prefixLocked".formatted(emptyProjectId), is(false))
+               .body("find { it.id == %d }.prefixLocked".formatted(lockedProjectId), is(true));
     }
 
     private static Header loginHeader(String email) {

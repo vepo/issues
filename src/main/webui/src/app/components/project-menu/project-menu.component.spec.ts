@@ -21,7 +21,8 @@ describe('ProjectMenuComponent', () => {
       workflow: { id: 1, name: 'Agile' },
       owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
       ticketTemplate: { enabled: false },
-      phaseTemplate: { deliverables: [] }
+      phaseTemplate: { deliverables: [] },
+      prefixLocked: false,
     } as Project
   ];
 

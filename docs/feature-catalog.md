@@ -36,7 +36,7 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Project list | `/projects` | project-manager, admin | Header **Projetos** → **Gerenciar projetos**, or Conta → **Projetos** → list; **Abrir** hub, **Fases**, **Versões**, **Editar** per row (list scope: viewable projects — member ∪ owned for non-admin; all for admin) |
 | Header Projetos menu | (global shell) | authenticated | Header **Projetos** → pick project → Kanban; empty: button disabled + tooltip; PM/admin also **Gerenciar projetos** in menu footer |
 | Create project | `/projects/new` | project-manager | Projects → new → fill form (optional ticket template; creator becomes owner and member) → save |
-| Edit project | `/projects/:projectId/edit` | project owner PM, admin | Project hub → **Editar** → update fields and **owner** (admin or current owner) → save |
+| Edit project | `/projects/:projectId/edit` | project owner PM, admin | Project hub → **Editar** → update fields and **owner** (admin or current owner); **prefix** read-only when the project has tickets → save |
 | Workflow list | `/workflows` | project-manager, admin | Menu → Administração → Processos → list workflows → Editar |
 | Create workflow | `/workflows/new` | project-manager, admin | Workflows → Novo processo → status table (optional WIP) + transitions table → save |
 | Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, start status, transitions, WIP limits (status names fixed) |

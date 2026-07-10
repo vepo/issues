@@ -15,6 +15,7 @@ import dev.vepo.issues.Given;
 import dev.vepo.issues.auth.PasswordEncoder;
 import dev.vepo.issues.project.ProjectResponse;
 import dev.vepo.issues.project.ProjectTestFixtures;
+import dev.vepo.issues.ticket.TicketResponse;
 import dev.vepo.issues.user.Role;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
@@ -264,5 +265,131 @@ class UpdateProjectEndpointTest {
                .then()
                .statusCode(201)
                .body("owner.id", is(newOwnerId.intValue()));
+    }
+
+    @Test
+    @DisplayName("Should reject prefix change when project has tickets")
+    void shouldRejectPrefixChangeWhenProjectHasTickets() {
+        var project = createProject("Lock Prefix", "LP");
+        createTicket(project.id(), "Ticket locking prefix");
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body(updateBody(project.name(), "NEW", project.description()))
+               .post("/api/projects/" + project.id())
+               .then()
+               .statusCode(400)
+               .body("message", is("Project prefix cannot be changed while the project has tickets"));
+    }
+
+    @Test
+    @DisplayName("Should reject prefix change when only a soft-deleted ticket exists")
+    void shouldRejectPrefixChangeWhenOnlySoftDeletedTicketExists() {
+        var project = createProject("Soft Delete Lock", "SD");
+        var ticket = createTicket(project.id(), "Soft-deleted ticket locking prefix");
+
+        given().header(pmAuthenticatedHeader)
+               .when()
+               .delete("/api/tickets/" + ticket.id())
+               .then()
+               .statusCode(204);
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body(updateBody(project.name(), "NEW", project.description()))
+               .post("/api/projects/" + project.id())
+               .then()
+               .statusCode(400)
+               .body("message", is("Project prefix cannot be changed while the project has tickets"));
+    }
+
+    @Test
+    @DisplayName("Should allow update with same prefix when project has tickets")
+    void shouldAllowUpdateWithSamePrefixWhenProjectHasTickets() {
+        var project = createProject("Same Prefix", "SP");
+        createTicket(project.id(), "Ticket keeping same prefix");
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body(updateBody("Same Prefix Renamed", project.prefix(), "Updated description."))
+               .post("/api/projects/" + project.id())
+               .then()
+               .statusCode(201)
+               .body("name", is("Same Prefix Renamed"))
+               .body("prefix", is(project.prefix()))
+               .body("prefixLocked", is(true));
+    }
+
+    @Test
+    @DisplayName("Should allow prefix change when project has no tickets")
+    void shouldAllowPrefixChangeWhenProjectHasNoTickets() {
+        var project = createProject("Empty Prefix", "EP");
+        var newPrefix = "NX" + UUID.randomUUID().toString().substring(0, 2).toUpperCase();
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body(updateBody(project.name(), newPrefix, project.description()))
+               .post("/api/projects/" + project.id())
+               .then()
+               .statusCode(201)
+               .body("prefix", is(newPrefix))
+               .body("prefixLocked", is(false));
+    }
+
+    private ProjectResponse createProject(String namePrefix, String prefixSeed) {
+        var suffix = UUID.randomUUID().toString().substring(0, 6);
+        return given().header(pmAuthenticatedHeader)
+                      .accept(ContentType.JSON)
+                      .when()
+                      .contentType(ContentType.JSON)
+                      .body("""
+                            {
+                                "name": "%s %s",
+                                "description": "Prefix lock test project.",
+                                "prefix": "%s%s",
+                                "workflowId": %d
+                            }""".formatted(namePrefix, suffix, prefixSeed, suffix.substring(0, 2), workflow.id()))
+                      .post("/api/projects")
+                      .then()
+                      .statusCode(201)
+                      .extract()
+                      .as(ProjectResponse.class);
+    }
+
+    private TicketResponse createTicket(long projectId, String title) {
+        return given().header(pmAuthenticatedHeader)
+                      .accept(ContentType.JSON)
+                      .when()
+                      .contentType(ContentType.JSON)
+                      .body("""
+                            {
+                                "title": "%s",
+                                "description": "Ticket used to lock project prefix.",
+                                "projectId": %d,
+                                "categoryId": %d
+                            }""".formatted(title, projectId, category.getId()))
+                      .post("/api/tickets")
+                      .then()
+                      .statusCode(201)
+                      .extract()
+                      .as(TicketResponse.class);
+    }
+
+    private String updateBody(String name, String prefix, String description) {
+        return """
+               {
+                   "name": "%s",
+                   "description": "%s",
+                   "prefix": "%s",
+                   "workflowId": %d
+               }""".formatted(name, description, prefix, workflow.id());
     }
 }

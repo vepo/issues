@@ -18,7 +18,7 @@ describe('TicketFormComponent', () => {
 
     fixture = TestBed.createComponent(TicketFormComponent);
     component = fixture.componentInstance;
-    component.projects = [{ id: 1, name: 'Issues', prefix: 'ISS', description: '', workflow: { id: 1, name: 'Agile' }, owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' }, ticketTemplate: { enabled: false }, phaseTemplate: { deliverables: [] } }];
+    component.projects = [{ id: 1, name: 'Issues', prefix: 'ISS', description: '', workflow: { id: 1, name: 'Agile' }, owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' }, ticketTemplate: { enabled: false }, phaseTemplate: { deliverables: [] }, prefixLocked: false }];
     component.categories = [{ id: 2, name: 'Bug', color: 'red' }];
     fixture.detectChanges();
   });

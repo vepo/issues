@@ -234,7 +234,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 33. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter.
 34. **Search indexing** — PostgreSQL **`tsvector` + GIN** indexes on ticket and comment text columns (`search_vector`).
 35. **Due date** — optional user-planned deadline on a ticket (`due_date`); independent of workflow **finish date** (`finished_at`).
-36. **Project prefix immutability** — once a project has at least one ticket, its **prefix** cannot change.
+36. **Project prefix immutability** — once a project has at least one ticket (including soft-deleted), its **prefix** cannot change.
 37. **Category delete** — a category cannot be deleted while any ticket references it (`category_id` FK, including soft-deleted tickets), or while any project **ticket template** references it (`ticket_template_category_id`).
 38. **Kanban drag validation** — client blocks drag/drop to columns with no valid workflow transition; server remains authoritative on `moveTicket`.
 50. **WIP limit** — optional per workflow×status (`tb_workflow_wip_limits`); null/absent = unlimited. Count is non-deleted tickets in that status for the **project**. `moveTicket` into a status at or over its limit is rejected (400); client also blocks the drop. Ticket **create** and CSV **import** do not enforce WIP in the current product scope.

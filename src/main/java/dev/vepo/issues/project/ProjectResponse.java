@@ -7,9 +7,10 @@ public record ProjectResponse(long id,
                               ProjectWorkflowResponse workflow,
                               ProjectOwnerResponse owner,
                               TicketTemplateResponse ticketTemplate,
-                              PhaseTemplateResponse phaseTemplate) {
+                              PhaseTemplateResponse phaseTemplate,
+                              boolean prefixLocked) {
 
-    public static ProjectResponse load(Project project) {
+    public static ProjectResponse load(Project project, boolean prefixLocked) {
         return new ProjectResponse(project.getId(),
                                    project.getName(),
                                    project.getPrefix(),
@@ -18,6 +19,7 @@ public record ProjectResponse(long id,
                                                                project.getWorkflow().getName()),
                                    ProjectOwnerResponse.load(project.getOwner()),
                                    TicketTemplateResponse.load(project),
-                                   PhaseTemplateResponse.load(project));
+                                   PhaseTemplateResponse.load(project),
+                                   prefixLocked);
     }
 }

@@ -264,6 +264,7 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Workflow update API/UI | Partial — edit name, start status, and transitions; status list fixed after create (**blocked:** [workflow-configuration.md](feature/workflow-configuration.md) Q1/Q2 open) |
 | Kanban swimlanes + WIP limits | Done — [kanban-board.md](feature/kanban-board.md) v2; `tb_workflow_wip_limits`; hard enforce on `moveTicket`; Faixa toolbar |
 | Header **Projetos** menu (all users → Kanban) | Done — [project-navigation.md](feature/project-navigation.md) v1; `GET /projects` viewable scope |
+| Immutable project prefix | Done — [project-administration.md](feature/project-administration.md) v2; `prefixLocked` on `ProjectResponse`; reject prefix change when tickets exist |
 | Pluggable auth (LOCAL / LDAP / ENDPOINT) | Planned — [authentication.md](feature/authentication.md) v3; `AUTH_PROVIDER` + CDI SPI in-module (**AQ6**: no ServiceLoader / separate provider JARs) |
 
 ## 14. OpenAPI → TypeScript codegen

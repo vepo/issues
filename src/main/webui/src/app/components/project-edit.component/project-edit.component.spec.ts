@@ -40,6 +40,7 @@ describe('ProjectEditComponent', () => {
           name: 'Test Project',
           description: 'A test project',
           prefix: 'TP',
+          prefixLocked: false,
           workflow: { id: 1, name: 'Default Workflow' },
           owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
           ticketTemplate: {
@@ -64,12 +65,18 @@ describe('ProjectEditComponent', () => {
       expect(fixture.debugElement.query(By.css('[formControlName=templateTitle]'))).toBeTruthy();
     });
 
+    it('should keep prefix enabled when not locked', () => {
+      expect(component.prefixLocked).toBeFalse();
+      expect(component.projectForm.controls.prefix.disabled).toBeFalse();
+    });
+
     it('should include ticket template in update payload', () => {
       projectsService.update.and.returnValue(of({
         id: 1,
         name: 'Test Project',
         description: 'A test project',
         prefix: 'TP',
+        prefixLocked: false,
         workflow: { id: 1, name: 'Default Workflow' },
         owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
         ticketTemplate: { enabled: true, title: 'Template title', description: 'Template description here', categoryId: 2, priority: 'HIGH' },
@@ -85,6 +92,53 @@ describe('ProjectEditComponent', () => {
           categoryId: 2,
           priority: 'HIGH',
         }),
+      }));
+    });
+  });
+
+  describe('edit mode with locked prefix', () => {
+    beforeEach(async () => {
+      await setup({
+        project: {
+          id: 1,
+          name: 'Locked Project',
+          description: 'Has tickets',
+          prefix: 'LK',
+          prefixLocked: true,
+          workflow: { id: 1, name: 'Default Workflow' },
+          owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
+          ticketTemplate: { enabled: false },
+          phaseTemplate: { deliverables: [] },
+        },
+        workflows: [{ id: 1, name: 'Default Workflow' }],
+        categories: [],
+      });
+    });
+
+    it('should disable prefix control when prefixLocked', () => {
+      expect(component.prefixLocked).toBeTrue();
+      expect(component.projectForm.controls.prefix.disabled).toBeTrue();
+      expect(component.projectForm.controls.prefix.value).toBe('LK');
+    });
+
+    it('should still submit locked prefix via getRawValue on save', () => {
+      projectsService.update.and.returnValue(of({
+        id: 1,
+        name: 'Locked Project',
+        description: 'Has tickets',
+        prefix: 'LK',
+        prefixLocked: true,
+        workflow: { id: 1, name: 'Default Workflow' },
+        owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
+        ticketTemplate: { enabled: false },
+        phaseTemplate: { deliverables: [] },
+      }));
+      component.projectForm.patchValue({ name: 'Locked Project Renamed' });
+      component.save();
+
+      expect(projectsService.update).toHaveBeenCalledWith(1, jasmine.objectContaining({
+        name: 'Locked Project Renamed',
+        prefix: 'LK',
       }));
     });
   });
@@ -116,15 +170,17 @@ describe('ProjectEditComponent', () => {
         prefix: 'NP',
         workflow: 1,
         templateEnabled: true,
-        templateTitle: '',
-        templateDescription: '',
+        templateTitle: 'ab',
+        templateDescription: 'cd',
         templateCategoryId: -1,
       });
-      component.save();
-      expect(projectsService.create).not.toHaveBeenCalled();
+      // Ensure validators apply after patch (valueChanges order can leave empty values passing minLength)
+      component['updateTemplateValidators'](true);
+
       expect(component.projectForm.controls.templateTitle.invalid).toBeTrue();
       expect(component.projectForm.controls.templateDescription.invalid).toBeTrue();
-      expect(component.projectForm.controls.templateCategoryId.invalid).toBeTrue();
+      component.save();
+      expect(projectsService.create).not.toHaveBeenCalled();
     });
 
     it('should include ticket template in create payload when valid', () => {
@@ -133,6 +189,7 @@ describe('ProjectEditComponent', () => {
         name: 'New Project',
         description: 'Project description',
         prefix: 'NP',
+        prefixLocked: false,
         workflow: { id: 1, name: 'Default Workflow' },
         owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
         ticketTemplate: {

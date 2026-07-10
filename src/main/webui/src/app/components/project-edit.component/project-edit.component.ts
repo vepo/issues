@@ -29,6 +29,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
 
   editMode = false;
   projectId: number | null = null;
+  prefixLocked = false;
   workflows: Workflow[] = [];
   categories: Category[] = [];
   projectManagers: User[] = [];
@@ -64,6 +65,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
       if (project) {
         const template = project.ticketTemplate;
         const owner = (project as Project & { owner?: { id: number } }).owner;
+        this.prefixLocked = project.prefixLocked === true;
         this.showOwnerPicker = this.canPickOwner(owner?.id);
         if (this.showOwnerPicker) {
           this.usersService.search({ name: '', email: '', roles: ['project-manager'] }).subscribe(users => {
@@ -84,6 +86,11 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
           phaseTemplateObjective: project.phaseTemplate?.objective ?? '',
           phaseTemplateDeliverables: (project.phaseTemplate?.deliverables ?? []).join('\n'),
         });
+        if (this.prefixLocked) {
+          this.projectForm.controls.prefix.disable({ emitEvent: false });
+        } else {
+          this.projectForm.controls.prefix.enable({ emitEvent: false });
+        }
         this.updateTemplateValidators(template?.enabled ?? false);
       }
     });
@@ -125,7 +132,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
       phaseTemplateObjective,
       phaseTemplateDeliverables,
       ownerId,
-    } = this.projectForm.value;
+    } = this.projectForm.getRawValue();
 
     if (!name || !description || !prefix || workflow == null || workflow < 1) {
       return;

@@ -29,6 +29,7 @@ describe('KanbanComponent', () => {
     owner: { id: 1, name: 'Owner', email: 'owner@issues.vepo.dev' },
     ticketTemplate: { enabled: false },
     phaseTemplate: { deliverables: [] },
+    prefixLocked: false,
   } as Project;
 
   const mockStatuses: ProjectStatus[] = [

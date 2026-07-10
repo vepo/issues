@@ -67,7 +67,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 ### Projects & administration
 
-- **Projects** — name, prefix, description, assigned workflow, **project owner** (PM role), **project members**, and optional **ticket template** (default title, description, category, priority for new tickets)
+- **Projects** — name, prefix (immutable once tickets exist), description, assigned workflow, **project owner** (PM role), **project members**, and optional **ticket template** (default title, description, category, priority for new tickets)
 - **Project allocation** — dedicated page to add/remove members; removal blocked while member has open assigned tickets
 - **Project hub** — member landing page with links to Kanban and dashboard (replaces project grid on home)
 - **Header Projetos** — labeled menu for all authenticated users listing viewable projects; each item opens that project’s Kanban; PM/admin also **Gerenciar projetos**

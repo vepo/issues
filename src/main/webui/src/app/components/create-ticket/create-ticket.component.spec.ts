@@ -89,6 +89,7 @@ describe('CreateTicketComponent', () => {
       owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
       ticketTemplate: { enabled: true, title: 'Title only' },
       phaseTemplate: { deliverables: [] },
+      prefixLocked: false,
     }];
     component['applyTemplateFromProject'](component.projects[0]);
 

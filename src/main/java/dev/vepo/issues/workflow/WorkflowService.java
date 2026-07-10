@@ -1,6 +1,7 @@
 package dev.vepo.issues.workflow;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -142,14 +143,24 @@ public class WorkflowService {
     }
 
     private void applyWipLimits(Workflow workflow, Map<String, WorkflowStatus> statuses, List<StatusWipRequest> wipLimits) {
-        workflow.getWipLimits().clear();
         var requested = Optional.ofNullable(wipLimits).orElseGet(Collections::emptyList);
+        var requestedStatusIds = new HashSet<Long>();
         for (var wipLimit : requested) {
             var status = statuses.get(wipLimit.status());
             if (Objects.isNull(status)) {
                 throw new BadRequestException("WIP limit status is not part of this workflow: %s".formatted(wipLimit.status()));
             }
-            workflow.getWipLimits().add(new WorkflowWipLimit(workflow, status, wipLimit.wipLimit()));
+            requestedStatusIds.add(status.getId());
+            var existing = workflow.getWipLimits()
+                                   .stream()
+                                   .filter(limit -> limit.getStatus().getId().equals(status.getId()))
+                                   .findFirst();
+            if (existing.isPresent()) {
+                existing.get().setWipLimit(wipLimit.wipLimit());
+            } else {
+                workflow.getWipLimits().add(new WorkflowWipLimit(workflow, status, wipLimit.wipLimit()));
+            }
         }
+        workflow.getWipLimits().removeIf(limit -> !requestedStatusIds.contains(limit.getStatus().getId()));
     }
 }
