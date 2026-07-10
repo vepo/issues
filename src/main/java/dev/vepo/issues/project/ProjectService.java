@@ -160,34 +160,45 @@ public class ProjectService {
             return;
         }
         validateTicketTemplate(template);
-        requireCategory(template.categoryId());
         project.setTicketTemplateEnabled(true);
-        project.setTicketTemplateTitle(template.title().trim());
-        project.setTicketTemplateDescription(template.description().trim());
+        project.setTicketTemplateTitle(normalizeTemplateText(template.title()));
+        project.setTicketTemplateDescription(normalizeTemplateText(template.description()));
         project.setTicketTemplateCategoryId(template.categoryId());
         project.setTicketTemplatePriority(template.priority());
     }
 
+    private String normalizeTemplateText(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
+    }
+
     private void validateTicketTemplate(TicketTemplateRequest template) {
-        if (template.title() == null || template.title().isBlank()) {
-            throw new BadRequestException("Ticket template title cannot be empty");
+        var hasTitle = template.title() != null && !template.title().isBlank();
+        var hasDescription = template.description() != null && !template.description().isBlank();
+        var hasCategory = template.categoryId() != null;
+        var hasPriority = template.priority() != null;
+
+        if (!hasTitle && !hasDescription && !hasCategory && !hasPriority) {
+            throw new BadRequestException("Ticket template must configure at least one field");
         }
-        if (template.title().length() < 5 || template.title().length() > 255) {
-            throw new BadRequestException("Ticket template title must be between 5 and 255 characters");
+        if (hasTitle) {
+            var title = template.title().trim();
+            if (title.length() < 5 || title.length() > 255) {
+                throw new BadRequestException("Ticket template title must be between 5 and 255 characters");
+            }
         }
-        if (template.description() == null || template.description().isBlank()) {
-            throw new BadRequestException("Ticket template description cannot be empty");
+        if (hasDescription) {
+            var description = template.description().trim();
+            if (description.length() < 5 || description.length() > 1200) {
+                throw new BadRequestException("Ticket template description must be between 5 and 1200 characters");
+            }
         }
-        if (template.description().length() < 5 || template.description().length() > 1200) {
-            throw new BadRequestException("Ticket template description must be between 5 and 1200 characters");
+        if (hasCategory) {
+            requireCategory(template.categoryId());
         }
-        if (template.categoryId() == null) {
-            throw new BadRequestException("Ticket template category ID must be provided");
-        }
-        if (template.priority() == null) {
-            throw new BadRequestException("Ticket template priority must be provided");
-        }
-        if (!List.of(TicketPriority.values()).contains(template.priority())) {
+        if (hasPriority && !List.of(TicketPriority.values()).contains(template.priority())) {
             throw new BadRequestException("Ticket template priority is invalid");
         }
     }

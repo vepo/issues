@@ -2,6 +2,7 @@ package dev.vepo.issues.project.create;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -240,29 +241,54 @@ class CreateProjectEndpointTest {
     }
 
     @Test
-    @DisplayName("Ticket template enabled with missing title returns 400")
-    void ticketTemplateEnabledMissingTitleTest() {
+    @DisplayName("Ticket template enabled with partial fields succeeds")
+    void ticketTemplateEnabledWithPartialFieldsTest() {
+        var suffix = java.util.UUID.randomUUID().toString().substring(0, 6);
         given().header(pmAuthenticatedHeader)
                .accept(ContentType.JSON)
                .when()
                .contentType(ContentType.JSON)
                .body("""
                      {
-                         "name": "Invalid Template %s",
-                         "description": "Project with invalid template.",
-                         "prefix": "ITPL",
+                         "name": "Partial Template %s",
+                         "description": "Project with partial template.",
+                         "prefix": "PT%s",
                          "workflowId": %d,
                          "ticketTemplate": {
                              "enabled": true,
-                             "description": "Default ticket description for new tickets.",
-                             "categoryId": %d,
-                             "priority": "MEDIUM"
+                             "title": "Default ticket title"
                          }
-                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8), workflow.id(), category.getId()))
+                     }""".formatted(suffix, suffix.substring(0, 2), workflow.id()))
+               .post("/api/projects")
+               .then()
+               .statusCode(201)
+               .body("ticketTemplate.enabled", is(true))
+               .body("ticketTemplate.title", is("Default ticket title"))
+               .body("ticketTemplate.description", nullValue())
+               .body("ticketTemplate.categoryId", nullValue());
+    }
+
+    @Test
+    @DisplayName("Ticket template enabled with no configured fields returns 400")
+    void ticketTemplateEnabledWithNoFieldsTest() {
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Empty Template %s",
+                         "description": "Project with empty template.",
+                         "prefix": "ETPL",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true
+                         }
+                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8), workflow.id()))
                .post("/api/projects")
                .then()
                .statusCode(400)
-               .body("message", is("Ticket template title cannot be empty"));
+               .body("message", is("Ticket template must configure at least one field"));
     }
 
     @Test

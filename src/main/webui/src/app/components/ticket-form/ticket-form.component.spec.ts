@@ -49,4 +49,17 @@ describe('TicketFormComponent', () => {
     expect(component.ticketForm.value.categoryId).toBe(2);
     expect(component.ticketForm.value.priority).toBe('HIGH');
   });
+
+  it('should apply partial defaults without overwriting unset fields', () => {
+    expect(component.ticketForm.value.title).toBe('');
+    expect(component.ticketForm.value.priority).toBe('MEDIUM');
+
+    component.defaults = { title: 'Template title only' };
+    fixture.detectChanges();
+
+    expect(component.ticketForm.value.title).toBe('Template title only');
+    expect(component.ticketForm.value.description).toBe('');
+    expect(component.ticketForm.value.categoryId).toBe(-1);
+    expect(component.ticketForm.value.priority).toBe('MEDIUM');
+  });
 });

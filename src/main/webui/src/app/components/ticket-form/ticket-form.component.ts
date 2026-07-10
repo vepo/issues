@@ -60,12 +60,25 @@ export class TicketFormComponent implements OnInit {
     if (!value) {
       return;
     }
-    this.ticketForm.patchValue({
-      title: value.title ?? '',
-      description: value.description ?? '',
-      categoryId: value.categoryId ?? -1,
-      priority: value.priority ?? 'MEDIUM',
-    });
+    const patch: {
+      title?: string;
+      description?: string;
+      categoryId?: number;
+      priority?: CreateTicketRequest['priority'];
+    } = {};
+    if (value.title !== undefined) {
+      patch.title = value.title;
+    }
+    if (value.description !== undefined) {
+      patch.description = value.description;
+    }
+    if (value.categoryId !== undefined) {
+      patch.categoryId = value.categoryId;
+    }
+    if (value.priority !== undefined) {
+      patch.priority = value.priority;
+    }
+    this.ticketForm.patchValue(patch);
   }
 
   ngOnInit(): void {

@@ -1,7 +1,7 @@
 # Create ticket
 
 **Feature version:** 2  
-**Status:** planned  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -89,7 +89,9 @@ Create new tickets globally (`/tickets/new`) or within a project (`/project/:pro
 ### Partial ticket template pre-fill — 2026-07-03
 
 **Version:** 2  
-**Status:** planned
+**Status:** done
+
+**Development approval:** approved 2026-07-03 — tasks: T1–T6
 
 **Description:** When **Usar template de ticket** is enabled, pre-fill only fields the PM configured; do not require template-only fields on create.
 
@@ -104,5 +106,7 @@ Create new tickets globally (`/tickets/new`) or within a project (`/project/:pro
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Create succeeds with partial template pre-fill | FQ1 | ☐ |
-| FC2 | `domain-specification.md` — ticket template invariant updated | Docs | ☐ |
+| FC1 | Create succeeds with partial template pre-fill | FQ1 | ☑ |
+| FC2 | `domain-specification.md` — ticket template invariant updated | Docs | ☑ |
+
+**Implementation notes:** `ProjectService.validateTicketTemplate` requires at least one configured field; blank template values stored as null. `create-ticket` and `ticket-form` apply partial defaults only. Project edit allows optional template fields with **Nenhuma** priority option. Tests: `CreateProjectEndpointTest`, `create-ticket.component.spec.ts`, `ticket-form.component.spec.ts`.

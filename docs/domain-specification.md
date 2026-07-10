@@ -101,7 +101,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Finish status** | Workflow status marked as terminal with outcome **done** or **canceled**. | `WorkflowFinishStatus`, `tb_workflow_finish_statuses` |
 | **Finish outcome** | Classification of a finish status: `DONE` or `CANCELED`. | `FinishOutcome` enum |
 | **Ticket template** | Optional default field values for new tickets in a project: title, description, category, priority. | Embedded on `Project`, `tb_projects` template columns |
-| **Template enabled** | Project manager opted in; when true, all template fields are required and validated like `CreateTicketRequest`. | `Project.ticketTemplateEnabled`; UI checkbox **Usar template de ticket** |
+| **Template enabled** | Project manager opted in; when true, at least one template field must be configured; only configured fields pre-fill the create form. | `Project.ticketTemplateEnabled`; UI checkbox **Usar template de ticket** |
 | **Phase template objective** | Default plain-text **objective** copied into each new phase for the project. | `Project.phaseTemplateObjective` |
 | **Phase template deliverable** | Default **deliverable** row copied into each new phase for the project. | `tb_project_phase_deliverable_templates` |
 

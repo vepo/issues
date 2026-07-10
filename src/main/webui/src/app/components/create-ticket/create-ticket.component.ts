@@ -73,19 +73,22 @@ export class CreateTicketComponent implements OnInit {
   private applyTemplateFromProject(project: Project): void {
     const template = project.ticketTemplate;
     if (template?.enabled) {
-      this.formDefaults = {
-        title: template.title,
-        description: template.description,
-        categoryId: template.categoryId,
-        priority: template.priority,
-      };
+      const defaults: TicketFormDefaults = {};
+      if (template.title?.trim()) {
+        defaults.title = template.title.trim();
+      }
+      if (template.description?.trim()) {
+        defaults.description = template.description.trim();
+      }
+      if (template.categoryId != null && template.categoryId > 0) {
+        defaults.categoryId = template.categoryId;
+      }
+      if (template.priority) {
+        defaults.priority = template.priority;
+      }
+      this.formDefaults = defaults;
     } else {
-      this.formDefaults = {
-        title: '',
-        description: '',
-        categoryId: -1,
-        priority: 'MEDIUM',
-      };
+      this.formDefaults = { priority: 'MEDIUM' };
     }
   }
 

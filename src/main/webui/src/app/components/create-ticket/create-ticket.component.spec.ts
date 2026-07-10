@@ -79,6 +79,22 @@ describe('CreateTicketComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should pre-fill only configured template fields', () => {
+    component.projects = [{
+      id: 2,
+      name: 'Partial',
+      prefix: 'PAR',
+      description: '',
+      workflow: { id: 1, name: 'Agile' },
+      owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
+      ticketTemplate: { enabled: true, title: 'Title only' },
+      phaseTemplate: { deliverables: [] },
+    }];
+    component['applyTemplateFromProject'](component.projects[0]);
+
+    expect(component.formDefaults).toEqual({ title: 'Title only' });
+  });
+
   it('should pre-fill defaults from project template', () => {
     expect(component.formDefaults).toEqual(jasmine.objectContaining({
       title: 'New work item',

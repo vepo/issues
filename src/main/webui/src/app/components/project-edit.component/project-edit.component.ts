@@ -44,7 +44,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
     templateTitle: new FormControl(''),
     templateDescription: new FormControl(''),
     templateCategoryId: new FormControl(-1),
-    templatePriority: new FormControl<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'>('MEDIUM'),
+    templatePriority: new FormControl<'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | null>(null),
     phaseTemplateObjective: new FormControl(''),
     phaseTemplateDeliverables: new FormControl(''),
     ownerId: new FormControl<number | null>(null),
@@ -80,7 +80,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
           templateTitle: template?.title ?? '',
           templateDescription: template?.description ?? '',
           templateCategoryId: template?.categoryId ?? -1,
-          templatePriority: template?.priority ?? 'MEDIUM',
+          templatePriority: template?.priority ?? null,
           phaseTemplateObjective: project.phaseTemplate?.objective ?? '',
           phaseTemplateDeliverables: (project.phaseTemplate?.deliverables ?? []).join('\n'),
         });
@@ -144,10 +144,10 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
       ticketTemplate: templateEnabled
         ? {
             enabled: true,
-            title: templateTitle ?? undefined,
-            description: templateDescription ?? undefined,
+            title: templateTitle?.trim() || undefined,
+            description: templateDescription?.trim() || undefined,
             categoryId: templateCategoryId != null && templateCategoryId > 0 ? templateCategoryId : undefined,
-            priority: templatePriority ?? 'MEDIUM',
+            priority: templatePriority ?? undefined,
           }
         : { enabled: false },
       phaseTemplate: {
@@ -172,9 +172,9 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
     const categoryId = this.projectForm.controls.templateCategoryId;
 
     if (enabled) {
-      title.setValidators([Validators.required, Validators.minLength(5), Validators.maxLength(255)]);
-      templateDescription.setValidators([Validators.required, Validators.minLength(5), Validators.maxLength(1200)]);
-      categoryId.setValidators([Validators.required, Validators.min(1)]);
+      title.setValidators([Validators.minLength(5), Validators.maxLength(255)]);
+      templateDescription.setValidators([Validators.minLength(5), Validators.maxLength(1200)]);
+      categoryId.clearValidators();
     } else {
       title.clearValidators();
       templateDescription.clearValidators();
