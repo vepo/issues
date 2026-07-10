@@ -171,16 +171,17 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 | Create ticket | `feature/create-ticket.md` | 1 | done |
 | Import tickets (CSV) | `feature/ticket-import.md` | 1 | done |
 | Kanban board | `feature/kanban-board.md` | 1 | done |
-| Project dashboard | `feature/project-dashboard.md` | 1 | done |
+| Project dashboard | `feature/project-dashboard.md` | 2 | done |
 | Project administration | `feature/project-administration.md` | 1 | done |
-| User management | `feature/user-management.md` | 1 | done |
+| User management | `feature/user-management.md` | 2 | done |
 | Workflow configuration | `feature/workflow-configuration.md` | 1 | done |
-| Categories | `feature/categories.md` | 1 | done |
+| Categories | `feature/categories.md` | 2 | done |
 | Notifications (SSE, in-app) | `feature/notifications.md` | 1 | done |
 | Email delivery | `feature/email-delivery.md` | 1 | done |
 | Phase and version management | `feature/phase-management.md` | 4 | planned |
 | UI design system (class consistency) | `feature/ui-design-system.md` | 1 | done |
 | Home screen (personal work hub) | `feature/home-screen.md` | 1 | tasks-ready |
+| Project navigation (header Projetos) | `feature/project-navigation.md` | 1 | done |
 
 ## Versioning
 

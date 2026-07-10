@@ -71,6 +71,52 @@ class CreateWorkflowEndpointTest {
     }
 
     @Test
+    void shouldPersistWipLimitsWhenCreatingWorkflow() {
+        given().header(Given.authenticatedProjectManager())
+               .when()
+               .contentType("application/json")
+               .body("""
+                     {
+                         "name": "WIP Limit Flow",
+                         "statuses": ["Backlog", "Doing", "Done"],
+                         "start": "Backlog",
+                         "transitions": [
+                             {"from": "Backlog", "to": "Doing"},
+                             {"from": "Doing", "to": "Done"},
+                             {"from": "Done", "to": "Doing"}
+                         ],
+                         "wipLimits": [
+                             {"status": "Doing", "wipLimit": 3}
+                         ]
+                     }""")
+               .post("/api/workflows")
+               .then()
+               .statusCode(201)
+               .body("wipLimits.size()", is(1))
+               .body("wipLimits[0].status", is("Doing"))
+               .body("wipLimits[0].wipLimit", is(3));
+    }
+
+    @Test
+    void shouldRejectWipLimitStatusNotInWorkflow() {
+        given().header(Given.authenticatedProjectManager())
+               .when()
+               .contentType("application/json")
+               .body("""
+                     {
+                         "name": "Invalid WIP Flow",
+                         "statuses": ["Open", "Done"],
+                         "start": "Open",
+                         "transitions": [{"from": "Open", "to": "Done"}],
+                         "wipLimits": [{"status": "Missing", "wipLimit": 2}]
+                     }""")
+               .post("/api/workflows")
+               .then()
+               .statusCode(400)
+               .body("message", is("WIP limit status is not part of this workflow: Missing"));
+    }
+
+    @Test
     void shouldRejectFinishStatusNotInWorkflow() {
         given().header(Given.authenticatedProjectManager())
                .when()

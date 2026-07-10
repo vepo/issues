@@ -40,6 +40,10 @@ export class AuthService {
     return this.api.confirmPasswordReset({ token, newPassword } as ConfirmPasswordResetRequest);
   }
 
+  register(username: string, name: string, email: string, password: string) {
+    return this.api.registerUser({ username, name, email, password });
+  }
+
   changePassword(currentPassword: string, newPassword: string) {
     return this.api.changePassword({ currentPassword, newPassword });
   }

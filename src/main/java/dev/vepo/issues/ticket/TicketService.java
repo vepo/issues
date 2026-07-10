@@ -293,6 +293,22 @@ public class TicketService {
             throw new BadRequestException("New stage not acceptable by workflow! stageId=%d".formatted(request.to()));
         }
 
+        if (!Objects.equals(ticket.getStatus().getId(), to.getId())) {
+            var wipLimit = ticket.getProject()
+                                 .getWorkflow()
+                                 .getWipLimits()
+                                 .stream()
+                                 .filter(wip -> Objects.equals(wip.getStatus().getId(), to.getId()))
+                                 .findFirst();
+            if (wipLimit.isPresent()) {
+                var count = repository.countByProjectIdAndStatusId(ticket.getProject().getId(), to.getId());
+                if (count >= wipLimit.get().getWipLimit()) {
+                    throw new BadRequestException("WIP limit reached for status %s (limit %d)".formatted(to.getName(),
+                                                                                                         wipLimit.get().getWipLimit()));
+                }
+            }
+        }
+
         var fromStatus = ticket.getStatus().getName();
         var toStatus = to.getName();
         var workflowId = ticket.getProject().getWorkflow().getId();

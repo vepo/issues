@@ -41,6 +41,10 @@ export class UsersService {
     return this.api.updateUser(userId, user).pipe(map(asLoaded));
   }
 
+  delete(userId: number): Observable<void> {
+    return this.api.deleteUser(userId);
+  }
+
   search(filter?: UserSearchFilter): Observable<User[]> {
     return this.api.searchUsers(filter?.email, filter?.name, filter?.roles).pipe(map(asLoadedArray));
   }

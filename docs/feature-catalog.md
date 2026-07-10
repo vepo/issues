@@ -4,15 +4,16 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 
 | Feature | Route | Roles | Steps (happy path) |
 |---------|-------|-------|-------------------|
-| Login | `/login` | public | Open app → enter email/password → submit → redirect home |
+| Login | `/login` | public | Open app → enter email/password → submit → redirect home; link to **Criar conta** |
+| Register | `/login/register` | public | Login → Criar conta → username, name, email, password (8+ with upper/lower/digit) → submit → login |
 | Password reset request | `/login/reset-password` | public | Login → "Forgot password" → enter email → submit |
 | Password reset confirm | `/login/reset-password/:token` | public | Open email link → enter new password twice → submit → login |
 | Home | `/` | authenticated | Login → personal hub: **Tickets atuais**, **Tickets atribuídos**, **Atividade** (static snapshot); optional sections for owned saved queries with **Exibir na página inicial** |
 | Project hub | `/projects/:projectId` | authenticated (project member or admin) | Home → project name → hub: **Kanban**, **Painel**, **Versões**, **Fases**; lists phases and versions; owner PM or admin also **Editar**, **Alocação**, **Nova fase** / **Nova versão** |
 | Project allocation | `/projects/:projectId/allocation` | project owner PM, admin | Project hub → **Alocação** → list members → add user → remove (blocked when member has open assigned tickets; UI lists those tickets) |
 | Account settings | `/account/settings` | authenticated | Menu → Conta → edit name/email, save profile → change password (current + new) or use recovery link |
-| Kanban board | `/project/:projectId/kanban` | authenticated (project member or admin) | Project hub → **Kanban** → view columns by status → drag/move ticket; **filter by phase** (all / active / unplanned / **pick any phase**); phase badge on cards |
-| Project dashboard | `/project/:projectId/dashboard` | authenticated (project member or admin) | Project hub → **Painel** → dashboard shows default widgets on first visit; Editar layout to customize |
+| Kanban board | `/project/:projectId/kanban` | authenticated (project member or admin) | Header **Projetos** → project name → board; or Project hub → **Kanban** → view columns by status → drag/move ticket; **filter by phase** (all / active / unplanned / **pick any phase**); **Faixa** swimlanes (none / assignee / priority); WIP `n/limit` on columns; phase badge on cards |
+| Project dashboard | `/project/:projectId/dashboard` | authenticated (project member or admin) | Project hub → **Painel** → default widgets on first visit; **Editar layout** customizes and saves layout per user on the server; recent tickets capped at 20 |
 | Version catalog | `/project/:projectId/versions` | authenticated | Kanban → Versões → list SemVer labels → open changelog |
 | Create version | `/project/:projectId/versions/new` | project-manager, admin | Versões → Nova versão → enter SemVer label + description → save |
 | Version detail / changelog | `/project/:projectId/versions/:versionId` | authenticated | Versões → select version → view grouped changelog (Planejado / Entregue / Via fase); PM can edit label |
@@ -29,16 +30,17 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Create ticket (project) | `/project/:projectId/tickets/new` | authenticated | Kanban → Novo ticket → form pre-filled from template → optional **fase** → create |
 | Import tickets (CSV, project) | `/project/:projectId/tickets/import` | authenticated | Kanban → Importar CSV → upload file → map columns → preview → import valid rows |
 | Import tickets (CSV, global) | `/tickets/import` | authenticated | Header **Importar** or user menu → Importar CSV → upload file → map project + columns → preview → import valid rows |
-| User list | `/users` | admin | Menu → users → list |
+| User list | `/users` | admin | Menu → users → list; Editar or Excluir (blocked when assignee on open tickets) |
 | Create user | `/users/new` | admin | Users → new → fill form → save |
 | Edit user | `/users/:userId` | admin | Users → select user → edit → save |
-| Project list | `/projects` | project-manager, admin | User menu → **Projetos** → list; **Abrir** hub, **Fases**, **Versões**, **Editar** per row (scoped: owned projects for PM; all for admin) |
+| Project list | `/projects` | project-manager, admin | Header **Projetos** → **Gerenciar projetos**, or Conta → **Projetos** → list; **Abrir** hub, **Fases**, **Versões**, **Editar** per row (list scope: viewable projects — member ∪ owned for non-admin; all for admin) |
+| Header Projetos menu | (global shell) | authenticated | Header **Projetos** → pick project → Kanban; empty: button disabled + tooltip; PM/admin also **Gerenciar projetos** in menu footer |
 | Create project | `/projects/new` | project-manager | Projects → new → fill form (optional ticket template; creator becomes owner and member) → save |
 | Edit project | `/projects/:projectId/edit` | project owner PM, admin | Project hub → **Editar** → update fields and **owner** (admin or current owner) → save |
 | Workflow list | `/workflows` | project-manager, admin | Menu → Administração → Processos → list workflows → Editar |
-| Create workflow | `/workflows/new` | project-manager, admin | Workflows → Novo processo → status table + transitions table → save |
-| Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, start status, transitions (status names fixed) |
-| Category list | `/categories` | admin | Menu → Administração → Categorias → list; Nova categoria or Editar dialog with color picker |
+| Create workflow | `/workflows/new` | project-manager, admin | Workflows → Novo processo → status table (optional WIP) + transitions table → save |
+| Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, start status, transitions, WIP limits (status names fixed) |
+| Category list | `/categories` | admin | Menu → Administração → Categorias → list; Nova categoria or Editar dialog with color picker; Excluir with confirm (blocked when tickets or project templates reference the category) |
 | Notifications (SSE) | (global, background) | authenticated | Login → SSE registers → badge updates on ticket changes |
 
 ## API-only features (no dedicated UI page)

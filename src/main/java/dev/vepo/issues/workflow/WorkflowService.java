@@ -52,6 +52,7 @@ public class WorkflowService {
                                                            .toList()));
         applyPhaseStart(workflow, statuses, request.phaseStart());
         applyFinishStatuses(workflow, statuses, request.finishStatuses());
+        applyWipLimits(workflow, statuses, request.wipLimits());
         return WorkflowResponse.load(workflow);
     }
 
@@ -97,6 +98,7 @@ public class WorkflowService {
                                .toList());
         applyPhaseStart(workflow, statuses, request.phaseStart());
         applyFinishStatuses(workflow, statuses, request.finishStatuses());
+        applyWipLimits(workflow, statuses, request.wipLimits());
         return WorkflowResponse.load(workflow);
     }
 
@@ -136,6 +138,18 @@ public class WorkflowService {
                 throw new BadRequestException("Finish status is not part of this workflow: %s".formatted(finishStatus.status()));
             }
             workflow.getFinishStatuses().add(new WorkflowFinishStatus(workflow, status, finishStatus.outcome()));
+        }
+    }
+
+    private void applyWipLimits(Workflow workflow, Map<String, WorkflowStatus> statuses, List<StatusWipRequest> wipLimits) {
+        workflow.getWipLimits().clear();
+        var requested = Optional.ofNullable(wipLimits).orElseGet(Collections::emptyList);
+        for (var wipLimit : requested) {
+            var status = statuses.get(wipLimit.status());
+            if (Objects.isNull(status)) {
+                throw new BadRequestException("WIP limit status is not part of this workflow: %s".formatted(wipLimit.status()));
+            }
+            workflow.getWipLimits().add(new WorkflowWipLimit(workflow, status, wipLimit.wipLimit()));
         }
     }
 }

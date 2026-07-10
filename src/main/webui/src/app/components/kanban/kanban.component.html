@@ -24,6 +24,20 @@
           </mat-select>
         </mat-form-field>
       </div>
+      <div class="board-phase-filter">
+        <span class="board-phase-filter__label" i18n>Faixa</span>
+        <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
+          <mat-select
+            [value]="swimlaneMode"
+            (selectionChange)="swimlaneMode = $event.value"
+            i18n-aria-label
+            aria-label="Agrupar por faixa">
+            <mat-option value="none" i18n>Nenhuma</mat-option>
+            <mat-option value="assignee" i18n>Responsável</mat-option>
+            <mat-option value="priority" i18n>Prioridade</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
       <a class="btn" matButton="filled" [routerLink]="['/project', project.id, 'tickets', 'new']">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
         <span i18n>Novo ticket</span>
@@ -52,44 +66,103 @@
     i18n-message
     message="Arraste cards entre colunas para mover o status do ticket." />
 
-  <div class="board">
-    @for (status of statuses; track status.id) {
-      <div
-        class="column"
-        cdkDropList
-        [id]="toColumnId(status)"
-        [cdkDropListData]="ticketsOf(status.id)"
-        [cdkDropListConnectedTo]="connectedTo(status)"
-        (cdkDropListDropped)="drop($event)">
-        <div class="header">
-          {{ status.name | normalize }}
-          <span class="column-count">{{ ticketsOf(status.id).length }}</span>
-        </div>
-        <div class="card-container">
-          @let statusTicket = ticketsOf(status.id);
-          @if (statusTicket.length === 0) {
-            <div class="card empty" i18n>Nenhum ticket nesta coluna</div>
-          }
-          @for (ticket of statusTicket; track ticket.identifier) {
-            <div class="card" cdkDrag [style.border-left-color]="ticket.categoryColor || 'transparent'">
-              <div class="identifier">
-                <a [routerLink]="['/ticket', ticket.identifier]">{{ ticket.identifier }}</a>
-                @if (ticket.categoryName) {
-                  <span class="category-badge" [style.border-left-color]="ticket.categoryColor">
-                    <span class="category-badge__dot" [style.background-color]="ticket.categoryColor"></span>
-                    {{ ticket.categoryName }}
-                  </span>
-                }
-                @if (ticket.phaseName) {
-                  <span class="phase-badge">{{ ticket.phaseName }}</span>
-                }
+  @if (swimlaneMode === 'none') {
+    <div class="board">
+      @for (status of statuses; track status.id) {
+        <div
+          class="column"
+          [class.column--wip-full]="isWipOver(status)"
+          cdkDropList
+          [id]="toColumnId(status)"
+          [cdkDropListData]="ticketsOf(status.id)"
+          [cdkDropListConnectedTo]="connectedTo(status)"
+          [cdkDropListEnterPredicate]="canEnterColumn"
+          (cdkDropListDropped)="drop($event)">
+          <div class="header">
+            {{ status.name | normalize }}
+            <span class="column-count" [class.column-count--wip-full]="isWipOver(status)">{{ wipLabel(status) }}</span>
+          </div>
+          <div class="card-container">
+            @let statusTicket = ticketsOf(status.id);
+            @if (statusTicket.length === 0) {
+              <div class="card empty" i18n>Nenhum ticket nesta coluna</div>
+            }
+            @for (ticket of statusTicket; track ticket.identifier) {
+              <div class="card" cdkDrag [cdkDragData]="ticket" [style.border-left-color]="ticket.categoryColor || 'transparent'">
+                <div class="identifier">
+                  <a [routerLink]="['/ticket', ticket.identifier]">{{ ticket.identifier }}</a>
+                  @if (ticket.categoryName) {
+                    <span class="category-badge" [style.border-left-color]="ticket.categoryColor">
+                      <span class="category-badge__dot" [style.background-color]="ticket.categoryColor"></span>
+                      {{ ticket.categoryName }}
+                    </span>
+                  }
+                  @if (ticket.phaseName) {
+                    <span class="phase-badge">{{ ticket.phaseName }}</span>
+                  }
+                </div>
+                <div class="title">{{ ticket.title }}</div>
+                <div class="description" [innerHTML]="ticket.description"></div>
               </div>
-              <div class="title">{{ ticket.title }}</div>
-              <div class="description" [innerHTML]="ticket.description"></div>
-            </div>
-          }
+            }
+          </div>
         </div>
+      }
+    </div>
+  } @else {
+    <div class="board board--swimlanes">
+      <div class="board-swimlane-header">
+        <div class="board-swimlane-header__label"></div>
+        @for (status of statuses; track status.id) {
+          <div class="board-swimlane-header__status" [class.column--wip-full]="isWipOver(status)">
+            {{ status.name | normalize }}
+            <span class="column-count" [class.column-count--wip-full]="isWipOver(status)">{{ wipLabel(status) }}</span>
+          </div>
+        }
       </div>
-    }
-  </div>
+      @for (lane of swimlanes(); track lane.key) {
+        <div class="swimlane">
+          <div class="swimlane__label">{{ lane.label }}</div>
+          <div class="swimlane__columns">
+            @for (status of statuses; track status.id) {
+              <div
+                class="column"
+                [class.column--wip-full]="isWipOver(status)"
+                cdkDropList
+                [id]="listId(status, lane)"
+                [cdkDropListData]="ticketsOf(status.id, lane)"
+                [cdkDropListConnectedTo]="connectedTo(status)"
+                [cdkDropListEnterPredicate]="canEnterColumn"
+                (cdkDropListDropped)="drop($event)">
+                <div class="card-container">
+                  @let statusTicket = ticketsOf(status.id, lane);
+                  @if (statusTicket.length === 0) {
+                    <div class="card empty" i18n>Nenhum ticket nesta coluna</div>
+                  }
+                  @for (ticket of statusTicket; track ticket.identifier) {
+                    <div class="card" cdkDrag [cdkDragData]="ticket" [style.border-left-color]="ticket.categoryColor || 'transparent'">
+                      <div class="identifier">
+                        <a [routerLink]="['/ticket', ticket.identifier]">{{ ticket.identifier }}</a>
+                        @if (ticket.categoryName) {
+                          <span class="category-badge" [style.border-left-color]="ticket.categoryColor">
+                            <span class="category-badge__dot" [style.background-color]="ticket.categoryColor"></span>
+                            {{ ticket.categoryName }}
+                          </span>
+                        }
+                        @if (ticket.phaseName) {
+                          <span class="phase-badge">{{ ticket.phaseName }}</span>
+                        }
+                      </div>
+                      <div class="title">{{ ticket.title }}</div>
+                      <div class="description" [innerHTML]="ticket.description"></div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
 </div>

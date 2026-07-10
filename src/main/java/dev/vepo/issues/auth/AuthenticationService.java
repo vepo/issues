@@ -1,5 +1,7 @@
 package dev.vepo.issues.auth;
 
+import java.util.Set;
+
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,8 +9,10 @@ import org.slf4j.LoggerFactory;
 import dev.vepo.issues.mailer.MailerService;
 import dev.vepo.issues.user.PasswordResetToken;
 import dev.vepo.issues.user.PasswordResetTokenRepository;
+import dev.vepo.issues.user.Role;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
+import dev.vepo.issues.user.UserResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -44,6 +48,24 @@ public class AuthenticationService {
         this.jwtTokenIssuer = jwtTokenIssuer;
         this.mailerService = mailerService;
         this.refreshTokenDays = refreshTokenDays;
+    }
+
+    @Transactional
+    public UserResponse register(RegisterUserRequest request) {
+        userRepository.findByUsername(request.username())
+                      .ifPresent(existing -> {
+                          throw new BadRequestException("Username already in use");
+                      });
+        userRepository.findByEmail(request.email())
+                      .ifPresent(existing -> {
+                          throw new BadRequestException("Email already in use");
+                      });
+        var user = new User(request.username(),
+                            request.name(),
+                            request.email(),
+                            passwordEncoder.hashPassword(request.password()),
+                            Set.of(Role.USER));
+        return UserResponse.load(userRepository.save(user));
     }
 
     @Transactional

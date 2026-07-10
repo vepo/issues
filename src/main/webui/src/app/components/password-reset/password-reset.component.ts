@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { strongPasswordValidators } from '../../core/password-policy';
 
 @Component({
   selector: 'app-password-reset',
@@ -34,7 +35,7 @@ export class PasswordResetComponent {
   error = '';
 
   resetForm: FormGroup = this.formBuilder.group({
-    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    newPassword: ['', strongPasswordValidators],
     confirmPassword: ['', [Validators.required]]
   });
 

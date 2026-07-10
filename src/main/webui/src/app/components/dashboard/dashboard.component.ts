@@ -10,6 +10,7 @@ import { ChartConfiguration } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { Observable, shareReplay } from 'rxjs';
 import { Project } from '../../services/projects.service';
+import { DashboardApi } from '../../generated/api/dashboard.service';
 import { AvailablesDashboards, DashboardLayout, DashboardWidget, KpiData, PieChartData, TableChartData } from './availables.dashboards';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 
@@ -22,8 +23,7 @@ import { NormalizePipe } from '../pipes/normalize.pipe';
 export class DashboardComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly availableDasboards = inject(AvailablesDashboards);
-
-  // data: Map<string, ChartData<'pie', number[], string | string[]>> = new Map<string, ChartData<'pie', number[], string | string[]>>();
+  private readonly dashboardApi = inject(DashboardApi);
 
   @ViewChild('availableList') availableList!: CdkDropList;
   @ViewChild('dashboardList') dashboardList!: CdkDropList;
@@ -39,7 +39,6 @@ export class DashboardComponent implements OnInit {
   project: Project | null;
   availableWidgets: DashboardWidget[];
 
-   // Pie
   public pieChartOptions: ChartConfiguration['options'] = {
     plugins: {
       legend: {
@@ -48,14 +47,6 @@ export class DashboardComponent implements OnInit {
       }
     },
   };
-  // public pieChartData: ChartData<'pie', number[], string | string[]> = {
-  //   labels: [['Download', 'Sales'], ['In', 'Store', 'Sales'], 'Mail Sales'],
-  //   datasets: [
-  //     {
-  //       data: [300, 500, 100],
-  //     },
-  //   ],
-  // };
 
   constructor() {
     this.project = null;
@@ -64,7 +55,6 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.activatedRoute.data.subscribe(({project}) => {
-      console.log(project);
       this.project = project;
       this.loadDashboardConfig();
     });
@@ -77,20 +67,17 @@ export class DashboardComponent implements OnInit {
   loadTableData(chart: DashboardWidget): Observable<TableChartData> {
     const cacheKey = `${chart.id}-${this.project!.id}`;
     const now = Date.now();
-    const cacheDuration = 15000; // 15 segundos
+    const cacheDuration = 15000;
 
-    // Verifica se existe cache válido
     const cached = this.tableChartDataCache.get(cacheKey);
     if (cached && (now - cached.timestamp) < cacheDuration) {
       return cached.data;
     }
 
-    // Cria novo observable com cache
     const newData = this.availableDasboards.loadTableData(chart, this.project!.id).pipe(
-      shareReplay(1) // Compartilha a última emissão
+      shareReplay(1)
     );
 
-    // Atualiza cache
     this.tableChartDataCache.set(cacheKey, {
       data: newData,
       timestamp: now
@@ -100,23 +87,19 @@ export class DashboardComponent implements OnInit {
   }
 
   loadKpiData(chart: DashboardWidget): Observable<KpiData> {
-    console.log("Updating data...", chart);
     const cacheKey = `${chart.id}-${this.project!.id}`;
     const now = Date.now();
-    const cacheDuration = 15000; // 15 segundos
+    const cacheDuration = 15000;
 
-    // Verifica se existe cache válido
     const cached = this.kpiChartDataCache.get(cacheKey);
     if (cached && (now - cached.timestamp) < cacheDuration) {
       return cached.data;
     }
 
-    // Cria novo observable com cache
     const newData = this.availableDasboards.loadKpiData(chart, this.project!.id).pipe(
-      shareReplay(1) // Compartilha a última emissão
+      shareReplay(1)
     );
 
-    // Atualiza cache
     this.kpiChartDataCache.set(cacheKey, {
       data: newData,
       timestamp: now
@@ -126,23 +109,19 @@ export class DashboardComponent implements OnInit {
   }
 
   loadPieData(chart: DashboardWidget): Observable<PieChartData> {
-    console.log("Updating data...", chart);
     const cacheKey = `${chart.id}-${this.project!.id}`;
     const now = Date.now();
-    const cacheDuration = 15000; // 15 segundos
+    const cacheDuration = 15000;
 
-    // Verifica se existe cache válido
     const cached = this.pieChartDataCache.get(cacheKey);
     if (cached && (now - cached.timestamp) < cacheDuration) {
       return cached.data;
     }
 
-    // Cria novo observable com cache
     const newData = this.availableDasboards.loadPieData(chart, this.project!.id).pipe(
-      shareReplay(1) // Compartilha a última emissão
+      shareReplay(1)
     );
 
-    // Atualiza cache
     this.pieChartDataCache.set(cacheKey, {
       data: newData,
       timestamp: now
@@ -152,11 +131,9 @@ export class DashboardComponent implements OnInit {
   }
 
   onDrop(event: CdkDragDrop<any>) {
-    console.log('Event', event);
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
-      // Clone the widget to avoid reference issues
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
@@ -176,27 +153,32 @@ export class DashboardComponent implements OnInit {
   }
 
   saveDashboardConfig() {
-    console.log("Saving... ", `project-layout-${this.project?.id}`)
-    console.log(this.pageLayout)
-    localStorage.setItem(`project-layout-${this.project?.id}`, JSON.stringify(this.pageLayout));
-    console.log("Saved", this.pageLayout);
-  }
-
-  private readonly defaultWidgetIds = ['tickets-by-status', 'tickets-by-priority', 'performance-kpi', 'recent-tickets'];
-
-  loadDashboardConfig() {
-    const storageKey = `project-layout-${this.project?.id}`;
-    const savedConfig = localStorage.getItem(storageKey);
-    if (savedConfig) {
-      this.pageLayout = JSON.parse(savedConfig);
+    if (!this.project) {
       return;
     }
-    const defaultWidgets = this.availableDasboards.all.filter(widget => this.defaultWidgetIds.includes(widget.id));
-    this.pageLayout = {
-      ...this.dashboardLayouts,
-      widgets: defaultWidgets.map(widget => ({ ...widget }))
-    };
-    localStorage.setItem(storageKey, JSON.stringify(this.pageLayout));
+    const widgetIds = this.pageLayout.widgets.map(widget => widget.id);
+    this.dashboardApi.saveDashboardLayout(this.project.id, { widgetIds }).subscribe();
+  }
+
+  loadDashboardConfig() {
+    if (!this.project) {
+      return;
+    }
+    this.dashboardApi.getDashboardLayout(this.project.id).subscribe(layout => {
+      const widgetIds = layout.widgetIds ?? [];
+      const widgets = widgetIds
+        .map(id => this.availableDasboards.all.find(widget => widget.id === id))
+        .filter((widget): widget is DashboardWidget => !!widget)
+        .map(widget => ({ ...widget }));
+      this.pageLayout = {
+        ...this.dashboardLayouts,
+        widgets
+      };
+      const usedIds = new Set(widgets.map(widget => widget.id));
+      this.availableWidgets = this.availableDasboards.all
+        .filter(widget => !usedIds.has(widget.id))
+        .map(widget => ({ ...widget }));
+    });
   }
 
   toggleEdit() {

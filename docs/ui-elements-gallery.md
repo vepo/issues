@@ -75,17 +75,30 @@ Material theme CSS variables are aligned to `$base-active-color` in `styles.scss
 - **Brand** (`.brand`) — ticket icon + "Issues" wordmark → `/`
 - **Search** (`.search-bar`) — flat rectangular input; submit on Enter (authenticated)
 - **Novo** — compact primary button
-- **Actions** (`.header-actions`) — notification icon + user menu icon
+- **Importar** — compact outlined header button (authenticated)
+- **Actions** (`.header-actions`) — **Projetos** menu (`app-project-menu`) + notification icon + user menu icon
 
 **Behavior:**
 - **Brand** → `/` with `brand-active` on home
 - **Search** — `.search-bar` form; Enter → `/search` with `q` query param only
 - **Novo** — compact primary button → `/tickets/new`
+- **Projetos** — labeled outlined button (`app-project-menu`); menu lists viewable projects → `/project/:id/kanban`; disabled + tooltip when empty; PM/admin footer **Gerenciar projetos** → `/projects`
 - **Notificações** — icon-only `matIconButton` + badge (`app-notification`)
-- **User menu** — `person` icon + `mat-menu`: email header, Conta, Administração submenu (role-gated), Sair
+- **User menu** — `person` icon + `mat-menu`: email header, Conta, **Projetos** (PM/admin → `/projects`), Administração submenu (role-gated), Sair
 - **Acessar** — shown when logged out → `/login`
 
 **Status filter:** moved to search results page (`.filter-chips` on `/search`), not in global header.
+
+### 1.1.1 Project menu (`app-project-menu`)
+
+| Property | Value |
+|----------|-------|
+| **Location** | `.header-actions`, left of notifications |
+| **Trigger** | Labeled **Projetos** button (`.btn.btn-compact.btn-header`, `matButton="outlined"`) |
+| **Menu** | `mat-menu.menu-panel` — one item per viewable project (name + kanban icon) → Kanban route |
+| **Empty** | Trigger **disabled**; wrapper `matTooltip` = “Nenhum projeto” |
+| **Footer** | Divider + **Gerenciar projetos** → `/projects` when user has `project-manager` or `admin` |
+| **API** | `ProjectsService.findAll()` → `GET /projects` (viewable scope) |
 
 ### 1.2 Context bar (`.context-bar`)
 
@@ -430,7 +443,11 @@ Note: ticket detail activity uses `.activity-feed` (see §10.1), not `div.data-t
 
 ### 8.1 User menu (`mat-menu.menu-panel`)
 
-White panel, divider lines, hover `$base-secondary-bg-color`. Role directive gates admin/PM items.
+White panel, divider lines, hover `$base-secondary-bg-color`. Role directive gates admin/PM items. Email header, Conta, Importar CSV, **Projetos** (PM/admin → `/projects`), Administração submenu, Sair.
+
+### 8.1.1 Project navigation menu (`app-project-menu`)
+
+See §1.1.1 — header **Projetos** → Kanban per project; optional **Gerenciar projetos** footer.
 
 ### 8.2 Notification menu (`mat-menu.menu-panel.notifications`)
 

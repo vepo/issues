@@ -73,14 +73,16 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
 | **Issues** | The product (change/ticket management). | UI title, email templates |
-| **User** | Registered account with name, email, password, roles. | `User`, `tb_users` |
+| **User** | Registered account with name, email, optional local password, roles, and **auth provider**. | `User`, `tb_users` |
+| **Auth provider** | Deployment-wide credential source: **LOCAL**, **LDAP**, or **ENDPOINT** (selected via `AUTH_PROVIDER`). | `AuthProvider`, `auth.provider` |
 | **Role** | Platform capability assigned to a user (multi-role). | `Role` enum |
 | **User** (role) | Default role; create and work on tickets. | `Role.USER` — label: "User" |
 | **Administrator** | Full user management. | `Role.ADMIN` — label: "Admin" |
 | **Project manager** | Create projects and workflows; soft-delete tickets. | `Role.PROJECT_MANAGER` |
-| **Session** | Authenticated state via JWT Bearer token; **refresh token** renews access without re-login. | `AuthenticationEndpoint`, Angular `auth.service` |
-| **Password recovery** | Self-service flow to reset password via email link. | `AuthenticationEndpoint` `/auth/recovery` |
+| **Session** | Authenticated state via JWT Bearer token; **refresh token** renews access without re-login. Issued after any successful provider verification. | `AuthenticationService`, Angular `auth.service` |
+| **Password recovery** | Self-service flow to reset password via email link; **LOCAL** provider only. | `AuthenticationService` `/auth/recovery` |
 | **Password reset token** | Single-use secret sent by email. | `PasswordResetToken` |
+| **Auth capabilities** | Public flags telling the UI whether password recovery and change-password are available. | `GET /auth/capabilities` |
 
 ### Projects & workflows
 
@@ -91,10 +93,12 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Project member** | User assigned to a project; required to be eligible as ticket **assignee** on that project. | `tb_project_members`; M:N project ↔ user |
 | **Project allocation** | UI for project owner or admin to add or remove **project members**. | `/projects/:projectId/allocation`; UI **Alocação** |
 | **Project hub** | Read-only project landing: Kanban and dashboard entry; accessible to **members** and admin. | `/projects/:projectId` |
+| **Project navigation menu** | Global header **Projetos** control listing **viewable** projects; each item opens that project’s **Kanban**. Empty: disabled control with tooltip. | Shell `ProjectMenuComponent`; `GET /projects` viewable scope |
 | **Assigned project** | Project where the current user is a **project member**. | Scopes home and hub for `user` role |
 | **Project prefix** | Short uppercase code used in ticket identifiers (e.g. `ISS`). | `Project.prefix` |
 | **Workflow** | Named state machine: start status, allowed statuses, transitions. | `Workflow`, `tb_workflows` |
 | **Status** | Named step in a workflow (e.g. TODO, IN_PROGRESS, DONE). | `WorkflowStatus`, `tb_workflow_status` |
+| **WIP limit** (workflow status) | Optional positive integer cap on tickets in that status within a workflow; absent = unlimited. | `tb_workflow_wip_limits` |
 | **Transition** | Allowed move from one status to another within a workflow. | `WorkflowTransition` |
 | **Start status** | Required initial status for every new ticket in a workflow. | `Workflow.start` / `start_id` |
 | **Phase start status** | Optional status on a workflow; when a **phase** is **activated**, each assigned ticket moves here if a valid transition exists. | `Workflow.phaseStart`; UI **Status inicial da fase** |
@@ -171,12 +175,15 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
 | **Kanban** | Board view grouping tickets by workflow status columns. | `/project/:projectId/kanban` |
+| **Swimlane** | Optional Kanban row grouping by **assignee** or **priority** (toolbar **Faixa**; default none). View-only — not persisted. | Kanban toolbar |
+| **WIP limit** | Optional maximum non-deleted tickets allowed in a **workflow status** for a given workflow; shared by all projects using that workflow. | `tb_workflow_wip_limits`; workflow form; Kanban `n/limit` |
 | **Dashboard** | Project analytics page with charts and KPIs. | `/project/:projectId/dashboard` |
 | **Dashboard widget** | Chart, table, or KPI visualization. | `DashboardType` enum |
+| **Dashboard layout** | Ordered set of widgets for a user on a project dashboard; persisted server-side (not browser `localStorage`). | `tb_dashboard_layouts`; `GET/PUT …/dashboard/layout` |
 | **Tickets by day** | Pie chart of ticket creation over time. | `tickets-by-day` |
 | **Tickets by status** | Pie chart of tickets grouped by status. | `tickets-by-status` |
 | **Tickets by priority** | Pie chart of tickets grouped by priority. | `tickets-by-priority` |
-| **Recent tickets** | Table of latest tickets. | `recent-tickets` |
+| **Recent tickets** | Table of the **20** most recently updated non-deleted tickets in the project. | `recent-tickets` |
 | **Performance KPI** | Summary metrics for project throughput. | `performance-kpi` |
 | **Search** | Full-text ticket search across projects. | `/search`, `GET /tickets/search` |
 | **Query language** | Issues-native **plain text** search syntax, parsed with **ANTLR**; inspired by Jira JQL — **not JQL-compatible**; field predicates over tickets and comments. | `POST /tickets/search/query`; `TicketQuery.g4` |
@@ -220,20 +227,29 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 26. **Member removal** — a **project member** cannot be removed while they are **assignee** on a non-finished ticket in that project; tickets must be reassigned first.
 27. **Home scope** — `user` role: home lists and activity include **member** projects only. **Project owner:** owned projects. **Admin:** all projects.
 28. **Project hub access** — any **project member** (and admin) may open the project hub and navigate to Kanban and dashboard; project edit and allocation require project owner or admin.
-29. **Ticket search** — global across projects for any authenticated user; not filtered by membership.
-30. **Saved query ownership** — each saved query has exactly one **owner**; only the owner may update or delete. Non-owners must **clone** another user's query before editing.
-31. **Show at home** — optional per saved query (`show_at_home`); when enabled, the owner's query appears as a home section (one section per flagged query; snapshot per visit).
-32. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter.
-33. **Search indexing** — PostgreSQL **`tsvector` + GIN** indexes on ticket and comment text columns (`search_vector`).
-34. **Due date** — optional user-planned deadline on a ticket (`due_date`); independent of workflow **finish date** (`finished_at`).
-35. **Project prefix immutability** — once a project has at least one ticket, its **prefix** cannot change.
-36. **Category delete** — a category cannot be deleted while any ticket references it (`category_id` FK).
-37. **Kanban drag validation** — client blocks drag/drop to columns with no valid workflow transition; server remains authoritative on `moveTicket`.
-38. **User removal** — a user cannot be deleted while they are **assignee** on tickets whose status is not workflow **start**, **done**, or **canceled** finish status.
-39. **Self-registration** — new users may register via a public registration flow (default role `user`).
-40. **Account profile** — authenticated users may update their own name and email on account settings.
-41. **Notifications pagination** — notification list uses **infinite scroll** with paginated API; SSE client **auto-reconnects** after network drop.
+29. **Project list (viewable)** — `GET /projects` returns **viewable** projects: **admin** sees all; other users see the union of projects they **own** and projects where they are a **project member**. The header **Project navigation menu** uses this list.
+30. **Ticket search** — global across projects for any authenticated user; not filtered by membership.
+31. **Saved query ownership** — each saved query has exactly one **owner**; only the owner may update or delete. Non-owners must **clone** another user's query before editing.
+32. **Show at home** — optional per saved query (`show_at_home`); when enabled, the owner's query appears as a home section (one section per flagged query; snapshot per visit).
+33. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter.
+34. **Search indexing** — PostgreSQL **`tsvector` + GIN** indexes on ticket and comment text columns (`search_vector`).
+35. **Due date** — optional user-planned deadline on a ticket (`due_date`); independent of workflow **finish date** (`finished_at`).
+36. **Project prefix immutability** — once a project has at least one ticket, its **prefix** cannot change.
+37. **Category delete** — a category cannot be deleted while any ticket references it (`category_id` FK, including soft-deleted tickets), or while any project **ticket template** references it (`ticket_template_category_id`).
+38. **Kanban drag validation** — client blocks drag/drop to columns with no valid workflow transition; server remains authoritative on `moveTicket`.
+50. **WIP limit** — optional per workflow×status (`tb_workflow_wip_limits`); null/absent = unlimited. Count is non-deleted tickets in that status for the **project**. `moveTicket` into a status at or over its limit is rejected (400); client also blocks the drop. Ticket **create** and CSV **import** do not enforce WIP in the current product scope.
+51. **Kanban swimlanes** — optional toolbar grouping by assignee or priority (default none); preference is not persisted server-side.
+39. **User removal** — a user cannot be deleted while they are **assignee** on tickets whose status is not workflow **start**, **done**, or **canceled** finish status.
+40. **Self-registration** — new users may register via a public registration flow (default role `user`).
+41. **Account profile** — authenticated users may update their own name and email on account settings.
+42. **Notifications pagination** — notification list uses **infinite scroll** with paginated API; SSE client **auto-reconnects** after network drop.
 43. **Refresh token** — opaque server-side token in `tb_refresh_tokens`; issued on login; rotated on `POST /auth/refresh`; revoked on password change or reset. Access JWT TTL configured via `auth.access-token-minutes` (default 15 min).
+44. **Dashboard layout** — one layout per user per project, stored server-side; browser `localStorage` layouts are not migrated.
+45. **Recent tickets widget** — shows at most **20** non-deleted tickets ordered by `updated_at` descending.
+46. **Single auth provider** — exactly one of LOCAL, LDAP, or ENDPOINT is active per deployment (`AUTH_PROVIDER`); login UI does not offer provider choice.
+47. **External user provisioning** — LDAP/ENDPOINT success auto-creates a local **User** when none exists for the email; LDAP re-syncs roles from group→role map on every login; ENDPOINT assigns **USER** on create and does not overwrite roles later.
+48. **Local password ops** — password recovery and change-password are allowed only when the active provider is LOCAL; non-LOCAL users may have a null `encoded_password`.
+49. **Password policy** — local passwords (registration, change-password, reset confirm) must be 8–64 characters and include at least one uppercase letter, one lowercase letter, and one digit.
 
 ---
 

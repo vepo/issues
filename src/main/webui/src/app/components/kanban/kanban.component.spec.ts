@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { KanbanComponent } from './kanban.component';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Project, ProjectsService, ProjectWorkflow } from '../../services/projects.service';
@@ -9,6 +9,7 @@ import { of } from 'rxjs';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import { ProjectStatus } from '../../services/status.service';
 import { Phase, PhaseService } from '../../services/phase.service';
+import { ProjectMembersService } from '../../services/project-members.service';
 
 describe('KanbanComponent', () => {
   let component: KanbanComponent;
@@ -17,6 +18,7 @@ describe('KanbanComponent', () => {
   let mockProjectsService: jasmine.SpyObj<ProjectsService>;
   let mockTicketService: jasmine.SpyObj<TicketService>;
   let mockPhaseService: jasmine.SpyObj<PhaseService>;
+  let mockMembersService: jasmine.SpyObj<ProjectMembersService>;
 
   const mockProject = {
     id: 1,
@@ -30,11 +32,11 @@ describe('KanbanComponent', () => {
   } as Project;
 
   const mockStatuses: ProjectStatus[] = [
-    { id: 1, name: 'To Do', moveable: [2], start: false } as ProjectStatus,
-    { id: 2, name: 'In Progress', moveable: [1, 3, 4], start: false } as ProjectStatus,
-    { id: 3, name: 'Blocked', moveable: [2], start: false } as ProjectStatus,
-    { id: 4, name: 'Done', moveable: [2], start: false } as ProjectStatus
-  ];
+    { id: 1, name: 'To Do', moveable: [2], start: false },
+    { id: 2, name: 'In Progress', moveable: [1, 3, 4], start: false, wipLimit: 1 },
+    { id: 3, name: 'Blocked', moveable: [2], start: false },
+    { id: 4, name: 'Done', moveable: [2], start: false }
+  ] as unknown as ProjectStatus[];
 
   const emptyPlanningFields = {
     finishedAt: null,
@@ -98,7 +100,9 @@ describe('KanbanComponent', () => {
     mockProjectsService = jasmine.createSpyObj('ProjectsService', ['findWorkflowByProjectId']);
     mockTicketService = jasmine.createSpyObj('TicketService', ['move']);
     mockPhaseService = jasmine.createSpyObj('PhaseService', ['list']);
+    mockMembersService = jasmine.createSpyObj('ProjectMembersService', ['listMembers']);
     mockPhaseService.list.and.returnValue(of([]));
+    mockMembersService.listMembers.and.returnValue(of([{ id: 1, name: 'Alice', email: 'alice@issues.vepo.dev' }]));
     mockActivatedRoute = {
       data: of({
         statuses: mockStatuses,
@@ -113,7 +117,8 @@ describe('KanbanComponent', () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ProjectsService, useValue: mockProjectsService },
         { provide: TicketService, useValue: mockTicketService },
-        { provide: PhaseService, useValue: mockPhaseService }
+        { provide: PhaseService, useValue: mockPhaseService },
+        { provide: ProjectMembersService, useValue: mockMembersService }
       ]
     }).compileComponents();
   }));
@@ -181,122 +186,79 @@ describe('KanbanComponent', () => {
     });
   });
 
-  // it('should initialize with data from route', () => {
-  //   expect(component.project).toEqual(mockProject);
-  //   expect(component.statuses).toEqual(mockStatuses);
-  //   expect(component.tickets.length).toBe(2);
-  //   expect(component.workflow).toEqual(mockWorkflow);
-  // });
+  describe('connectedTo', () => {
+    it('should return connected column IDs for moveable statuses', () => {
+      expect(component.connectedTo(mockStatuses[0])).toEqual(['column-2']);
+      expect(component.connectedTo(mockStatuses[1])).toEqual(['column-1', 'column-3', 'column-4']);
+    });
 
-  // it('should fix line breaks in ticket descriptions', () => {
-  //   const ticketWithBreak = mockTickets[1];
-  //   const fixedTicket = component.fixLineBreak(ticketWithBreak);
-  //   expect(fixedTicket.description).toContain('<br/>');
-  //   expect(fixedTicket.description).not.toContain('\n');
-  // });
+    it('should connect to swimlane cells when swimlanes are enabled', () => {
+      component.swimlaneMode = 'assignee';
+      component.tickets = [
+        { ...mockTickets[0], assignee: 1 },
+        { ...mockTickets[1], assignee: null }
+      ] as Ticket[];
+      const connections = component.connectedTo(mockStatuses[0]);
+      expect(connections).toContain('column-2__assignee:1');
+      expect(connections).toContain('column-2__assignee:none');
+    });
+  });
 
-  // describe('ticketsOf', () => {
-  //   it('should return tickets for a given status', () => {
-  //     const todoTickets = component.ticketsOf(1);
-  //     expect(todoTickets.length).toBe(1);
-  //     expect(todoTickets[0].id).toBe(1);
+  describe('swimlanes', () => {
+    it('should return a single lane when mode is none', () => {
+      component.swimlaneMode = 'none';
+      expect(component.swimlanes()).toEqual([{ key: 'all', label: '' }]);
+    });
 
-  //     const inProgressTickets = component.ticketsOf(2);
-  //     expect(inProgressTickets.length).toBe(1);
-  //     expect(inProgressTickets[0].id).toBe(2);
+    it('should group by assignee including unassigned', () => {
+      component.swimlaneMode = 'assignee';
+      component.members = [{ id: 1, name: 'Alice', email: 'alice@issues.vepo.dev' }];
+      component.tickets = [
+        { ...mockTickets[0], assignee: 1 },
+        { ...mockTickets[1], assignee: null, status: 1 }
+      ] as Ticket[];
+      expect(component.swimlanes().map(l => l.key)).toEqual(['assignee:1', 'assignee:none']);
+      expect(component.swimlanes()[0].label).toBe('Alice');
+    });
 
-  //     const doneTickets = component.ticketsOf(3);
-  //     expect(doneTickets.length).toBe(0);
-  //   });
-  // });
+    it('should group by priority', () => {
+      component.swimlaneMode = 'priority';
+      expect(component.swimlanes().map(l => l.key)).toEqual(['priority:HIGH', 'priority:MEDIUM']);
+    });
+  });
 
-  // describe('connectedTo', () => {
-  //   it('should return connected column IDs for a status', () => {
-  //     const todoConnections = component.connectedTo(mockStatuses[0]);
-  //     expect(todoConnections).toEqual(['column-2']);
+  describe('WIP', () => {
+    it('should format wip label with limit', () => {
+      expect(component.wipLabel(mockStatuses[1])).toBe('1/1');
+      expect(component.wipLabel(mockStatuses[0])).toBe('1');
+    });
 
-  //     const inProgressConnections = component.connectedTo(mockStatuses[1]);
-  //     expect(inProgressConnections).toEqual(['column-1', 'column-3', 'column-4']);
-  //   });
-  // });
+    it('should report full WIP when count reaches limit', () => {
+      expect(component.isWipFull(2)).toBeTrue();
+      expect(component.isWipFull(1)).toBeFalse();
+    });
 
-  // describe('toColumnId', () => {
-  //   it('should convert status to column ID', () => {
-  //     expect(component.toColumnId(mockStatuses[0])).toBe('column-1');
-  //     expect(component.toColumnId(mockStatuses[1])).toBe('column-2');
-  //   });
-  // });
+    it('should block enter when target WIP is full', () => {
+      const drag = { data: mockTickets[0] } as CdkDrag<Ticket>;
+      const drop = { id: 'column-2', data: [] } as unknown as CdkDropList<Ticket[]>;
+      expect(component.canEnterColumn(drag, drop)).toBeFalse();
+    });
 
-  // describe('fromColumnId', () => {
-  //   it('should extract status ID from column ID', () => {
-  //     expect(component.fromColumnId('column-1')).toBe(1);
-  //     expect(component.fromColumnId('column-2')).toBe(2);
-  //   });
-  // });
+    it('should allow enter when same status even if WIP is full', () => {
+      const drag = { data: mockTickets[1] } as CdkDrag<Ticket>;
+      const drop = { id: 'column-2', data: [] } as unknown as CdkDropList<Ticket[]>;
+      expect(component.canEnterColumn(drag, drop)).toBeTrue();
+    });
 
-  // describe('drop', () => {
-  //   it('should not call move if status is the same', () => {
-  //     const event = {
-  //       previousContainer: { data: [mockTickets[0]], id: 'column-1' },
-  //       container: { id: 'column-1', data: [] },
-  //       previousIndex: 0,
-  //       currentIndex: 0
-  //     } as unknown as CdkDragDrop<any>;
-
-  //     component.drop(event);
-  //     expect(mockTicketService.move).not.toHaveBeenCalled();
-  //   });
-
-  //   it('should call move if status is different', () => {
-  //     const updatedTicket = { ...mockTickets[0], status: 2 };
-  //     mockTicketService.move.and.returnValue(of(updatedTicket));
-
-  //     const event = {
-  //       previousContainer: { data: [mockTickets[0]], id: 'column-1' },
-  //       container: { id: 'column-2', data: [] },
-  //       previousIndex: 0,
-  //       currentIndex: 0
-  //     } as unknown as CdkDragDrop<any>;
-
-  //     component.drop(event);
-  //     expect(mockTicketService.move).toHaveBeenCalledWith(1, 2);
-  //   });
-  // });
-
-  // describe('template', () => {
-    // it('should display project name', () => {
-    //   const h1 = fixture.nativeElement.querySelector('h1');
-    //   expect(h1.textContent).toContain(mockProject.name);
-    // });
-
-    // it('should render columns for each status', () => {
-    //   const columns = fixture.nativeElement.querySelectorAll('.column');
-    //   expect(columns.length).toBe(mockStatuses.length);
-    // });
-
-    // it('should render tickets in correct columns', () => {
-    //   fixture.detectChanges();
-    //   const todoColumn = fixture.nativeElement.querySelector('[id="column-1"]');
-    //   const todoTickets = todoColumn.querySelectorAll('.card:not(.empty)');
-    //   expect(todoTickets.length).toBe(1);
-    //   expect(todoTickets[0].querySelector('.title').textContent).toContain('Ticket 1');
-
-    //   const inProgressColumn = fixture.nativeElement.querySelector('[id="column-2"]');
-    //   const inProgressTickets = inProgressColumn.querySelectorAll('.card:not(.empty)');
-    //   expect(inProgressTickets.length).toBe(1);
-    //   expect(inProgressTickets[0].querySelector('.title').textContent).toContain('Ticket 2');
-
-    //   const doneColumn = fixture.nativeElement.querySelector('[id="column-3"]');
-    //   const emptyCard = doneColumn.querySelector('.card.empty');
-    //   expect(emptyCard).toBeTruthy();
-    //   expect(emptyCard.textContent).toContain('Nenhum ticket...');
-    // });
-
-    // it('should render ticket links correctly', () => {
-    //   fixture.detectChanges();
-    //   const ticketLink = fixture.nativeElement.querySelector('.identifier a');
-    //   expect(ticketLink.getAttribute('href')).toContain('/ticket/PRJ-001');
-    //   expect(ticketLink.textContent).toContain('1');
-    // });
-  // });
+    it('should not call move when dropping into a full WIP column', () => {
+      const event = {
+        previousContainer: { data: [mockTickets[0]], id: 'column-1' },
+        container: { id: 'column-2', data: [] },
+        previousIndex: 0,
+        currentIndex: 0
+      } as unknown as CdkDragDrop<Ticket[]>;
+      component.drop(event);
+      expect(mockTicketService.move).not.toHaveBeenCalled();
+    });
+  });
 });

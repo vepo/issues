@@ -27,25 +27,52 @@ public class UserRepository {
         this.em = entityManager;
     }
 
+    public Optional<User> findById(Long id) {
+        return em.createQuery("FROM User WHERE id = :id AND deleted = false", User.class)
+                 .setParameter("id", id)
+                 .getResultStream()
+                 .findFirst();
+    }
+
     public Optional<User> findByEmail(String email) {
-        return em.createQuery("FROM User WHERE email = :email", User.class)
+        return em.createQuery("FROM User WHERE email = :email AND deleted = false", User.class)
                  .setParameter("email", email)
                  .getResultStream()
                  .findFirst();
     }
 
     public Optional<User> findByUsername(String username) {
-        return em.createQuery("FROM User WHERE username = :username", User.class)
+        return em.createQuery("FROM User WHERE username = :username AND deleted = false", User.class)
                  .setParameter("username", username)
                  .getResultStream()
                  .findFirst();
     }
 
-    public Optional<User> findById(Long id) {
-        return em.createQuery("FROM User WHERE id = :id", User.class)
-                 .setParameter("id", id)
-                 .getResultStream()
-                 .findFirst();
+    public long countBlockingAssignedTickets(long userId) {
+        return em.createQuery("""
+                              SELECT COUNT(t)
+                              FROM Ticket t
+                              JOIN t.project p
+                              JOIN p.workflow w
+                              WHERE t.deleted = false
+                                AND t.assignee.id = :userId
+                                AND t.status <> w.start
+                                AND NOT EXISTS (
+                                    SELECT 1
+                                    FROM WorkflowFinishStatus fs
+                                    WHERE fs.workflow = w
+                                      AND fs.status = t.status
+                                      AND fs.outcome IN (dev.vepo.issues.workflow.FinishOutcome.DONE,
+                                                         dev.vepo.issues.workflow.FinishOutcome.CANCELED)
+                                )
+                              """, Long.class)
+                 .setParameter("userId", userId)
+                 .getSingleResult();
+    }
+
+    public void softDelete(User user) {
+        user.setDeleted(true);
+        em.merge(user);
     }
 
     public User save(User user) {
@@ -82,7 +109,11 @@ public class UserRepository {
 
     public Optional<User> findByEmailOrUsername(String credential) {
         logger.debug("Searching for user: credential={}", credential);
-        return em.createQuery("FROM User WHERE email = :credential OR username = :credential", User.class)
+        return em.createQuery("""
+                              FROM User
+                              WHERE deleted = false
+                                AND (email = :credential OR username = :credential)
+                              """, User.class)
                  .setParameter("credential", credential)
                  .getResultStream()
                  .findFirst();

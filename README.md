@@ -70,16 +70,17 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 - **Projects** — name, prefix, description, assigned workflow, **project owner** (PM role), **project members**, and optional **ticket template** (default title, description, category, priority for new tickets)
 - **Project allocation** — dedicated page to add/remove members; removal blocked while member has open assigned tickets
 - **Project hub** — member landing page with links to Kanban and dashboard (replaces project grid on home)
-- **Workflow builder** — create workflows with statuses and transitions (`/workflows` UI + API)
-- **Categories admin** — list and create ticket categories (`/categories`, admin)
-- **User management** — CRUD for users and role assignment (admin)
+- **Header Projetos** — labeled menu for all authenticated users listing viewable projects; each item opens that project’s Kanban; PM/admin also **Gerenciar projetos**
+- **Workflow builder** — create workflows with statuses, transitions, and optional per-status **WIP limits** (`/workflows` UI + API)
+- **Categories admin** — list, create, edit, and delete ticket categories (`/categories`, admin); delete blocked while tickets or project templates reference the category
+- **User management** — admin CRUD and soft-delete (blocked while assignee on open tickets); public self-registration (`/login/register`) with strong password policy
 - **Roles** — `user`, `admin`, `project-manager` (combinable)
 
 ### Views & analytics
 
 - **Home hub** — personal work view: open tickets in your projects, tickets assigned to you, and recent activity (comments + status changes)
-- **Kanban board** — columns by workflow status; move tickets between stages
-- **Project dashboard** — charts (tickets by day, status, priority), recent tickets table, performance KPIs
+- **Kanban board** — columns by workflow status; optional swimlanes (assignee / priority); WIP `n/limit` with hard drop/move enforcement; move tickets between stages
+- **Project dashboard** — charts (tickets by day, status, priority), recent tickets (top 20), performance KPIs; widget layout saved per user on the server
 - **Global search** — simple term search and **query language** (ANTLR, plain text) across ticket fields including comments
 - **Saved queries** — name, share by link, optional home sections, clone for non-owners
 - **Ticket detail** — expanded view with unified **Atividade** feed (comments + history), assignee, and status actions

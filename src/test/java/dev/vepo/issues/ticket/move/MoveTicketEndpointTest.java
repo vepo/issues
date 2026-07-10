@@ -221,6 +221,117 @@ class MoveTicketEndpointTest {
     }
 
     @Test
+    void shouldRejectMoveWhenTargetStatusWipLimitReached() {
+        var workflowId = given().header(Given.authenticatedProjectManager())
+                                .when()
+                                .contentType("application/json")
+                                .body("""
+                                      {
+                                          "name": "WIP Move Flow",
+                                          "statuses": ["Open", "Doing", "Done"],
+                                          "start": "Open",
+                                          "transitions": [
+                                              {"from": "Open", "to": "Doing"},
+                                              {"from": "Doing", "to": "Done"}
+                                          ],
+                                          "wipLimits": [{"status": "Doing", "wipLimit": 1}]
+                                      }""")
+                                .post("/api/workflows")
+                                .then()
+                                .statusCode(201)
+                                .extract()
+                                .path("id");
+
+        var project = given().header(Given.authenticatedProjectManager())
+                             .when()
+                             .contentType("application/json")
+                             .body("""
+                                   {
+                                       "prefix": "WIP",
+                                       "name": "WIP Move Project %s",
+                                       "description": "Project for WIP move test",
+                                       "workflowId": %d
+                                   }""".formatted(java.util.UUID.randomUUID(), workflowId))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(dev.vepo.issues.project.ProjectResponse.class);
+
+        Given.addProjectMember(project.id(), "user@issues.vepo.dev");
+
+        var doingId = given().header(fixtures.pmAuthenticatedHeader())
+                             .accept(ContentType.JSON)
+                             .when()
+                             .get("/api/projects/" + project.id() + "/status")
+                             .then()
+                             .statusCode(200)
+                             .extract()
+                             .jsonPath()
+                             .getList("", java.util.Map.class)
+                             .stream()
+                             .filter(s -> "Doing".equals(s.get("name")))
+                             .map(s -> ((Number) s.get("id")).longValue())
+                             .findFirst()
+                             .orElseThrow();
+
+        var firstTicket = given().header(fixtures.pmAuthenticatedHeader())
+                                 .when()
+                                 .contentType(ContentType.JSON)
+                                 .body("""
+                                       {
+                                           "title": "First WIP ticket",
+                                           "description": "Occupies Doing",
+                                           "projectId": %d,
+                                           "categoryId": %d
+                                       }""".formatted(project.id(), fixtures.bug().getId()))
+                                 .post("/api/tickets")
+                                 .then()
+                                 .statusCode(201)
+                                 .extract()
+                                 .as(dev.vepo.issues.ticket.TicketResponse.class);
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "to": %d
+                     }""".formatted(doingId))
+               .post("/api/tickets/" + firstTicket.id() + "/move")
+               .then()
+               .statusCode(200);
+
+        var secondTicket = given().header(fixtures.pmAuthenticatedHeader())
+                                  .when()
+                                  .contentType(ContentType.JSON)
+                                  .body("""
+                                        {
+                                            "title": "Second WIP ticket",
+                                            "description": "Should be blocked",
+                                            "projectId": %d,
+                                            "categoryId": %d
+                                        }""".formatted(project.id(), fixtures.bug().getId()))
+                                  .post("/api/tickets")
+                                  .then()
+                                  .statusCode(201)
+                                  .extract()
+                                  .as(dev.vepo.issues.ticket.TicketResponse.class);
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "to": %d
+                     }""".formatted(doingId))
+               .post("/api/tickets/" + secondTicket.id() + "/move")
+               .then()
+               .statusCode(400)
+               .body("message", equalTo("WIP limit reached for status Doing (limit 1)"));
+    }
+
+    @Test
     @DisplayName("It should not be possible to move ticket to invalid status")
     void shouldNotMoveToInvalidStatusTest() {
         given().header(fixtures.userAuthenticatedHeader())

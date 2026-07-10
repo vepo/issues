@@ -29,7 +29,7 @@ Project managers and admins define workflows: name, start status, status list, a
 | Region | Elements |
 |--------|----------|
 | Form | Name, start status |
-| Status table | `.inline-table` — status names (fixed on edit) |
+| Status table | `.inline-table` — status names (fixed on edit); optional **WIP** limit per status ([kanban-board](kanban-board.md) v2) |
 | Transitions table | From → To allowed moves |
 | Extensions | Phase start status; finish statuses (done/canceled) when enabled |
 
@@ -78,7 +78,7 @@ Project managers and admins define workflows: name, start status, status list, a
 | Feature / area | Impact |
 |----------------|--------|
 | Project administration | Each project references one workflow |
-| Kanban board | Columns derived from workflow statuses |
+| Kanban board | Columns derived from workflow statuses; WIP limits configured here ([kanban-board](kanban-board.md) v2) |
 | Ticket management | Move validates transitions |
 | Create ticket | Initial status from workflow start status |
 | Ticket import | Status column must match workflow |

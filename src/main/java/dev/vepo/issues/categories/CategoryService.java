@@ -45,4 +45,17 @@ public class CategoryService {
         category.setColor(request.color());
         return CategoryResponse.load(category);
     }
+
+    @Transactional
+    public void delete(long id) {
+        var category = repository.findById(id)
+                                 .orElseThrow(() -> new NotFoundException("Category not found! id=%d".formatted(id)));
+        if (repository.countTicketsByCategoryId(id) > 0) {
+            throw new BadRequestException("Category cannot be deleted while tickets reference it");
+        }
+        if (repository.countProjectsByTemplateCategoryId(id) > 0) {
+            throw new BadRequestException("Category cannot be deleted while project ticket templates reference it");
+        }
+        repository.delete(category);
+    }
 }

@@ -2,6 +2,7 @@ package dev.vepo.issues.workflow;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -13,4 +14,5 @@ public record CreateWorkflowRequest(@NotBlank(message = "Workflow name cannot be
                                     @NotNull(message = "No start status is defined!") String start,
                                     @NotEmpty List<TransitionRequest> transitions,
                                     String phaseStart,
-                                    List<FinishStatusRequest> finishStatuses) {}
+                                    @Valid List<FinishStatusRequest> finishStatuses,
+                                    @Valid List<StatusWipRequest> wipLimits) {}

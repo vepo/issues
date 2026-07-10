@@ -66,11 +66,42 @@ class ChangePasswordEndpointTest {
                .body("""
                      {
                          "currentPassword": "wrong-password",
-                         "newPassword": "newpassword1"
+                         "newPassword": "Newpassword1"
                      }""")
                .post("/api/auth/change-password")
                .then()
                .statusCode(400)
                .body("message", is("Current password is incorrect"));
+    }
+
+    @Test
+    @DisplayName("Should reject weak new password missing uppercase")
+    void shouldRejectWeakNewPassword() {
+        var user = Given.randomUser();
+        var login = given().contentType(ContentType.JSON)
+                           .body("""
+                                 {
+                                     "email": "%s",
+                                     "password": "password"
+                                 }
+                                 """.formatted(user.getEmail()))
+                           .when()
+                           .post("/api/auth/login")
+                           .then()
+                           .statusCode(200)
+                           .extract()
+                           .as(LoginResponse.class);
+
+        given().header("Authorization", "Bearer " + login.token())
+               .when()
+               .contentType("application/json")
+               .body("""
+                     {
+                         "currentPassword": "password",
+                         "newPassword": "weakpass1"
+                     }""")
+               .post("/api/auth/change-password")
+               .then()
+               .statusCode(400);
     }
 }

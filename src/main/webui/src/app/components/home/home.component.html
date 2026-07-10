@@ -130,8 +130,7 @@
                     } @else {
                       <span i18n>alterou status em</span>
                     }
-                    <a [routerLink]="['/ticket', item.ticketIdentifier]">{{ item.ticketIdentifier }}</a>
-                    — {{ item.projectName }}
+                    {{ ' ' }}<a [routerLink]="['/ticket', item.ticketIdentifier]">{{ item.ticketIdentifier }}</a>{{ ' — ' }}{{ item.projectName }}
                   </span>
                   <time class="activity-item__date">{{ item.occurredAt | date: 'medium' }}</time>
                 </header>

@@ -1,6 +1,8 @@
 package dev.vepo.issues.project;
 
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -80,10 +82,15 @@ public class ProjectAccessService {
         if (isAdmin(user)) {
             return projectRepository.findAll().toList();
         }
-        if (user.getRoles().contains(Role.PROJECT_MANAGER)) {
-            return projectRepository.findOwnedByUserId(user.getId()).toList();
-        }
-        return projectRepository.findByMemberUserId(user.getId()).toList();
+        var byId = new LinkedHashMap<Long, Project>();
+        projectRepository.findByMemberUserId(user.getId())
+                         .forEach(project -> byId.put(project.getId(), project));
+        projectRepository.findOwnedByUserId(user.getId())
+                         .forEach(project -> byId.put(project.getId(), project));
+        return byId.values()
+                   .stream()
+                   .sorted(Comparator.comparing(Project::getName, String.CASE_INSENSITIVE_ORDER))
+                   .toList();
     }
 
     public Project requireProject(long projectId) {

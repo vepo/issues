@@ -1038,6 +1038,62 @@ main {
   min-height: 70vh;
   align-items: flex-start;
 
+  &--swimlanes {
+    flex-direction: column;
+    align-items: stretch;
+    min-width: max-content;
+  }
+
+  .board-swimlane-header {
+    display: flex;
+    gap: colors.$space-md;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: colors.$surface-card;
+    padding-bottom: colors.$space-sm;
+
+    &__label {
+      width: 10rem;
+      flex-shrink: 0;
+    }
+
+    &__status {
+      flex: 1 1 0;
+      min-width: 12rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: colors.$space-sm colors.$space-md;
+      border-bottom: 1px solid colors.$border-subtle;
+    }
+  }
+
+  .swimlane {
+    display: flex;
+    gap: colors.$space-md;
+    align-items: stretch;
+    margin-bottom: colors.$space-md;
+
+    &__label {
+      width: 10rem;
+      flex-shrink: 0;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding-top: colors.$space-sm;
+      color: colors.$text-primary;
+    }
+
+    &__columns {
+      display: flex;
+      gap: colors.$space-md;
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
   .column {
     background: colors.$surface-card;
     padding: colors.$space-md;
@@ -1081,7 +1137,16 @@ main {
         background: colors.$surface-muted;
         padding: 2px colors.$space-sm;
         border-radius: colors.$radius-none;
+
+        &--wip-full {
+          color: colors.$text-primary;
+          background: rgba(183, 28, 28, 0.12);
+        }
       }
+    }
+
+    &--wip-full {
+      border-color: rgba(183, 28, 28, 0.35);
     }
 
     .card-container {

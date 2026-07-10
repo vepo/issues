@@ -5,6 +5,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
 import { KanbanComponent } from './components/kanban/kanban.component';
 import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
 import { PasswordResetRequestComponent } from './components/password-reset-request/password-reset-request.component';
 import { PasswordResetComponent } from './components/password-reset/password-reset.component';
 import { ProjectEditComponent } from './components/project-edit.component/project-edit.component';
@@ -42,6 +43,7 @@ import { roleGuard } from './services/role.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'login/register', component: RegisterComponent },
   { path: 'login/reset-password', component: PasswordResetRequestComponent },
   { path: 'login/reset-password/:token', component: PasswordResetComponent },
   {

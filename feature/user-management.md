@@ -1,63 +1,49 @@
 # User management
 
 **Feature version:** 2  
-**Status:** planned  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
 
-Administrators list, create, and edit users: name, email, password, and combinable roles (`user`, `admin`, `project-manager`). Supports assignee pickers and access control across the application.
+Administrators list, create, and edit users: name, email, and combinable roles (`user`, `admin`, `project-manager`). Public **self-registration** creates a user with role `user` only. Admins may **soft-delete** users when they are not assignees on blocking tickets. Local passwords must satisfy the **password policy** (8–64 chars, upper, lower, digit).
 
 ## Wireframe
-
-**Guide:** layout reference for UI implementation — update when user form or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
 
 | Field | Value |
 |-------|-------|
 | **Source** | ASCII below |
-| **Last updated** | 2026-07-03 |
+| **Last updated** | 2026-07-10 |
 
 ### Screen: `/users`
 
 | Region | Elements |
 |--------|----------|
 | List | `.data-table`: name, email, roles; search/filter chips |
-| Actions | **Novo usuário** |
+| Actions | **Novo usuário**; row **Editar**; row **Excluir** + confirm |
 
-### Screen: `/users/new` and `/users/:userId`
+### Screen: `/login/register`
 
 | Region | Elements |
 |--------|----------|
-| Form | Name, email, password, role checkboxes |
-
-```
-┌─────────────────────────────────────────────┐
-│  Usuários                    [ Novo ]       │
-│  [search] [filter chips]                    │
-├─────────────────────────────────────────────┤
-│  Nome │ Email │ Papéis │ [Editar]           │
-└─────────────────────────────────────────────┘
-```
+| Form | Username, name, email, password, confirm password; policy hint |
+| Actions | **Criar conta**; link to **Entrar** |
 
 ## Impact
 
 | Area | Effect |
 |------|--------|
-| Bounded contexts | `user` (Identity & access) |
-| Packages / files | `user.create`, `user.update`, `user.find`, `user.search` |
-| API | `POST /users`, `POST /users/{id}`, `GET /users/{id}`, `GET /users/search`, **`POST /auth/register`** |
-| UI | `/users`, `/users/new`, `/users/:userId`; `users-view`, `users-edit` components |
-| Schema / seed | `tb_users`; dev personas in `dev-import.sql` |
-| Tests | `CreateUserEndpointTest`, `UpdateUserEndpointTest`, `FindUserByIdEndpointTest`, `SearchUsersEndpointTest` |
-| Docs | domain-spec (User, Role), feature-catalog (User list/create/edit), README § Projects & administration |
+| API | `POST /auth/register`; `DELETE /users/{id}` |
+| UI | `/login/register`; `/users` Excluir |
+| Docs | domain-spec **49**; feature-catalog; README; ARCHITECTURE |
 
 ### Feature questions
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| FQ1 | Should self-registration be supported? | answered | **Yes** — public self-registration flow |
-| FQ2 | Should user delete be allowed while assigned tickets are in non-terminal statuses? | answered | **No** — forbid user delete/remove while the user has assigned tickets whose status is not workflow **start**, **done**, or **canceled** finish status |
-| FQ3 | What password policy should apply beyond the dev default? | open | Opened by **FQ2** answer — password policy still undecided |
+| FQ1 | Self-registration? | answered | Yes |
+| FQ2 | Delete while assignee on open tickets? | answered | No — block |
+| FQ3 | Password policy? | answered | **B** — 8–64 + upper + lower + digit |
 
 ## Changelog
 
@@ -66,46 +52,35 @@ Administrators list, create, and edit users: name, email, password, and combinab
 **Version:** 1  
 **Status:** done
 
-**Description:** Admin-only user CRUD with multi-role assignment and user search for assignee/autocomplete use cases.
-
-**Impact on other features:**
-
-| Feature / area | Impact |
-|----------------|--------|
-| Authentication | Users authenticate with created credentials |
-| Ticket management | Assignee references users |
-| All role-gated routes | Roles assigned here control access |
-| — | None identified |
-
-#### Feature checklist
-
-| ID | Criterion | Source | Done |
-|----|-----------|--------|------|
-| FC1 | User list matches **Wireframe** | Wireframe | ☑ |
-| FC2 | Create/edit form with multi-role assignment | Wireframe | ☑ |
-| FC3 | Admin-only mutating endpoints | Summary | ☑ |
-| FC4 | `feature-catalog.md` — User rows | Impact / Docs | ☑ |
-
-**Implementation notes:** `users-view.component.ts`, `users-edit.component.ts`; `@RolesAllowed("admin")` on mutating endpoints.
-
 ### Self-registration and user removal guard — 2026-07-03
 
 **Version:** 2  
-**Status:** planned
+**Status:** done
 
-**Description:** Self-registration endpoint and UI; block user deletion while assigned tickets remain in non-terminal workflow statuses (not start, done, or canceled).
-
-**Impact on other features:**
-
-| Feature / area | Impact |
-|----------------|--------|
-| [authentication](authentication.md) | Registration creates user + login path |
-| [ticket-management](ticket-management.md) | Assignee status check on user delete |
+**Development approval:** approved 2026-07-10 — tasks: T1, T2, T3, T4, T5, T6
 
 #### Feature checklist
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Self-registration flow available | FQ1 | ☐ |
-| FC2 | User delete blocked with clear error when assignee on open tickets | FQ2 | ☐ |
-| FC3 | `domain-specification.md` — registration and user removal rules | Docs | ☐ |
+| FC1 | Self-registration API + `/login/register` UI | FQ1 | ☑ |
+| FC2 | Registered users get role `user` only | AQ3 | ☑ |
+| FC3 | Password policy **FQ3** B on register / change / reset | FQ3 | ☑ |
+| FC4 | Soft-delete succeeds when no blocking assignments | FQ2 | ☑ |
+| FC5 | Delete rejected when assignee on blocking tickets | FQ2 | ☑ |
+| FC6 | UI Excluir + confirm; error toast | Wireframe | ☑ |
+| FC7 | domain-spec **49** + feature-catalog + README | Docs | ☑ |
+| FC8 | Endpoint + Angular tests | Tests | ☑ |
+
+#### Tasks
+
+| ID | Deliverable | Done |
+|----|-------------|------|
+| T1 | `@StrongPassword` on change/reset/register | ☑ |
+| T2 | `POST /auth/register` | ☑ |
+| T3 | Soft-delete + assignee guard | ☑ |
+| T4 | Endpoint tests | ☑ |
+| T5 | Angular register + Excluir + validators | ☑ |
+| T6 | Docs | ☑ |
+
+**Implementation notes:** `StrongPassword` composite constraint; `RegisterUserEndpoint`; `DeleteUserEndpoint` + `countBlockingAssignedTickets`. `mvn verify` + Angular specs green.

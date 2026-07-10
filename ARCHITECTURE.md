@@ -8,7 +8,7 @@ Canonical reference for developers and AI agents. Domain language lives in [docs
 - **REST JSON API** — JAX-RS endpoints at `/api`; Angular SPA consumes JSON.
 - **Full-stack bundle** — Quarkus Quinoa builds and serves the Angular app from the same JAR.
 - **PostgreSQL + Flyway** — schema in `src/main/resources/db/migration/`.
-- **JWT auth** — SmallRye JWT (RS256); roles on endpoints via `@RolesAllowed`.
+- **JWT auth** — SmallRye JWT (RS256); roles on endpoints via `@RolesAllowed`. Credential check is pluggable (**LOCAL** / **LDAP** / **ENDPOINT**) via `AUTH_PROVIDER`; session remains Issues-issued JWT.
 - **Real-time** — Server-Sent Events (SSE) for in-app notifications.
 
 ## 2. Request lifecycle
@@ -63,15 +63,10 @@ Feature-oriented packages (not a strict global layered tree). Each bounded conte
 ```
 dev.vepo.issues/
 ├── IssuesApplication.java     # JAX-RS @ApplicationPath("/api")
-├── auth/                      # Login, JWT, password recovery
-│   ├── login/                 # LoginEndpoint
-│   ├── me/                    # MeEndpoint
-│   └── recovery/              # ResetPasswordEndpoint
+├── auth/                      # Login, JWT, password recovery, register; CDI CredentialAuthenticator
+│   ├── login/ capabilities/ me/ recovery/ register/ refresh/ changepassword/ updateprofile/
 ├── user/                      # User, Role; UserService; *Request/*Response
-│   ├── create/                # CreateUserEndpoint
-│   ├── update/                # UpdateUserEndpoint
-│   ├── find/                  # FindUserByIdEndpoint
-│   └── search/                # SearchUsersEndpoint
+│   ├── create/ update/ find/ search/ delete/
 ├── project/                   # ProjectService, ProjectPaths
 │   ├── list/ create/ update/ find/ workflow/ status/
 │   └── tickets/list/          # ListProjectTicketsEndpoint
@@ -82,7 +77,7 @@ dev.vepo.issues/
 │   ├── list/ create/ update/ find/ activate/ complete/
 │   └── version/               # Version CRUD + changelog endpoints
 ├── categories/                # CategoryService
-│   └── list/                  # ListCategoriesEndpoint
+│   ├── list/ create/ update/ delete/
 ├── ticket/                    # TicketService, TicketPaths
 │   ├── list/ search/ find/ create/ update/ assign/ delete/ move/
 │   ├── search/query/          # ANTLR query language (SearchTicketsByQueryEndpoint)
@@ -97,8 +92,8 @@ dev.vepo.issues/
 ├── notifications/             # NotificationService, SSE register + read status
 │   ├── register/
 │   └── read/
-├── dashboards/                # DashboardService
-│   ├── pie/ table/ kpi/
+├── dashboards/                # DashboardService, layout persistence, aggregations
+│   ├── pie/ table/ kpi/ layout/
 ├── mailer/                    # Transactional email (Qute templates)
 └── infra/                     # Exception mappers, SPA routing, dev DB setup
 ```
@@ -122,15 +117,15 @@ Domain services orchestrate repositories, enforce invariants, and fire CDI event
 |---------|----------------|
 | `TicketService` | Ticket CRUD, move, assign, subscribe; notifications |
 | `TicketHistoryService` | Audit trail on ticket actions |
-| `UserService` | User create/update with role validation |
+| `UserService` | User create/update/delete with role validation and assignee guard |
 | `ProjectService` | Project create/update validation |
-| `AuthenticationService` | Login, recovery, me |
+| `AuthenticationService` | Login, recovery, register, me |
 | `WorkflowService` | Workflow create/list; phase start and finish status config |
 | `PhaseService` | Phase lifecycle, activation, deliverable copy from template |
 | `VersionService` | Version CRUD (SemVer), changelog aggregation |
 | `DashboardService` | Dashboard aggregations |
 | `NotificationService` | Mark-as-read persistence |
-| `CategoryService` | Category listing |
+| `CategoryService` | Category CRUD with delete guard |
 | `MailerService` | Email on ticket changes and password reset |
 
 ### Endpoint layer
@@ -166,11 +161,14 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Area | Example class | Path |
 |------|---------------|------|
 | Auth | `auth.login.LoginEndpoint` | `POST /auth/login` |
+| Auth | `auth.register.RegisterUserEndpoint` | `POST /auth/register` |
+| Auth | `auth.capabilities.GetAuthCapabilitiesEndpoint` | `GET /auth/capabilities` |
 | Auth | `auth.me.MeEndpoint` | `GET /auth/me` |
 | Auth | `auth.recovery.ResetPasswordEndpoint` | `POST /auth/recovery` |
 | Auth | `auth.recovery.ConfirmPasswordResetEndpoint` | `POST /auth/recovery/confirm` |
 | Users | `user.create.CreateUserEndpoint` | `POST /users` |
 | Users | `user.update.UpdateUserEndpoint` | `POST /users/{id}` |
+| Users | `user.delete.DeleteUserEndpoint` | `DELETE /users/{id}` |
 | Users | `user.find.FindUserByIdEndpoint` | `GET /users/{id}` |
 | Users | `user.search.SearchUsersEndpoint` | `GET /users/search` |
 | Projects | `project.*` | `/projects` (+ workflow, status subpaths) |
@@ -186,7 +184,12 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Versions | `phase.version.*` | `/projects/{id}/versions` |
 | Statuses | `workflow.status.list.ListStatusesEndpoint` | `GET /status` |
 | Categories | `categories.list.ListCategoriesEndpoint` | `GET /categories` |
+| Categories | `categories.create.CreateCategoryEndpoint` | `POST /categories` |
+| Categories | `categories.update.UpdateCategoryEndpoint` | `PUT /categories/{id}` |
+| Categories | `categories.delete.DeleteCategoryEndpoint` | `DELETE /categories/{id}` |
 | Dashboards | `dashboards.pie/table/kpi.Load*DashboardEndpoint` | `/projects/{id}/dashboard/{pie\|table\|kpi}/{type}` |
+| Dashboards | `dashboards.layout.GetDashboardLayoutEndpoint` | `GET /projects/{id}/dashboard/layout` |
+| Dashboards | `dashboards.layout.SaveDashboardLayoutEndpoint` | `PUT /projects/{id}/dashboard/layout` |
 | Notifications | `notifications.register.RegisterNotificationsEndpoint` | `GET /notifications/register` (SSE) |
 | Notifications | `notifications.read.UpdateNotificationReadEndpoint` | `POST /notifications/{id}/read` |
 
@@ -195,6 +198,7 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Route | Component | Purpose |
 |-------|-----------|---------|
 | `/login` | Login | Authentication |
+| `/login/register` | Register | Public self-registration |
 | `/login/reset-password` | PasswordResetRequest | Request reset |
 | `/login/reset-password/:token` | PasswordReset | Complete reset |
 | `/` | Home | Landing (auth required) |
@@ -258,8 +262,9 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Item | Status |
 |------|--------|
 | Workflow update API/UI | Partial — edit name, start status, and transitions; status list fixed after create (**blocked:** [workflow-configuration.md](feature/workflow-configuration.md) Q1/Q2 open) |
-| Server-persisted dashboard layouts | Uses browser `localStorage` only (**blocked:** [project-dashboard.md](feature/project-dashboard.md) Q1 open) |
-| Deleted ticket restore UI | Not implemented (**blocked:** [ticket-management.md](feature/ticket-management.md) Q1 open) |
+| Kanban swimlanes + WIP limits | Done — [kanban-board.md](feature/kanban-board.md) v2; `tb_workflow_wip_limits`; hard enforce on `moveTicket`; Faixa toolbar |
+| Header **Projetos** menu (all users → Kanban) | Done — [project-navigation.md](feature/project-navigation.md) v1; `GET /projects` viewable scope |
+| Pluggable auth (LOCAL / LDAP / ENDPOINT) | Planned — [authentication.md](feature/authentication.md) v3; `AUTH_PROVIDER` + CDI SPI in-module (**AQ6**: no ServiceLoader / separate provider JARs) |
 
 ## 14. OpenAPI → TypeScript codegen
 

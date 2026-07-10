@@ -44,6 +44,9 @@ public class Workflow {
     @OneToMany(mappedBy = "workflow", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<WorkflowFinishStatus> finishStatuses = new ArrayList<>();
 
+    @OneToMany(mappedBy = "workflow", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<WorkflowWipLimit> wipLimits = new ArrayList<>();
+
     public Workflow() {}
 
     public Workflow(String name, List<WorkflowStatus> statuses, WorkflowStatus start, List<WorkflowTransition> transitions) {
@@ -107,6 +110,14 @@ public class Workflow {
 
     public void setFinishStatuses(List<WorkflowFinishStatus> finishStatuses) {
         this.finishStatuses = finishStatuses;
+    }
+
+    public List<WorkflowWipLimit> getWipLimits() {
+        return wipLimits;
+    }
+
+    public void setWipLimits(List<WorkflowWipLimit> wipLimits) {
+        this.wipLimits = wipLimits;
     }
 
 }

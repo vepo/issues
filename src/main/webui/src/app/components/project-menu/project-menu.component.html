@@ -1,0 +1,31 @@
+<span
+  class="project-menu-trigger"
+  [matTooltip]="emptyTooltip"
+  [matTooltipDisabled]="hasProjects()">
+  <button
+    type="button"
+    class="btn btn-compact btn-header"
+    matButton="outlined"
+    [matMenuTriggerFor]="hasProjects() ? projectsMenu : null"
+    [disabled]="!hasProjects()"
+    aria-label="Projetos"
+    i18n-aria-label>
+    <mat-icon fontIcon="work" aria-hidden="true"></mat-icon>
+    <span i18n>Projetos</span>
+  </button>
+</span>
+<mat-menu #projectsMenu="matMenu" class="menu-panel">
+  @for (project of projects; track project.id) {
+    <a mat-menu-item [routerLink]="kanbanLink(project)">
+      <mat-icon matMenuItemIcon fontIcon="view_kanban"></mat-icon>
+      <span>{{ project.name }}</span>
+    </a>
+  }
+  @if (canManageProjects()) {
+    <div class="divider"></div>
+    <a mat-menu-item routerLink="/projects">
+      <mat-icon matMenuItemIcon fontIcon="settings"></mat-icon>
+      <span i18n>Gerenciar projetos</span>
+    </a>
+  }
+</mat-menu>

@@ -1,12 +1,12 @@
 # Project dashboard
 
 **Feature version:** 2  
-**Status:** planned  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
 
-Per-project analytics page with configurable widget layout: pie charts (tickets by day, status, priority), recent tickets table, and performance KPIs. Default widgets shown on first visit; users customize via **Editar layout**.
+Per-project analytics page with configurable widget layout: pie charts (tickets by day, status, priority), recent tickets table, and performance KPIs. Default widgets shown on first visit; users customize via **Editar layout**. Layout is persisted **per user per project on the server**. Chart/table/KPI data is loaded via **aggregated SQL** (not full ticket lists in memory). Browser `localStorage` layouts are **not** migrated (legacy client storage discarded).
 
 ## Wireframe
 
@@ -15,14 +15,14 @@ Per-project analytics page with configurable widget layout: pie charts (tickets 
 | Field | Value |
 |-------|-------|
 | **Source** | ASCII below |
-| **Last updated** | 2026-07-03 |
+| **Last updated** | 2026-07-10 |
 
 ### Screen: `/project/:projectId/dashboard`
 
 | Region | Elements |
 |--------|----------|
 | Header | Project name; **Editar layout** toggle |
-| Grid | Draggable widget panels: pie charts, recent tickets table, KPI cards |
+| Grid | Draggable widget panels: pie charts, recent tickets table (max 20), KPI cards |
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -34,21 +34,19 @@ Per-project analytics page with configurable widget layout: pie charts (tickets 
 └──────────────────────┴─────────────────────────────────┘
 ```
 
+Layout load/save is transparent (no extra chrome beyond existing **Editar layout**).
+
 ## Impact
 
 | Area | Effect |
 |------|--------|
-| Bounded contexts | `dashboards`, `ticket`, `project`, `workflow` |
-| Packages / files | `dashboards.pie.LoadPieDashboardEndpoint`, `dashboards.table.LoadTableDashboardEndpoint`, `dashboards.kpi.LoadKpiDashboardEndpoint` |
-| API | `GET /projects/{id}/dashboard/pie/{type}`, `/dashboard/table/{type}`, `/dashboard/kpi/{type}` |
-| UI | `/project/:projectId/dashboard`; `dashboard` component (Chart.js/ng2-charts) |
-| Schema / seed | Reads `tb_tickets`, workflow statuses; **`tb_dashboard_layouts`** (per user per project) |
-| Tests | `LoadPieDashboardEndpointTest`, `LoadTableDashboardEndpointTest`, `LoadKpiDashboardEndpointTest` |
-| Docs | domain-spec (Dashboard, Dashboard widget types), feature-catalog (Project dashboard), README § Views & analytics |
-
-### Risks
-
-- Large projects may need aggregated SQL or caching for chart endpoints (**FQ2**).
+| Bounded contexts | `dashboards` (owns layout + analytics reads); read-only `ticket`, `project` |
+| Packages / files | Layout get/put endpoints; `DashboardLayout` entity/repo; aggregation queries; Angular drops `localStorage` |
+| API | `GET/PUT /projects/{id}/dashboard/layout`; existing pie/table/kpi endpoints |
+| UI | Same route; save/load layout via API |
+| Schema / seed | `tb_dashboard_layouts` |
+| Tests | Layout endpoint tests; recent table ≤ 20; Angular layout specs |
+| Docs | domain-spec invariants **44–45**; feature-catalog; ARCHITECTURE §13 |
 
 ### Feature questions
 
@@ -56,6 +54,26 @@ Per-project analytics page with configurable widget layout: pie charts (tickets 
 |---|----------|--------|--------|
 | FQ1 | Should dashboard layout be persisted server-side? | answered | **Yes** — persist widget layout per user per project on server |
 | FQ2 | Are chart query optimizations needed for large ticket volumes? | answered | **Yes** — optimize dashboard chart/table queries for scale |
+| FQ3 | What happens to existing `localStorage` layouts when switching to server? | answered | **A** — discard browser layouts (legacy client storage); first visit uses defaults then saves to server. No one-time import. |
+| FQ4 | How many rows should **Tickets Recentes** return? | answered | **A** — top **20** by `updated_at` |
+
+## Architecture
+
+### API surface
+
+| Method | Path | Auth | Body / response |
+|--------|------|------|-----------------|
+| `GET` | `/api/projects/{projectId}/dashboard/layout` | USER, PM, ADMIN | `DashboardLayoutResponse` |
+| `PUT` | `/api/projects/{projectId}/dashboard/layout` | same | `SaveDashboardLayoutRequest` `{ widgetIds: string[] }` |
+
+Default widget ids: `tickets-by-status`, `tickets-by-priority`, `performance-kpi`, `recent-tickets`.
+
+### Query optimization
+
+| Widget | Implementation |
+|--------|----------------|
+| Pie / KPI | JPQL/native `GROUP BY` + `COUNT` on non-deleted tickets |
+| Recent tickets | `ORDER BY updated_at DESC LIMIT 20` |
 
 ## Changelog
 
@@ -66,15 +84,6 @@ Per-project analytics page with configurable widget layout: pie charts (tickets 
 
 **Description:** Dashboard with tickets-by-day, tickets-by-status, tickets-by-priority pie charts, recent-tickets table, and performance-kpi widget; editable layout.
 
-**Impact on other features:**
-
-| Feature / area | Impact |
-|----------------|--------|
-| Kanban board | Shared project navigation |
-| Ticket management | Recent tickets link to detail |
-| Project administration | Project must exist |
-| — | None identified |
-
 #### Feature checklist
 
 | ID | Criterion | Source | Done |
@@ -84,25 +93,46 @@ Per-project analytics page with configurable widget layout: pie charts (tickets 
 | FC3 | Editar layout toggles customization | Wireframe | ☑ |
 | FC4 | `feature-catalog.md` — Project dashboard row | Impact / Docs | ☑ |
 
-**Implementation notes:** `dashboard.component.ts`; `DashboardType` enum drives widget types; Chart.js visualizations.
-
 ### Server layout persistence and query optimization — 2026-07-03
 
 **Version:** 2  
-**Status:** planned
+**Status:** done
 
-**Description:** Replace `localStorage` layout with server persistence; optimize pie/table/KPI queries for large ticket volumes.
+**Development approval:** approved 2026-07-10 — tasks: T1, T2, T3, T4, T5, T6
 
-**Impact on other features:**
-
-| Feature / area | Impact |
-|----------------|--------|
-| [kanban-board](kanban-board.md) | Shared project navigation unchanged |
+**Description:** Replace `localStorage` layout with server persistence per user/project (no browser import); optimize pie/table/KPI via SQL aggregations; recent tickets limited to 20.
 
 #### Feature checklist
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Layout saved and restored from server per user/project | FQ1 | ☐ |
-| FC2 | Chart endpoints perform acceptably on large datasets | FQ2 | ☐ |
-| FC3 | ARCHITECTURE §13 gap closed | Docs | ☐ |
+| FC1 | Layout saved and restored from server per user/project | FQ1 | ☑ |
+| FC2 | Default layout when no server row | Architecture | ☑ |
+| FC3 | No `localStorage` read/write (legacy discarded) | FQ3 | ☑ |
+| FC4 | Pie/KPI use aggregation queries | FQ2 / AQ2 | ☑ |
+| FC5 | Recent tickets ≤ 20; deleted excluded | FQ4 | ☑ |
+| FC6 | UI still matches **Wireframe** | Wireframe | ☑ |
+| FC7 | ARCHITECTURE §13 gap closed; domain-spec; feature-catalog | Docs | ☑ |
+| FC8 | Layout + aggregation tests; Angular layout specs | Tests | ☑ |
+
+#### Tasks
+
+| ID | Deliverable | Done |
+|----|-------------|------|
+| T1 | Flyway baseline: `tb_dashboard_layouts`; entity + repository | ☑ |
+| T2 | Layout get/save endpoints | ☑ |
+| T3 | Aggregations + recent tickets LIMIT 20 | ☑ |
+| T4 | Endpoint tests | ☑ |
+| T5 | Angular API layout; remove localStorage | ☑ |
+| T6 | Docs | ☑ |
+
+#### Test coverage
+
+| ID | Covers | Done |
+|----|--------|------|
+| TC1 | Layout GET/PUT tests | ☑ |
+| TC2 | Table ≤20 + pie/KPI still green | ☑ |
+| TC3 | Angular layout specs | ☑ |
+| TC4 | Doc review | ☑ |
+
+**Implementation notes:** `DashboardRepository` aggregations; `GET/PUT …/dashboard/layout`; Angular uses generated `DashboardApi`. `mvn verify` + Angular build/specs green.

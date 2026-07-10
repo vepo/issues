@@ -27,4 +27,8 @@ export class CategoryService {
   update(categoryId: number, request: UpdateCategoryRequest): Observable<Category> {
     return this.api.updateCategory(categoryId, request).pipe(map(asLoaded));
   }
+
+  delete(categoryId: number): Observable<void> {
+    return this.api.deleteCategory(categoryId);
+  }
 }

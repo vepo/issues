@@ -9,7 +9,8 @@ public record WorkflowResponse(long id,
                                String start,
                                List<TransitionResponse> transitions,
                                String phaseStart,
-                               List<FinishStatusResponse> finishStatuses) {
+                               List<FinishStatusResponse> finishStatuses,
+                               List<StatusWipResponse> wipLimits) {
     public static WorkflowResponse load(Workflow workflow) {
         return new WorkflowResponse(workflow.getId(),
                                     workflow.getName(),
@@ -30,6 +31,11 @@ public record WorkflowResponse(long id,
                                             .stream()
                                             .sorted(Comparator.comparing(fs -> fs.getStatus().getName()))
                                             .map(FinishStatusResponse::load)
+                                            .toList(),
+                                    workflow.getWipLimits()
+                                            .stream()
+                                            .sorted(Comparator.comparing(wip -> wip.getStatus().getName()))
+                                            .map(StatusWipResponse::load)
                                             .toList());
     }
 }

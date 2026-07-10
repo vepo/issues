@@ -63,6 +63,16 @@ public class UserService {
                              .toList();
     }
 
+    @Transactional
+    public void delete(long userId) {
+        var user = userRepository.findById(userId)
+                                 .orElseThrow(() -> new NotFoundException("User not found!!! userId=%d".formatted(userId)));
+        if (userRepository.countBlockingAssignedTickets(userId) > 0) {
+            throw new BadRequestException("User cannot be deleted while assigned to open tickets");
+        }
+        userRepository.softDelete(user);
+    }
+
     public User requireByUsername(String username) {
         return userRepository.findByUsername(username)
                              .orElseThrow(() -> new NotFoundException("User does not found! username=%s".formatted(username)));

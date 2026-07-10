@@ -81,6 +81,67 @@ class UpdateWorkflowEndpointTest {
     }
 
     @Test
+    void shouldUpdateWipLimitsOnWorkflow() {
+        var created = given().header(Given.authenticatedProjectManager())
+                             .when()
+                             .contentType("application/json")
+                             .body("""
+                                   {
+                                       "name": "WIP Update Flow",
+                                       "statuses": ["Open", "Doing", "Done"],
+                                       "start": "Open",
+                                       "transitions": [
+                                           {"from": "Open", "to": "Doing"},
+                                           {"from": "Doing", "to": "Done"}
+                                       ],
+                                       "wipLimits": [{"status": "Doing", "wipLimit": 2}]
+                                   }""")
+                             .post("/api/workflows")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .path("id");
+
+        given().header(Given.authenticatedProjectManager())
+               .when()
+               .contentType("application/json")
+               .body("""
+                     {
+                         "name": "WIP Update Flow",
+                         "start": "Open",
+                         "transitions": [
+                             {"from": "Open", "to": "Doing"},
+                             {"from": "Doing", "to": "Done"}
+                         ],
+                         "wipLimits": [{"status": "Doing", "wipLimit": 5}]
+                     }""")
+               .put("/api/workflows/" + created)
+               .then()
+               .statusCode(200)
+               .body("wipLimits.size()", is(1))
+               .body("wipLimits[0].status", is("Doing"))
+               .body("wipLimits[0].wipLimit", is(5));
+
+        given().header(Given.authenticatedProjectManager())
+               .when()
+               .contentType("application/json")
+               .body("""
+                     {
+                         "name": "WIP Update Flow",
+                         "start": "Open",
+                         "transitions": [
+                             {"from": "Open", "to": "Doing"},
+                             {"from": "Doing", "to": "Done"}
+                         ],
+                         "wipLimits": []
+                     }""")
+               .put("/api/workflows/" + created)
+               .then()
+               .statusCode(200)
+               .body("wipLimits.size()", is(0));
+    }
+
+    @Test
     void shouldRejectUpdateForUserRole() {
         given().header(Given.authenticatedUser())
                .when()

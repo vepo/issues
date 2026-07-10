@@ -35,4 +35,21 @@ public class CategoryRepository {
         em.persist(category);
         return category;
     }
+
+    public long countTicketsByCategoryId(long categoryId) {
+        return em.createQuery("SELECT COUNT(t) FROM Ticket t WHERE t.category.id = :categoryId", Long.class)
+                 .setParameter("categoryId", categoryId)
+                 .getSingleResult();
+    }
+
+    public long countProjectsByTemplateCategoryId(long categoryId) {
+        return em.createQuery("SELECT COUNT(p) FROM Project p WHERE p.ticketTemplateCategoryId = :categoryId",
+                              Long.class)
+                 .setParameter("categoryId", categoryId)
+                 .getSingleResult();
+    }
+
+    public void delete(Category category) {
+        em.remove(category);
+    }
 }

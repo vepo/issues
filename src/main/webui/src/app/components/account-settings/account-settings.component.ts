@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatError } from '@angular/material/form-field';
 import { AuthService, CurrentUser } from '../../services/auth.service';
+import { strongPasswordValidators } from '../../core/password-policy';
 
 @Component({
   selector: 'app-account-settings',
@@ -42,7 +43,7 @@ export class AccountSettingsComponent implements OnInit {
 
   passwordForm: FormGroup = this.formBuilder.group({
     currentPassword: ['', Validators.required],
-    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    newPassword: ['', strongPasswordValidators],
     confirmPassword: ['', Validators.required]
   });
 

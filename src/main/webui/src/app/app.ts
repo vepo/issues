@@ -6,6 +6,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { ContextBarComponent } from './components/context-bar/context-bar.component';
 import { NotificationComponent } from './components/notification/notification.component';
+import { ProjectMenuComponent } from './components/project-menu/project-menu.component';
 import { RoleDirective } from './directives/role.directive';
 import { AuthService } from './services/auth.service';
 
@@ -18,6 +19,7 @@ import { AuthService } from './services/auth.service';
     FormsModule,
     MatButtonModule,
     NotificationComponent,
+    ProjectMenuComponent,
     MatIconModule,
     MatMenuModule,
     RoleDirective,

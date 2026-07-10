@@ -1,12 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Category, CategoryService, CreateCategoryRequest, UpdateCategoryRequest } from '../../services/category.service';
+import { ToastService } from '../../services/toast.service';
 
 export interface CategoryDialogData {
   category?: Category;
@@ -21,6 +23,7 @@ export class CategoriesViewComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly categoryService = inject(CategoryService);
   private readonly dialog = inject(MatDialog);
+  private readonly toast = inject(ToastService);
 
   categories: Category[] = [];
 
@@ -36,6 +39,22 @@ export class CategoriesViewComponent implements OnInit {
     this.openDialog(category);
   }
 
+  confirmDelete(category: Category): void {
+    const confirmed = this.dialog.open(CategoryDeleteDialogComponent);
+    confirmed.afterClosed().subscribe(result => {
+      if (!result) {
+        return;
+      }
+      this.categoryService.delete(category.id).subscribe({
+        next: () => this.reloadCategories(),
+        error: (error: HttpErrorResponse) => {
+          const message = error.error?.message ?? 'Não foi possível excluir a categoria.';
+          this.toast.error(message);
+        }
+      });
+    });
+  }
+
   private openDialog(category?: Category): void {
     const dialogRef = this.dialog.open(CategoryDialogComponent, {
       width: '520px',
@@ -45,11 +64,29 @@ export class CategoriesViewComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(saved => {
       if (saved) {
-        this.categoryService.findAll().subscribe(categories => this.categories = categories);
+        this.reloadCategories();
       }
     });
   }
+
+  private reloadCategories(): void {
+    this.categoryService.findAll().subscribe(categories => this.categories = categories);
+  }
 }
+
+@Component({
+  selector: 'app-category-delete-dialog',
+  imports: [MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title i18n>Excluir categoria?</h2>
+    <mat-dialog-content i18n>Esta ação não pode ser desfeita.</mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
+      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true" i18n>Excluir</button>
+    </mat-dialog-actions>
+  `
+})
+export class CategoryDeleteDialogComponent {}
 
 @Component({
   selector: 'app-category-dialog',

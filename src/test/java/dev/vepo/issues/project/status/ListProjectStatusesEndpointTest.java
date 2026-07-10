@@ -83,6 +83,54 @@ class ListProjectStatusesEndpointTest {
     }
 
     @Test
+    void shouldExposeWipLimitOnProjectStatuses() {
+        var workflowId = given().header(pmAuthenticatedHeader)
+                                .when()
+                                .contentType(ContentType.JSON)
+                                .body("""
+                                      {
+                                          "name": "Status WIP Flow",
+                                          "statuses": ["Open", "Doing", "Done"],
+                                          "start": "Open",
+                                          "transitions": [
+                                              {"from": "Open", "to": "Doing"},
+                                              {"from": "Doing", "to": "Done"}
+                                          ],
+                                          "wipLimits": [{"status": "Doing", "wipLimit": 4}]
+                                      }""")
+                                .post("/api/workflows")
+                                .then()
+                                .statusCode(201)
+                                .extract()
+                                .path("id");
+
+        var project = given().header(pmAuthenticatedHeader)
+                             .when()
+                             .contentType(ContentType.JSON)
+                             .body("""
+                                   {
+                                       "prefix": "SWP",
+                                       "name": "Status WIP Project %s",
+                                       "description": "Expose WIP on statuses",
+                                       "workflowId": %d
+                                   }""".formatted(java.util.UUID.randomUUID(), workflowId))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(ProjectResponse.class);
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/" + project.id() + "/status")
+               .then()
+               .statusCode(200)
+               .body("find { it.name == 'Doing' }.wipLimit", is(4))
+               .body("find { it.name == 'Open' }.wipLimit", org.hamcrest.Matchers.nullValue());
+    }
+
+    @Test
     @DisplayName("Getting statuses for non-existent project should return 404")
     void getStatusesForNonExistentProjectShouldReturn404Test() {
         given().header(userAuthenticatedHeader)

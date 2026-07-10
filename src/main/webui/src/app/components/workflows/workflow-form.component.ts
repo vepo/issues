@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +17,7 @@ export interface WorkflowFormValue {
   phaseStart: string | null;
   transitions: { from: string; to: string }[];
   finishStatuses: { status: string; outcome: FinishOutcome }[];
+  wipLimits: { status: string; wipLimit: number }[];
 }
 
 @Component({
@@ -47,6 +48,10 @@ export class WorkflowFormComponent implements OnInit {
       this.formBuilder.control('TODO', Validators.required),
       this.formBuilder.control('In Progress', Validators.required)
     ]),
+    statusWips: this.formBuilder.array([
+      this.formBuilder.control<number | null>(null),
+      this.formBuilder.control<number | null>(null)
+    ]),
     start: ['TODO', Validators.required],
     phaseStart: [null as string | null],
     transitions: this.formBuilder.array([
@@ -67,6 +72,10 @@ export class WorkflowFormComponent implements OnInit {
     return this.workflowForm.get('statuses') as FormArray;
   }
 
+  get statusWips(): FormArray {
+    return this.workflowForm.get('statusWips') as FormArray;
+  }
+
   get transitions(): FormArray {
     return this.workflowForm.get('transitions') as FormArray;
   }
@@ -82,6 +91,10 @@ export class WorkflowFormComponent implements OnInit {
     return this.statuses.controls
       .map(control => (control.value as string)?.trim())
       .filter(name => !!name);
+  }
+
+  wipControlAt(index: number): FormControl<number | null> {
+    return this.statusWips.at(index) as FormControl<number | null>;
   }
 
   createTransitionGroup(from = '', to = ''): FormGroup {
@@ -100,11 +113,13 @@ export class WorkflowFormComponent implements OnInit {
 
   addStatus(): void {
     this.statuses.push(this.formBuilder.control('', Validators.required));
+    this.statusWips.push(this.formBuilder.control<number | null>(null));
   }
 
   removeStatus(index: number): void {
     if (this.statuses.length > 2) {
       this.statuses.removeAt(index);
+      this.statusWips.removeAt(index);
     }
   }
 
@@ -129,13 +144,24 @@ export class WorkflowFormComponent implements OnInit {
       return;
     }
     const value = this.workflowForm.value;
+    const names = this.mode === 'edit' ? this.initialWorkflow!.statuses! : value.statuses;
+    const wipLimits = (names as string[])
+      .map((status, index) => {
+        const raw = this.statusWips.at(index)?.value;
+        const wipLimit = raw === null || raw === undefined || raw === '' ? null : Number(raw);
+        return { status, wipLimit };
+      })
+      .filter((entry): entry is { status: string; wipLimit: number } =>
+        entry.wipLimit != null && !Number.isNaN(entry.wipLimit) && entry.wipLimit >= 1);
+
     this.submitted.emit({
       name: value.name,
-      statuses: this.mode === 'edit' ? this.initialWorkflow!.statuses! : value.statuses,
+      statuses: names,
       start: value.start,
       phaseStart: value.phaseStart || undefined,
       transitions: value.transitions,
-      finishStatuses: value.finishStatuses ?? []
+      finishStatuses: value.finishStatuses ?? [],
+      wipLimits
     });
   }
 
@@ -146,8 +172,13 @@ export class WorkflowFormComponent implements OnInit {
       phaseStart: workflow.phaseStart ?? null
     });
     this.statuses.clear();
+    this.statusWips.clear();
+    const wipByStatus = new Map(
+      (workflow.wipLimits ?? []).map(wip => [wip.status ?? '', wip.wipLimit ?? null])
+    );
     (workflow.statuses ?? []).forEach(status => {
       this.statuses.push(this.formBuilder.control({ value: status, disabled: true }, Validators.required));
+      this.statusWips.push(this.formBuilder.control<number | null>(wipByStatus.get(status) ?? null));
     });
     this.transitions.clear();
     (workflow.transitions ?? []).forEach(transition => {

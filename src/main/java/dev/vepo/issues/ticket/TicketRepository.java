@@ -210,6 +210,18 @@ public class TicketRepository {
                  .getResultStream();
     }
 
+    public long countByProjectIdAndStatusId(long projectId, long statusId) {
+        return em.createQuery("""
+                              SELECT COUNT(t) FROM Ticket t
+                              WHERE t.deleted = false
+                              AND t.project.id = :projectId
+                              AND t.status.id = :statusId
+                              """, Long.class)
+                 .setParameter("projectId", projectId)
+                 .setParameter("statusId", statusId)
+                 .getSingleResult();
+    }
+
     public long countOpenAssignedTickets(long projectId, long userId) {
         return em.createQuery("""
                               SELECT COUNT(t) FROM Ticket t
