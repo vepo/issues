@@ -26,64 +26,77 @@
   <section class="workflow-form__section">
     <div class="workflow-form__section-header">
       <h3 i18n>Status</h3>
-      @if (mode === 'create') {
-        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addStatus()">
-          <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-          <span i18n>Adicionar status</span>
-        </button>
-      }
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addStatus()" [disabled]="!!pendingRemoval">
+        <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+        <span i18n>Adicionar status</span>
+      </button>
     </div>
-    @if (mode === 'edit') {
-      <div class="inline-table inline-table--readonly">
-        <div class="inline-table__header">
-          <div class="inline-table__col" i18n>Nome do status</div>
-          <div class="inline-table__col" i18n>WIP</div>
-        </div>
-        <div class="inline-table__body">
-          @for (statusControl of statuses.controls; track $index) {
-            <div class="inline-table__row">
-              <div class="inline-table__col">{{ statusControl.value }}</div>
-              <div class="inline-table__col">
-                <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
-                  <mat-label i18n>Limite WIP</mat-label>
-                  <input matInput type="number" min="1" [formControl]="wipControlAt($index)" />
-                </mat-form-field>
-              </div>
-            </div>
-          }
-        </div>
+    <div class="inline-table">
+      <div class="inline-table__header">
+        <div class="inline-table__col" i18n>Nome do status</div>
+        <div class="inline-table__col" i18n>WIP</div>
+        <div class="inline-table__col inline-table__col--action" i18n>Ações</div>
       </div>
-    } @else {
-      <div class="inline-table">
-        <div class="inline-table__header">
-          <div class="inline-table__col" i18n>Nome do status</div>
-          <div class="inline-table__col" i18n>WIP</div>
-          <div class="inline-table__col inline-table__col--action" i18n>Ações</div>
-        </div>
-        <div class="inline-table__body">
-          @for (statusControl of statuses.controls; track $index) {
-            <div class="inline-table__row">
-              <div class="inline-table__col">
-                <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
-                  <mat-label i18n>Status {{ $index + 1 }}</mat-label>
-                  <input matInput [formControl]="$any(statusControl)" required />
-                </mat-form-field>
-              </div>
-              <div class="inline-table__col">
-                <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
-                  <mat-label i18n>Limite WIP</mat-label>
-                  <input matInput type="number" min="1" [formControl]="wipControlAt($index)" />
-                </mat-form-field>
-              </div>
-              <div class="inline-table__col inline-table__col--action">
-                @if (statuses.length > 2) {
-                  <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeStatus($index)" i18n-aria-label aria-label="Excluir status">
-                    <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
-                  </button>
-                }
-              </div>
+      <div class="inline-table__body">
+        @for (statusControl of statuses.controls; track $index) {
+          <div class="inline-table__row">
+            <div class="inline-table__col">
+              <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
+                <mat-label i18n>Status {{ $index + 1 }}</mat-label>
+                <input matInput [formControl]="$any(statusControl)" required [readonly]="!!pendingRemoval" />
+              </mat-form-field>
             </div>
-          }
+            <div class="inline-table__col">
+              <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
+                <mat-label i18n>Limite WIP</mat-label>
+                <input matInput type="number" min="1" [formControl]="wipControlAt($index)" [readonly]="!!pendingRemoval" />
+              </mat-form-field>
+            </div>
+            <div class="inline-table__col inline-table__col--action">
+              @if (statuses.length > 2) {
+                <button
+                  class="btn btn-secondary btn-icon-only"
+                  matButton="outlined"
+                  type="button"
+                  (click)="removeStatus($index)"
+                  [disabled]="!!pendingRemoval"
+                  i18n-aria-label
+                  aria-label="Excluir status">
+                  <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (pendingRemoval) {
+      <div class="workflow-form__remap" role="dialog" aria-labelledby="remap-title">
+        <h4 id="remap-title" i18n>Remover “{{ pendingRemoval.name }}”</h4>
+        <p i18n>Se houver tickets neste status, escolha para onde movê-los:</p>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Mover tickets para</mat-label>
+          <mat-select
+            [value]="pendingRemoval.replacement"
+            (selectionChange)="pendingRemoval!.replacement = $event.value"
+            required>
+            @for (name of replacementCandidates(pendingRemoval.name); track name) {
+              <mat-option [value]="name">{{ name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <div class="form-actions">
+          <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancelPendingRemoval()" i18n>Cancelar</button>
+          <button
+            class="btn"
+            matButton="filled"
+            type="button"
+            (click)="confirmPendingRemoval()"
+            [disabled]="!pendingRemoval.replacement"
+            i18n>
+            Confirmar
+          </button>
         </div>
       </div>
     }
@@ -189,7 +202,7 @@
 
   <div class="actions form-actions">
     <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancelled.emit()" i18n>Cancelar</button>
-    <button class="btn" matButton="filled" type="submit" [disabled]="workflowForm.invalid || isSaving">
+    <button class="btn" matButton="filled" type="submit" [disabled]="workflowForm.invalid || isSaving || !!pendingRemoval">
       <span i18n>{{ isSaving ? 'Salvando...' : 'Salvar' }}</span>
     </button>
   </div>

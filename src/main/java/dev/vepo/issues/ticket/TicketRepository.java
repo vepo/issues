@@ -73,6 +73,28 @@ public class TicketRepository {
                  .getResultStream();
     }
 
+    public Stream<Ticket> findByWorkflowIdAndStatusIdIncludingDeleted(long workflowId, long statusId) {
+        return em.createQuery("""
+                              FROM Ticket t
+                              WHERE t.status.id = :statusId
+                                AND t.project.workflow.id = :workflowId
+                              """, Ticket.class)
+                 .setParameter("statusId", statusId)
+                 .setParameter("workflowId", workflowId)
+                 .getResultStream();
+    }
+
+    public long countByWorkflowIdAndStatusIdIncludingDeleted(long workflowId, long statusId) {
+        return em.createQuery("""
+                              SELECT COUNT(t) FROM Ticket t
+                              WHERE t.status.id = :statusId
+                                AND t.project.workflow.id = :workflowId
+                              """, Long.class)
+                 .setParameter("statusId", statusId)
+                 .setParameter("workflowId", workflowId)
+                 .getSingleResult();
+    }
+
     public Optional<Ticket> findById(long id) {
         return em.createQuery("FROM Ticket WHERE deleted = false AND id = :id", Ticket.class)
                  .setParameter("id", id)

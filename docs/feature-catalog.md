@@ -30,8 +30,8 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Shared saved query | `/search/q/:slug` | authenticated | Copy link; owner **Editar**; others **Clonar** |
 | Create ticket | `/tickets/new` | authenticated | Header → Novo → select project → fill form (**Tipo** Épico/História/Tarefa, rich-text **Descrição** + **Campos personalizados** from in-scope defs; Text CF rich text) → optional **fase** → create |
 | Create ticket (project) | `/project/:projectId/tickets/new` | authenticated | Kanban → Novo ticket → form pre-filled from template (built-ins + custom field defaults; rich-text Description / Text CF; **Tipo**) → optional **fase** → create |
-| Import tickets (CSV, project) | `/project/:projectId/tickets/import` | authenticated | Kanban → Importar CSV → upload file → map built-in columns and **custom field keys** → preview → import valid rows |
-| Import tickets (CSV, global) | `/tickets/import` | authenticated | Header **Importar** or user menu → Importar CSV → upload file → map project + built-in columns and **custom field keys** (row invalid if project lacks that key) → preview → import valid rows |
+| Import tickets (CSV, project) | `/project/:projectId/tickets/import` | authenticated | Kanban → Importar CSV → upload file → map built-in columns and **custom field keys** → preview (correct invalid rows in place) → import valid rows (partial; no sibling rollback) |
+| Import tickets (CSV, global) | `/tickets/import` | authenticated | Header **Importar** or user menu → Importar CSV → upload file → map project + built-in columns and **custom field keys** (row invalid if project lacks that key) → preview (correct invalid rows) → import valid rows |
 | User list | `/users` | admin | Menu → users → list; Editar or Excluir (blocked when assignee on open tickets) |
 | Create user | `/users/new` | admin | Users → new → fill form → save |
 | Edit user | `/users/:userId` | admin | Users → select user → edit → save |
@@ -41,7 +41,7 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Edit project | `/projects/:projectId/edit` | project owner PM, admin | Project hub → **Editar** → update fields and **owner** (admin or current owner); **prefix** read-only when the project has tickets; manage **Campos personalizados (projeto)** (add/edit/disable/delete) and template custom defaults → save |
 | Workflow list | `/workflows` | project-manager, admin | Menu → Administração → Processos → list workflows → Editar |
 | Create workflow | `/workflows/new` | project-manager, admin | Workflows → Novo processo → status table (optional WIP) + transitions table → **Campos personalizados (processo)** visible but **Adicionar campo** disabled (save first) → save |
-| Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, start status, transitions, WIP limits (status names fixed); manage **Campos personalizados (processo)** incl. status-required |
+| Edit workflow | `/workflows/:workflowId` | project-manager, admin | Workflows → Editar → change name, **statuses** (add/rename/remove), start, transitions, WIP; removing a status with tickets asks **Mover tickets para**; manage **Campos personalizados (processo)** incl. status-required |
 | Category list | `/categories` | admin | Menu → Administração → Categorias → list; Nova categoria or Editar dialog with color picker; Excluir with confirm (blocked when tickets or project templates reference the category) |
 | Notifications (SSE) | (global, background) | authenticated | Login → SSE registers (live events) → badge shows server unread (`99+` when > 99) → dropdown loads paginated list with infinite scroll; **Marcar todas como lidas** when unread > 0; SSE auto-reconnects and refreshes unread + page 0 |
 

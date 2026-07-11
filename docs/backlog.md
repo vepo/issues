@@ -29,28 +29,29 @@ Ordered ideas for Issues that are **not yet** in active development (or are queu
 
 | Order | Status | Idea | Why / notes | Suggested slug | Feature doc |
 |------:|--------|------|-------------|----------------|-------------|
-| 1 | promoted | **Editable workflow statuses after create** | Tasks-ready T1–T7; await approval | `workflow-configuration` | [workflow-configuration.md](../feature/workflow-configuration.md) |
-| 2 | promoted | **Agentic Development integration** — PAT + SA + separate Quarkus MCP | Tasks-ready; multi-module path; await task approval | `agentic-integration` | [agentic-integration.md](../feature/agentic-integration.md) |
-| 3 | promoted | **Git integration** — project repo + commits on ticket history | Tasks-ready T1–T10; webhook + API ingest; await approval | `git-integration` | [git-integration.md](../feature/git-integration.md) |
-| 4 | idea | **Ticket attachments** (upload files on ticket) | Common tracker need; comments alone are weak for specs | `ticket-attachments` | — |
-| — | done | **Ticket links, epics & subtasks** (typed links + hierarchy) | Peer links + parent/child; not Phase/Category | `ticket-links` | [ticket-links.md](../feature/ticket-links.md) |
-| 5 | idea | **Clone ticket** | Fast create from existing work item | `ticket-management` | [ticket-management.md](../feature/ticket-management.md) (extend) |
-| 6 | idea | **CSV / JSON export** of tickets | Symmetric to import; reporting | `ticket-export` | — |
-| 7 | idea | **@mentions in comments** + notify mentioned users | Collaboration; ties to notifications | `ticket-mentions` | — |
-| 8 | idea | **Due-date reminders** (email and/or in-app) | Due date exists; no nudge yet | `due-date-reminders` | — |
-| 9 | idea | **Bulk ticket operations** (assign, move, set fields) | Power-user / triage | `bulk-ticket-ops` | — |
-| 10 | idea | **Custom fields on Kanban cards** | Deferred from CF v1 (**FQ20**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
-| 11 | idea | **Enum multi-select** custom fields | Deferred from CF v1 (**FQ11**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
-| 12 | idea | **Notify / email on custom field change** | Deferred from CF v1 (**FQ17**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
-| 13 | idea | **Board / dashboard filters by custom fields** | Analytics after CF ships | `kanban-board` / `project-dashboard` | — |
-| 14 | idea | **Webhooks** (ticket created/moved/updated) | External integrations; confirmed **separate** from agentic v1 (**FQ7**) | `webhooks` | — |
-| 15 | idea | **Project archive** (hide from menus, read-only) | Soft end-of-life without delete | `project-administration` | — |
-| 16 | idea | **Time estimate / spent** on tickets | Hours spent etc.; story points shipped with burndown | `time-tracking` | — |
-| 17 | promoted | **UI i18n** (EN + keep PT-BR) | Broader audience; FQ1–10 open | `i18n` | [i18n.md](../feature/i18n.md) |
+| 1 | promoted | **Agentic Development integration** — PAT + SA + separate Quarkus MCP | Tasks-ready; await task approval | `agentic-integration` | [agentic-integration.md](../feature/agentic-integration.md) |
+| 2 | promoted | **Git integration** — project repo + commits on ticket history | Tasks-ready T1–T10; await approval | `git-integration` | [git-integration.md](../feature/git-integration.md) |
+| 3 | promoted | **CSV import chunked upload** | Tasks-ready T1–T7; await approval | `ticket-import` | [ticket-import.md](../feature/ticket-import.md) |
+| 4 | promoted | **UI i18n** (EN + keep PT-BR) | Tasks-ready; FQ/AQ answered | `i18n` | [i18n.md](../feature/i18n.md) |
+| 5 | idea | **Ticket attachments** (upload files on ticket) | Common tracker need; comments alone are weak for specs | `ticket-attachments` | — |
+| 6 | idea | **Clone ticket** | Fast create from existing work item | `ticket-management` | [ticket-management.md](../feature/ticket-management.md) (extend) |
+| 7 | idea | **CSV / JSON export** of tickets | Symmetric to import; reporting | `ticket-export` | — |
+| 8 | idea | **@mentions in comments** + notify mentioned users | Collaboration; ties to notifications | `ticket-mentions` | — |
+| 9 | idea | **Due-date reminders** (email and/or in-app) | Due date exists; no nudge yet | `due-date-reminders` | — |
+| 10 | idea | **Bulk ticket operations** (assign, move, set fields) | Power-user / triage | `bulk-ticket-ops` | — |
+| 11 | idea | **Custom fields on Kanban cards** | Deferred from CF v1 (**FQ20**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
+| 12 | idea | **Enum multi-select** custom fields | Deferred from CF v1 (**FQ11**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
+| 13 | idea | **Notify / email on custom field change** | Deferred from CF v1 (**FQ17**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
+| 14 | idea | **Board / dashboard filters by custom fields** | Analytics after CF ships | `kanban-board` / `project-dashboard` | — |
+| 15 | idea | **Webhooks** (ticket created/moved/updated) | External integrations; confirmed **separate** from agentic v1 (**FQ7**) | `webhooks` | — |
+| 16 | idea | **Project archive** (hide from menus, read-only) | Soft end-of-life without delete | `project-administration` | — |
+| 17 | idea | **Time estimate / spent** on tickets | Hours spent etc.; story points shipped with burndown | `time-tracking` | — |
 | 18 | idea | **Saved Kanban view preferences** (swimlane, phase filter) | Swimlane not persisted today | `kanban-board` | — |
 | 19 | idea | **Admin audit log** (config changes) | Complement ticket history | `audit-log` | — |
 | 20 | idea | **Recurring tickets** | Ops / checklist cadence | `recurring-tickets` | — |
 | 21 | idea | **SLA / age policies** (warn when stuck in status) | Ops maturity | `sla-policies` | — |
+| — | done | **Editable workflow statuses after create** | Shipped 2026-07-11 — [workflow-configuration.md](../feature/workflow-configuration.md) v2 | `workflow-configuration` | [workflow-configuration.md](../feature/workflow-configuration.md) |
+| — | done | **Ticket links, epics & subtasks** (typed links + hierarchy) | Peer links + parent/child; not Phase/Category | `ticket-links` | [ticket-links.md](../feature/ticket-links.md) |
 | — | done | **Burndown** — points remaining vs ideal over phase | Shipped 2026-07-11 — [burndown.md](../feature/burndown.md) v1 | `burndown` | [burndown.md](../feature/burndown.md) |
 | — | done | **Ticket backlog** — ranked list + reorder | Shipped 2026-07-11 — [ticket-backlog.md](../feature/ticket-backlog.md) v1 | `ticket-backlog` | [ticket-backlog.md](../feature/ticket-backlog.md) |
 | — | promoted | **Personal API tokens** | Subsumed by agentic-integration v1 | `agentic-integration` | [agentic-integration.md](../feature/agentic-integration.md) |
@@ -58,14 +59,15 @@ Ordered ideas for Issues that are **not yet** in active development (or are queu
 | — | done | **Notifications** — mark all as read + accurate unread badge | Shipped 2026-07-11 — [notifications.md](../feature/notifications.md) v3 | `notifications` | [notifications.md](../feature/notifications.md) |
 | — | done | **Notifications** — SSE reconnect, infinite scroll, page API | Shipped 2026-07-10 — [notifications.md](../feature/notifications.md) v2 | `notifications` | [notifications.md](../feature/notifications.md) |
 | — | done | **Custom fields** for tickets (project + workflow defs, values, import, query) | Shipped 2026-07-10 — [custom-fields.md](../feature/custom-fields.md) v1 | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) |
+| — | done | **Custom fields** — disabled CF section on new workflow | Shipped 2026-07-11 — [custom-fields.md](../feature/custom-fields.md) v2 | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) |
 
 ## Suggested next picks (after current promoted work)
 
-1. **Approve agentic-integration tasks** T1–T15 (or subset) → implement ([agentic-integration.md](../feature/agentic-integration.md)).  
-2. **Approve git-integration** tasks T1–T10 → implement ([git-integration.md](../feature/git-integration.md)).  
-3. **Approve workflow-configuration** T1–T7 → implement ([workflow-configuration.md](../feature/workflow-configuration.md) v2).  
-4. **Attachments** — highest remaining user-visible tracker gap.  
-5. Finish **custom-fields** v2 (T16–T19 — disabled CF section on new workflow).
+1. **Approve agentic-integration** tasks → implement ([agentic-integration.md](../feature/agentic-integration.md)).  
+2. **Approve git-integration** T1–T10 → implement ([git-integration.md](../feature/git-integration.md)).  
+3. **Approve ticket-import** chunked upload T1–T7 → implement ([ticket-import.md](../feature/ticket-import.md) v2).  
+4. **Approve i18n** tasks → implement ([i18n.md](../feature/i18n.md)).  
+5. **Attachments** — highest remaining user-visible tracker gap among ideas.
 
 ## Changelog (backlog maintenance)
 
@@ -93,3 +95,5 @@ Ordered ideas for Issues that are **not yet** in active development (or are queu
 | 2026-07-11 | Workflow editable statuses → `promoted`; FQ1 yes, FQ2 remap-to-suggested status; FQ3–8 opened |
 | 2026-07-11 | Workflow FQ3–8 + AQ1–3 accepted; architecture + tasks T1–T7 → `tasks-ready` |
 | 2026-07-11 | Burndown v1 → `done`; renumbered active ranks |
+| 2026-07-11 | CSV import chunked upload → `promoted` ([ticket-import.md](../feature/ticket-import.md) v2 `tasks-ready`); i18n notes → FQ/AQ answered / tasks-ready; workflow → in-progress; custom-fields v2 → `done`; renumbered active ranks 1–22 |
+| 2026-07-11 | Workflow editable statuses v2 → `done`; renumbered active ranks |

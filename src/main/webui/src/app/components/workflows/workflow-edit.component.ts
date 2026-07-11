@@ -11,7 +11,7 @@ import { WorkflowFormComponent, WorkflowFormValue } from './workflow-form.compon
       <header class="page-header">
         <div>
           <h1 class="page-title" i18n>Editar processo</h1>
-          <p class="page-subtitle" i18n>Altere nome, status inicial e transições</p>
+          <p class="page-subtitle" i18n>Altere nome, status, transições e remapeie tickets se necessário</p>
         </div>
       </header>
       <section class="edit page-panel">
@@ -61,11 +61,13 @@ export class WorkflowEditComponent implements OnInit {
     }
     const request: UpdateWorkflowRequest = {
       name: value.name,
+      statuses: value.statuses,
       start: value.start,
       phaseStart: value.phaseStart ?? undefined,
       transitions: value.transitions,
       finishStatuses: value.finishStatuses,
-      wipLimits: value.wipLimits
+      wipLimits: value.wipLimits,
+      statusReplacements: value.statusReplacements?.length ? value.statusReplacements : undefined
     };
     this.isSaving = true;
     this.workflowService.update(this.workflow.id, request).subscribe({

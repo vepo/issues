@@ -1,7 +1,7 @@
 # Workflow configuration
 
 **Feature version:** 2  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03); editable statuses 2026-07-11
 
 ## Summary
@@ -10,7 +10,7 @@ Project managers and admins define workflows: name, start status, status list, a
 
 **v1 (shipped):** create with full status list; edit updates name, start status, transitions, phase start, finish statuses, and WIP — status membership fixed after create.
 
-**v2 (tasks-ready):** allow **add / rename / remove** of statuses on edit. Removing a status that still has tickets requires a **replacement status**; tickets (including soft-deleted) are remapped in the same transaction. Orphan transitions and status-required CF links for the removed status are dropped. Rename is **workflow-local** (detach/attach name rows). Remap logs **STATUS_CHANGED** history; **no** subscriber notify.
+**v2 (shipped):** allow **add / rename / remove** of statuses on edit. Removing a status that still has tickets requires a **replacement status**; tickets (including soft-deleted) are remapped in the same transaction. Orphan transitions and status-required CF links for the removed status are dropped. Rename is **workflow-local** (detach/attach name rows). Remap logs **STATUS_CHANGED** history; **no** subscriber notify.
 
 ## Decisions
 
@@ -171,7 +171,7 @@ Project managers and admins define workflows: name, start status, status list, a
 ### Editable workflow statuses after create — 2026-07-11
 
 **Version:** 2  
-**Status:** tasks-ready  
+**Status:** done  
 **Change name:** Editable workflow statuses (add / rename / remove + ticket remap)
 
 **Description:** Unlock status list on workflow edit. Removing a status that still has tickets requires a replacement status; tickets (including soft-deleted) are remapped with history and without notifications. Orphan transitions and status-required CF links are dropped. Rename is workflow-local.
@@ -191,45 +191,45 @@ Project managers and admins define workflows: name, start status, status list, a
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Status list editable on edit (add / rename / remove) | FQ1, S1, Wireframe | ☐ |
-| FC2 | Remove with tickets requires replacement; tickets remapped | FQ2, Wireframe | ☐ |
-| FC3 | Orphan transitions auto-deleted | FQ3 | ☐ |
-| FC4 | Soft-deleted tickets remapped | FQ4 | ☐ |
-| FC5 | STATUS_CHANGED history; no notify | FQ5 | ☐ |
-| FC6 | Start / phase-start / finish reassigned in same request | FQ6 | ☐ |
-| FC7 | Rename does not mutate other workflows’ status membership | FQ7 | ☐ |
-| FC8 | Status-required CF links dropped for removed status | FQ8 | ☐ |
-| FC9 | Wireframe: remove dialog **Mover tickets para** | Wireframe | ☐ |
-| FC10 | API: `statuses` + `statusReplacements`; one transaction; direct set | Architecture, AQ1–3 | ☐ |
-| FC11 | domain-spec + feature-catalog + ARCHITECTURE §13 | Docs | ☐ |
+| FC1 | Status list editable on edit (add / rename / remove) | FQ1, S1, Wireframe | ☑ |
+| FC2 | Remove with tickets requires replacement; tickets remapped | FQ2, Wireframe | ☑ |
+| FC3 | Orphan transitions auto-deleted | FQ3 | ☑ |
+| FC4 | Soft-deleted tickets remapped | FQ4 | ☑ |
+| FC5 | STATUS_CHANGED history; no notify | FQ5 | ☑ |
+| FC6 | Start / phase-start / finish reassigned in same request | FQ6 | ☑ |
+| FC7 | Rename does not mutate other workflows’ status membership | FQ7 | ☑ |
+| FC8 | Status-required CF links dropped for removed status | FQ8 | ☑ |
+| FC9 | Wireframe: remove dialog **Mover tickets para** | Wireframe | ☑ |
+| FC10 | API: `statuses` + `statusReplacements`; one transaction; direct set | Architecture, AQ1–3 | ☑ |
+| FC11 | domain-spec + feature-catalog + ARCHITECTURE §13 | Docs | ☑ |
 | FC12 | All FQs/AQs answered | FQ/AQ tables | ☑ |
 
 #### Tasks
 
 | ID | Deliverable | Done |
 |----|-------------|------|
-| T1 | Extend `UpdateWorkflowRequest` with `statuses` + `statusReplacements`; validation messages | ☐ |
-| T2 | `WorkflowService.update`: membership add/rename/remove (workflow-local rename); orphan transition + WIP cleanup | ☐ |
-| T3 | Ticket remap (incl. soft-deleted) + `STATUS_CHANGED` history; no notify; same transaction | ☐ |
-| T4 | Drop workflow CF status-required links for removed statuses; start/phase-start/finish guards | ☐ |
-| T5 | Endpoint tests: add/rename/remove; remap; missing replacement → 400; cross-workflow rename isolation; no notification side effect | ☐ |
-| T6 | Angular `workflow-form` edit: enable statuses; remove dialog with replacement; send new fields + specs | ☐ |
-| T7 | Docs: domain-spec invariants, feature-catalog, ARCHITECTURE §13, README if needed | ☐ |
+| T1 | Extend `UpdateWorkflowRequest` with `statuses` + `statusReplacements`; validation messages | ☑ |
+| T2 | `WorkflowService.update`: membership add/rename/remove (workflow-local rename); orphan transition + WIP cleanup | ☑ |
+| T3 | Ticket remap (incl. soft-deleted) + `STATUS_CHANGED` history; no notify; same transaction | ☑ |
+| T4 | Drop workflow CF status-required links for removed statuses; start/phase-start/finish guards | ☑ |
+| T5 | Endpoint tests: add/rename/remove; remap; missing replacement → 400; cross-workflow rename isolation; no notification side effect | ☑ |
+| T6 | Angular `workflow-form` edit: enable statuses; remove dialog with replacement; send new fields + specs | ☑ |
+| T7 | Docs: domain-spec invariants, feature-catalog, ARCHITECTURE §13, README if needed | ☑ |
 
 #### Test coverage
 
 | ID | Covers | Tasks | Done |
 |----|--------|-------|------|
-| TC1 | Request validation + statuses on update | T1, T5 | ☐ |
-| TC2 | Add / rename / remove membership; cross-workflow rename isolation | T2, T5 | ☐ |
-| TC3 | Remap active + soft-deleted; history; reject without replacement | T3, T5 | ☐ |
-| TC4 | Orphan transitions + CF status-required dropped; start/finish guards | T2, T4, T5 | ☐ |
-| TC5 | Angular edit unlock + remove dialog + payload | T6 | ☐ |
-| TC6 | Doc review | T7 | ☐ |
+| TC1 | Request validation + statuses on update | T1, T5 | ☑ |
+| TC2 | Add / rename / remove membership; cross-workflow rename isolation | T2, T5 | ☑ |
+| TC3 | Remap active + soft-deleted; history; reject without replacement | T3, T5 | ☑ |
+| TC4 | Orphan transitions + CF status-required dropped; start/finish guards | T2, T4, T5 | ☑ |
+| TC5 | Angular edit unlock + remove dialog + payload | T6 | ☑ |
+| TC6 | Doc review | T7 | ☑ |
 
-**Development approval:** pending — approve task IDs (e.g. “Approve T1–T7”) to start phase 5.
+**Development approval:** approved 2026-07-11 — tasks: T1, T2, T3, T4, T5, T6, T7
 
-**Implementation notes:** (fill after done)
+**Implementation notes:** `UpdateWorkflowRequest` requires `statuses` and optional `statusReplacements`. `WorkflowService.update` remaps via `TicketService.remapWorkflowStatus` (direct set + history, no notify). Finish-status clear flushes before re-add. Angular edit unlocks status table with **Mover tickets para** panel; rename heuristic maps single remove+add.
 
 ---
 

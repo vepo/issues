@@ -18,7 +18,9 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(WorkflowPaths.BASE)
 @ApplicationScoped
@@ -38,8 +40,10 @@ public class UpdateWorkflowEndpoint {
     @PUT
     @Path("/{id}")
     @RolesAllowed({ Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
-    @Operation(operationId = "updateWorkflow", summary = "Update workflow name, start status and transitions")
-    public WorkflowResponse update(@PathParam("id") long id, @Valid UpdateWorkflowRequest request) {
-        return workflowService.update(id, request);
+    @Operation(operationId = "updateWorkflow", summary = "Update workflow including statuses, transitions and ticket remaps")
+    public WorkflowResponse update(@PathParam("id") long id,
+                                   @Valid UpdateWorkflowRequest request,
+                                   @Context SecurityContext securityContext) {
+        return workflowService.update(id, request, securityContext.getUserPrincipal().getName());
     }
 }

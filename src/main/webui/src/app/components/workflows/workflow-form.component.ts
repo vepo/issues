@@ -11,6 +11,11 @@ import { CustomFieldAdminComponent } from '../custom-fields/custom-field-admin.c
 
 export type WorkflowFormMode = 'create' | 'edit';
 
+export interface StatusReplacementValue {
+  from: string;
+  to: string;
+}
+
 export interface WorkflowFormValue {
   name: string;
   statuses: string[];
@@ -19,6 +24,7 @@ export interface WorkflowFormValue {
   transitions: { from: string; to: string }[];
   finishStatuses: { status: string; outcome: FinishOutcome }[];
   wipLimits: { status: string; wipLimit: number }[];
+  statusReplacements: StatusReplacementValue[];
 }
 
 @Component({
@@ -64,6 +70,11 @@ export class WorkflowFormComponent implements OnInit {
 
   readonly finishOutcomes: FinishOutcome[] = ['DONE', 'CANCELED'];
 
+  /** Explicit replacements collected when removing a status that existed on the workflow. */
+  statusReplacements: StatusReplacementValue[] = [];
+
+  pendingRemoval: { index: number; name: string; replacement: string } | null = null;
+
   ngOnInit(): void {
     if (this.mode === 'edit' && this.initialWorkflow) {
       this.patchWorkflow(this.initialWorkflow);
@@ -87,12 +98,13 @@ export class WorkflowFormComponent implements OnInit {
   }
 
   statusNames(): string[] {
-    if (this.mode === 'edit' && this.initialWorkflow?.statuses) {
-      return this.initialWorkflow.statuses;
-    }
     return this.statuses.controls
       .map(control => (control.value as string)?.trim())
       .filter(name => !!name);
+  }
+
+  replacementCandidates(removedName: string): string[] {
+    return this.statusNames().filter(name => name !== removedName);
   }
 
   wipControlAt(index: number): FormControl<number | null> {
@@ -119,10 +131,41 @@ export class WorkflowFormComponent implements OnInit {
   }
 
   removeStatus(index: number): void {
-    if (this.statuses.length > 2) {
-      this.statuses.removeAt(index);
-      this.statusWips.removeAt(index);
+    if (this.statuses.length <= 2 || this.pendingRemoval) {
+      return;
     }
+    const name = (this.statuses.at(index).value as string)?.trim();
+    const wasExisting =
+      this.mode === 'edit' &&
+      !!name &&
+      (this.initialWorkflow?.statuses ?? []).includes(name);
+    if (wasExisting) {
+      const candidates = this.replacementCandidates(name);
+      this.pendingRemoval = {
+        index,
+        name,
+        replacement: candidates[0] ?? ''
+      };
+      return;
+    }
+    this.applyStatusRemoval(index, name);
+  }
+
+  confirmPendingRemoval(): void {
+    if (!this.pendingRemoval?.replacement) {
+      return;
+    }
+    const { index, name, replacement } = this.pendingRemoval;
+    this.statusReplacements = [
+      ...this.statusReplacements.filter(r => r.from !== name),
+      { from: name, to: replacement }
+    ];
+    this.pendingRemoval = null;
+    this.applyStatusRemoval(index, name);
+  }
+
+  cancelPendingRemoval(): void {
+    this.pendingRemoval = null;
   }
 
   addTransition(): void {
@@ -142,12 +185,12 @@ export class WorkflowFormComponent implements OnInit {
   }
 
   submit(): void {
-    if (this.workflowForm.invalid) {
+    if (this.workflowForm.invalid || this.pendingRemoval) {
       return;
     }
-    const value = this.workflowForm.value;
-    const names = this.mode === 'edit' ? this.initialWorkflow!.statuses! : value.statuses;
-    const wipLimits = (names as string[])
+    const value = this.workflowForm.getRawValue();
+    const names = (value.statuses as string[]).map(s => s?.trim()).filter(Boolean);
+    const wipLimits = names
       .map((status, index) => {
         const raw = this.statusWips.at(index)?.value;
         const wipLimit = raw === null || raw === undefined || raw === '' ? null : Number(raw);
@@ -163,8 +206,51 @@ export class WorkflowFormComponent implements OnInit {
       phaseStart: value.phaseStart || undefined,
       transitions: value.transitions,
       finishStatuses: value.finishStatuses ?? [],
-      wipLimits
+      wipLimits,
+      statusReplacements: this.buildStatusReplacements(names)
     });
+  }
+
+  private buildStatusReplacements(currentNames: string[]): StatusReplacementValue[] {
+    const initial = this.initialWorkflow?.statuses ?? [];
+    if (this.mode !== 'edit' || initial.length === 0) {
+      return [];
+    }
+    const removed = initial.filter(name => !currentNames.includes(name));
+    const added = currentNames.filter(name => !initial.includes(name));
+    const explicit = [...this.statusReplacements];
+    if (removed.length === 1 && added.length === 1 && !explicit.some(r => r.from === removed[0])) {
+      explicit.push({ from: removed[0], to: added[0] });
+    }
+    return explicit.filter(r => removed.includes(r.from) && currentNames.includes(r.to));
+  }
+
+  private applyStatusRemoval(index: number, removedName: string | undefined): void {
+    this.statuses.removeAt(index);
+    this.statusWips.removeAt(index);
+    if (!removedName) {
+      return;
+    }
+    for (let i = this.transitions.length - 1; i >= 0; i--) {
+      const group = this.transitions.at(i) as FormGroup;
+      if (group.value.from === removedName || group.value.to === removedName) {
+        this.transitions.removeAt(i);
+      }
+    }
+    for (let i = this.finishStatuses.length - 1; i >= 0; i--) {
+      const group = this.finishStatuses.at(i) as FormGroup;
+      if (group.value.status === removedName) {
+        this.finishStatuses.removeAt(i);
+      }
+    }
+    const start = this.workflowForm.get('start')?.value;
+    if (start === removedName) {
+      this.workflowForm.patchValue({ start: this.statusNames()[0] ?? '' });
+    }
+    const phaseStart = this.workflowForm.get('phaseStart')?.value;
+    if (phaseStart === removedName) {
+      this.workflowForm.patchValue({ phaseStart: null });
+    }
   }
 
   private patchWorkflow(workflow: Workflow): void {
@@ -179,7 +265,7 @@ export class WorkflowFormComponent implements OnInit {
       (workflow.wipLimits ?? []).map(wip => [wip.status ?? '', wip.wipLimit ?? null])
     );
     (workflow.statuses ?? []).forEach(status => {
-      this.statuses.push(this.formBuilder.control({ value: status, disabled: true }, Validators.required));
+      this.statuses.push(this.formBuilder.control(status, Validators.required));
       this.statusWips.push(this.formBuilder.control<number | null>(wipByStatus.get(status) ?? null));
     });
     this.transitions.clear();
@@ -193,5 +279,7 @@ export class WorkflowFormComponent implements OnInit {
     (workflow.finishStatuses ?? []).forEach(finishStatus => {
       this.finishStatuses.push(this.createFinishStatusGroup(finishStatus.status ?? '', finishStatus.outcome ?? 'DONE'));
     });
+    this.statusReplacements = [];
+    this.pendingRemoval = null;
   }
 }

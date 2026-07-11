@@ -34,6 +34,7 @@ import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
 import dev.vepo.issues.workflow.FinishOutcome;
 import dev.vepo.issues.workflow.WorkflowRepository;
+import dev.vepo.issues.workflow.WorkflowStatus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -433,6 +434,33 @@ public class TicketService {
 
     public List<Ticket> findTicketsByProjectId(long projectId) {
         return repository.findByProjectId(projectId).toList();
+    }
+
+    /**
+     * Workflow restructure: move all tickets (including soft-deleted) on this
+     * workflow from {@code from} to {@code to} without transition or WIP checks and
+     * without notifications.
+     */
+    @Transactional
+    public void remapWorkflowStatus(long workflowId, WorkflowStatus from, WorkflowStatus to, String username) {
+        if (Objects.equals(from.getId(), to.getId())) {
+            return;
+        }
+        var user = requireUserByUsername(username);
+        var fromFinishOutcome = workflowRepository.findFinishOutcome(workflowId, from.getId());
+        var toFinishOutcome = workflowRepository.findFinishOutcome(workflowId, to.getId());
+        var tickets = repository.findByWorkflowIdAndStatusIdIncludingDeleted(workflowId, from.getId())
+                                .toList();
+        for (var ticket : tickets) {
+            var fromStatus = ticket.getStatus().getName();
+            ticket.setStatus(to);
+            applyFinishDate(ticket, fromFinishOutcome, toFinishOutcome, user);
+            historyService.logStatusChanged(ticket, user, fromStatus, to.getName());
+        }
+    }
+
+    public long countTicketsOnWorkflowStatusIncludingDeleted(long workflowId, long statusId) {
+        return repository.countByWorkflowIdAndStatusIdIncludingDeleted(workflowId, statusId);
     }
 
     private TicketResponse toResponse(Ticket ticket) {

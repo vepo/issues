@@ -60,6 +60,10 @@ public class WorkflowRepository {
         return workflow;
     }
 
+    public void flush() {
+        em.flush();
+    }
+
     public Optional<FinishOutcome> findFinishOutcome(long workflowId, long statusId) {
         return em.createQuery("""
                               SELECT fs.outcome FROM WorkflowFinishStatus fs
