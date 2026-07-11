@@ -13,6 +13,7 @@ import { PasswordResetComponent } from './components/password-reset/password-res
 import { ProjectEditComponent } from './components/project-edit.component/project-edit.component';
 import { ProjectAllocationComponent } from './components/projects/project-allocation.component';
 import { ProjectHubComponent } from './components/projects/project-hub.component';
+import { ServiceAccountsComponent } from './components/projects/service-accounts.component';
 import { ProjectsViewComponent } from './components/projects-view.component/projects-view.component';
 import { SearchTicketsComponent } from './components/search-tickets/search-tickets.component';
 import { AdvancedSearchComponent } from './components/advanced-search/advanced-search.component';
@@ -223,12 +224,12 @@ export const routes: Routes = [
     resolve: {
       users: usersResolver
     },
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard(['admin'])],
   },
   {
     path: 'users/new',
     component: UsersEditComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard(['admin'])],
   },
   {
     path: 'users/:userId',
@@ -236,7 +237,7 @@ export const routes: Routes = [
     resolve: {
       user: userResolver
     },
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard(['admin'])],
   },
   {
     path: 'projects',
@@ -276,6 +277,14 @@ export const routes: Routes = [
   {
     path: 'projects/:projectId/allocation',
     component: ProjectAllocationComponent,
+    resolve: {
+      project: projectResolver
+    },
+    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])]
+  },
+  {
+    path: 'projects/:projectId/service-accounts',
+    component: ServiceAccountsComponent,
     resolve: {
       project: projectResolver
     },

@@ -17,7 +17,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @DenyAll
 @ApplicationScoped
@@ -39,7 +41,8 @@ public class UpdateNotificationReadEndpoint {
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "updateNotificationRead", summary = "Mark notification as read")
     public UserNotificationEvent updateReadStatus(@PathParam("id") long notificationId,
-                                                  UpdateNotificationStatusReadRequest request) {
-        return notificationService.markAsRead(notificationId, request);
+                                                  UpdateNotificationStatusReadRequest request,
+                                                  @Context SecurityContext securityContext) {
+        return notificationService.markAsRead(notificationId, request, securityContext.getUserPrincipal().getName());
     }
 }

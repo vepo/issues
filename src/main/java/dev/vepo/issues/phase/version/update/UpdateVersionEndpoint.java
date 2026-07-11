@@ -19,7 +19,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(VersionPaths.BASE)
 @ApplicationScoped
@@ -43,7 +45,8 @@ public class UpdateVersionEndpoint {
     @Operation(operationId = "updateVersion", summary = "Update a project version")
     public VersionResponse update(@PathParam("projectId") long projectId,
                                   @PathParam("versionId") long versionId,
-                                  @Valid UpdateVersionRequest request) {
-        return versionService.update(projectId, versionId, request);
+                                  @Valid UpdateVersionRequest request,
+                                  @Context SecurityContext securityContext) {
+        return versionService.update(projectId, versionId, request, securityContext.getUserPrincipal().getName());
     }
 }

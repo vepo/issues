@@ -109,6 +109,83 @@ class ImportTicketsEndpointTest {
     }
 
     @Test
+    @DisplayName("Should forbid CSV upload for non-member of project")
+    void shouldForbidCsvUploadForNonMember() throws IOException {
+        var otherProject = given().header(fixtures.pmAuthenticatedHeader())
+                                  .contentType(ContentType.JSON)
+                                  .body("""
+                                        {
+                                            "name": "Import Locked %s",
+                                            "description": "No membership for default user",
+                                            "prefix": "IL%s",
+                                            "workflowId": %d
+                                        }
+                                        """.formatted(UUID.randomUUID(),
+                                                      UUID.randomUUID().toString().substring(0, 4).toUpperCase(),
+                                                      Given.simpleWorkflow().id()))
+                                  .post("/api/projects")
+                                  .then()
+                                  .statusCode(201)
+                                  .extract()
+                                  .jsonPath()
+                                  .getLong("id");
+
+        var file = Files.createTempFile("import-", ".csv");
+        Files.writeString(file, """
+                                Title,Description,Category
+                                Valid title here,Valid description text,%s
+                                """.formatted(fixtures.bug().getName()), StandardCharsets.UTF_8);
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .header("X-File-Name", "tickets.csv")
+               .contentType("application/octet-stream")
+               .body(Files.readAllBytes(file))
+               .when()
+               .post("/api/projects/%d/tickets/import/upload".formatted(otherProject))
+               .then()
+               .statusCode(403);
+    }
+
+    @Test
+    @DisplayName("Should return not found when another user continues import")
+    void shouldReturnNotFoundWhenAnotherUserContinuesImport() throws IOException {
+        var importId = uploadCsv("""
+                                 Title,Description,Category
+                                 Owned import title,Owned import description,%s
+                                 """.formatted(fixtures.bug().getName()));
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "mapping": {
+                         "titleColumn": "Title",
+                         "descriptionColumn": "Description",
+                         "categoryColumn": "Category"
+                       }
+                     }
+                     """)
+               .when()
+               .put("/api/projects/%d/tickets/import/%d/mapping".formatted(fixtures.project().id(), importId))
+               .then()
+               .statusCode(404);
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .accept(ContentType.JSON)
+               .when()
+               .post("/api/projects/%d/tickets/import/%d/preview".formatted(fixtures.project().id(), importId))
+               .then()
+               .statusCode(404);
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .accept(ContentType.JSON)
+               .when()
+               .post("/api/projects/%d/tickets/import/%d/execute".formatted(fixtures.project().id(), importId))
+               .then()
+               .statusCode(404);
+    }
+
+    @Test
     @DisplayName("Should import ticket with custom field value mapped by key")
     void shouldImportTicketWithCustomFieldValueMappedByKey() throws IOException {
         var key = "sprint_" + UUID.randomUUID().toString().substring(0, 8);

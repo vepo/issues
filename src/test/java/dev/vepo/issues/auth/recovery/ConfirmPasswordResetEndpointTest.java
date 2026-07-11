@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import dev.vepo.issues.Given;
+import dev.vepo.issues.auth.apitoken.ApiTokenHasher;
 import dev.vepo.issues.user.PasswordResetToken;
 import dev.vepo.issues.user.PasswordResetTokenRepository;
 import dev.vepo.issues.user.UserRepository;
@@ -22,23 +23,18 @@ class ConfirmPasswordResetEndpointTest {
     @Inject
     PasswordResetTokenRepository passwordResetTokenRepository;
 
+    @Inject
+    ApiTokenHasher tokenHasher;
+
     @Test
     void shouldConfirmPasswordResetWhenTokenIsValid() {
         var user = Given.randomUser();
-
-        given().contentType(ContentType.JSON)
-               .body("""
-                     {
-                       "credential": "%s"
-                     }
-                     """.formatted(user.getEmail()))
-               .when()
-               .post("/api/auth/recovery")
-               .then()
-               .statusCode(200);
-
-        var token = passwordResetTokenRepository.findTokenByEmailOrUsername(user.getEmail())
-                                                .orElseThrow();
+        var rawToken = PasswordResetToken.generateRawToken();
+        Given.transaction(() -> {
+            var managedUser = Given.inject(UserRepository.class).findById(user.getId()).orElseThrow();
+            passwordResetTokenRepository.invalidateAllUserTokens(managedUser.getId());
+            passwordResetTokenRepository.save(new PasswordResetToken(managedUser, tokenHasher.hash(rawToken), rawToken));
+        });
 
         given().contentType(ContentType.JSON)
                .body("""
@@ -46,7 +42,7 @@ class ConfirmPasswordResetEndpointTest {
                        "token": "%s",
                        "newPassword": "newSecret99"
                      }
-                     """.formatted(token.getToken()))
+                     """.formatted(rawToken))
                .when()
                .post("/api/auth/recovery/confirm")
                .then()
@@ -83,13 +79,13 @@ class ConfirmPasswordResetEndpointTest {
     @Test
     void shouldRejectExpiredToken() {
         var user = Given.randomUser();
-        var tokenValue = Given.transaction(() -> {
+        var rawToken = PasswordResetToken.generateRawToken();
+        Given.transaction(() -> {
             var managedUser = Given.inject(UserRepository.class).findById(user.getId()).orElseThrow();
             passwordResetTokenRepository.invalidateAllUserTokens(managedUser.getId());
-            var expired = new PasswordResetToken(managedUser);
+            var expired = new PasswordResetToken(managedUser, tokenHasher.hash(rawToken), rawToken);
             expired.setExpiryDate(LocalDateTime.now().minusHours(1));
             passwordResetTokenRepository.save(expired);
-            return expired.getToken();
         });
 
         given().contentType(ContentType.JSON)
@@ -98,7 +94,7 @@ class ConfirmPasswordResetEndpointTest {
                        "token": "%s",
                        "newPassword": "newSecret99"
                      }
-                     """.formatted(tokenValue))
+                     """.formatted(rawToken))
                .when()
                .post("/api/auth/recovery/confirm")
                .then()
@@ -108,26 +104,19 @@ class ConfirmPasswordResetEndpointTest {
     @Test
     void shouldRejectReusedToken() {
         var user = Given.randomUser();
+        var rawToken = PasswordResetToken.generateRawToken();
+        Given.transaction(() -> {
+            var managedUser = Given.inject(UserRepository.class).findById(user.getId()).orElseThrow();
+            passwordResetTokenRepository.invalidateAllUserTokens(managedUser.getId());
+            passwordResetTokenRepository.save(new PasswordResetToken(managedUser, tokenHasher.hash(rawToken), rawToken));
+        });
 
-        given().contentType(ContentType.JSON)
-               .body("""
-                     {
-                       "credential": "%s"
-                     }
-                     """.formatted(user.getEmail()))
-               .when()
-               .post("/api/auth/recovery")
-               .then()
-               .statusCode(200);
-
-        var token = passwordResetTokenRepository.findTokenByEmailOrUsername(user.getEmail())
-                                                .orElseThrow();
         var body = """
                    {
                      "token": "%s",
                      "newPassword": "anotherSecret99"
                    }
-                   """.formatted(token.getToken());
+                   """.formatted(rawToken);
 
         given().contentType(ContentType.JSON)
                .body(body)

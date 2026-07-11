@@ -49,6 +49,9 @@ public class TicketHistory {
     @Column(nullable = false)
     public Instant timestamp;
 
+    @Column(name = "via_agent", nullable = false)
+    public boolean viaAgent;
+
     public TicketHistory() {}
 
     public TicketHistory(Ticket ticket,
@@ -58,7 +61,8 @@ public class TicketHistory {
                          String oldValue,
                          String newValue,
                          Long referenceId,
-                         Instant timestamp) {
+                         Instant timestamp,
+                         boolean viaAgent) {
         this.ticket = ticket;
         this.user = user;
         this.action = action;
@@ -67,5 +71,6 @@ public class TicketHistory {
         this.newValue = newValue;
         this.referenceId = referenceId;
         this.timestamp = timestamp;
+        this.viaAgent = viaAgent;
     }
 }

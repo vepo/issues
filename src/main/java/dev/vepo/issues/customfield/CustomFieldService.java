@@ -19,6 +19,7 @@ import jakarta.ws.rs.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dev.vepo.issues.infra.HtmlSanitizer;
 import dev.vepo.issues.infra.PlainTextLength;
 import dev.vepo.issues.workflow.WorkflowRepository;
 
@@ -32,14 +33,17 @@ public class CustomFieldService {
     private final CustomFieldRepository fieldRepository;
     private final CustomFieldValueRepository valueRepository;
     private final WorkflowRepository workflowRepository;
+    private final HtmlSanitizer htmlSanitizer;
 
     @Inject
     public CustomFieldService(CustomFieldRepository fieldRepository,
                               CustomFieldValueRepository valueRepository,
-                              WorkflowRepository workflowRepository) {
+                              WorkflowRepository workflowRepository,
+                              HtmlSanitizer htmlSanitizer) {
         this.fieldRepository = fieldRepository;
         this.valueRepository = valueRepository;
         this.workflowRepository = workflowRepository;
+        this.htmlSanitizer = htmlSanitizer;
     }
 
     @Transactional
@@ -640,7 +644,7 @@ public class CustomFieldService {
         }
         switch (field.getType()) {
             case STRING -> setString.accept(asString(value, field.getKey()));
-            case TEXT -> setText.accept(asString(value, field.getKey()));
+            case TEXT -> setText.accept(htmlSanitizer.sanitize(asString(value, field.getKey())));
             case INTEGER -> setInteger.accept(asInteger(value, field.getKey()));
             case BOOLEAN -> setBoolean.accept(asBoolean(value, field.getKey()));
             case ENUM -> setEnum.accept(resolveEnumOption(field, value));

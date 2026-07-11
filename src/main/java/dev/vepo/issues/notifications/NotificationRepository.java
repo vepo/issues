@@ -59,4 +59,13 @@ public class NotificationRepository {
                       .getResultStream()
                       .findFirst();
     }
+
+    public Optional<Notification> findByIdAndUsername(long id, String username) {
+        return this.em.createQuery("FROM Notification n WHERE n.id = :id AND n.receive.username = :username",
+                                   Notification.class)
+                      .setParameter("id", id)
+                      .setParameter("username", username)
+                      .getResultStream()
+                      .findFirst();
+    }
 }

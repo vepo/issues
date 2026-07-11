@@ -13,6 +13,7 @@ import dev.vepo.issues.categories.CategoryRepository;
 import dev.vepo.issues.customfield.CustomFieldService;
 import dev.vepo.issues.customfield.CustomFieldValueRequest;
 import dev.vepo.issues.project.Project;
+import dev.vepo.issues.project.ProjectAccessService;
 import dev.vepo.issues.project.ProjectRepository;
 import dev.vepo.issues.ticket.Ticket;
 import dev.vepo.issues.ticket.TicketPriority;
@@ -38,6 +39,7 @@ public class TicketImportService {
     private final TicketImportRepository importRepository;
     private final TicketImportRowRepository importRowRepository;
     private final ProjectRepository projectRepository;
+    private final ProjectAccessService projectAccessService;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final CsvImportParser csvImportParser;
@@ -50,6 +52,7 @@ public class TicketImportService {
     public TicketImportService(TicketImportRepository importRepository,
                                TicketImportRowRepository importRowRepository,
                                ProjectRepository projectRepository,
+                               ProjectAccessService projectAccessService,
                                CategoryRepository categoryRepository,
                                UserRepository userRepository,
                                CsvImportParser csvImportParser,
@@ -60,6 +63,7 @@ public class TicketImportService {
         this.importRepository = importRepository;
         this.importRowRepository = importRowRepository;
         this.projectRepository = projectRepository;
+        this.projectAccessService = projectAccessService;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.csvImportParser = csvImportParser;
@@ -80,6 +84,7 @@ public class TicketImportService {
 
         var ticketImport = new TicketImport();
         if (projectId != null) {
+            projectAccessService.requireView(projectId, username);
             ticketImport.setProject(requireProject(projectId));
         }
         ticketImport.setAuthor(author);
@@ -114,8 +119,8 @@ public class TicketImportService {
     }
 
     @Transactional
-    public void applyMapping(Long projectId, long importId, ColumnMapping mapping) {
-        var ticketImport = requireImport(projectId, importId);
+    public void applyMapping(Long projectId, long importId, ColumnMapping mapping, String username) {
+        var ticketImport = requireImport(projectId, importId, username);
         if (ticketImport.getStatus() == TicketImportStatus.COMPLETED) {
             throw new BadRequestException("Import already completed");
         }
@@ -145,8 +150,8 @@ public class TicketImportService {
     }
 
     @Transactional
-    public PreviewTicketImportResponse preview(Long projectId, long importId) {
-        var ticketImport = requireImport(projectId, importId);
+    public PreviewTicketImportResponse preview(Long projectId, long importId, String username) {
+        var ticketImport = requireImport(projectId, importId, username);
         ensureMapped(ticketImport);
         var validations = new ArrayList<ImportRowValidationResponse>();
 
@@ -159,8 +164,9 @@ public class TicketImportService {
     }
 
     @Transactional
-    public ImportRowValidationResponse correctRow(Long projectId, long importId, long rowId, CorrectImportRowRequest request) {
-        var ticketImport = requireImport(projectId, importId);
+    public ImportRowValidationResponse correctRow(Long projectId, long importId, long rowId, CorrectImportRowRequest request,
+                                                  String username) {
+        var ticketImport = requireImport(projectId, importId, username);
         if (ticketImport.getStatus() == TicketImportStatus.COMPLETED) {
             throw new BadRequestException("Import already completed");
         }
@@ -183,7 +189,7 @@ public class TicketImportService {
 
     @Transactional
     public ImportTicketsResponse execute(Long projectId, long importId, String username) {
-        var ticketImport = requireImport(projectId, importId);
+        var ticketImport = requireImport(projectId, importId, username);
         ensureMapped(ticketImport);
 
         var created = new ArrayList<TicketResponse>();
@@ -430,12 +436,14 @@ public class TicketImportService {
                               && Objects.equals(t.getTo().getId(), to.getId()));
     }
 
-    private TicketImport requireImport(Long projectId, long importId) {
+    private TicketImport requireImport(Long projectId, long importId, String username) {
+        var author = userRepository.findByUsername(username)
+                                   .orElseThrow(() -> new NotFoundException("User does not found! username=%s".formatted(username)));
         if (projectId != null) {
-            return importRepository.findByIdAndProjectId(importId, projectId)
+            return importRepository.findByIdAndProjectIdAndAuthorId(importId, projectId, author.getId())
                                    .orElseThrow(() -> new NotFoundException("Import does not found! importId=%d".formatted(importId)));
         }
-        return importRepository.findGlobalById(importId)
+        return importRepository.findGlobalByIdAndAuthorId(importId, author.getId())
                                .orElseThrow(() -> new NotFoundException("Import does not found! importId=%d".formatted(importId)));
     }
 

@@ -2,28 +2,36 @@ package dev.vepo.issues.user;
 
 import java.util.Optional;
 
+import dev.vepo.issues.auth.apitoken.ApiTokenHasher;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
 @ApplicationScoped
 public class PasswordResetTokenRepository {
-    private EntityManager em;
+    private final EntityManager em;
+    private final ApiTokenHasher tokenHasher;
 
     @Inject
-    public PasswordResetTokenRepository(EntityManager entityManager) {
+    public PasswordResetTokenRepository(EntityManager entityManager, ApiTokenHasher tokenHasher) {
         this.em = entityManager;
+        this.tokenHasher = tokenHasher;
     }
 
-    public Optional<PasswordResetToken> findByToken(String token) {
+    public Optional<PasswordResetToken> findByToken(String rawToken) {
+        return findByTokenHash(tokenHasher.hash(rawToken));
+    }
+
+    public Optional<PasswordResetToken> findByTokenHash(String tokenHash) {
         return em.createQuery("FROM PasswordResetToken WHERE token = :token", PasswordResetToken.class)
-                 .setParameter("token", token)
+                 .setParameter("token", tokenHash)
                  .getResultStream()
                  .findFirst();
     }
 
     public Optional<PasswordResetToken> findTokenByEmailOrUsername(String emailOrUsername) {
-        return em.createQuery("FROM PasswordResetToken WHERE user.email = :emailOrUsername OR user.username = :emailOrUsername", PasswordResetToken.class)
+        return em.createQuery("FROM PasswordResetToken WHERE user.email = :emailOrUsername OR user.username = :emailOrUsername",
+                              PasswordResetToken.class)
                  .setParameter("emailOrUsername", emailOrUsername)
                  .getResultStream()
                  .findFirst();

@@ -1,138 +1,214 @@
 # Project dashboard
 
-**Feature version:** 2  
-**Status:** done  
-**Requested:** retrospective baseline (documented 2026-07-03)
+**Feature version:** 3  
+**Status:** tasks-ready  
+**Requested:** retrospective baseline (documented 2026-07-03); audit findings 2026-07-11
 
 ## Summary
 
-Per-project analytics page with configurable widget layout: pie charts (tickets by day, status, priority), recent tickets table, and performance KPIs. Default widgets shown on first visit; users customize via **Editar layout**. Layout is persisted **per user per project on the server**. Chart/table/KPI data is loaded via **aggregated SQL** (not full ticket lists in memory). Browser `localStorage` layouts are **not** migrated (legacy client storage discarded).
+Per-project analytics page (**Painel**) with configurable widget layout. Layout persisted **per user per project on the server**. Aggregated SQL for charts/KPI/table.
+
+**v3 hardening:** fix SPA↔API type path (**AQ1**), enforce **requireView** (**AQ2**), distinct load/empty/error (**FQ6**), autosave + **Concluir** (**FQ5**), `tickets-by-day` as **bar** (**FQ7**), KPI label **Tickets por status** (**FQ8**), Angular facade (**AQ3**), live edit preview, typos/retry cleanup. New widgets remain out of scope.
 
 ## Wireframe
-
-**Guide:** layout reference for UI implementation — update when widgets or **Q*n*** decisions change ([development-process.mdc](../.cursor/rules/development-process.mdc)).
 
 | Field | Value |
 |-------|-------|
 | **Source** | ASCII below |
-| **Last updated** | 2026-07-10 |
+| **Last updated** | 2026-07-11 |
 
 ### Screen: `/project/:projectId/dashboard`
 
-| Region | Elements |
-|--------|----------|
-| Header | Project name; **Editar layout** toggle |
-| Grid | Draggable widget panels: pie charts, recent tickets table (max 20), KPI cards |
+| Region | Elements | Notes |
+|--------|----------|-------|
+| Header | Project name; **Editar layout** ↔ **Concluir** | **FQ5** — autosave on drop/remove; toast on save ok/error; **Concluir** exits edit only |
+| Grid (view + edit) | **Live** widgets (same renderers) | **U1** — no placeholder stubs |
+| Widget states | Loading skeleton; **Sem dados**; error + **Tentar novamente** | **FQ6** — never fake pie |
+| Available | Catalog to drag in | `tickets-by-day` as **bar** (**FQ7**); not in default layout |
+| KPI widget | Title **Tickets por status** | **FQ8** — id stays `performance-kpi` |
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│  Painel — Project X              [ Editar layout ]     │
+│  Painel — Project X         [ Editar layout | Concluir ]│
 ├──────────────────────┬─────────────────────────────────┤
-│  [Pie: por dia]      │  [Pie: por status]              │
+│  [Pie: por status]   │  [Pie: por prioridade]          │
 ├──────────────────────┼─────────────────────────────────┤
-│  [Recent tickets]    │  [KPI performance]              │
+│  [Recent tickets]    │  [Tickets por status — KPI]     │
+│  (loading / empty / error per widget)                  │
 └──────────────────────┴─────────────────────────────────┘
 ```
 
-Layout load/save is transparent (no extra chrome beyond existing **Editar layout**).
+Default layout: `tickets-by-status`, `tickets-by-priority`, `performance-kpi`, `recent-tickets`.
 
 ## Impact
 
 | Area | Effect |
 |------|--------|
-| Bounded contexts | `dashboards` (owns layout + analytics reads); read-only `ticket`, `project` |
-| Packages / files | Layout get/put endpoints; `DashboardLayout` entity/repo; aggregation queries; Angular drops `localStorage` |
-| API | `GET/PUT /projects/{id}/dashboard/layout`; existing pie/table/kpi endpoints |
-| UI | Same route; save/load layout via API |
-| Schema / seed | `tb_dashboard_layouts` |
-| Tests | Layout endpoint tests; recent table ≤ 20; Angular layout specs |
-| Docs | domain-spec invariants **44–45**; feature-catalog; ARCHITECTURE §13 |
+| Bounded contexts | `dashboards` + `ProjectAccessService.requireView` on all ops |
+| Packages / files | `DashboardType.fromString` dual accept; `DashboardService` membership; Angular `dashboard.service.ts` facade; component UX; optional bar chart for day widget |
+| API | Unchanged paths; `{dashboardType}` accepts kebab **and** enum name (**AQ1 A**) |
+| UI | Concluir, toasts, live edit, bar for day, KPI rename, distinct states |
+| Schema / seed | Unchanged |
+| Tests | Enum + kebab paths; membership 403; aggregates smoke; Angular states + facade |
+| Docs | domain-spec widget labels; feature-catalog; ARCHITECTURE §13 |
 
-### Feature questions
+### Risks
+
+- Existing saved layouts with `performance-kpi` keep working (id unchanged; label only).
+- ColorGenerator >15 labels still non-deterministic (**P3**) — defer unless trivial.
+
+### Feature questions (FQ*n*)
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| FQ1 | Should dashboard layout be persisted server-side? | answered | **Yes** — persist widget layout per user per project on server |
-| FQ2 | Are chart query optimizations needed for large ticket volumes? | answered | **Yes** — optimize dashboard chart/table queries for scale |
-| FQ3 | What happens to existing `localStorage` layouts when switching to server? | answered | **A** — discard browser layouts (legacy client storage); first visit uses defaults then saves to server. No one-time import. |
-| FQ4 | How many rows should **Tickets Recentes** return? | answered | **A** — top **20** by `updated_at` |
+| FQ1 | Layout server-side? | answered | **Yes** |
+| FQ2 | Query optimizations? | answered | **Yes** — SQL aggregations |
+| FQ3 | localStorage migration? | answered | **Discard** |
+| FQ4 | Recent tickets rows? | answered | **20** |
+| FQ5 | Save UX? | answered | **Autosave** on drop/remove; button **Concluir** (exit only); toast on save success/error |
+| FQ6 | Empty / loading / error? | answered | **Three distinct states:** skeleton while loading; **Sem dados** when empty; error + **Tentar novamente** (no fake pie) |
+| FQ7 | `tickets-by-day` chart? | answered | **Bar**; keep in catalog; not in default layout |
+| FQ8 | KPI title? | answered | UI label **Tickets por status**; widget id remains `performance-kpi` |
+
+**Gate:** all blocking FQs answered.
+
+## Code audit findings — 2026-07-11
+
+*(Historical — decisions above close B1–B3 / U1–U6 / P1–P2 for v3; P3–P4 deferred.)*
+
+| Id | Finding | v3 disposition |
+|----|---------|----------------|
+| **B1** | Enum path vs kebab | Fix via **AQ1 A** |
+| **B2** | No membership | Fix via **AQ2** |
+| **B3** | Thin tests | Tasks TC* |
+| **U1** | Edit stubs | Live widgets in edit |
+| **U2** | Misleading Salvar | **FQ5** |
+| **U3** | Fake load/error | **FQ6** |
+| **U4–U6** | Typos, dead retry, no facade | Tasks + **AQ3** |
+| **P1** | KPI misnamed | **FQ8** |
+| **P2** | Day as pie | **FQ7** bar |
+| **P3–P4** | Colors / indexes | Deferred |
+
+Suggested new widgets (WIP, throughput, …) → backlog idea; out of v3.
 
 ## Architecture
 
+| Area | Design |
+|------|--------|
+| Bounded contexts | `dashboards`; depends on `project` access |
+| Packages / layers | Endpoints → `DashboardService` → repos; inject `ProjectAccessService` |
+| API | Same paths; auth via `requireView(projectId, username)` on layout + pie/table/kpi |
+| Schema | Unchanged |
+| Cross-context | Membership only — no ticket writes |
+| Frontend | `services/dashboard.service.ts` wraps `DashboardApi`; component uses facade; Chart.js pie + **bar** for day |
+| Tests | Path formats, 403, aggregates, Angular states |
+
 ### API surface
 
-| Method | Path | Auth | Body / response |
-|--------|------|------|-----------------|
-| `GET` | `/api/projects/{projectId}/dashboard/layout` | USER, PM, ADMIN | `DashboardLayoutResponse` |
-| `PUT` | `/api/projects/{projectId}/dashboard/layout` | same | `SaveDashboardLayoutRequest` `{ widgetIds: string[] }` |
+| Method | Path | Auth |
+|--------|------|------|
+| `GET/PUT` | `…/dashboard/layout` | `requireView` |
+| `GET` | `…/dashboard/pie/{dashboardType}` | `requireView` |
+| `GET` | `…/dashboard/table/{dashboardType}` | `requireView` |
+| `GET` | `…/dashboard/kpi/{dashboardType}` | `requireView` |
 
-Default widget ids: `tickets-by-status`, `tickets-by-priority`, `performance-kpi`, `recent-tickets`.
+### `DashboardType` (**AQ1**)
 
-### Query optimization
+`fromString` accepts:
 
-| Widget | Implementation |
-|--------|----------------|
-| Pie / KPI | JPQL/native `GROUP BY` + `COUNT` on non-deleted tickets |
-| Recent tickets | `ORDER BY updated_at DESC LIMIT 20` |
+1. Kebab id (`tickets-by-status`, …) — existing tests  
+2. Enum name (`TICKETS_BY_STATUS`, …) — OpenAPI / Angular client  
+
+Invalid → 400 with corrected message (fix “bashboard” typo).
+
+### Architecture questions (AQ*n*)
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| AQ1 | Fix **B1** enum path? | answered | **(A)** `fromString` accepts kebab **and** enum name |
+| AQ2 | Membership? | answered | **Yes** — `ProjectAccessService.requireView` on all layout + widget ops |
+| AQ3 | Angular facade? | answered | **Yes** — `dashboard.service.ts` wrapping generated API |
+
+**Gate:** blocking AQs answered → tasks below.
 
 ## Changelog
+
+### Dashboard hardening (audit fixes) — 2026-07-11
+
+**Version:** 3  
+**Status:** tasks-ready
+
+**Description:** Harden Painel per accepted **FQ5–FQ8** / **AQ1–AQ3**: dual path parse, membership, UX states, Concluir + autosave, day bar chart, KPI label, facade, live edit, test gaps.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| Burndown | Same `requireView` pattern |
+| Home / hub | Painel entry unchanged |
+| OpenAPI | Enum names still valid; kebab also valid |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | `fromString` accepts kebab + enum name; SPA charts load | **AQ1**, **B1** | ☐ |
+| FC2 | Non-members 403 on layout + pie/table/kpi | **AQ2**, **B2** | ☐ |
+| FC3 | Tests: both path forms, membership 403, basic aggregates | **B3** | ☐ |
+| FC4 | Loading / Sem dados / error+retry per **FQ6** | **FQ6** | ☐ |
+| FC5 | Autosave + **Concluir** + toast; live widgets in edit | **FQ5**, **U1** | ☐ |
+| FC6 | `tickets-by-day` rendered as **bar** | **FQ7** | ☐ |
+| FC7 | KPI title **Tickets por status** | **FQ8** | ☐ |
+| FC8 | TS `dashboard.service` facade; typos/retry cleaned | **AQ3**, **U4–U6** | ☐ |
+| FC9 | Wireframe match; domain-spec + feature-catalog + ARCHITECTURE | Docs | ☐ |
+
+#### Tasks
+
+| ID | Deliverable |
+|----|-------------|
+| T1 | `DashboardType.fromString` dual accept + typo fix; endpoint tests for kebab **and** enum name |
+| T2 | `ProjectAccessService.requireView` in `DashboardService` (layout + pie/table/kpi); 403 tests | ☑ *(done via security-hardening SEC7 / T6, 2026-07-11)* |
+| T3 | Stronger backend tests: soft-delete exclusion or non-empty aggregate smoke |
+| T4 | Angular `dashboard.service.ts` facade; component uses it (**AQ3**) |
+| T5 | Widget states: loading / empty / error+retry (**FQ6**); remove fake pie + dead retry |
+| T6 | Autosave toast; **Concluir** label; live widgets in edit mode (**FQ5**, **U1**) |
+| T7 | `tickets-by-day` as bar chart (**FQ7**); KPI title **Tickets por status** (**FQ8**) |
+| T8 | Fix typos (`cdkDragclass`, naming); Angular specs for states / save UX |
+| T9 | Docs: domain-spec, feature-catalog, ARCHITECTURE §13 |
+
+#### Test coverage
+
+| ID | Coverage |
+|----|----------|
+| TC1 | Pie/kpi/table with `TICKETS_BY_*` and kebab paths — with T1 |
+| TC2 | Non-member 403 on layout get/put and one widget — with T2 | ☑ *(via security-hardening SEC7)* |
+| TC3 | Aggregate or soft-delete smoke — with T3 |
+| TC4 | Angular: facade used; loading/empty/error; Concluir; bar day widget — with T4–T8 |
+
+**Development approval:** — (awaiting explicit task IDs)
+
+**Catalog note (2026-07-11):** [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md) found catalog Steps already described v3 UX. Catalog row was **reverted to live UI** (**Salvar layout** / **Editar layout**, **KPIs de Performance**, etc.) until this changelog ships. **FC9** includes restoring catalog to Concluir / Sem dados / KPI rename when T1–T9 complete.
 
 ### Initial implementation — baseline
 
 **Version:** 1  
 **Status:** done
 
-**Description:** Dashboard with tickets-by-day, tickets-by-status, tickets-by-priority pie charts, recent-tickets table, and performance-kpi widget; editable layout.
+**Description:** Dashboard widgets + editable layout.
 
 #### Feature checklist
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Dashboard grid matches **Wireframe** | Wireframe | ☑ |
-| FC2 | Default widgets on first visit | Summary | ☑ |
-| FC3 | Editar layout toggles customization | Wireframe | ☑ |
-| FC4 | `feature-catalog.md` — Project dashboard row | Impact / Docs | ☑ |
+| FC1–FC4 | Wireframe, defaults, edit, catalog | — | ☑ |
 
 ### Server layout persistence and query optimization — 2026-07-03
 
 **Version:** 2  
-**Status:** done
+**Status:** done *(trust superseded by v3 until hardening ships)*
 
-**Development approval:** approved 2026-07-10 — tasks: T1, T2, T3, T4, T5, T6
+**Development approval:** approved 2026-07-10 — tasks: T1–T6
 
-**Description:** Replace `localStorage` layout with server persistence per user/project (no browser import); optimize pie/table/KPI via SQL aggregations; recent tickets limited to 20.
+**Description:** Server layout; SQL aggregations; recent ≤20.
 
-#### Feature checklist
-
-| ID | Criterion | Source | Done |
-|----|-----------|--------|------|
-| FC1 | Layout saved and restored from server per user/project | FQ1 | ☑ |
-| FC2 | Default layout when no server row | Architecture | ☑ |
-| FC3 | No `localStorage` read/write (legacy discarded) | FQ3 | ☑ |
-| FC4 | Pie/KPI use aggregation queries | FQ2 / AQ2 | ☑ |
-| FC5 | Recent tickets ≤ 20; deleted excluded | FQ4 | ☑ |
-| FC6 | UI still matches **Wireframe** | Wireframe | ☑ |
-| FC7 | ARCHITECTURE §13 gap closed; domain-spec; feature-catalog | Docs | ☑ |
-| FC8 | Layout + aggregation tests; Angular layout specs | Tests | ☑ |
-
-#### Tasks
-
-| ID | Deliverable | Done |
-|----|-------------|------|
-| T1 | Flyway baseline: `tb_dashboard_layouts`; entity + repository | ☑ |
-| T2 | Layout get/save endpoints | ☑ |
-| T3 | Aggregations + recent tickets LIMIT 20 | ☑ |
-| T4 | Endpoint tests | ☑ |
-| T5 | Angular API layout; remove localStorage | ☑ |
-| T6 | Docs | ☑ |
-
-#### Test coverage
-
-| ID | Covers | Done |
-|----|--------|------|
-| TC1 | Layout GET/PUT tests | ☑ |
-| TC2 | Table ≤20 + pie/KPI still green | ☑ |
-| TC3 | Angular layout specs | ☑ |
-| TC4 | Doc review | ☑ |
-
-**Implementation notes:** `DashboardRepository` aggregations; `GET/PUT …/dashboard/layout`; Angular uses generated `DashboardApi`. `mvn verify` + Angular build/specs green.
+**Implementation notes:** Soft-delete OK. Audit 2026-07-11 → v3.

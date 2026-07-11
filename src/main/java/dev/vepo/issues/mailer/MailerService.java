@@ -24,7 +24,8 @@ public class MailerService {
     private final TicketRepository ticketRepository;
     private final String baseUrl;
 
-    record resetPasswordEmail(String baseUrl, User user, PasswordResetToken token) implements MailTemplateInstance {}
+    record resetPasswordEmail(String baseUrl, User user, PasswordResetToken token, String rawToken)
+            implements MailTemplateInstance {}
 
     record notifyTicketChange(String baseUrl, NotificationEvent event, Ticket ticket) implements MailTemplateInstance {}
 
@@ -63,14 +64,16 @@ public class MailerService {
 
     public void sendResetPassword(User user, PasswordResetToken resetToken) {
         logger.info("Sending reset password: user={}", user);
+        var rawToken = Objects.requireNonNull(resetToken.getRawToken(), "raw reset token required for email");
         new resetPasswordEmail(baseUrl,
                                user,
-                               resetToken).to(user.getEmail())
-                                          .subject("[ATENÇÃO] Alterar senha!")
-                                          .send()
-                                          .subscribe()
-                                          .with(success -> logger.info("Password reset email sent to {}", user.getEmail()),
-                                                failure -> logger.error("Failed to send password reset email to {}", user.getEmail(),
-                                                                        failure));
+                               resetToken,
+                               rawToken).to(user.getEmail())
+                                        .subject("[ATENÇÃO] Alterar senha!")
+                                        .send()
+                                        .subscribe()
+                                        .with(success -> logger.info("Password reset email sent to {}", user.getEmail()),
+                                              failure -> logger.error("Failed to send password reset email to {}", user.getEmail(),
+                                                                      failure));
     }
 }

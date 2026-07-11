@@ -5,6 +5,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -304,5 +306,34 @@ class PhaseEndpointTest {
                .statusCode(200)
                .body("phaseId", nullValue())
                .body("phaseName", nullValue());
+    }
+
+    @Test
+    @DisplayName("Should reject phase list for non-member")
+    void shouldForbidNonMemberOnForeignProjectPhaseList() {
+        var foreignProject = given().header(pmHeader)
+                                    .contentType(ContentType.JSON)
+                                    .body("""
+                                          {
+                                              "name": "Foreign Phase %s",
+                                              "description": "No membership for user",
+                                              "prefix": "PH%s",
+                                              "workflowId": %d
+                                          }
+                                          """.formatted(UUID.randomUUID(),
+                                                        UUID.randomUUID().toString().substring(0, 4).toUpperCase(),
+                                                        Given.simpleWorkflow().id()))
+                                    .post("/api/projects")
+                                    .then()
+                                    .statusCode(201)
+                                    .extract()
+                                    .as(ProjectResponse.class);
+
+        given().header(Given.authenticatedUser())
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/%d/phases".formatted(foreignProject.id()))
+               .then()
+               .statusCode(403);
     }
 }

@@ -10,6 +10,7 @@ import jakarta.ws.rs.NotFoundException;
 
 import dev.vepo.issues.categories.CategoryRepository;
 import dev.vepo.issues.customfield.CustomFieldService;
+import dev.vepo.issues.infra.HtmlSanitizer;
 import dev.vepo.issues.infra.PlainTextLength;
 import dev.vepo.issues.ticket.TicketPriority;
 import dev.vepo.issues.ticket.TicketRepository;
@@ -30,6 +31,7 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final TicketRepository ticketRepository;
     private final CustomFieldService customFieldService;
+    private final HtmlSanitizer htmlSanitizer;
 
     @Inject
     public ProjectService(ProjectRepository repository,
@@ -39,7 +41,8 @@ public class ProjectService {
                           ProjectMemberService memberService,
                           UserRepository userRepository,
                           TicketRepository ticketRepository,
-                          CustomFieldService customFieldService) {
+                          CustomFieldService customFieldService,
+                          HtmlSanitizer htmlSanitizer) {
         this.repository = repository;
         this.workflowRepository = workflowRepository;
         this.categoryRepository = categoryRepository;
@@ -48,6 +51,7 @@ public class ProjectService {
         this.userRepository = userRepository;
         this.ticketRepository = ticketRepository;
         this.customFieldService = customFieldService;
+        this.htmlSanitizer = htmlSanitizer;
     }
 
     @Transactional
@@ -68,7 +72,7 @@ public class ProjectService {
         var owner = resolveOwner(request.ownerId(), creator);
         var project = new Project(request.prefix(),
                                   request.name(),
-                                  request.description(),
+                                  htmlSanitizer.sanitize(request.description()),
                                   requireWorkflow(request.workflowId()),
                                   owner);
         applyTicketTemplate(project, request.ticketTemplate());
@@ -97,7 +101,7 @@ public class ProjectService {
         }
         project.setName(request.name());
         project.setPrefix(request.prefix());
-        project.setDescription(request.description());
+        project.setDescription(htmlSanitizer.sanitize(request.description()));
         project.setWorkflow(newWorkflow);
         applyTicketTemplate(project, request.ticketTemplate());
         applyPhaseTemplate(project, request.phaseTemplate());
@@ -193,7 +197,7 @@ public class ProjectService {
         validateTicketTemplate(template);
         project.setTicketTemplateEnabled(true);
         project.setTicketTemplateTitle(normalizeTemplateText(template.title()));
-        project.setTicketTemplateDescription(normalizeTemplateText(template.description()));
+        project.setTicketTemplateDescription(htmlSanitizer.sanitize(normalizeTemplateText(template.description())));
         project.setTicketTemplateCategoryId(template.categoryId());
         project.setTicketTemplatePriority(template.priority());
     }

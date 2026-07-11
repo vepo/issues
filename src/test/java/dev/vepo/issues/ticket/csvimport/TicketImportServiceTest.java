@@ -68,7 +68,7 @@ class TicketImportServiceTest {
     @DisplayName("Should map stored CSV row using column mapping")
     void shouldMapCsvRowUsingColumnMapping() {
         var importId = uploadSampleCsv();
-        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping);
+        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping, "project-manager");
 
         var row = importRowRepository.findByImportId(importId).getFirst();
         assertThat(row.getTitle()).isEqualTo("Import ticket title");
@@ -93,7 +93,7 @@ class TicketImportServiceTest {
                                               null,
                                               null,
                                               Map.of());
-        ticketImportService.applyMapping(fixtures.project().id(), importId, pointsMapping);
+        ticketImportService.applyMapping(fixtures.project().id(), importId, pointsMapping, "project-manager");
 
         var row = importRowRepository.findByImportId(importId).getFirst();
         assertThat(row.getStoryPoints()).isEqualTo(8);
@@ -103,9 +103,9 @@ class TicketImportServiceTest {
     @DisplayName("Should fail row when category name is unknown")
     void shouldFailRowWhenCategoryNameUnknown() {
         var importId = uploadCsvWithCategory("UnknownCategory" + UUID.randomUUID());
-        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping);
+        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping, "project-manager");
 
-        var preview = ticketImportService.preview(fixtures.project().id(), importId);
+        var preview = ticketImportService.preview(fixtures.project().id(), importId, "project-manager");
 
         assertThat(preview.invalidCount()).isEqualTo(1);
         assertThat(preview.rows().getFirst().errors()).anyMatch(e -> e.contains("Unknown category"));
@@ -119,9 +119,9 @@ class TicketImportServiceTest {
                   Valid title here,Valid description text,%s,missing-%s@issues.vepo.dev
                   """.formatted(fixtures.bug().getName(), UUID.randomUUID());
         var importId = uploadCsv(csv);
-        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping);
+        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping, "project-manager");
 
-        var preview = ticketImportService.preview(fixtures.project().id(), importId);
+        var preview = ticketImportService.preview(fixtures.project().id(), importId, "project-manager");
 
         assertThat(preview.invalidCount()).isEqualTo(1);
         assertThat(preview.rows().getFirst().errors()).anyMatch(e -> e.contains("Unknown assignee email"));
@@ -135,9 +135,9 @@ class TicketImportServiceTest {
                   Valid title here,Valid description text,%s,NON_EXISTENT_STATUS
                   """.formatted(fixtures.bug().getName());
         var importId = uploadCsv(csv);
-        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping);
+        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping, "project-manager");
 
-        var preview = ticketImportService.preview(fixtures.project().id(), importId);
+        var preview = ticketImportService.preview(fixtures.project().id(), importId, "project-manager");
 
         assertThat(preview.invalidCount()).isEqualTo(1);
         assertThat(preview.rows().getFirst().errors()).anyMatch(e -> e.contains("Status not in project workflow"));
@@ -151,9 +151,9 @@ class TicketImportServiceTest {
                   Valid title here,Valid description text,%s,Done
                   """.formatted(fixtures.bug().getName());
         var importId = uploadCsv(csv);
-        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping);
+        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping, "project-manager");
 
-        var preview = ticketImportService.preview(fixtures.project().id(), importId);
+        var preview = ticketImportService.preview(fixtures.project().id(), importId, "project-manager");
 
         assertThat(preview.invalidCount()).isEqualTo(1);
         assertThat(preview.rows().getFirst().errors()).anyMatch(e -> e.contains("No direct transition from start"));
@@ -165,7 +165,7 @@ class TicketImportServiceTest {
         var importId = uploadCsvWithCategory(fixtures.bug().getName());
         ticketImportService.applyMapping(fixtures.project().id(),
                                          importId,
-                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, null, Map.of()));
+                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, null, Map.of()), "project-manager");
 
         var row = importRowRepository.findByImportId(importId).getFirst();
         assertThat(row.getPriority()).isEqualTo(TicketPriority.MEDIUM);
@@ -184,7 +184,7 @@ class TicketImportServiceTest {
         var importId = uploadCsv(csv);
         ticketImportService.applyMapping(fixtures.project().id(),
                                          importId,
-                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, null, Map.of()));
+                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, null, Map.of()), "project-manager");
 
         var response = ticketImportService.execute(fixtures.project().id(), importId, "project-manager");
 
@@ -211,7 +211,8 @@ class TicketImportServiceTest {
                                                                                                                     null,
                                                                                                                     null,
                                                                                                                     null,
-                                                                                                                    Map.of())))
+                                                                                                                    Map.of()),
+                                                                                                  "project-manager"))
                                        .isInstanceOf(jakarta.ws.rs.BadRequestException.class);
     }
 
@@ -226,7 +227,7 @@ class TicketImportServiceTest {
                   """.formatted(fixtures.project().name(), fixtures.bug().getName());
         var importId = uploadGlobalCsv(csv);
         var globalMapping = new ColumnMapping("Title", "Description", "Category", null, null, null, null, "Project", Map.of());
-        ticketImportService.applyMapping(null, importId, globalMapping);
+        ticketImportService.applyMapping(null, importId, globalMapping, "project-manager");
 
         var response = ticketImportService.execute(null, importId, "project-manager");
 
@@ -244,9 +245,9 @@ class TicketImportServiceTest {
                                        """.formatted(UUID.randomUUID(), fixtures.bug().getName()));
         ticketImportService.applyMapping(null,
                                          importId,
-                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, "Project", Map.of()));
+                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, "Project", Map.of()), "project-manager");
 
-        var preview = ticketImportService.preview(null, importId);
+        var preview = ticketImportService.preview(null, importId, "project-manager");
 
         assertThat(preview.invalidCount()).isEqualTo(1);
         assertThat(preview.rows().getFirst().errors()).anyMatch(e -> e.contains("Unknown project"));
@@ -261,14 +262,14 @@ class TicketImportServiceTest {
                                        """.formatted(UUID.randomUUID(), fixtures.bug().getName()));
         ticketImportService.applyMapping(null,
                                          importId,
-                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, "Project", Map.of()));
-        var preview = ticketImportService.preview(null, importId);
+                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, "Project", Map.of()), "project-manager");
+        var preview = ticketImportService.preview(null, importId, "project-manager");
         var row = preview.rows().getFirst();
 
         var corrected = ticketImportService.correctRow(null,
                                                        importId,
                                                        row.rowId(),
-                                                       new CorrectImportRowRequest(fixtures.project().name(), null, null));
+                                                       new CorrectImportRowRequest(fixtures.project().name(), null, null), "project-manager");
 
         assertThat(corrected.valid()).isTrue();
         assertThat(corrected.preview().projectName()).isEqualTo(fixtures.project().name());
@@ -281,14 +282,14 @@ class TicketImportServiceTest {
                                  Title,Description,Category,Status
                                  Valid title here,Valid description text,%s,NON_EXISTENT_STATUS
                                  """.formatted(fixtures.bug().getName()));
-        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping);
-        var preview = ticketImportService.preview(fixtures.project().id(), importId);
+        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping, "project-manager");
+        var preview = ticketImportService.preview(fixtures.project().id(), importId, "project-manager");
         var row = preview.rows().getFirst();
 
         var corrected = ticketImportService.correctRow(fixtures.project().id(),
                                                        importId,
                                                        row.rowId(),
-                                                       new CorrectImportRowRequest(null, "", null));
+                                                       new CorrectImportRowRequest(null, "", null), "project-manager");
 
         assertThat(corrected.valid()).isTrue();
         assertThat(corrected.preview().statusName()).isNull();
@@ -301,15 +302,15 @@ class TicketImportServiceTest {
                                  Title,Description,Category,Assignee
                                  Valid title here,Valid description text,%s,missing-%s@issues.vepo.dev
                                  """.formatted(fixtures.bug().getName(), UUID.randomUUID()));
-        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping);
+        ticketImportService.applyMapping(fixtures.project().id(), importId, mapping, "project-manager");
 
-        var preview = ticketImportService.preview(fixtures.project().id(), importId);
+        var preview = ticketImportService.preview(fixtures.project().id(), importId, "project-manager");
         var row = preview.rows().getFirst();
 
         var corrected = ticketImportService.correctRow(fixtures.project().id(),
                                                        importId,
                                                        row.rowId(),
-                                                       new CorrectImportRowRequest(null, null, "user@issues.vepo.dev"));
+                                                       new CorrectImportRowRequest(null, null, "user@issues.vepo.dev"), "project-manager");
 
         assertThat(corrected.valid()).isTrue();
         assertThat(corrected.preview().assigneeEmail()).isEqualTo("user@issues.vepo.dev");

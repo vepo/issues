@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import dev.vepo.issues.project.ProjectAccessService;
 import dev.vepo.issues.project.ProjectRepository;
 import dev.vepo.issues.ticket.Ticket;
 import dev.vepo.issues.ticket.TicketRepository;
@@ -25,30 +26,36 @@ public class VersionService {
 
     private final VersionRepository versionRepository;
     private final ProjectRepository projectRepository;
+    private final ProjectAccessService projectAccessService;
     private final TicketRepository ticketRepository;
 
     @Inject
     public VersionService(VersionRepository versionRepository,
                           ProjectRepository projectRepository,
+                          ProjectAccessService projectAccessService,
                           TicketRepository ticketRepository) {
         this.versionRepository = versionRepository;
         this.projectRepository = projectRepository;
+        this.projectAccessService = projectAccessService;
         this.ticketRepository = ticketRepository;
     }
 
-    public List<VersionResponse> listByProject(long projectId) {
+    public List<VersionResponse> listByProject(long projectId, String username) {
+        projectAccessService.requireView(projectId, username);
         requireProject(projectId);
         return versionRepository.findByProjectId(projectId)
                                 .map(VersionResponse::load)
                                 .toList();
     }
 
-    public VersionResponse findById(long projectId, long versionId) {
+    public VersionResponse findById(long projectId, long versionId, String username) {
+        projectAccessService.requireView(projectId, username);
         return VersionResponse.load(requireVersion(projectId, versionId));
     }
 
     @Transactional
-    public VersionResponse create(long projectId, CreateVersionRequest request) {
+    public VersionResponse create(long projectId, CreateVersionRequest request, String username) {
+        projectAccessService.requireManage(projectId, username);
         var project = requireProject(projectId);
         var label = request.label().trim();
         SemVerValidator.requireValid(label);
@@ -59,7 +66,8 @@ public class VersionService {
     }
 
     @Transactional
-    public VersionResponse update(long projectId, long versionId, UpdateVersionRequest request) {
+    public VersionResponse update(long projectId, long versionId, UpdateVersionRequest request, String username) {
+        projectAccessService.requireManage(projectId, username);
         var version = requireVersion(projectId, versionId);
         var label = request.label().trim();
         SemVerValidator.requireValid(label);
@@ -71,7 +79,8 @@ public class VersionService {
         return VersionResponse.load(version);
     }
 
-    public VersionChangelogResponse changelog(long projectId, long versionId) {
+    public VersionChangelogResponse changelog(long projectId, long versionId, String username) {
+        projectAccessService.requireView(projectId, username);
         var version = requireVersion(projectId, versionId);
         var targetTickets = ticketRepository.findForVersionChangelog(projectId, versionId, ChangelogAssociation.TARGET)
                                             .map(ticket -> toEntry(ticket, EnumSet.of(ChangelogAssociation.TARGET)))

@@ -32,6 +32,9 @@ public class Comment {
     @ManyToOne
     private User author;
 
+    @Column(name = "via_agent", nullable = false)
+    private boolean viaAgent;
+
     public Comment() {}
 
     public Comment(Ticket ticket, User author, String content) {
@@ -39,6 +42,7 @@ public class Comment {
         this.author = author;
         this.content = content;
         this.createdAt = Instant.now();
+        this.viaAgent = false;
     }
 
     public Long getId() {
@@ -79,5 +83,13 @@ public class Comment {
 
     public void setAuthor(User author) {
         this.author = author;
+    }
+
+    public boolean isViaAgent() {
+        return viaAgent;
+    }
+
+    public void setViaAgent(boolean viaAgent) {
+        this.viaAgent = viaAgent;
     }
 }

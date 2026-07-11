@@ -17,7 +17,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(DashboardPaths.BASE)
 @ApplicationScoped
@@ -39,7 +41,8 @@ public class LoadPieDashboardEndpoint {
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "loadPieDashboard", summary = "Load pie chart dashboard data")
     public PieChartDataResponse loadPieData(@PathParam("projectId") Long projectId,
-                                            @PathParam("dashboardType") DashboardType type) {
-        return dashboardService.loadPieData(projectId, type);
+                                            @PathParam("dashboardType") DashboardType type,
+                                            @Context SecurityContext securityContext) {
+        return dashboardService.loadPieData(projectId, type, securityContext.getUserPrincipal().getName());
     }
 }

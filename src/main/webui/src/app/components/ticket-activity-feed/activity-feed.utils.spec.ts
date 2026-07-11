@@ -5,6 +5,7 @@ import {
   activitySummary,
   buildActivityFeed,
   filterActivity,
+  formatActorLabel,
   hasValueChange,
 } from './activity-feed.utils';
 
@@ -65,6 +66,16 @@ describe('activity-feed.utils', () => {
     expect(activitySummary(restored)).toBe('restaurou o ticket');
     expect(hasValueChange(change)).toBeTrue();
     expect(hasValueChange(restored)).toBeFalse();
+  });
+
+  it('should label agent actors as Agente em nome de', () => {
+    const feed = buildActivityFeed(
+      [{ id: 1, action: 'CREATED', timestamp: 1000, user: { name: 'Maria Silva' }, viaAgent: true }] as never,
+      [{ id: 2, content: 'x', createdAt: 2000, author: { name: 'bot-ci' }, viaAgent: true }] as never,
+    );
+    expect(feed[0].userName).toBe('Agente em nome de bot-ci');
+    expect(feed[1].userName).toBe('Agente em nome de Maria Silva');
+    expect(formatActorLabel('Alice', false)).toBe('Alice');
   });
 });
 

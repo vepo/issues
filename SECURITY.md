@@ -30,3 +30,17 @@ If you discover a security vulnerability in this project, please report it by op
 - Our response time may vary depending on the complexity of the issue and maintainer availability
 
 We value the security of our project and appreciate your help in keeping it safe for all users.
+
+## Operational requirements (pre-production → shared/prod)
+
+Remediations from [security-audit SEC2–SEC15](reports/security-audit-1-11-07-2026-16-38-26.md) (excluding SEC1 / project visibility):
+
+| Topic | Requirement |
+|-------|-------------|
+| **JWT keys (SEC2)** | Bundled `privateKey.pem` / `publicKey.pem` are **development and test only**. `%prod` startup fails if those paths remain. Set `SMALLRYE_JWT_SIGN_KEY_LOCATION` and `MP_JWT_VERIFY_PUBLICKEY_LOCATION` (or JWKS) to environment-specific material. **Never** copy repo PEMs to shared/staging/prod. |
+| **Passwords (SEC3/9)** | Per-user salt (`v1$…` format); constant-time digest compare. Do not use `%dev` `password.default` outside local/test. |
+| **Rich text (SEC4)** | Server sanitizes HTML on write; SPA still stores JWTs in `localStorage` (XSS → token theft residual — prioritize sanitizer + future httpOnly work). |
+| **Auth rate limit (SEC8)** | App-layer limits on login/register/recovery/refresh (`auth.rate-limit.*`). Also rate-limit at the reverse proxy. |
+| **Swagger (SEC11)** | Disabled for `%prod` by default; enable only for internal staging if needed. |
+| **Mailer (SEC13)** | `%dev` Mailtrap credentials via `MAILTRAP_USERNAME` / `MAILTRAP_PASSWORD` env (default mock). Rotate any credentials that were previously committed. |
+| **SEC1** | Ticket/project membership isolation tracked separately in `feature/project-visibility.md`. |

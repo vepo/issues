@@ -33,6 +33,7 @@ import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.co
 import { CustomFieldFormSectionComponent } from '../custom-fields/custom-field-form-section.component';
 import { plainTextLengthValidator } from '../../core/plain-text-length';
 import { TICKET_TYPE_OPTIONS } from '../ticket-form/ticket-form.component';
+import { formatActorLabel } from '../ticket-activity-feed/activity-feed.utils';
 
 export interface LinkGroup {
   label: string;
@@ -416,6 +417,10 @@ export class TicketViewComponent implements OnInit {
       return value ? 'Sim' : 'Não';
     }
     return String(value);
+  }
+
+  actorLabel(name: string | undefined | null, viaAgent?: boolean | null): string {
+    return formatActorLabel(name, viaAgent);
   }
 
   historyActionLabel(action: string | undefined | null): string {

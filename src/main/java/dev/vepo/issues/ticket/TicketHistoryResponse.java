@@ -9,7 +9,8 @@ public final record TicketHistoryResponse(long id,
                                           String newValue,
                                           Long referenceId,
                                           TicketUserResponse user,
-                                          long timestamp) {
+                                          long timestamp,
+                                          boolean viaAgent) {
     public static TicketHistoryResponse load(TicketHistory history) {
         return new TicketHistoryResponse(history.id,
                                          history.action.name(),
@@ -18,6 +19,7 @@ public final record TicketHistoryResponse(long id,
                                          history.newValue,
                                          history.referenceId,
                                          TicketUserResponse.load(history.user),
-                                         history.timestamp.toEpochMilli());
+                                         history.timestamp.toEpochMilli(),
+                                         history.viaAgent);
     }
 }

@@ -22,7 +22,7 @@ class LdapCredentialAuthenticatorTest {
                                                                                     "ldapuser",
                                                                                     Set.of("cn=admins,ou=groups", "cn=others,ou=groups"));
         var authenticator = new LdapCredentialAuthenticator(client,
-                                                            Map.of("admins", Role.ADMIN,
+                                                            Map.of("cn=admins,ou=groups", Role.ADMIN,
                                                                    "managers", Role.PROJECT_MANAGER));
 
         var identity = authenticator.authenticate("ldap@example.com", "secret");
@@ -34,6 +34,20 @@ class LdapCredentialAuthenticatorTest {
         assertEquals(2, identity.roles().size());
         assertEquals("LDAP User", identity.name());
         assertEquals("ldapuser", identity.username());
+    }
+
+    @Test
+    @DisplayName("Should not grant role when directory group only contains mapped name as substring")
+    void shouldNotGrantRoleWhenGroupNameOnlyContainsMappedSubstring() {
+        LdapDirectoryClient client = (email, password) -> new LdapDirectoryIdentity(email,
+                                                                                    "LDAP User",
+                                                                                    "ldapuser",
+                                                                                    Set.of("cn=not-admins,ou=groups"));
+        var authenticator = new LdapCredentialAuthenticator(client, Map.of("admins", Role.ADMIN));
+
+        var identity = authenticator.authenticate("ldap@example.com", "secret");
+
+        assertEquals(Set.of(Role.USER), identity.roles());
     }
 
     @Test

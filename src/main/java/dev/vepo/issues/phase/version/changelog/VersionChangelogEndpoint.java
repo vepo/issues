@@ -16,7 +16,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(VersionPaths.BASE)
 @ApplicationScoped
@@ -37,7 +39,9 @@ public class VersionChangelogEndpoint {
     @Path("{versionId}/changelog")
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "versionChangelog", summary = "Version changelog grouped by association")
-    public VersionChangelogResponse changelog(@PathParam("projectId") long projectId, @PathParam("versionId") long versionId) {
-        return versionService.changelog(projectId, versionId);
+    public VersionChangelogResponse changelog(@PathParam("projectId") long projectId,
+                                              @PathParam("versionId") long versionId,
+                                              @Context SecurityContext securityContext) {
+        return versionService.changelog(projectId, versionId, securityContext.getUserPrincipal().getName());
     }
 }

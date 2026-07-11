@@ -6,6 +6,7 @@ Tracks gaps between documentation and code, and agentic development setup status
 
 | Item | Status |
 |------|--------|
+| `.cursor/skills/issues-agent/` | Done — backup MCP/PAT skill ([agentic-integration](../../feature/agentic-integration.md) **FQ8**) |
 | `AGENTS.md` | Done |
 | `ARCHITECTURE.md` | Done |
 | `docs/domain-specification.md` | Done |

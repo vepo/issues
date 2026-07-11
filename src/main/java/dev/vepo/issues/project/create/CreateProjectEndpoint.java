@@ -39,7 +39,7 @@ public class CreateProjectEndpoint {
 
     @POST
     @ResponseStatus(201)
-    @RolesAllowed(Role.PROJECT_MANAGER_ROLE)
+    @RolesAllowed({ Role.PROJECT_MANAGER_ROLE, Role.ADMIN_ROLE })
     @Operation(operationId = "createProject", summary = "Create a project")
     public ProjectResponse create(@Valid CreateProjectRequest request, @Context SecurityContext securityContext) {
         return projectService.create(request, securityContext.getUserPrincipal().getName());

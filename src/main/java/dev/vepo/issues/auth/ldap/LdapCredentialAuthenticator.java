@@ -2,7 +2,6 @@ package dev.vepo.issues.auth.ldap;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -71,11 +70,7 @@ public class LdapCredentialAuthenticator implements CredentialAuthenticator {
     }
 
     private static boolean matchesGroup(String directoryGroup, String mappedGroup) {
-        if (directoryGroup.equalsIgnoreCase(mappedGroup)) {
-            return true;
-        }
-        return directoryGroup.toLowerCase(Locale.ROOT)
-                             .contains(mappedGroup.toLowerCase(Locale.ROOT));
+        return directoryGroup.equalsIgnoreCase(mappedGroup);
     }
 
     static Map<String, Role> parseGroupRoleMap(String config) {

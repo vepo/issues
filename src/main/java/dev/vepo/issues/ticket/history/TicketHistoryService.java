@@ -2,8 +2,10 @@ package dev.vepo.issues.ticket.history;
 
 import java.time.Instant;
 
+import dev.vepo.issues.auth.apitoken.ApiTokenIdentityProvider;
 import dev.vepo.issues.ticket.Ticket;
 import dev.vepo.issues.user.User;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -11,10 +13,12 @@ import jakarta.inject.Inject;
 public class TicketHistoryService {
 
     private final TicketHistoryRepository historyRepository;
+    private final SecurityIdentity securityIdentity;
 
     @Inject
-    public TicketHistoryService(TicketHistoryRepository historyRepository) {
+    public TicketHistoryService(TicketHistoryRepository historyRepository, SecurityIdentity securityIdentity) {
         this.historyRepository = historyRepository;
+        this.securityIdentity = securityIdentity;
     }
 
     public void logTicketCreated(Ticket ticket, User user) {
@@ -81,7 +85,12 @@ public class TicketHistoryService {
                                         oldValue,
                                         newValue,
                                         referenceId,
-                                        Instant.now());
+                                        Instant.now(),
+                                        isViaAgent());
         historyRepository.save(history);
+    }
+
+    private boolean isViaAgent() {
+        return Boolean.TRUE.equals(securityIdentity.getAttribute(ApiTokenIdentityProvider.VIA_AGENT_ATTRIBUTE));
     }
 }

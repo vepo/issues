@@ -17,8 +17,10 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(TicketPaths.BASE)
 @ApplicationScoped
@@ -40,8 +42,9 @@ public class ApplyGlobalTicketImportMappingEndpoint {
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "applyGlobalTicketImportMapping", summary = "Apply column mapping to a global CSV import")
     public Response applyMapping(@PathParam("importId") long importId,
-                                 @Valid ApplyColumnMappingRequest request) {
-        ticketImportService.applyMapping(null, importId, request.mapping());
+                                 @Valid ApplyColumnMappingRequest request,
+                                 @Context SecurityContext securityContext) {
+        ticketImportService.applyMapping(null, importId, request.mapping(), securityContext.getUserPrincipal().getName());
         return Response.noContent().build();
     }
 }

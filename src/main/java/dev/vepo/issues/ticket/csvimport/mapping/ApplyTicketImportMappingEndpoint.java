@@ -17,8 +17,10 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(ProjectPaths.BASE)
 @ApplicationScoped
@@ -41,8 +43,9 @@ public class ApplyTicketImportMappingEndpoint {
     @Operation(operationId = "applyTicketImportMapping", summary = "Apply column mapping to a stored CSV import")
     public Response applyMapping(@PathParam("projectId") long projectId,
                                  @PathParam("importId") long importId,
-                                 @Valid ApplyColumnMappingRequest request) {
-        ticketImportService.applyMapping(projectId, importId, request.mapping());
+                                 @Valid ApplyColumnMappingRequest request,
+                                 @Context SecurityContext securityContext) {
+        ticketImportService.applyMapping(projectId, importId, request.mapping(), securityContext.getUserPrincipal().getName());
         return Response.noContent().build();
     }
 }

@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "tb_refresh_tokens")
@@ -22,6 +23,9 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * SHA-256 hex of the opaque refresh token (plaintext returned once at issue).
+     */
     @Column(nullable = false, unique = true)
     private String token;
 
@@ -35,13 +39,21 @@ public class RefreshToken {
     @Column(nullable = false)
     private boolean revoked;
 
+    @Transient
+    private String rawToken;
+
     protected RefreshToken() {}
 
-    public RefreshToken(User user, long validDays) {
-        this.token = UUID.randomUUID().toString();
+    public RefreshToken(User user, long validDays, String tokenHash, String rawToken) {
+        this.token = tokenHash;
+        this.rawToken = rawToken;
         this.user = user;
         this.expiresAt = LocalDateTime.now().plusDays(validDays);
         this.revoked = false;
+    }
+
+    public static String generateRawToken() {
+        return UUID.randomUUID().toString();
     }
 
     public Long getId() {
@@ -50,6 +62,10 @@ public class RefreshToken {
 
     public String getToken() {
         return token;
+    }
+
+    public String getRawToken() {
+        return rawToken;
     }
 
     public User getUser() {

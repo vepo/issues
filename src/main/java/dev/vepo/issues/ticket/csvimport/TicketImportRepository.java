@@ -39,10 +39,33 @@ public class TicketImportRepository {
                  .findFirst();
     }
 
+    public Optional<TicketImport> findGlobalByIdAndAuthorId(long id, long authorId) {
+        return em.createQuery("""
+                              FROM TicketImport
+                              WHERE id = :id AND project IS NULL AND author.id = :authorId
+                              """, TicketImport.class)
+                 .setParameter("id", id)
+                 .setParameter("authorId", authorId)
+                 .getResultStream()
+                 .findFirst();
+    }
+
     public Optional<TicketImport> findByIdAndProjectId(long id, long projectId) {
         return em.createQuery("FROM TicketImport WHERE id = :id AND project.id = :projectId", TicketImport.class)
                  .setParameter("id", id)
                  .setParameter("projectId", projectId)
+                 .getResultStream()
+                 .findFirst();
+    }
+
+    public Optional<TicketImport> findByIdAndProjectIdAndAuthorId(long id, long projectId, long authorId) {
+        return em.createQuery("""
+                              FROM TicketImport
+                              WHERE id = :id AND project.id = :projectId AND author.id = :authorId
+                              """, TicketImport.class)
+                 .setParameter("id", id)
+                 .setParameter("projectId", projectId)
+                 .setParameter("authorId", authorId)
                  .getResultStream()
                  .findFirst();
     }

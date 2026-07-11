@@ -19,7 +19,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(VersionPaths.BASE)
 @ApplicationScoped
@@ -40,7 +42,9 @@ public class CreateVersionEndpoint {
     @ResponseStatus(201)
     @RolesAllowed({ Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "createVersion", summary = "Create a project version")
-    public VersionResponse create(@PathParam("projectId") long projectId, @Valid CreateVersionRequest request) {
-        return versionService.create(projectId, request);
+    public VersionResponse create(@PathParam("projectId") long projectId,
+                                  @Valid CreateVersionRequest request,
+                                  @Context SecurityContext securityContext) {
+        return versionService.create(projectId, request, securityContext.getUserPrincipal().getName());
     }
 }

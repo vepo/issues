@@ -18,7 +18,9 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(TicketPaths.BASE)
 @ApplicationScoped
@@ -41,7 +43,8 @@ public class CorrectGlobalTicketImportRowEndpoint {
     @Operation(operationId = "correctGlobalTicketImportRow", summary = "Correct project or status on a global import preview row")
     public ImportRowValidationResponse correctRow(@PathParam("importId") long importId,
                                                   @PathParam("rowId") long rowId,
-                                                  @Valid CorrectImportRowRequest request) {
-        return ticketImportService.correctRow(null, importId, rowId, request);
+                                                  @Valid CorrectImportRowRequest request,
+                                                  @Context SecurityContext securityContext) {
+        return ticketImportService.correctRow(null, importId, rowId, request, securityContext.getUserPrincipal().getName());
     }
 }

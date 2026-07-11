@@ -36,12 +36,16 @@ public class LocalCredentialAuthenticator implements CredentialAuthenticator {
     @Override
     public VerifiedIdentity authenticate(String email, String password) {
         var user = userRepository.findByEmail(email)
-                                 .filter(u -> u.getEncodedPassword() != null
-                                         && passwordEncoder.matches(password, u.getEncodedPassword()))
+                                 .filter(u -> u.getEncodedPassword() != null)
+                                 .filter(u -> passwordEncoder.matches(password, u.getEncodedPassword()))
                                  .orElseThrow(() -> {
                                      logger.debug("Local authentication failed for email={}", email);
                                      return AuthFailures.invalidCredentials();
                                  });
+        if (passwordEncoder.needsRehash(user.getEncodedPassword())) {
+            user.setEncodedPassword(passwordEncoder.hashPassword(password));
+            logger.debug("Rehashed legacy password for user={}", user.getUsername());
+        }
         return new VerifiedIdentity(user.getEmail(),
                                     user.getName(),
                                     user.getUsername(),

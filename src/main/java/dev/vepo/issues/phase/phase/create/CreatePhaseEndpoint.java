@@ -19,7 +19,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(PhasePaths.BASE)
 @ApplicationScoped
@@ -40,7 +42,9 @@ public class CreatePhaseEndpoint {
     @ResponseStatus(201)
     @RolesAllowed({ Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "createPhase", summary = "Create a project phase")
-    public PhaseResponse create(@PathParam("projectId") long projectId, @Valid CreatePhaseRequest request) {
-        return phaseService.create(projectId, request);
+    public PhaseResponse create(@PathParam("projectId") long projectId,
+                                @Valid CreatePhaseRequest request,
+                                @Context SecurityContext securityContext) {
+        return phaseService.create(projectId, request, securityContext.getUserPrincipal().getName());
     }
 }

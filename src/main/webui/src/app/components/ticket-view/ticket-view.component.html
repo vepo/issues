@@ -372,7 +372,7 @@
             @for (entry of ticket.history; track entry.timestamp) {
               <div class="row {{ $even ? 'even' : 'odd' }}">
                 <div>{{ entry.timestamp | date: 'medium' }}</div>
-                <div>{{ entry.user?.email }}</div>
+                <div>{{ actorLabel(entry.user?.name, entry.viaAgent) }}</div>
                 <div>
                   @if (entry.field) {
                     {{ historyActionLabel(entry.action) }} — {{ entry.field }}: {{ entry.oldValue || '—' }} → {{ entry.newValue || '—' }}
@@ -425,7 +425,7 @@
             @for (comment of comments; track comment.id) {
               <div class="comment">
                 <div class="comment-header">
-                  <span class="comment-author">{{ comment.author.name }}</span>
+                  <span class="comment-author">{{ actorLabel(comment.author.name, comment.viaAgent) }}</span>
                   <span class="comment-date">{{ comment.createdAt | date: 'medium' }}</span>
                 </div>
                 <div class="comment-content" [innerHTML]="comment.content"></div>

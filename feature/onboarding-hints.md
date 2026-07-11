@@ -1,6 +1,6 @@
 # Onboarding hints
 
-**Feature version:** 1  
+**Feature version:** 2  
 **Status:** done  
 **Requested:** 2026-07-03
 
@@ -70,3 +70,12 @@ Layout: `.context-hint` banner below `.page-header`; **Fechar** button on the ri
 | FC3 | ARCHITECTURE §13 onboarding gap closed | Docs | ☑ |
 
 **Implementation notes:** `ContextHintComponent`; integrated on home, kanban, advanced-search; gallery §9.0.
+
+### Catalog rows for context hints — 2026-07-11
+
+**Version:** 2  
+**Status:** done
+
+**Description:** Docs-only — feature-catalog Home / Kanban / Advanced search Steps note dismissible context hints. Source: [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md).
+
+**Development approval:** n/a — docs-only

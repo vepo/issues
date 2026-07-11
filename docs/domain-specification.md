@@ -51,8 +51,8 @@ Issues is a **modular monolith**: one deployable, feature packages under `dev.ve
 | Context | Packages | May depend on |
 |---------|----------|---------------|
 | **Platform** | `infra` | JDK/Jakarta only |
-| **Identity & access** | `auth`, `user` | platform |
-| **Project administration** | `project` | platform, identity, workflow, customfield |
+| **Identity & access** | `auth`, `auth.apitoken`, `user` | platform |
+| **Project administration** | `project`, `project.serviceaccount` | platform, identity, workflow, customfield |
 | **Workflow configuration** | `workflow` | platform, customfield, identity, ticket |
 | **Custom fields** | `customfield` | platform |
 | **Phase & version planning** | `phase` | platform, project, workflow |
@@ -68,6 +68,7 @@ Issues is a **modular monolith**: one deployable, feature packages under `dev.ve
 - Feature packages must not depend on unrelated contexts (e.g. `categories` must not depend on `dashboards`).
 - Cross-context reactions (notify subscribers on ticket move) use CDI events or dedicated services in the owning context.
 - `infra` holds exception mappers, SPA routing, and dev setup — no domain logic.
+- **Issues MCP** is not a bounded context of the monolith — it is an external HTTP client of `/api` (see Ubiquitous Language).
 
 ---
 
@@ -93,24 +94,28 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Password recovery** | Self-service flow to reset password via email link; **LOCAL** provider only. | `AuthenticationService` `/auth/recovery` |
 | **Password reset token** | Single-use secret sent by email. | `PasswordResetToken` |
 | **Auth capabilities** | Public flags telling the UI whether password recovery and change-password are available. | `GET /auth/capabilities` |
-| **Personal API token** | Long-lived secret a **user** creates to authenticate `/api` as themselves (scripts, MCP, CI) without password login. Secret shown once at create; revocable. Prefix e.g. `iss_pat_`. | Planned — [feature/agentic-integration.md](../feature/agentic-integration.md); UI: account **Tokens de API** |
-| **Service account** | Project-scoped machine identity for agents/CI; has its own tokens; managed at **`/projects/:projectId/service-accounts`** by project manager/admin. Display name used in **Agente em nome de &lt;nome&gt;**. Prefix e.g. `iss_sat_`. Permissions: **project member–aligned** on that project. | Planned — [feature/agentic-integration.md](../feature/agentic-integration.md) |
-| **Agent setup** | Guided account-settings flow (**Conectar agente**) that creates a token and offers **copy-ready** MCP/IDE configuration using **`issues.public-base-url`** and **`issues.mcp-public-base-url`**. | Planned — [feature/agentic-integration.md](../feature/agentic-integration.md) |
-| **Public base URL** | Configurable absolute base URL(s) of Issues API and MCP for generated agent config (`application.properties` in v1). | `issues.public-base-url`, `issues.mcp-public-base-url` |
-| **Issues MCP** | Separate Quarkus **Model Context Protocol** app (Java) calling Issues `/api` with the client’s Bearer token. May later join Issues as a **multi-module** reactor module. No Python MCP. | Planned — [feature/agentic-integration.md](../feature/agentic-integration.md) **AQ7** |
-| **Agent channel** | Request made with an API token; persisted as `via_agent`; UI shows **Agente em nome de &lt;nome&gt;** (PAT owner name or service account display name). | [feature/agentic-integration.md](../feature/agentic-integration.md) |
-| **Ticket context** | Composite read for agents: ticket detail + allowed transitions + in-scope custom fields in one response. | Planned `GET /tickets/{id}/context` |
-| **Agentic integration** | Capability for coding agents to read and update tickets while implementing features. Distinct from repo `.cursor/agents` used to *build* Issues. | [feature/agentic-integration.md](../feature/agentic-integration.md) |
+| **Personal API token** | Long-lived secret a **user** creates to authenticate `/api` as themselves (scripts, MCP, CI) without password login. Secret shown once at create; stored hashed; revocable. Prefix `iss_pat_`. | `auth.apitoken`; UI: account **Tokens de API**; [agentic-integration.md](../feature/agentic-integration.md) |
+| **Service account** | Project-scoped machine identity for agents/CI; has its own tokens; managed at **`/projects/:projectId/service-accounts`** by project manager/admin. Display name used in **Agente em nome de &lt;nome&gt;**. Token prefix `iss_sat_`. Permissions: **project member–aligned** on that project. | `project.serviceaccount`; [agentic-integration.md](../feature/agentic-integration.md) |
+| **Agent setup** | Guided account-settings flow (**Conectar agente**) that creates a token and offers **copy-ready** MCP/IDE configuration using **`issues.public-base-url`** and **`issues.mcp-public-base-url`**. | `GET /agent/setup-config`; UI **Conectar agente** |
+| **Public base URL** | Configurable absolute base URL(s) of Issues API and MCP for generated agent config (`application.properties` in v1; no admin UI). | `issues.public-base-url`, `issues.mcp-public-base-url` |
+| **Issues MCP** | Separate Quarkus **Model Context Protocol** client app (Java) — **external to Issues core**. Calls Issues `/api` with the client’s Bearer token; never uses EntityManager. May later join Issues as a **multi-module** reactor module. No Python MCP. | Sibling [`issues-mcp/`](../issues-mcp/); [agentic-integration.md](../feature/agentic-integration.md) **AQ7** |
+| **Agent channel** (`via_agent`) | Request authenticated with a **personal API token** or **service account** token; persisted as `via_agent` on history/comments; UI shows **Agente em nome de &lt;nome&gt;** (PAT: user name; SA: service account display name). | `via_agent` on `tb_ticket_history` / `tb_comments` |
+| **Ticket context** | Composite read for agents: ticket detail + allowed transitions + in-scope custom fields in one response. | `GET /tickets/{id}/context` |
+| **Agentic integration** | Capability for coding agents to read and update tickets while implementing features. Distinct from repo `.cursor/agents` / skills used to *build* Issues. | [agentic-integration.md](../feature/agentic-integration.md); backup skill [`.cursor/skills/issues-agent/`](../.cursor/skills/issues-agent/) |
 
 ### Projects & workflows
 
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
-| **Project** | Bounded scope for tickets: name, prefix, required description, assigned workflow. | `Project`, `tb_projects` |
+| **Project** | Bounded scope for tickets: name, prefix, required description, assigned workflow, and **project security level**. | `Project`, `tb_projects` |
+| **Project security level** | Per-project **read** visibility for tickets and related surfaces (tickets, Kanban, versions, hub, phases, backlog, burndown, dashboard, filtered search). Levels: **Private**, **Internal**, **Public**. **Writes** always require membership (or manage); never anonymous. Default: **Internal**. UI: **Nível de segurança**. | Planned — [feature/project-visibility.md](../feature/project-visibility.md); remediates ticket IDOR (SEC1) |
+| **Private** (security level) | Only **project members** and **admin** may read gated surfaces. | `PRIVATE` / UI **Privado** |
+| **Internal** (security level) | Any **authenticated** user may read; non-members cannot write. | `INTERNAL` / UI **Interno** — default |
+| **Public** (security level) | **Anonymous** and authenticated users may read gated surfaces (no anonymous global search/home in v1). | `PUBLIC` / UI **Público** |
 | **Project owner** | Single user accountable for a project; must have **project-manager** role; set at creation; may be **transferred** by admin or current owner on edit. | `Project.owner` / `tb_projects.owner_id` |
 | **Project member** | User assigned to a project; required to be eligible as ticket **assignee** on that project. | `tb_project_members`; M:N project ↔ user |
 | **Project allocation** | UI for project owner or admin to add or remove **project members**. | `/projects/:projectId/allocation`; UI **Alocação** |
-| **Project hub** | Read-only project landing: Kanban and dashboard entry; accessible to **members** and admin. | `/projects/:projectId` |
+| **Project hub** | Project landing: Kanban and dashboard entry; **readable** per **project security level**. | `/projects/:projectId` |
 | **Project navigation menu** | Global header **Projetos** control listing **viewable** projects; each item opens that project’s **Kanban**. Empty: disabled control with tooltip. | Shell `ProjectMenuComponent`; `GET /projects` viewable scope |
 | **Assigned project** | Project where the current user is a **project member**. | Scopes home and hub for `user` role |
 | **Project prefix** | Short uppercase code used in ticket identifiers (e.g. `ISS`). | `Project.prefix` |
@@ -189,8 +194,8 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | **Finish date** | Timestamp set when ticket reaches a **done** finish status; cleared when leaving done. | `Ticket.finishedAt`; UI **Data de conclusão** |
 | **Story points** | Optional non-negative integer estimate of ticket size/effort; null means unset (burndown warns and treats as 0 until set). | `Ticket.storyPoints` |
 | **Due date** | Optional user-planned deadline for the ticket; distinct from finish date. | `Ticket.dueDate`; UI **Data de vencimento** |
-| **Comment** | Text note attached to a ticket. | `Comment`, `tb_comments` |
-| **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`). | `TicketHistory`, `TicketHistoryService` |
+| **Comment** | Text note attached to a ticket; may be marked **agent channel** (`via_agent`) when created via API token. | `Comment`, `tb_comments` |
+| **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`); may be marked **agent channel** (`via_agent`) when mutated via API token. | `TicketHistory`, `TicketHistoryService` |
 | **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`, `LINK_ADDED`, `LINK_REMOVED`. | `TicketHistoryAction` |
 | **Linked commit** | Immutable record that a git commit (SHA) mentioned a ticket identifier; shown on the **activity feed**. Author may match an Issues **user** by email or remain unmatched (name/email from SCM). | Planned — `tb_ticket_commits`; [feature/git-integration.md](../feature/git-integration.md) |
 | **Commit ingest** | Delivery of commits into Issues via forge **push webhook** (HMAC) and/or authenticated **inbound API** (PAT or project service account). | Planned — `POST …/git/webhook`, `POST …/git/commits` |
@@ -228,11 +233,11 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | **Dashboard** | Project analytics page with charts and KPIs. | `/project/:projectId/dashboard` |
 | **Dashboard widget** | Chart, table, or KPI visualization. | `DashboardType` enum |
 | **Dashboard layout** | Ordered set of widgets for a user on a project dashboard; persisted server-side (not browser `localStorage`). | `tb_dashboard_layouts`; `GET/PUT …/dashboard/layout` |
-| **Tickets by day** | Pie chart of ticket creation over time. | `tickets-by-day` |
-| **Tickets by status** | Pie chart of tickets grouped by status. | `tickets-by-status` |
-| **Tickets by priority** | Pie chart of tickets grouped by priority. | `tickets-by-priority` |
+| **Tickets by day** | Bar chart of ticket creation counts by day (UTC buckets). | `tickets-by-day`; [project-dashboard.md](../feature/project-dashboard.md) **FQ7** |
+| **Tickets by status** (dashboard) | Pie of open (non-deleted) tickets by workflow status. | `tickets-by-status` |
+| **Tickets by priority** | Pie of tickets by priority. | `tickets-by-priority` |
 | **Recent tickets** | Table of the **20** most recently updated non-deleted tickets in the project. | `recent-tickets` |
-| **Performance KPI** | Summary metrics for project throughput. | `performance-kpi` |
+| **Tickets por status** (KPI widget) | KPI-style summary: total non-deleted tickets + counts per status (widget id `performance-kpi`). | `performance-kpi`; **FQ8** — not throughput |
 | **Burndown** | Project view of remaining **story points** for a **phase** vs an **ideal line** over the phase date range. Peer route of Kanban. | `/project/:projectId/burndown`; [feature/burndown.md](../feature/burndown.md) |
 | **Story points** | Optional non-negative integer size/effort estimate on a ticket; used by burndown. | `Ticket.storyPoints`; UI **Story points** |
 | **Ideal line** | Linear projection from remaining points at phase start date to zero at phase end date. | Burndown chart |
@@ -276,14 +281,15 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 20. **Version changelog** — derived, not persisted separately. Includes non-canceled tickets linked by target version, observed version, or phase deliverable version. Excludes tickets in a `CANCELED` finish status; they reappear when moved out of canceled. Sorted by finish date ascending (nulls last) within grouped sections.
 21. **Ticket create — no default phase** — new tickets have no phase unless the user selects one from **planned** and **active** phases in the create form.
 22. **Phase/version history** — changes to phase, observed version, target version, due date, and finish date on tickets are logged via `TicketHistoryService`.
-23. **Phase/version admin roles** — phase and version CRUD: `PROJECT_MANAGER` and `ADMIN`; version changelog read: any authenticated user.
+23. **Phase/version admin roles** — phase and version CRUD: `PROJECT_MANAGER` and `ADMIN`; version changelog **read** follows **project security level** (same as other gated surfaces).
 24. **Project membership** — a user must be a **project member** to be set as ticket **assignee** on that project.
 25. **Project owner** — each project has exactly one **project owner** with the project-manager role, assigned at creation. Only the project owner or an **admin** may update the project, manage allocation, or change project configuration. **Owner transfer:** admin or the current project owner may assign a new owner on edit; the new owner must have the project-manager role and need not already be a **project member** — they are added as a member when the transfer completes.
 26. **Member removal** — a **project member** cannot be removed while they are **assignee** on a non-finished ticket in that project; tickets must be reassigned first.
 27. **Home scope** — `user` role: home lists and activity include **member** projects only. **Project owner:** owned projects. **Admin:** all projects.
-28. **Project hub access** — any **project member** (and admin) may open the project hub and navigate to Kanban, Burndown, and dashboard; project edit and allocation require project owner or admin.
-29. **Project list (viewable)** — `GET /projects` returns **viewable** projects: **admin** sees all; other users see the union of projects they **own** and projects where they are a **project member**. The header **Project navigation menu** uses this list.
-30. **Ticket search** — global across projects for any authenticated user; not filtered by membership.
+28. **Project hub access** — hub, Kanban, Burndown, backlog, dashboard, phases, and versions are **readable** according to the project’s **security level**. Project edit, allocation, and security-level change require **project owner** or **admin**.
+29. **Project list (viewable)** — `GET /projects` / header **Projetos**: **admin** sees all; authenticated non-admin sees owned + member projects **plus** all **Internal** and **Public** projects; **Private** only if member/owner (or admin). Anonymous: **Public** projects only (architecture **AQ5**).
+30. **Ticket search** — authenticated search results include only tickets the caller may **read** under each project’s **security level**. Soft-deleted tickets remain admin/PM-only. Anonymous global search is out of scope for v1.
+30a. **Project security level** — every project has exactly one level: **Private** / **Internal** / **Public**. It gates **read** on tickets (including comments and history for allowed readers), Kanban, versions, hub, phases, backlog, burndown, dashboard, and filtered search. **Default** on create and migrate: **Internal**. **Writes** require membership (or manage); never anonymous.
 31. **Saved query ownership** — each saved query has exactly one **owner**; only the owner may update or delete. Non-owners must **clone** another user's query before editing.
 32. **Show at home** — optional per saved query (`show_at_home`); when enabled, the owner's query appears as a home section (one section per flagged query; snapshot per visit).
 33. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter. Built-in fields include `points` / `storypoints` for story points.
@@ -326,10 +332,11 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 60. **Custom field history** — value changes logged as `FIELD_CHANGED` with `field` = custom field **key**.
 61. **Custom field roles** — project definitions: project owner or admin; workflow definitions: project-manager or admin; values: same roles as ticket create/update.
 62. **Custom field notifications** — custom field value changes do not trigger notifications or email in the current product scope.
-66. **Personal API token** — secret shown once at create; stored hashed only; revoke disables Bearer auth immediately. (Planned — [agentic-integration.md](../feature/agentic-integration.md).)
-67. **Agent channel attribution** — mutations via API token persist `via_agent` and are shown as **Agente em nome de &lt;nome&gt;** (PAT: user name; service account: SA display name). (Planned.)
-68. **Service account scope** — a service account belongs to exactly one project; tokens authorize **member-aligned** powers on that project only. Managed at `/projects/:projectId/service-accounts`. (Planned.)
-76. **Issues MCP deployment** — MCP runs as a **separate Quarkus project** calling Issues HTTP APIs; the Issues repo may later become a **multi-module** reactor that includes MCP. (Planned.)
+66. **Personal API token** — secret shown once at create; stored hashed only; revoke disables Bearer auth immediately. Prefix `iss_pat_`. ([agentic-integration.md](../feature/agentic-integration.md).)
+67. **Agent channel attribution** — mutations via API token persist `via_agent` and are shown as **Agente em nome de &lt;nome&gt;** (PAT: user name; service account: SA display name).
+68. **Service account scope** — a service account belongs to exactly one project; tokens authorize **member-aligned** powers on that project only. Managed at `/projects/:projectId/service-accounts`. Prefix `iss_sat_`.
+69. **Bearer auth** — `/api` accepts JWT session tokens or API tokens (`iss_pat_` / `iss_sat_`) on the same `Authorization: Bearer` header; API-token callers have the full update powers of the principal (user or project-scoped SA).
+76. **Issues MCP deployment** — MCP is **external to Issues core**: a separate Quarkus project calling Issues HTTP APIs only (no shared persistence). The Issues repo may later become a **multi-module** reactor that includes MCP.
 77. **Git repository association** — at most one remote per project in current scope; configurable by project owner or admin only. (Planned — [git-integration.md](../feature/git-integration.md).)
 78. **Linked commit** — commits mentioning `{prefix}-{seq}` (subject or body) link to non-deleted tickets in the associated project; idempotent on `(ticket_id, sha)`; no subscriber notification and no auto-transition on link. (Planned.)
 79. **Commit ingest auth** — forge push webhook verified with per-project HMAC secret; inbound API uses Bearer personal API token or project service account. (Planned.)
@@ -341,8 +348,10 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 
 | Aggregate | Root | Consistency boundary |
 |-----------|------|---------------------|
-| User | `User` | Credentials, roles, profile |
-| Project | `Project` | Name, prefix, workflow assignment, phase template, **owner**, **members**, ticket template (incl. custom field defaults) |
+| User | `User` | Credentials, roles, profile, **personal API tokens** |
+| Project | `Project` | Name, prefix, workflow assignment, phase template, **owner**, **members**, ticket template (incl. custom field defaults), **service accounts** |
+| Personal API token | `ApiToken` | Hash, prefix, revoke, last-used; owned by one user |
+| Service account | `ServiceAccount` | Display name, active flag, tokens; owned by one project |
 | Workflow | `Workflow` | Statuses, transitions, phase start status, finish statuses |
 | Custom field | `CustomField` | Key, label, type, required, enabled, owner (project XOR workflow), enum options, status-required links |
 | Phase | `Phase` | Lifecycle, objective, deliverables, deliverable version |
@@ -367,8 +376,12 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | Version | `phase.Version`, `phase.VersionService` |
 | Notification | `notifications.Notification`, `notifications.NotificationsEndpoint` |
 | Audit | `ticket.history.TicketHistoryService` |
+| Personal API token | `auth.apitoken.ApiToken`, `ApiTokenService` |
+| Service account | `project.serviceaccount.ServiceAccount`, `ServiceAccountService` |
+| Ticket context | `ticket.context.TicketContextService` |
 | Custom field | `customfield.CustomField`, `customfield.CustomFieldService` |
 | Git repository association / linked commit | Planned — `git.*` ([feature/git-integration.md](../feature/git-integration.md)) |
+| Issues MCP | External — [`issues-mcp/`](../issues-mcp/) (not a core package) |
 
 ---
 

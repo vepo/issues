@@ -33,12 +33,21 @@ const FIELD_LABELS: Record<string, string> = {
   subscriber: 'observador',
 };
 
+/** Actor label for history/comments — agent attribution when viaAgent is true. */
+export function formatActorLabel(name: string | undefined | null, viaAgent?: boolean | null): string {
+  const displayName = name?.trim() || '—';
+  if (viaAgent) {
+    return `Agente em nome de ${displayName}`;
+  }
+  return displayName;
+}
+
 export function buildActivityFeed(history: ReadonlyArray<TicketHistoryResponse>, comments: ReadonlyArray<CommentResponse>): ActivityItem[] {
   const changes: ActivityChange[] = (history ?? []).map(entry => ({
     kind: 'change',
     id: entry.id ?? 0,
     timestamp: entry.timestamp ?? 0,
-    userName: entry.user?.name ?? '—',
+    userName: formatActorLabel(entry.user?.name, entry.viaAgent),
     action: entry.action ?? '',
     field: entry.field,
     oldValue: entry.oldValue,
@@ -49,7 +58,7 @@ export function buildActivityFeed(history: ReadonlyArray<TicketHistoryResponse>,
     kind: 'comment',
     id: comment.id ?? 0,
     timestamp: comment.createdAt ?? 0,
-    userName: comment.author?.name ?? '—',
+    userName: formatActorLabel(comment.author?.name, comment.viaAgent),
     content: comment.content ?? '',
   }));
 

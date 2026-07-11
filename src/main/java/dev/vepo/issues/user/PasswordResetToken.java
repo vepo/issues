@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "tb_password_reset_tokens")
@@ -23,6 +24,10 @@ public class PasswordResetToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * SHA-256 hex of the opaque reset token (plaintext returned once for
+     * email/link).
+     */
     @Column(nullable = false, unique = true)
     private String token;
 
@@ -39,17 +44,24 @@ public class PasswordResetToken {
     @Column(nullable = false)
     private boolean used;
 
+    @Transient
+    private String rawToken;
+
     public PasswordResetToken() {}
 
-    public PasswordResetToken(User user) {
-        this.token = UUID.randomUUID().toString();
+    public PasswordResetToken(User user, String tokenHash, String rawToken) {
+        this.token = tokenHash;
+        this.rawToken = rawToken;
         this.password = RandomStringUtils.secureStrong().nextAlphanumeric(8);
         this.user = user;
-        this.expiryDate = LocalDateTime.now().plusHours(24); // Token válido por 24 horas
+        this.expiryDate = LocalDateTime.now().plusHours(24);
         this.used = false;
     }
 
-    // Getters e Setters
+    public static String generateRawToken() {
+        return UUID.randomUUID().toString();
+    }
+
     public Long getId() {
         return id;
     }
@@ -60,6 +72,10 @@ public class PasswordResetToken {
 
     public String getToken() {
         return token;
+    }
+
+    public String getRawToken() {
+        return rawToken;
     }
 
     public void setToken(String token) {

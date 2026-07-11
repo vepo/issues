@@ -1,7 +1,7 @@
 # Project navigation (header)
 
-**Feature version:** 1  
-**Status:** done  
+**Feature version:** 2  
+**Status:** tasks-ready  
 **Requested:** 2026-07-10
 
 ## Summary
@@ -96,6 +96,46 @@ Header layout otherwise unchanged (brand, ticket search, Novo, Importar, notific
 | AQ3 | When to load project list? | answered | On component init while authenticated; reuse `ProjectsService.findAll()` — no polling |
 
 ## Changelog
+
+### Catalog compliance — Conta Projetos for admin — 2026-07-11
+
+**Version:** 2  
+**Status:** tasks-ready
+
+**Description:** Conta → **Projetos** is `project-manager` only; catalog and **FQ5** promise PM/admin. Admin-without-PM must reach `/projects` via Conta as well as header **Gerenciar projetos**. Source: [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md).
+
+**Impact on other features:** [project-administration](project-administration.md) list entry.
+
+#### Feature questions (FQ*n*)
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| FQ6 | Show Conta → **Projetos** for admin (not only PM)? | answered | **Yes** — matches original **FQ5** and catalog |
+
+#### Architecture
+
+| Area | Design |
+|------|--------|
+| Frontend | Conta menu item role: `admin` \|\| `project-manager` |
+| Tests | App/shell spec |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Admin-without-PM sees Conta → Projetos | FQ6 | ☐ |
+| FC2 | PM still sees Conta → Projetos | Regression | ☐ |
+| FC3 | feature-catalog Project list Steps updated | Docs | ☐ |
+
+#### Tasks
+
+| ID | Deliverable | Done |
+|----|-------------|------|
+| T1 | Conta **Projetos** `*role` includes admin | ☐ |
+| T2 | Spec for admin visibility | ☐ |
+| T3 | feature-catalog Project list note cleanup | ☐ |
+
+**Development approval:** — (awaiting explicit task IDs)
 
 ### Header Projetos menu for all members — 2026-07-10
 

@@ -18,7 +18,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(VersionPaths.BASE)
 @ApplicationScoped
@@ -38,7 +40,8 @@ public class ListVersionsEndpoint {
     @GET
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "listVersions", summary = "List project versions")
-    public List<VersionResponse> list(@PathParam("projectId") long projectId) {
-        return versionService.listByProject(projectId);
+    public List<VersionResponse> list(@PathParam("projectId") long projectId,
+                                      @Context SecurityContext securityContext) {
+        return versionService.listByProject(projectId, securityContext.getUserPrincipal().getName());
     }
 }

@@ -41,7 +41,7 @@ public class UpdateProjectEndpoint {
     @POST
     @Path("{projectId}")
     @ResponseStatus(201)
-    @RolesAllowed(Role.PROJECT_MANAGER_ROLE)
+    @RolesAllowed({ Role.PROJECT_MANAGER_ROLE, Role.ADMIN_ROLE })
     @Operation(operationId = "updateProject", summary = "Update a project")
     public ProjectResponse update(@PathParam("projectId") Long projectId,
                                   @Valid CreateProjectRequest request,

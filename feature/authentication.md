@@ -1,6 +1,6 @@
 # Authentication
 
-**Feature version:** 3  
+**Feature version:** 4  
 **Status:** done  
 **Requested:** 2026-07-10 (multi-provider); baseline 2026-07-03
 
@@ -22,7 +22,7 @@ JWT-based session for Issues. Deployments select **one** credential provider via
 | Region | Elements |
 |--------|----------|
 | Center card | Email, password fields; **Entrar** primary button |
-| Footer link | **Esqueci minha senha** → `/login/reset-password` — **only when** `GET /auth/capabilities` reports `passwordRecovery: true` (LOCAL) |
+| Footer link | **Recuperar senha** → `/login/reset-password` — **only when** `GET /auth/capabilities` reports `passwordRecovery: true` (LOCAL) |
 
 ```
 ┌──────────────────────────────────────┐
@@ -31,7 +31,7 @@ JWT-based session for Issues. Deployments select **one** credential provider via
 │  │ Email                          │  │
 │  │ Senha                          │  │
 │  │ [ Entrar ]                     │  │
-│  │ Esqueci minha senha (LOCAL)    │  │
+│  │ Recuperar senha (LOCAL)        │  │
 │  └────────────────────────────────┘  │
 └──────────────────────────────────────┘
 ```
@@ -152,7 +152,17 @@ flowchart TD
 
 ## Changelog
 
+### Catalog label alignment — Recuperar senha — 2026-07-11
+
+**Version:** 4  
+**Status:** done
+
+**Description:** Docs-only — wireframe + feature-catalog Steps use **Recuperar senha** (not English “Forgot password” / Esqueci). Source: [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md). No code.
+
+**Development approval:** n/a — docs-only exempt
+
 ### Initial implementation — baseline
+
 
 **Version:** 1  
 **Status:** done

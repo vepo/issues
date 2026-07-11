@@ -1,7 +1,7 @@
 # Workflow configuration
 
-**Feature version:** 2  
-**Status:** done  
+**Feature version:** 3  
+**Status:** tasks-ready  
 **Requested:** retrospective baseline (documented 2026-07-03); editable statuses 2026-07-11
 
 ## Summary
@@ -166,7 +166,54 @@ Project managers and admins define workflows: name, start status, status list, a
 | S6 | Angular unlock + remove dialog | Wireframe |
 | S7 | Docs | domain-spec, feature-catalog, ARCHITECTURE §13 |
 
+### Feature questions (FQ*n*) — v3 catalog compliance
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| FQ9 | Should Administração → **Processos** be visible to admin (not only project-manager)? | answered | **Yes** — routes already allow admin; menu must match catalog Roles |
+
+## Architecture — v3 (shell menu)
+
+| Area | Design |
+|------|--------|
+| Frontend | Shell Administração menu: show **Processos** when user has `admin` **or** `project-manager` (same as `/workflows` route guards) |
+| API | Unchanged |
+| Tests | Menu visibility spec or template role check |
+
 ## Changelog
+
+### Catalog compliance — Processos menu for admin — 2026-07-11
+
+**Version:** 3  
+**Status:** tasks-ready
+
+**Description:** Administração → **Processos** is gated `project-manager` only while workflow routes allow admin. Align menu with catalog. Source: [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md).
+
+**Impact on other features:** None identified beyond shell discovery.
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Admin-without-PM sees **Processos** in Administração | FQ9, catalog | ☐ |
+| FC2 | PM still sees **Processos** | Regression | ☐ |
+| FC3 | `feature-catalog.md` Workflow list drops interim note | Docs | ☐ |
+
+#### Tasks
+
+| ID | Deliverable | Done |
+|----|-------------|------|
+| T1 | Update shell menu `*role` (or equivalent) for Processos to admin \|\| project-manager | ☐ |
+| T2 | Spec or template test for admin visibility | ☐ |
+| T3 | Update feature-catalog Workflow list Steps | ☐ |
+
+#### Test coverage
+
+| ID | Test | Covers | Done |
+|----|------|--------|------|
+| TC1 | Admin without PM sees Processos link | T1, T2 | ☐ |
+
+**Development approval:** — (awaiting explicit task IDs)
 
 ### Editable workflow statuses after create — 2026-07-11
 

@@ -1,12 +1,16 @@
 # Project administration
 
-**Feature version:** 2  
-**Status:** done  
+**Feature version:** 3  
+**Status:** tasks-ready  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
 
 Project managers create and edit projects: name, prefix, required description, assigned workflow, and optional **ticket template** (default title, description, category, priority for new tickets). Projects scope all tickets and Kanban boards. Once a project has tickets, its **prefix** is immutable so ticket identifiers stay stable.
+
+**v3 (catalog compliance):** Align **admin** project update with hub/`canManage` and allocation APIs — `UpdateProjectEndpoint` must allow `ADMIN` (not only `PROJECT_MANAGER`). Tighten Angular `roleGuard` on edit/allocation so non-owner PMs are not offered a page that only 403s ([feature-catalog review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md)).
+
+**Related:** Project **security level** (Private / Internal / Public) is analyzed in [project-visibility.md](project-visibility.md) — set on create/edit; gates ticket and project-surface reads (SEC1).
 
 ## Wireframe
 
@@ -69,6 +73,8 @@ Project managers create and edit projects: name, prefix, required description, a
 | FQ1 | Should project prefix be immutable after tickets exist? | answered | **Yes** — prefix cannot change once the project has tickets |
 | FQ2 | Do soft-deleted tickets lock the prefix? | answered | **Yes** — any ticket row for the project (including soft-deleted) locks the prefix; identifiers retain the prefix |
 | FQ3 | Will projects ever support multiple workflows? | not valid | One workflow per project is the current invariant |
+| FQ4 | May admin-without-PM update a project via API? | answered | **Yes** — include `ADMIN` on `UpdateProjectEndpoint` (and any sibling update path), matching allocation + catalog/hub **Editar** |
+| FQ5 | Should SPA edit/allocation routes match `requireManage` (owner PM or admin)? | answered | **Yes** — avoid non-owner PM opening pages that only get API 403 |
 
 ## Architecture
 
@@ -114,7 +120,68 @@ Error message (suggested): `Project prefix cannot be changed while the project h
 | AQ2 | Reject same-prefix update when locked? | answered | **No** — only reject when the requested prefix **differs** from the stored value |
 | AQ3 | New repository method vs reuse count? | answered | Reuse `TicketRepository.countProjectTickets` (already includes soft-deleted) |
 
+### v3 — Admin project update authz + route guards
+
+| Area | Design |
+|------|--------|
+| Bounded contexts | `project` |
+| Packages / layers | `UpdateProjectEndpoint` `@RolesAllowed`; service still `requireManage`; Angular routes for edit + allocation |
+| API | Add `Roles.ADMIN` alongside `PROJECT_MANAGER` on update endpoint annotations; business rule stays owner-or-admin via `requireManage` |
+| Frontend | Align edit/allocation `canActivate` with hub `canManage` (admin or owner PM) |
+| Tests | Admin-without-PM update succeeds; non-owner PM 403; Angular guard specs |
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| AQ4 | Annotation-only ADMIN vs service-only? | answered | **Both** — annotation allows ADMIN JWT into method; `requireManage` still enforces owner-or-admin |
+| AQ5 | How to express manage on SPA routes? | answered | Mirror hub: admin **or** (project-manager **and** owner) |
+
 ## Changelog
+
+### Catalog compliance — admin update + manage guards — 2026-07-11
+
+**Version:** 3  
+**Status:** tasks-ready
+
+**Description:** Fix admin-without-PM project update 403; align edit/allocation SPA reachability with backend `requireManage`. Source: [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md).
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| Project allocation | Same manage rule / guard |
+| Project hub | **Editar** already shown for admin — API will match |
+| Feature catalog | Clear interim “API today PM-only” note when done |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | `UpdateProjectEndpoint` allows ADMIN role into handler | FQ4, AQ4 | ☐ |
+| FC2 | Admin-without-PM can update when `requireManage` passes | FQ4 | ☐ |
+| FC3 | Non-owner PM still cannot update (403) | Regression | ☐ |
+| FC4 | Edit/allocation routes do not invite non-manage users into guaranteed-403 UX | FQ5, AQ5 | ☐ |
+| FC5 | Endpoint + Angular tests | Tests | ☐ |
+| FC6 | `feature-catalog.md` Edit project Steps updated | Docs | ☐ |
+
+#### Tasks
+
+| ID | Deliverable | Done |
+|----|-------------|------|
+| T1 | Add `ADMIN` to `@RolesAllowed` on `UpdateProjectEndpoint` (and siblings if needed) | ☑ |
+| T2 | `UpdateProjectEndpointTest` — `tech_lead`-style admin-without-PM can update; non-owner PM cannot | ☐ |
+| T3 | Align Angular edit + allocation `canActivate` / load with `requireManage` semantics | ☐ |
+| T4 | Angular specs for guard/redirect behaviour | ☐ |
+| T5 | Docs: feature-catalog Edit project + allocation notes | ☐ |
+
+#### Test coverage
+
+| ID | Test | Covers | Done |
+|----|------|--------|------|
+| TC1 | Admin without PROJECT_MANAGER role → update 201 when manage | T1, T2 | ☐ |
+| TC2 | Non-owner PM → update 403 | T2 | ☐ |
+| TC3 | Non-manage user blocked from edit/allocation route or CTA | T3, T4 | ☐ |
+
+**Development approval:** — (awaiting explicit task IDs)
 
 ### Initial implementation — baseline
 

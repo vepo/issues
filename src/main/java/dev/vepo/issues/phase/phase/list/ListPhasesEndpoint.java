@@ -18,7 +18,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(PhasePaths.BASE)
 @ApplicationScoped
@@ -38,7 +40,8 @@ public class ListPhasesEndpoint {
     @GET
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "listPhases", summary = "List project phases")
-    public List<PhaseResponse> list(@PathParam("projectId") long projectId) {
-        return phaseService.listByProject(projectId);
+    public List<PhaseResponse> list(@PathParam("projectId") long projectId,
+                                    @Context SecurityContext securityContext) {
+        return phaseService.listByProject(projectId, securityContext.getUserPrincipal().getName());
     }
 }

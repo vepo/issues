@@ -13,6 +13,7 @@ Read these before changing code or tests:
 | [feature/](feature/) | Feature analysis, tasks, approval, and changelog per capability |
 | [.cursor/rules/](.cursor/rules/) | Four pillars + file-scoped detail |
 | [.cursor/agents/](.cursor/agents/) | Project subagents (specialized behaviour) |
+| [.cursor/skills/issues-agent/](.cursor/skills/issues-agent/) | Backup skill: use Issues via MCP / API tokens |
 
 **Not in production yet**: This project is not in production yet. There is no need to keep legacy or update any production environment. Schema changes: amend `V1.0.0__Database_Creation.sql` only — see [issues-flyway.mdc](.cursor/rules/issues-flyway.mdc).
 
@@ -68,6 +69,8 @@ No content is duplicated across pillars — each hub links to file-scoped rules 
 | [domain-model](.cursor/agents/domain-model.md) | Before coding — domain-spec and vocabulary |
 | [api-compliance](.cursor/agents/api-compliance.md) | Before merge — REST contract and ArchUnit rules |
 | [docs-sync](.cursor/agents/docs-sync.md) | After API/behaviour change — architecture and feature catalog |
+| [product-owner](.cursor/agents/product-owner.md) | Catalog/feature compliance gaps; backlog suggestions (no code) |
+| [security-audit](.cursor/agents/security-audit.md) | Security findings report + teach-fix tasks (no patches) |
 
 **TDD cycle (phase 5 only):** feature analysis → architecture design → task break → user approval → `tdd-red` → `tdd-green` → `tdd-refactor` per approved task.
 
@@ -92,6 +95,8 @@ Example: *"Use tdd-red to create a test for …"*
 | [fix_sonar_issues.md](.cursor/commands/fix_sonar_issues.md) | Static analysis fixes |
 | [increase_coverage.md](.cursor/commands/increase_coverage.md) | Coverage improvements |
 | [review_code_structure.md](.cursor/commands/review_code_structure.md) | Responsibilities, boundaries, duplication audit |
+| [review_feature_catalog.md](.cursor/commands/review_feature_catalog.md) | Full feature-catalog vs implementation audit |
+| [review_security.md](.cursor/commands/review_security.md) | Full-codebase security audit + remediation teaching tasks |
 
 ## Stack-specific workflow
 

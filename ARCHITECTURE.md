@@ -67,13 +67,15 @@ Feature-oriented packages (not a strict global layered tree). Each bounded conte
 ```
 dev.vepo.issues/
 ├── IssuesApplication.java     # JAX-RS @ApplicationPath("/api")
-├── auth/                      # Login, JWT, password recovery, register; CDI CredentialAuthenticator
+├── auth/                      # Login, JWT, password recovery, register; CDI CredentialAuthenticator; API tokens
 │   ├── login/ capabilities/ me/ recovery/ register/ refresh/ changepassword/ updateprofile/
+│   └── apitoken/              # Personal API tokens (create/list/revoke) + Bearer auth helpers
 ├── user/                      # User, Role; UserService; *Request/*Response
 │   ├── create/ update/ find/ search/ delete/
 ├── project/                   # ProjectService, ProjectPaths
 │   ├── list/ create/ update/ find/ workflow/ status/
 │   ├── customfield/           # Nested project custom-field CRUD + in-scope list
+│   ├── serviceaccount/        # Project service accounts + tokens
 │   └── tickets/list/          # ListProjectTicketsEndpoint
 ├── workflow/                  # WorkflowService
 │   ├── list/ create/
@@ -91,7 +93,10 @@ dev.vepo.issues/
 │   ├── search/saved/          # SavedQuery CRUD + clone
 │   ├── comments/list/ comments/add/
 │   ├── history/               # TicketHistoryService + GetTicketHistoryEndpoint
+│   ├── context/               # Composite ticket context for agents
 │   └── subscribe/             # Subscribe / Unsubscribe endpoints
+├── agent/                     # Agent setup-config (public URL snippet)
+│   └── setup/
 ├── home/                      # HomeService — current/assigned tickets, activity, saved-query sections
 │   ├── tickets/current/ tickets/assigned/
 │   ├── activity/
@@ -105,6 +110,7 @@ dev.vepo.issues/
 └── infra/                     # Exception mappers, SPA routing, dev DB setup
 ```
 
+Sibling (not in reactor yet): `issues-mcp/` — Quarkus MCP HTTP server calling Issues `/api` with forwarded Bearer.
 Frontend: `src/main/webui/src/app/` — `components/`, `services/` (thin facades), `generated/` (OpenAPI codegen, gitignored), `resolvers/`.
 
 Bounded contexts and dependency rules: [docs/domain-specification.md](docs/domain-specification.md) §Bounded contexts.
@@ -134,6 +140,9 @@ Domain services orchestrate repositories, enforce invariants, and fire CDI event
 | `NotificationService` | Mark-as-read persistence |
 | `CategoryService` | Category CRUD with delete guard |
 | `MailerService` | Email on ticket changes and password reset |
+| `ApiTokenService` | Personal API token create/list/revoke (hash-only storage) |
+| `ServiceAccountService` | Project service accounts and tokens |
+| `TicketContextService` | Composite ticket context for agents |
 
 ### Endpoint layer
 
@@ -173,6 +182,8 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Auth | `auth.me.MeEndpoint` | `GET /auth/me` |
 | Auth | `auth.recovery.ResetPasswordEndpoint` | `POST /auth/recovery` |
 | Auth | `auth.recovery.ConfirmPasswordResetEndpoint` | `POST /auth/recovery/confirm` |
+| Personal API tokens | `auth.apitoken.*` | `/account/api-tokens` |
+| Agent setup | `agent.setup.GetAgentSetupConfigEndpoint` | `GET /agent/setup-config` |
 | Users | `user.create.CreateUserEndpoint` | `POST /users` |
 | Users | `user.update.UpdateUserEndpoint` | `POST /users/{id}` |
 | Users | `user.delete.DeleteUserEndpoint` | `DELETE /users/{id}` |
@@ -180,8 +191,10 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Users | `user.search.SearchUsersEndpoint` | `GET /users/search` |
 | Projects | `project.*` | `/projects` (+ workflow, status subpaths) |
 | Project custom fields | `project.customfield.*` | `/projects/{id}/custom-fields` (+ `/in-scope`) |
+| Service accounts | `project.serviceaccount.*` | `/projects/{id}/service-accounts` (+ `…/tokens`) |
 | Project tickets | `project.tickets.list.ListProjectTicketsEndpoint` | `GET /projects/{id}/tickets` |
 | Tickets | `ticket.*` | `/tickets` (+ comments, history, subscribe; `customFields` on create/update/detail) |
+| Ticket context | `ticket.context.GetTicketContextEndpoint` | `GET /tickets/{id}/context` |
 | Ticket search | `ticket.search.SearchTicketsEndpoint` | `GET /tickets/search` |
 | Query language | `ticket.search.query.SearchTicketsByQueryEndpoint` | `POST /tickets/search/query` (`cf.<key>`) |
 | Saved queries | `ticket.search.saved.*` | `/saved-queries` (CRUD, by-slug, clone) |
@@ -221,7 +234,9 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | `/search/queries` | SavedQueryList | Saved queries list |
 | `/search/queries/new`, `/search/queries/:id/edit` | SavedQueryEdit | Create/edit saved query |
 | `/search/q/:slug` | SavedQueryView | Shared saved query + results |
-| `/ticket/:ticketIdentifier` | TicketView | Ticket detail |
+| `/ticket/:ticketIdentifier` | TicketView | Ticket detail (incl. **Agente em nome de …** attribution) |
+| `/account/settings` | AccountSettings | Profile, **Conectar agente**, **Tokens de API** |
+| `/projects/:projectId/service-accounts` | ServiceAccounts | Project service accounts (PM/admin) |
 | `/users`, `/users/new`, `/users/:userId` | Users CRUD | User admin |
 | `/projects`, `/projects/new`, `/projects/:projectId` | Projects CRUD | Project admin |
 
@@ -232,7 +247,7 @@ Full index: [docs/feature-catalog.md](docs/feature-catalog.md).
 - JWT issuer: `https://issues.vepo.dev` (see `application.properties`).
 - All endpoints: class-level `@DenyAll` + method-level `@RolesAllowed`.
 - Roles: `user`, `admin`, `project-manager` (combinable on a user).
-
+- **Bearer auth:** `Authorization: Bearer` accepts session JWT **or** personal API token (`iss_pat_…`) **or** service-account token (`iss_sat_…`). API-token callers act with the principal’s powers; mutations set `via_agent` for UI attribution.
 ## 10. Database
 
 Tables use prefix `tb_`. Initial migration: `V1.0.0__Database_Creation.sql`. Dev seed: `dev-import.sql` (loaded via `DatabaseDevSetup`).
@@ -282,10 +297,11 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Notifications mark-all + unread badge | Done — [notifications.md](feature/notifications.md) v3; `GET /notifications/unread-count`; `POST /notifications/read-all`; badge `99+` |
 | Shared rich-text editor | Done — [rich-text-editor.md](feature/rich-text-editor.md) v1; Description, Text CF, project/template description; `PlainTextLength` / `@PlainTextSize` |
 | Custom fields (project/workflow defs, ticket values) | Done — [custom-fields.md](feature/custom-fields.md) v1; `customfield` package; nested `/projects|workflows/{id}/custom-fields`; ticket values; import by key; query `cf.<key>` |
-| Agentic Development integration (PAT + SA + separate Quarkus MCP) | Tasks-ready — [agentic-integration.md](feature/agentic-integration.md) v1; MCP separate project, multi-module path; await task approval |
+| Agentic Development integration (PAT + SA + separate Quarkus MCP) | Near-complete — [agentic-integration.md](feature/agentic-integration.md) v1 (T1–T14 docs; T15 seed/`verify` remaining). Issues: PAT/SA Bearer, `GET /tickets/{id}/context`, `GET /agent/setup-config`, `via_agent` attribution. Standalone [`issues-mcp/`](issues-mcp/) Quarkus MCP HTTP (`/mcp` :8082) forwards tools to Issues `/api`; **not in reactor** (multi-module later). Backup skill: [`.cursor/skills/issues-agent/`](.cursor/skills/issues-agent/) |
 | Ticket links, epics & subtasks | Done — [ticket-links.md](feature/ticket-links.md) v1; `TicketType`; `tb_ticket_links`; cross-project; Epic hierarchy; Angular Vínculos/Subtarefas |
 | Project ticket backlog (ranked list + reorder) | Done — [ticket-backlog.md](feature/ticket-backlog.md) v1; `backlog_rank`; `GET/POST …/backlog`; Angular infinite scroll + drag |
 | Burndown (story points, Kanban-peer page) | Done — [burndown.md](feature/burndown.md) v1; `story_points`/`canceled_at`; `GET …/burndown`; Angular `/project/:id/burndown` |
+| Project dashboard (Painel) hardening | Tasks-ready — [project-dashboard.md](feature/project-dashboard.md) v3; dual `DashboardType` parse; `requireView`; UX FQ5–8; await approval T1–T9 |
 | Git integration (repo association + linked commits) | Tasks-ready — [git-integration.md](feature/git-integration.md) v1; `git` package; webhook + inbound API; await task approval T1–T10 |
 | CSV import chunked upload | Tasks-ready — [ticket-import.md](feature/ticket-import.md) v2; init/part/complete; 5 MB / 1 MB / 500 rows; await approval T1–T7 |
 

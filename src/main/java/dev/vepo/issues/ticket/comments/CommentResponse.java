@@ -5,11 +5,13 @@ import dev.vepo.issues.ticket.TicketUserResponse;
 public record CommentResponse(long id,
                               TicketUserResponse author,
                               String content,
-                              long createdAt) {
+                              long createdAt,
+                              boolean viaAgent) {
     public static CommentResponse load(Comment comment) {
         return new CommentResponse(comment.getId(),
                                    TicketUserResponse.load(comment.getAuthor()),
                                    comment.getContent(),
-                                   comment.getCreatedAt().toEpochMilli());
+                                   comment.getCreatedAt().toEpochMilli(),
+                                   comment.isViaAgent());
     }
 }

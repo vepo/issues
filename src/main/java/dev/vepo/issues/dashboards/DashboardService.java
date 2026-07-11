@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.vepo.issues.project.Project;
+import dev.vepo.issues.project.ProjectAccessService;
 import dev.vepo.issues.project.ProjectRepository;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
@@ -33,6 +34,7 @@ public class DashboardService {
 
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+    private final ProjectAccessService projectAccessService;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final DashboardLayoutRepository layoutRepository;
@@ -40,11 +42,13 @@ public class DashboardService {
     private final ObjectMapper objectMapper;
 
     @Inject
-    public DashboardService(ProjectRepository projectRepository,
+    public DashboardService(ProjectAccessService projectAccessService,
+                            ProjectRepository projectRepository,
                             UserRepository userRepository,
                             DashboardLayoutRepository layoutRepository,
                             DashboardRepository dashboardRepository,
                             ObjectMapper objectMapper) {
+        this.projectAccessService = projectAccessService;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.layoutRepository = layoutRepository;
@@ -53,6 +57,7 @@ public class DashboardService {
     }
 
     public DashboardLayoutResponse getLayout(long projectId, String username) {
+        projectAccessService.requireView(projectId, username);
         requireProject(projectId);
         var user = requireUser(username);
         return layoutRepository.findByUserIdAndProjectId(user.getId(), projectId)
@@ -62,6 +67,7 @@ public class DashboardService {
 
     @Transactional
     public DashboardLayoutResponse saveLayout(long projectId, String username, SaveDashboardLayoutRequest request) {
+        projectAccessService.requireView(projectId, username);
         var project = requireProject(projectId);
         var user = requireUser(username);
         validateWidgetIds(request.widgetIds());
@@ -74,7 +80,8 @@ public class DashboardService {
         return new DashboardLayoutResponse(List.copyOf(request.widgetIds()));
     }
 
-    public PieChartDataResponse loadPieData(long projectId, DashboardType type) {
+    public PieChartDataResponse loadPieData(long projectId, DashboardType type, String username) {
+        projectAccessService.requireView(projectId, username);
         requireProject(projectId);
         return switch (type) {
             case TICKETS_BY_PRIORITY -> pieFromTuples(projectId, dashboardRepository.countTicketsByPriority(projectId));
@@ -84,7 +91,8 @@ public class DashboardService {
         };
     }
 
-    public TableDataResponse loadTableData(long projectId, DashboardType type) {
+    public TableDataResponse loadTableData(long projectId, DashboardType type, String username) {
+        projectAccessService.requireView(projectId, username);
         requireProject(projectId);
         return switch (type) {
             case RECENT_TICKETS -> recentTickets(projectId);
@@ -92,7 +100,8 @@ public class DashboardService {
         };
     }
 
-    public KpiDataResponse loadKpiData(long projectId, DashboardType type) {
+    public KpiDataResponse loadKpiData(long projectId, DashboardType type, String username) {
+        projectAccessService.requireView(projectId, username);
         requireProject(projectId);
         return switch (type) {
             case PERFORMANCE_KPI -> performanceKpi(projectId);

@@ -86,4 +86,121 @@
       </form>
     }
   </section>
+
+  <section class="page-panel">
+    <h2 class="section-title" i18n>Conectar agente</h2>
+    <p class="page-subtitle" i18n>
+      Gere um token e uma configuração pronta para colar no Cursor MCP.
+    </p>
+    <div class="edit dialog-form">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>Preset</mat-label>
+        <mat-select [(value)]="agentPreset">
+          <mat-option value="cursor">Cursor</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="form-actions">
+        <button
+          class="btn"
+          matButton="filled"
+          type="button"
+          [disabled]="isGeneratingAgentConfig"
+          (click)="generateAgentConfig()">
+          <mat-icon fontIcon="smart_toy" aria-hidden="true"></mat-icon>
+          <span i18n>{{ isGeneratingAgentConfig ? 'Gerando...' : 'Gerar token e configuração' }}</span>
+        </button>
+      </div>
+      @if (agentConfigMessage) {
+        <p class="success-message" role="status">{{ agentConfigMessage }}</p>
+      }
+      @if (agentConfigError) {
+        <p class="error" role="alert">{{ agentConfigError }}</p>
+      }
+      @if (agentSnippet) {
+        <label class="section-title" for="agent-snippet" i18n>Configuração MCP</label>
+        <pre id="agent-snippet" class="query-preview" tabindex="0">{{ agentSnippet }}</pre>
+        <div class="form-actions">
+          <button class="btn btn-secondary" matButton="outlined" type="button" (click)="copyText(agentSnippet!)">
+            <mat-icon fontIcon="content_copy" aria-hidden="true"></mat-icon>
+            <span i18n>Copiar configuração</span>
+          </button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="page-panel">
+    <h2 class="section-title" i18n>Tokens de API</h2>
+    <p class="page-subtitle" i18n>
+      Tokens pessoais para agentes e integrações. O segredo só é exibido uma vez após a criação.
+    </p>
+
+    @if (createdTokenSecret) {
+      <div class="page-panel" role="status">
+        <p class="success-message" i18n>Copie o token agora — ele não será mostrado novamente.</p>
+        <pre class="query-preview" tabindex="0">{{ createdTokenSecret }}</pre>
+        <div class="form-actions">
+          <button class="btn" matButton="filled" type="button" (click)="copyText(createdTokenSecret!)">
+            <mat-icon fontIcon="content_copy" aria-hidden="true"></mat-icon>
+            <span i18n>Copiar token</span>
+          </button>
+          <button class="btn btn-secondary" matButton="outlined" type="button" (click)="dismissSecret()">
+            <span i18n>Ocultar</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    <form class="edit dialog-form" [formGroup]="tokenForm" (ngSubmit)="createApiToken()">
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label i18n>Nome do token</mat-label>
+        <input matInput formControlName="name" required autocomplete="off" />
+      </mat-form-field>
+      <div class="form-actions">
+        <button class="btn" matButton="filled" type="submit" [disabled]="tokenForm.invalid || isCreatingToken">
+          <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
+          <span i18n>{{ isCreatingToken ? 'Criando...' : 'Criar token' }}</span>
+        </button>
+      </div>
+    </form>
+
+    @if (tokensError) {
+      <p class="error" role="alert">{{ tokensError }}</p>
+    }
+
+    <div class="page-panel page-panel--flush">
+      @if (tokensLoading) {
+        <div class="loading" i18n>Carregando tokens...</div>
+      } @else {
+        <div class="data-table data-table--layout-table">
+          <div class="header">
+            <div class="header-cell left-aligned" i18n>Nome</div>
+            <div class="header-cell left-aligned" i18n>Prefixo</div>
+            <div class="header-cell left-aligned" i18n>Criado em</div>
+            <div class="header-cell left-aligned" i18n>Último uso</div>
+            <div class="header-cell header-cell--actions" i18n>Ações</div>
+          </div>
+          <div class="body">
+            @for (token of activeTokens(); track token.id) {
+              <div class="row {{ $even ? 'even' : 'odd' }}">
+                <div class="left-aligned">{{ token.name }}</div>
+                <div class="left-aligned">{{ token.tokenPrefix }}</div>
+                <div class="left-aligned">{{ token.createdAt | date: 'medium' }}</div>
+                <div class="left-aligned">{{ token.lastUsedAt ? (token.lastUsedAt | date: 'medium') : '—' }}</div>
+                <div class="cell-actions">
+                  <button class="btn btn-cancel" matButton="outlined" type="button" (click)="revokeApiToken(token)">
+                    <mat-icon fontIcon="block" aria-hidden="true"></mat-icon>
+                    <span i18n>Revogar</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+          @if (activeTokens().length === 0) {
+            <div class="data-table--empty" i18n>Nenhum token ativo.</div>
+          }
+        </div>
+      }
+    </div>
+  </section>
 </div>

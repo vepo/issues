@@ -11,9 +11,11 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dev.vepo.issues.auth.apitoken.ApiTokenIdentityProvider;
 import dev.vepo.issues.categories.CategoryRepository;
 import dev.vepo.issues.customfield.CustomFieldService;
 import dev.vepo.issues.customfield.CustomFieldValueResponse;
+import dev.vepo.issues.infra.HtmlSanitizer;
 import dev.vepo.issues.notifications.NotificationEvent;
 import dev.vepo.issues.phase.Phase;
 import dev.vepo.issues.phase.PhaseService;
@@ -35,6 +37,7 @@ import dev.vepo.issues.user.UserRepository;
 import dev.vepo.issues.workflow.FinishOutcome;
 import dev.vepo.issues.workflow.WorkflowRepository;
 import dev.vepo.issues.workflow.WorkflowStatus;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
@@ -63,6 +66,8 @@ public class TicketService {
     private final Event<NotificationEvent> notificationEmitter;
     private final Provider<TicketLinkService> ticketLinkService;
     private final BacklogService backlogService;
+    private final SecurityIdentity securityIdentity;
+    private final HtmlSanitizer htmlSanitizer;
 
     @Inject
     public TicketService(TicketRepository repository,
@@ -78,7 +83,9 @@ public class TicketService {
                          CustomFieldService customFieldService,
                          Event<NotificationEvent> notificationEmitter,
                          Provider<TicketLinkService> ticketLinkService,
-                         BacklogService backlogService) {
+                         BacklogService backlogService,
+                         SecurityIdentity securityIdentity,
+                         HtmlSanitizer htmlSanitizer) {
         this.repository = repository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
@@ -93,6 +100,8 @@ public class TicketService {
         this.notificationEmitter = notificationEmitter;
         this.ticketLinkService = ticketLinkService;
         this.backlogService = backlogService;
+        this.securityIdentity = securityIdentity;
+        this.htmlSanitizer = htmlSanitizer;
     }
 
     @Transactional
@@ -163,7 +172,7 @@ public class TicketService {
         customFieldService.validateStatusRequiredForCreate(project.getId(), workflowId, startStatus.getId(), customValues);
         var ticket = new Ticket("%s-%03d".formatted(project.getPrefix(), projectTickets + 1),
                                 request.title(),
-                                request.description(),
+                                htmlSanitizer.sanitize(request.description()),
                                 categoryRepository.findById(request.categoryId())
                                                   .orElseThrow(() -> categoryNotFound(request.categoryId())),
                                 author,
@@ -198,8 +207,9 @@ public class TicketService {
         if (!entity.getTitle().equals(request.title())) {
             historyService.logFieldChanged(entity, user, "title", entity.getTitle(), request.title());
         }
-        if (!entity.getDescription().equals(request.description())) {
-            historyService.logFieldChanged(entity, user, "description", entity.getDescription(), request.description());
+        var sanitizedDescription = htmlSanitizer.sanitize(request.description());
+        if (!entity.getDescription().equals(sanitizedDescription)) {
+            historyService.logFieldChanged(entity, user, "description", entity.getDescription(), sanitizedDescription);
         }
         var newCategory = categoryRepository.findById(request.categoryId())
                                             .orElseThrow(() -> categoryNotFound(request.categoryId()));
@@ -255,7 +265,7 @@ public class TicketService {
         }
 
         entity.setTitle(request.title());
-        entity.setDescription(request.description());
+        entity.setDescription(sanitizedDescription);
         entity.setCategory(newCategory);
         entity.setPriority(request.priority());
         if (Objects.nonNull(request.ticketType())) {
@@ -333,8 +343,9 @@ public class TicketService {
     public CommentResponse addComment(long id, CommentRequest request, String username) {
         var ticket = requireTicket(id);
         var user = requireUserByUsername(username);
-        var comment = repository.saveComment(new Comment(ticket, user, request.content()));
-        return CommentResponse.load(comment);
+        var comment = new Comment(ticket, user, htmlSanitizer.sanitize(request.content()));
+        comment.setViaAgent(Boolean.TRUE.equals(securityIdentity.getAttribute(ApiTokenIdentityProvider.VIA_AGENT_ATTRIBUTE)));
+        return CommentResponse.load(repository.saveComment(comment));
     }
 
     @Transactional

@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import dev.vepo.issues.project.Project;
+import dev.vepo.issues.project.ProjectAccessService;
 import dev.vepo.issues.project.ProjectPhaseDeliverableTemplate;
 import dev.vepo.issues.project.ProjectRepository;
 import dev.vepo.issues.ticket.Ticket;
@@ -27,6 +28,7 @@ public class PhaseService {
 
     private final PhaseRepository phaseRepository;
     private final ProjectRepository projectRepository;
+    private final ProjectAccessService projectAccessService;
     private final VersionService versionService;
     private final TicketRepository ticketRepository;
     private final WorkflowRepository workflowRepository;
@@ -36,6 +38,7 @@ public class PhaseService {
     @Inject
     public PhaseService(PhaseRepository phaseRepository,
                         ProjectRepository projectRepository,
+                        ProjectAccessService projectAccessService,
                         VersionService versionService,
                         TicketRepository ticketRepository,
                         WorkflowRepository workflowRepository,
@@ -43,6 +46,7 @@ public class PhaseService {
                         UserRepository userRepository) {
         this.phaseRepository = phaseRepository;
         this.projectRepository = projectRepository;
+        this.projectAccessService = projectAccessService;
         this.versionService = versionService;
         this.ticketRepository = ticketRepository;
         this.workflowRepository = workflowRepository;
@@ -50,18 +54,21 @@ public class PhaseService {
         this.userRepository = userRepository;
     }
 
-    public List<PhaseResponse> listByProject(long projectId) {
+    public List<PhaseResponse> listByProject(long projectId, String username) {
+        projectAccessService.requireView(projectId, username);
         requireProject(projectId);
         return phaseRepository.findByProjectId(projectId)
                               .map(PhaseResponse::load)
                               .toList();
     }
 
-    public PhaseResponse findById(long projectId, long phaseId) {
+    public PhaseResponse findById(long projectId, long phaseId, String username) {
+        projectAccessService.requireView(projectId, username);
         return PhaseResponse.load(requirePhase(projectId, phaseId));
     }
 
-    public PhaseResponse findActive(long projectId) {
+    public PhaseResponse findActive(long projectId, String username) {
+        projectAccessService.requireView(projectId, username);
         requireProject(projectId);
         return phaseRepository.findActiveByProjectId(projectId)
                               .map(PhaseResponse::load)
@@ -69,7 +76,8 @@ public class PhaseService {
     }
 
     @Transactional
-    public PhaseResponse create(long projectId, CreatePhaseRequest request) {
+    public PhaseResponse create(long projectId, CreatePhaseRequest request, String username) {
+        projectAccessService.requireManage(projectId, username);
         var project = requireProject(projectId);
         var objective = request.objective();
         if (objective == null || objective.isBlank()) {
@@ -92,7 +100,8 @@ public class PhaseService {
     }
 
     @Transactional
-    public PhaseResponse update(long projectId, long phaseId, UpdatePhaseRequest request) {
+    public PhaseResponse update(long projectId, long phaseId, UpdatePhaseRequest request, String username) {
+        projectAccessService.requireManage(projectId, username);
         var phase = requirePhase(projectId, phaseId);
         phase.setName(request.name().trim());
         phase.setObjective(request.objective());
@@ -102,6 +111,7 @@ public class PhaseService {
 
     @Transactional
     public PhaseResponse activate(long projectId, long phaseId, String username) {
+        projectAccessService.requireManage(projectId, username);
         var phase = requirePhase(projectId, phaseId);
         if (phase.getStatus() != PhaseStatus.PLANNED) {
             throw new BadRequestException("Only planned phases can be activated! phaseId=%d status=%s".formatted(phaseId, phase.getStatus()));
@@ -116,6 +126,7 @@ public class PhaseService {
 
     @Transactional
     public PhaseResponse complete(long projectId, long phaseId, String username) {
+        projectAccessService.requireManage(projectId, username);
         var phase = requirePhase(projectId, phaseId);
         if (phase.getStatus() != PhaseStatus.ACTIVE) {
             throw new BadRequestException("Only active phases can be completed! phaseId=%d status=%s".formatted(phaseId, phase.getStatus()));

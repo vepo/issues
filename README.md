@@ -43,9 +43,12 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 | Email | Role | Password |
 |-------|------|----------|
-| `admin@issues.vepo.dev` | admin | see `application.properties` (`password.default`) |
-| `pm@issues.vepo.dev` | project-manager | same |
-| `user@issues.vepo.dev` | user | same |
+| `cto@issues.ui` | admin, project-manager, user | see `application.properties` (`password.default`) |
+| `project_lead@issues.ui` | project-manager | same |
+| `junior_dev@issues.ui` | user | same |
+| `tech_lead@issues.ui` | admin, user (no PM) | same — useful for admin-without-PM checks |
+
+Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev personas.
 
 ## Features
 
@@ -71,6 +74,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 ### Projects & administration
 
 - **Projects** — name, prefix (immutable once tickets exist), description, assigned workflow, **project owner** (PM role), **project members**, optional **ticket template** (built-in defaults plus in-scope **custom field** defaults), and **project custom field** definitions
+- **Service accounts** — project-scoped machine identities and tokens for agents/CI (`/projects/:id/service-accounts`); member-aligned powers on that project
 - **Project allocation** — dedicated page to add/remove members; removal blocked while member has open assigned tickets
 - **Project hub** — member landing page with links to Kanban, Burndown, Backlog, and dashboard (replaces project grid on home)
 - **Header Projetos** — labeled menu for all authenticated users listing viewable projects; each item opens that project’s Kanban; PM/admin also **Gerenciar projetos**
@@ -89,7 +93,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 - **Project dashboard** — charts (tickets by day, status, priority), recent tickets (top 20), performance KPIs; widget layout saved per user on the server
 - **Global search** — simple term search and **query language** (ANTLR, plain text) across ticket fields, comments, and custom fields (`cf.<key>`)
 - **Saved queries** — name, share by link, optional home sections, clone for non-owners
-- **Ticket detail** — expanded view with unified **Atividade** feed (comments + history), assignee, and status actions
+- **Ticket detail** — expanded view with unified **Atividade** feed (comments + history), assignee, and status actions; agent mutations show **Agente em nome de …**
 
 ### Notifications & email
 
@@ -102,7 +106,9 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 - **Login** — short-lived JWT access token plus refresh token (`POST /auth/refresh`); credentials verified by the active provider (`AUTH_PROVIDER`: `local`, `ldap`, or `endpoint`)
 - **Password recovery** — email link with token; LOCAL provider only (hidden when capabilities say otherwise)
 - **Account** — edit name and email at `/account/settings`; change password only when LOCAL
-
+- **Personal API tokens** — create/list/revoke at account settings (**Tokens de API**); Bearer `iss_pat_…` for scripts and agents; secret shown once
+- **Agent setup** — **Conectar agente** generates a token and copy-ready MCP config (`issues.public-base-url` / `issues.mcp-public-base-url`)
+- **Issues MCP** — separate Quarkus MCP HTTP app ([`issues-mcp/`](issues-mcp/)) forwarding tools to Issues `/api` (not in the main reactor yet)
 | Env / property | Purpose |
 |----------------|---------|
 | `AUTH_PROVIDER` / `auth.provider` | `local` (default), `ldap`, or `endpoint` |
@@ -110,6 +116,8 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 | `AUTH_ENDPOINT_URL` / `auth.endpoint.url` | External credential POST URL |
 
 Production JWT signing key rotation: configure `mp.jwt.verify.publickey.location` to a JWKS resource listing current and previous public keys during rollover (see `application.properties` comments).
+
+**Development-only JWT PEMs:** bundled `privateKey.pem` / `publicKey.pem` must not be used outside `%dev`/`%test`. Shared/prod hosts must set `SMALLRYE_JWT_SIGN_KEY_LOCATION` and `MP_JWT_VERIFY_PUBLICKEY_LOCATION` (see [SECURITY.md](SECURITY.md)).
 
 ## Documentation
 
@@ -123,6 +131,7 @@ Production JWT signing key rotation: configure `mp.jwt.verify.publickey.location
 | [docs/ui-elements-gallery.md](docs/ui-elements-gallery.md) | UI element catalog |
 | [docs/conventions-checklist.md](docs/conventions-checklist.md) | Doc debt and agent setup status |
 | [.cursor/rules/](.cursor/rules/) | Cursor project rules |
+| [.cursor/skills/issues-agent/](.cursor/skills/issues-agent/) | Use Issues via MCP / API tokens |
 
 ## Vídeos
 

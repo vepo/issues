@@ -19,7 +19,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(PhasePaths.BASE)
 @ApplicationScoped
@@ -43,7 +45,8 @@ public class UpdatePhaseEndpoint {
     @Operation(operationId = "updatePhase", summary = "Update a project phase")
     public PhaseResponse update(@PathParam("projectId") long projectId,
                                 @PathParam("phaseId") long phaseId,
-                                @Valid UpdatePhaseRequest request) {
-        return phaseService.update(projectId, phaseId, request);
+                                @Valid UpdatePhaseRequest request,
+                                @Context SecurityContext securityContext) {
+        return phaseService.update(projectId, phaseId, request, securityContext.getUserPrincipal().getName());
     }
 }

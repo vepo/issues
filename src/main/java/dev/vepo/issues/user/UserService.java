@@ -1,6 +1,7 @@
 package dev.vepo.issues.user;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -16,11 +17,11 @@ import jakarta.ws.rs.NotFoundException;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final String passwordDefault;
+    private final Optional<String> passwordDefault;
 
     @Inject
     public UserService(UserRepository userRepository,
-                       @ConfigProperty(name = "password.default") String passwordDefault) {
+                       @ConfigProperty(name = "password.default") Optional<String> passwordDefault) {
         this.userRepository = userRepository;
         this.passwordDefault = passwordDefault;
     }
@@ -33,10 +34,12 @@ public class UserService {
 
     @Transactional
     public UserResponse create(CreateUserRequest request) {
+        var encodedPassword = passwordDefault.orElseThrow(() -> new BadRequestException(
+                                                                                        "password.default is not configured; set it for this profile or provision passwords another way"));
         return UserResponse.load(userRepository.save(new User(request.username(),
                                                               request.name(),
                                                               request.email(),
-                                                              passwordDefault,
+                                                              encodedPassword,
                                                               parseRoles(request.roles()),
                                                               AuthProvider.LOCAL)));
     }

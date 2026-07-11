@@ -7,6 +7,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dev.vepo.issues.auth.apitoken.ApiTokenHasher;
 import dev.vepo.issues.mailer.MailerService;
 import dev.vepo.issues.user.PasswordResetToken;
 import dev.vepo.issues.user.PasswordResetTokenRepository;
@@ -33,6 +34,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ApiTokenHasher tokenHasher;
     private final JwtTokenIssuer jwtTokenIssuer;
     private final MailerService mailerService;
     private final Instance<CredentialAuthenticator> authenticators;
@@ -44,6 +46,7 @@ public class AuthenticationService {
                                  UserRepository userRepository,
                                  PasswordResetTokenRepository passwordResetTokenRepository,
                                  RefreshTokenRepository refreshTokenRepository,
+                                 ApiTokenHasher tokenHasher,
                                  JwtTokenIssuer jwtTokenIssuer,
                                  MailerService mailerService,
                                  Instance<CredentialAuthenticator> authenticators,
@@ -53,6 +56,7 @@ public class AuthenticationService {
         this.userRepository = userRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.tokenHasher = tokenHasher;
         this.jwtTokenIssuer = jwtTokenIssuer;
         this.mailerService = mailerService;
         this.authenticators = authenticators;
@@ -135,7 +139,8 @@ public class AuthenticationService {
         userRepository.findByEmailOrUsername(request.credential())
                       .ifPresentOrElse(user -> {
                           passwordResetTokenRepository.invalidateAllUserTokens(user.getId());
-                          var resetToken = new PasswordResetToken(user);
+                          var rawToken = PasswordResetToken.generateRawToken();
+                          var resetToken = new PasswordResetToken(user, tokenHasher.hash(rawToken), rawToken);
                           passwordResetTokenRepository.save(resetToken);
                           mailerService.sendResetPassword(user, resetToken);
                       },
@@ -156,7 +161,7 @@ public class AuthenticationService {
         if (!refreshToken.isValid()) {
             throw AuthFailures.invalidRefreshToken();
         }
-        refreshTokenRepository.revokeToken(refreshToken.getToken());
+        refreshTokenRepository.revokeTokenHash(refreshToken.getToken());
         return issueTokens(refreshToken.getUser());
     }
 
@@ -257,9 +262,13 @@ public class AuthenticationService {
     }
 
     private LoginResponse issueTokens(User user) {
-        var refreshToken = refreshTokenRepository.save(new RefreshToken(user, refreshTokenDays));
+        var rawRefresh = RefreshToken.generateRawToken();
+        refreshTokenRepository.save(new RefreshToken(user,
+                                                     refreshTokenDays,
+                                                     tokenHasher.hash(rawRefresh),
+                                                     rawRefresh));
         return new LoginResponse(jwtTokenIssuer.issueAccessToken(user),
-                                 refreshToken.getToken(),
+                                 rawRefresh,
                                  jwtTokenIssuer.accessTokenExpiresInSeconds());
     }
 }

@@ -15,7 +15,9 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 @Path(TicketPaths.BASE)
 @ApplicationScoped
@@ -35,7 +37,8 @@ public class PreviewGlobalTicketImportEndpoint {
     @Path("/import/{importId}/preview")
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "previewGlobalTicketImport", summary = "Preview and validate global ticket CSV import")
-    public PreviewTicketImportResponse preview(@PathParam("importId") long importId) {
-        return ticketImportService.preview(null, importId);
+    public PreviewTicketImportResponse preview(@PathParam("importId") long importId,
+                                               @Context SecurityContext securityContext) {
+        return ticketImportService.preview(null, importId, securityContext.getUserPrincipal().getName());
     }
 }

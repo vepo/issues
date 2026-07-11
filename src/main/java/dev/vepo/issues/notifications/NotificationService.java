@@ -28,8 +28,9 @@ public class NotificationService {
     }
 
     @Transactional
-    public UserNotificationEvent markAsRead(long notificationId, UpdateNotificationStatusReadRequest request) {
-        var notification = notificationRepository.findById(notificationId)
+    public UserNotificationEvent markAsRead(long notificationId, UpdateNotificationStatusReadRequest request,
+                                            String username) {
+        var notification = notificationRepository.findByIdAndUsername(notificationId, username)
                                                  .orElseThrow(NotFoundException::new);
         notification.setRead(request.read());
         return UserNotificationEvent.load(notificationRepository.save(notification));

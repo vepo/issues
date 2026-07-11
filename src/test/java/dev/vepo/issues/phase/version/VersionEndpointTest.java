@@ -8,6 +8,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -358,5 +360,34 @@ class VersionEndpointTest {
                .statusCode(200)
                .body("targetVersionId", nullValue())
                .body("targetVersionLabel", nullValue());
+    }
+
+    @Test
+    @DisplayName("Should reject version list for non-member")
+    void shouldForbidNonMemberOnForeignProjectVersionList() {
+        var foreignProject = given().header(pmHeader)
+                                    .contentType(ContentType.JSON)
+                                    .body("""
+                                          {
+                                              "name": "Foreign Version %s",
+                                              "description": "No membership for user",
+                                              "prefix": "VR%s",
+                                              "workflowId": %d
+                                          }
+                                          """.formatted(UUID.randomUUID(),
+                                                        UUID.randomUUID().toString().substring(0, 4).toUpperCase(),
+                                                        Given.simpleWorkflow().id()))
+                                    .post("/api/projects")
+                                    .then()
+                                    .statusCode(201)
+                                    .extract()
+                                    .as(ProjectResponse.class);
+
+        given().header(userHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/%d/versions".formatted(foreignProject.id()))
+               .then()
+               .statusCode(403);
     }
 }

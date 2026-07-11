@@ -1,7 +1,7 @@
 # Agentic Development integration
 
 **Feature version:** 1  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** 2026-07-11
 
 ## Summary
@@ -217,9 +217,11 @@ v1 delivers:
 ### Agentic Development integration (tokens + MCP + skill) — 2026-07-11
 
 **Version:** 1  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** PAT + project service accounts, separate Quarkus MCP project (multi-module-ready), ticket-context API, guided setup with properties-based public URLs, and persisted agent attribution.
+
+**Catalog (2026-07-11):** API-only row for `GET/POST/DELETE /account/api-tokens` added to [feature-catalog.md](../docs/feature-catalog.md) from [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md). UI + remaining docs still **T10** / **T14** / **FC10**. Backlog Order 2 updated to `in-progress` (no longer “await task approval”).
 
 **Impact on other features:**
 
@@ -236,53 +238,59 @@ v1 delivers:
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | User create/list/revoke PATs; secret once | S1, FQ6 | ☐ |
-| FC2 | SA CRUD + tokens at `/projects/:id/service-accounts` | S2, FQ12 | ☐ |
-| FC3 | `/api` accepts PAT/SA Bearer; full principal powers | S3, FQ2, AQ9 | ☐ |
-| FC4 | History/comments persist `via_agent`; UI **Agente em nome de …** (user or SA name) | S4, FQ3, FQ13, AQ8 | ☐ |
-| FC5 | Conectar agente + setup-config uses public URL props | S5, S6, FQ10, FQ14 | ☐ |
-| FC6 | `GET /tickets/{id}/context` composite | S7, FQ5 | ☐ |
-| FC7 | Separate Java MCP project with tools over REST | S8, AQ7, FQ4 | ☐ |
-| FC8 | No Python MCP | FQ4 | ☐ |
-| FC9 | Wireframes matched (account + SA + attribution) | Wireframe | ☐ |
-| FC10 | domain-spec, feature-catalog, README, ARCHITECTURE multi-module note | S9 | ☐ |
-| FC11 | Webhooks not in this changelog | FQ7 | ☐ |
+| FC1 | User create/list/revoke PATs; secret once | S1, FQ6 | ☑ |
+| FC2 | SA CRUD + tokens at `/projects/:id/service-accounts` | S2, FQ12 | ☑ |
+| FC3 | `/api` accepts PAT/SA Bearer; full principal powers | S3, FQ2, AQ9 | ☑ |
+| FC4 | History/comments persist `via_agent`; UI **Agente em nome de …** (user or SA name) | S4, FQ3, FQ13, AQ8 | ☑ |
+| FC5 | Conectar agente + setup-config uses public URL props | S5, S6, FQ10, FQ14 | ☑ |
+| FC6 | `GET /tickets/{id}/context` composite | S7, FQ5 | ☑ |
+| FC7 | Separate Java MCP project with tools over REST | S8, AQ7, FQ4 | ☑ |
+| FC8 | No Python MCP | FQ4 | ☑ |
+| FC9 | Wireframes matched (account + SA + attribution) | Wireframe | ☑ |
+| FC10 | domain-spec, feature-catalog, README, ARCHITECTURE multi-module note | S9 | ☑ |
+| FC11 | Webhooks not in this changelog | FQ7 | ☑ |
 
 #### Tasks (phase 3)
 
 | ID | Task | Done |
 |----|------|------|
-| T1 | Flyway baseline: `tb_api_tokens`, `tb_service_accounts`, `tb_service_account_tokens`, `via_agent` columns | ☐ |
-| T2 | Domain entities + repositories for PAT and SA (+ tokens) | ☐ |
-| T3 | `ApiTokenService` / `ServiceAccountService` (hash, create, revoke, last-used) | ☐ |
-| T4 | Unified Bearer auth (JWT \| `iss_pat_` \| `iss_sat_`) + tests | ☐ |
-| T5 | PAT endpoints `auth.apitoken.*` + endpoint tests | ☐ |
-| T6 | SA endpoints `project.serviceaccount.*` + endpoint tests (member-aligned authz) | ☐ |
-| T7 | Set `via_agent` on history/comment writes; expose in responses; Angular labels | ☐ |
-| T8 | `GetTicketContextEndpoint` + tests | ☐ |
-| T9 | Public URL props + `GetAgentSetupConfigEndpoint` (presets) + tests | ☐ |
-| T10 | Angular `/account/settings` — Conectar agente + PAT list/create/revoke | ☐ |
-| T11 | Angular `/projects/:projectId/service-accounts` page + nav entry | ☐ |
-| T12 | Create separate `issues-mcp` Quarkus project (HTTP MCP tools → Issues REST) | ☐ |
-| T13 | Wire MCP config into setup-config snippet; local/dev run docs | ☐ |
-| T14 | Docs: domain-spec, feature-catalog, README, ARCHITECTURE (multi-module path), backup skill | ☐ |
-| T15 | Dev seed sample PAT/SA (optional) + `mvn verify` / MCP module build | ☐ |
+| T1 | Flyway baseline: `tb_api_tokens`, `tb_service_accounts`, `tb_service_account_tokens`, `via_agent` columns | ☑ |
+| T2 | Domain entities + repositories for PAT and SA (+ tokens) | ☑ |
+| T3 | `ApiTokenService` / `ServiceAccountService` (hash, create, revoke, last-used) | ☑ |
+| T4 | Unified Bearer auth (JWT \| `iss_pat_` \| `iss_sat_`) + tests | ☑ |
+| T5 | PAT endpoints `auth.apitoken.*` + endpoint tests | ☑ |
+| T6 | SA endpoints `project.serviceaccount.*` + endpoint tests (member-aligned authz) | ☑ |
+| T7 | Set `via_agent` on history/comment writes; expose in responses; Angular labels | ☑ |
+| T8 | `GetTicketContextEndpoint` + tests | ☑ |
+| T9 | Public URL props + `GetAgentSetupConfigEndpoint` (presets) + tests | ☑ |
+| T10 | Angular `/account/settings` — Conectar agente + PAT list/create/revoke | ☑ |
+| T11 | Angular `/projects/:projectId/service-accounts` page + nav entry | ☑ |
+| T12 | Create separate `issues-mcp` Quarkus project (HTTP MCP tools → Issues REST) | ☑ |
+| T13 | Wire MCP config into setup-config snippet; local/dev run docs | ☑ |
+| T14 | Docs: domain-spec, feature-catalog, README, ARCHITECTURE (multi-module path), backup skill | ☑ |
+| T15 | Dev seed sample PAT/SA (optional) + `mvn verify` / MCP module build | ☑ |
 
 #### Test coverage
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | PAT create/list/revoke + secret-once; auth with `iss_pat_` | T4, T5 | ☐ |
-| TC2 | SA create/token/revoke; auth with `iss_sat_`; project scope | T4, T6 | ☐ |
-| TC3 | Reject revoked/invalid tokens | T4 | ☐ |
-| TC4 | Ticket update/move/comment via token sets `via_agent`; response/UI label | T7 | ☐ |
-| TC5 | `GET /tickets/{id}/context` shape (detail + transitions + CFs) | T8 | ☐ |
-| TC6 | `GET /agent/setup-config` uses configured public URLs | T9 | ☐ |
-| TC7 | Angular account setup / PAT specs | T10 | ☐ |
-| TC8 | Angular service-accounts specs | T11 | ☐ |
-| TC9 | MCP tool smoke (get_context / comment) against API | T12, T13 | ☐ |
-| TC10 | `ArchitectureTest` / OpenAPI ids for new endpoints | T5, T6, T8, T9 | ☐ |
+| TC1 | PAT create/list/revoke + secret-once; auth with `iss_pat_` | T4, T5 | ☑ |
+| TC2 | SA create/token/revoke; auth with `iss_sat_`; project scope | T4, T6 | ☑ |
+| TC3 | Reject revoked/invalid tokens | T4 | ☑ |
+| TC4 | Ticket update/move/comment via token sets `via_agent`; response/UI label | T7 | ☑ |
+| TC5 | `GET /tickets/{id}/context` shape (detail + transitions + CFs) | T8 | ☑ |
+| TC6 | `GET /agent/setup-config` uses configured public URLs | T9 | ☑ |
+| TC7 | Angular account setup / PAT specs | T10 | ☑ |
+| TC8 | Angular service-accounts specs | T11 | ☑ |
+| TC9 | MCP tool smoke (get_context / comment) against API | T12, T13 | ☑ |
+| TC10 | `ArchitectureTest` / OpenAPI ids for new endpoints | T5, T6, T8, T9 | ☑ |
 
-**Development approval:** pending — approve task IDs to start phase 5 (e.g. “Approve T1–T15” or a subset).
+**Development approval:** approved 2026-07-11 — tasks: T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15
 
-**Implementation notes:** (fill after done)
+**Implementation notes:** T7–T11 (2026-07-11): `viaAgent` on TicketHistory/Comment + responses; PAT comment/move attribution tests; `GET /api/tickets/{id}/context`; `issues.public-base-url` / `issues.mcp-public-base-url` + `GET /api/agent/setup-config?preset=cursor`. Angular: account **Conectar agente** + PAT CRUD; `/projects/:id/service-accounts`; activity/history/comment labels **Agente em nome de …**.
+
+T12–T13 (2026-07-11): standalone [`issues-mcp/`](../issues-mcp/) Quarkus 3.37.2 + `io.quarkiverse.mcp:quarkus-mcp-server-http:1.13.1`; tools `search_tickets`, `get_ticket_context`, `update_ticket`, `move_ticket`, `add_comment`, `list_projects` forward `Authorization` to `issues.api-base-url` (default `http://localhost:8080/api`); MCP root `/mcp` on port 8082. Setup-config already emits `{mcp-public}/mcp`. README under `issues-mcp/`; ARCHITECTURE §13 multi-module note. TC9: tool-bean smoke + WireMock REST client tests.
+
+T14 (2026-07-11): domain-spec (PAT/SA/`via_agent`/MCP external), feature-catalog routes + attribution, README features, ARCHITECTURE package/API/security/§13, backup skill [`.cursor/skills/issues-agent/`](../.cursor/skills/issues-agent/) (**FQ8**). Webhooks remain separate backlog (**FC11** / **FQ7**).
+
+T15 (2026-07-11): skipped optional seed tokens (secret-once; create via UI in `%dev`). `mvn verify` green; `mvn -f issues-mcp/pom.xml verify` green; `ArchitectureTest` green.
