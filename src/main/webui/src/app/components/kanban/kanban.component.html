@@ -44,6 +44,10 @@
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
         <span i18n>Novo ticket</span>
       </a>
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'burndown']">
+        <mat-icon fontIcon="trending_down" aria-hidden="true"></mat-icon>
+        <span i18n>Burndown</span>
+      </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'tickets', 'import']">
         <mat-icon fontIcon="upload_file" aria-hidden="true"></mat-icon>
         <span i18n>Importar CSV</span>

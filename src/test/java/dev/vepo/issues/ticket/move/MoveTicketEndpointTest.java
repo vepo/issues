@@ -217,7 +217,8 @@ class MoveTicketEndpointTest {
                .post("/api/tickets/" + ticket.id() + "/move")
                .then()
                .statusCode(200)
-               .body("finishedAt", nullValue());
+               .body("finishedAt", nullValue())
+               .body("canceledAt", notNullValue());
     }
 
     @Test

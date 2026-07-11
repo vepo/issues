@@ -114,6 +114,7 @@ export class TicketViewComponent implements OnInit {
     priority: ['MEDIUM', Validators.required],
     ticketType: ['TASK' as TicketType, Validators.required],
     dueDate: [null as string | null],
+    storyPoints: [null as number | null, Validators.min(0)],
     observedVersionId: [null as number | null],
     targetVersionId: [null as number | null],
     phaseId: [null as number | null]
@@ -226,6 +227,7 @@ export class TicketViewComponent implements OnInit {
       priority: this.ticket.priority ?? 'MEDIUM',
       ticketType: (this.ticket.ticketType as TicketType) ?? 'TASK',
       dueDate: this.ticket.dueDate ?? null,
+      storyPoints: this.ticket.storyPoints ?? null,
       observedVersionId: this.ticket.observedVersionId ?? null,
       targetVersionId: this.ticket.targetVersionId ?? null,
       phaseId: this.ticket.phaseId ?? null
@@ -459,6 +461,7 @@ export class TicketViewComponent implements OnInit {
       priority: value.priority as UpdateTicketRequest['priority'],
       ticketType: value.ticketType as TicketType,
       dueDate: value.dueDate || undefined,
+      storyPoints: value.storyPoints ?? undefined,
       planningFields: {
         phaseId: value.phaseId ?? null,
         observedVersionId: value.observedVersionId ?? null,

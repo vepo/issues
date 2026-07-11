@@ -92,6 +92,10 @@
           <input matInput type="date" formControlName="dueDate" />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Story points</mat-label>
+          <input matInput type="number" min="0" formControlName="storyPoints" />
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
           <mat-label i18n>Fase</mat-label>
           <mat-select formControlName="phaseId">
             <mat-option [value]="null" i18n>Nenhuma</mat-option>
@@ -144,6 +148,8 @@
         </dd>
         <dt i18n>Prioridade</dt>
         <dd>{{ ticket.priority }}</dd>
+        <dt i18n>Story points</dt>
+        <dd>{{ ticket.storyPoints ?? '—' }}</dd>
         <dt i18n>Autor</dt>
         <dd>{{ ticket.author?.name || '—' }}</dd>
         <dt i18n>Responsável</dt>

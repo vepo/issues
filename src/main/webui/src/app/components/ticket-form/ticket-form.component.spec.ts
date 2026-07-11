@@ -74,10 +74,30 @@ describe('TicketFormComponent', () => {
       ticketType: 'STORY',
       dueDate: null,
       phaseId: null,
+      storyPoints: 5,
     });
     component.submit();
     expect(submitted).toHaveBeenCalled();
     expect(submitted.calls.mostRecent().args[0].ticketType).toBe('STORY');
+    expect(submitted.calls.mostRecent().args[0].storyPoints).toBe(5);
+  });
+
+  it('should include story points on submit', () => {
+    const submitted = jasmine.createSpy('submitted');
+    component.submitted.subscribe(submitted);
+    component.ticketForm.setValue({
+      title: 'Points ticket title',
+      projectId: 1,
+      description: '<p>Valid description text</p>',
+      categoryId: 2,
+      priority: 'HIGH',
+      ticketType: 'TASK',
+      dueDate: null,
+      phaseId: null,
+      storyPoints: 8,
+    });
+    component.submit();
+    expect(submitted.calls.mostRecent().args[0].storyPoints).toBe(8);
   });
 
   it('should apply partial defaults without overwriting unset fields', () => {

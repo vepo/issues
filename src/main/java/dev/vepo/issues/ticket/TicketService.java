@@ -172,6 +172,7 @@ public class TicketService {
         ticket.setPriority(Objects.nonNull(request.priority()) ? request.priority() : TicketPriority.MEDIUM);
         ticket.setTicketType(Objects.nonNull(request.ticketType()) ? request.ticketType() : TicketType.TASK);
         ticket.setDueDate(request.dueDate());
+        ticket.setStoryPoints(request.storyPoints());
         ticket.setPhase(phaseService.requireAssignablePhase(project.getId(), request.phaseId()));
         ticket.setBacklogRank(backlogService.nextRank(project.getId()));
         repository.save(ticket);
@@ -225,6 +226,13 @@ public class TicketService {
                                            formatDueDate(entity.getDueDate()),
                                            formatDueDate(request.dueDate()));
         }
+        if (!Objects.equals(entity.getStoryPoints(), request.storyPoints())) {
+            historyService.logFieldChanged(entity,
+                                           user,
+                                           "storyPoints",
+                                           formatStoryPoints(entity.getStoryPoints()),
+                                           formatStoryPoints(request.storyPoints()));
+        }
         if (Objects.nonNull(request.planningFields())) {
             applyPhaseChange(entity,
                              user,
@@ -253,6 +261,7 @@ public class TicketService {
             entity.setTicketType(request.ticketType());
         }
         entity.setDueDate(request.dueDate());
+        entity.setStoryPoints(request.storyPoints());
         entity.setUpdatedAt(LocalDateTime.now());
 
         if (request.customFields() != null) {
@@ -525,7 +534,10 @@ public class TicketService {
                                  Optional<FinishOutcome> fromOutcome,
                                  Optional<FinishOutcome> toOutcome,
                                  User user) {
-        if (toOutcome.orElse(null) == FinishOutcome.DONE) {
+        var to = toOutcome.orElse(null);
+        var from = fromOutcome.orElse(null);
+
+        if (to == FinishOutcome.DONE) {
             var previous = ticket.getFinishedAt();
             ticket.setFinishedAt(LocalDateTime.now());
             historyService.logFieldChanged(ticket,
@@ -533,11 +545,45 @@ public class TicketService {
                                            "finishedAt",
                                            formatDateTime(previous),
                                            formatDateTime(ticket.getFinishedAt()));
-        } else if (fromOutcome.orElse(null) == FinishOutcome.DONE) {
+            clearCanceledAt(ticket, user);
+        } else if (from == FinishOutcome.DONE && to != FinishOutcome.CANCELED) {
             var previous = ticket.getFinishedAt();
             ticket.setFinishedAt(null);
             historyService.logFieldChanged(ticket, user, "finishedAt", formatDateTime(previous), null);
         }
+
+        if (to == FinishOutcome.CANCELED) {
+            var previous = ticket.getCanceledAt();
+            ticket.setCanceledAt(LocalDateTime.now());
+            historyService.logFieldChanged(ticket,
+                                           user,
+                                           "canceledAt",
+                                           formatDateTime(previous),
+                                           formatDateTime(ticket.getCanceledAt()));
+            clearFinishedAt(ticket, user);
+        } else if (from == FinishOutcome.CANCELED && to != FinishOutcome.DONE) {
+            var previous = ticket.getCanceledAt();
+            ticket.setCanceledAt(null);
+            historyService.logFieldChanged(ticket, user, "canceledAt", formatDateTime(previous), null);
+        }
+    }
+
+    private void clearFinishedAt(Ticket ticket, User user) {
+        if (ticket.getFinishedAt() == null) {
+            return;
+        }
+        var previous = ticket.getFinishedAt();
+        ticket.setFinishedAt(null);
+        historyService.logFieldChanged(ticket, user, "finishedAt", formatDateTime(previous), null);
+    }
+
+    private void clearCanceledAt(Ticket ticket, User user) {
+        if (ticket.getCanceledAt() == null) {
+            return;
+        }
+        var previous = ticket.getCanceledAt();
+        ticket.setCanceledAt(null);
+        historyService.logFieldChanged(ticket, user, "canceledAt", formatDateTime(previous), null);
     }
 
     private String formatDateTime(LocalDateTime value) {
@@ -545,6 +591,10 @@ public class TicketService {
     }
 
     private static String formatDueDate(LocalDate value) {
+        return Objects.nonNull(value) ? value.toString() : null;
+    }
+
+    private static String formatStoryPoints(Integer value) {
         return Objects.nonNull(value) ? value.toString() : null;
     }
 

@@ -80,6 +80,7 @@ export class TicketFormComponent implements OnInit {
     ticketType: new FormControl<TicketType>('TASK', [Validators.required]),
     dueDate: new FormControl<string | null>(null),
     phaseId: new FormControl<number | null>(null),
+    storyPoints: new FormControl<number | null>(null, [Validators.min(0)]),
   });
 
   @Input()
@@ -172,7 +173,7 @@ export class TicketFormComponent implements OnInit {
     if (this.customFieldsSection && !this.customFieldsSection.isValid()) {
       return;
     }
-    const { title, description, categoryId, projectId, priority, ticketType, dueDate, phaseId } = this.ticketForm.getRawValue();
+    const { title, description, categoryId, projectId, priority, ticketType, dueDate, phaseId, storyPoints } = this.ticketForm.getRawValue();
     if (!title || !description || categoryId == null || categoryId < 1 || projectId == null || projectId < 1 || !priority || !ticketType) {
       return;
     }
@@ -185,6 +186,7 @@ export class TicketFormComponent implements OnInit {
       ticketType,
       dueDate: dueDate || undefined,
       phaseId: phaseId ?? undefined,
+      storyPoints: storyPoints ?? undefined,
       customFields: this.customFieldsSection?.toValueRequests() ?? [],
     });
   }

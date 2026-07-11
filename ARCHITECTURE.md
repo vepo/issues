@@ -273,7 +273,7 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 
 | Item | Status |
 |------|--------|
-| Workflow update API/UI | Partial — edit name, start status, and transitions; status list fixed after create (**blocked:** [workflow-configuration.md](feature/workflow-configuration.md) Q1/Q2 open) |
+| Workflow update API/UI | Tasks-ready — [workflow-configuration.md](feature/workflow-configuration.md) v2; editable statuses + ticket remap; await approval T1–T7 |
 | Kanban swimlanes + WIP limits | Done — [kanban-board.md](feature/kanban-board.md) v3; `tb_workflow_wip_limits`; hard enforce on `moveTicket`; **Agrupar por** toolbar |
 | Header **Projetos** menu (all users → Kanban) | Done — [project-navigation.md](feature/project-navigation.md) v1; `GET /projects` viewable scope |
 | Immutable project prefix | Done — [project-administration.md](feature/project-administration.md) v2; `prefixLocked` on `ProjectResponse`; reject prefix change when tickets exist |
@@ -285,7 +285,8 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Agentic Development integration (PAT + SA + separate Quarkus MCP) | Tasks-ready — [agentic-integration.md](feature/agentic-integration.md) v1; MCP separate project, multi-module path; await task approval |
 | Ticket links, epics & subtasks | Done — [ticket-links.md](feature/ticket-links.md) v1; `TicketType`; `tb_ticket_links`; cross-project; Epic hierarchy; Angular Vínculos/Subtarefas |
 | Project ticket backlog (ranked list + reorder) | Done — [ticket-backlog.md](feature/ticket-backlog.md) v1; `backlog_rank`; `GET/POST …/backlog`; Angular infinite scroll + drag |
-| Burndown (story points, Kanban-peer page) | Tasks-ready — [burndown.md](feature/burndown.md) v1; await task approval T1–T10 |
+| Burndown (story points, Kanban-peer page) | Done — [burndown.md](feature/burndown.md) v1; `story_points`/`canceled_at`; `GET …/burndown`; Angular `/project/:id/burndown` |
+| Git integration (repo association + linked commits) | Tasks-ready — [git-integration.md](feature/git-integration.md) v1; `git` package; webhook + inbound API; await task approval T1–T10 |
 
 ## 14. OpenAPI → TypeScript codegen
 

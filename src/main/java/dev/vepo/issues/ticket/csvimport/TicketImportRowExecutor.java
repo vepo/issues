@@ -49,6 +49,7 @@ public class TicketImportRowExecutor {
                                                                    null,
                                                                    null,
                                                                    null,
+                                                                   row.storyPoints(),
                                                                    TicketImportService.toCustomFieldRequests(row.customFieldValues())),
                                            username);
 

@@ -179,15 +179,48 @@ public class PhaseService {
     }
 
     private void applyFinishDate(Ticket ticket, Optional<FinishOutcome> fromOutcome, Optional<FinishOutcome> toOutcome, User user) {
-        if (toOutcome.orElse(null) == FinishOutcome.DONE) {
+        var to = toOutcome.orElse(null);
+        var from = fromOutcome.orElse(null);
+
+        if (to == FinishOutcome.DONE) {
             var previous = ticket.getFinishedAt();
             ticket.setFinishedAt(LocalDateTime.now());
             historyService.logFieldChanged(ticket, user, "finishedAt", formatDateTime(previous), formatDateTime(ticket.getFinishedAt()));
-        } else if (fromOutcome.orElse(null) == FinishOutcome.DONE) {
+            clearCanceledAt(ticket, user);
+        } else if (from == FinishOutcome.DONE && to != FinishOutcome.CANCELED) {
             var previous = ticket.getFinishedAt();
             ticket.setFinishedAt(null);
             historyService.logFieldChanged(ticket, user, "finishedAt", formatDateTime(previous), null);
         }
+
+        if (to == FinishOutcome.CANCELED) {
+            var previous = ticket.getCanceledAt();
+            ticket.setCanceledAt(LocalDateTime.now());
+            historyService.logFieldChanged(ticket, user, "canceledAt", formatDateTime(previous), formatDateTime(ticket.getCanceledAt()));
+            clearFinishedAt(ticket, user);
+        } else if (from == FinishOutcome.CANCELED && to != FinishOutcome.DONE) {
+            var previous = ticket.getCanceledAt();
+            ticket.setCanceledAt(null);
+            historyService.logFieldChanged(ticket, user, "canceledAt", formatDateTime(previous), null);
+        }
+    }
+
+    private void clearFinishedAt(Ticket ticket, User user) {
+        if (ticket.getFinishedAt() == null) {
+            return;
+        }
+        var previous = ticket.getFinishedAt();
+        ticket.setFinishedAt(null);
+        historyService.logFieldChanged(ticket, user, "finishedAt", formatDateTime(previous), null);
+    }
+
+    private void clearCanceledAt(Ticket ticket, User user) {
+        if (ticket.getCanceledAt() == null) {
+            return;
+        }
+        var previous = ticket.getCanceledAt();
+        ticket.setCanceledAt(null);
+        historyService.logFieldChanged(ticket, user, "canceledAt", formatDateTime(previous), null);
     }
 
     private String formatDateTime(LocalDateTime value) {

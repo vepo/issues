@@ -132,6 +132,7 @@ public class TicketImportService {
             row.setCategoryName(mapped.categoryName());
             row.setProjectName(mapped.projectName());
             row.setPriority(mapped.priority());
+            row.setStoryPoints(mapped.storyPoints());
             row.setAssigneeEmail(mapped.assigneeEmail());
             row.setStatusName(mapped.statusName());
             row.setCustomFieldValuesJson(importJson.writeStringMap(mapped.customFieldValues()));
@@ -245,6 +246,7 @@ public class TicketImportService {
                                    cellValue(values, mapping.descriptionColumn()),
                                    cellValue(values, mapping.categoryColumn()),
                                    parsePriority(cellValue(values, mapping.priorityColumn())),
+                                   parseStoryPoints(cellValue(values, mapping.storyPointsColumn())),
                                    blankToNull(cellValue(values, mapping.assigneeEmailColumn())),
                                    blankToNull(cellValue(values, mapping.statusColumn())),
                                    projectName,
@@ -293,6 +295,10 @@ public class TicketImportService {
 
         if (row.priority() == null) {
             errors.add("Invalid priority value");
+        }
+
+        if (row.storyPoints() != null && row.storyPoints() < 0) {
+            errors.add("Invalid story points value");
         }
 
         if (!isBlank(row.assigneeEmail()) && userRepository.findByEmail(row.assigneeEmail()).isEmpty()) {
@@ -461,6 +467,18 @@ public class TicketImportService {
             return TicketPriority.valueOf(raw.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ex) {
             return null;
+        }
+    }
+
+    private static Integer parseStoryPoints(String raw) {
+        if (isBlank(raw)) {
+            return null;
+        }
+        try {
+            var value = Integer.parseInt(raw.trim());
+            return value >= 0 ? value : -1;
+        } catch (NumberFormatException ex) {
+            return -1;
         }
     }
 

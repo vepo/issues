@@ -73,6 +73,33 @@ class TicketQueryLanguageServiceTest {
     }
 
     @Test
+    @DisplayName("Should search tickets by story points")
+    void shouldSearchTicketsByStoryPoints() {
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .body("""
+                     {
+                         "title": "Points Query Ticket",
+                         "description": "Ticket for story points query test.",
+                         "projectId": %d,
+                         "categoryId": %d,
+                         "storyPoints": 13
+                     }""".formatted(fixtures.project().id(), fixtures.bug().getId()))
+               .post("/api/tickets")
+               .then()
+               .statusCode(201);
+
+        var user = userRepository.findByEmail("user@issues.vepo.dev").orElseThrow();
+        var results = queryLanguageService.execute("points = 13", user);
+        assertThat(results).isNotEmpty();
+        assertThat(results).anyMatch(ticket -> Integer.valueOf(13).equals(ticket.getStoryPoints()));
+
+        var aliasResults = queryLanguageService.execute("storypoints = 13", user);
+        assertThat(aliasResults).anyMatch(ticket -> Integer.valueOf(13).equals(ticket.getStoryPoints()));
+    }
+
+    @Test
     @DisplayName("Should search tickets by custom field key")
     void shouldSearchTicketsByCustomFieldKey() {
         var key = "sprint_q_" + java.util.UUID.randomUUID().toString().substring(0, 8);

@@ -57,6 +57,7 @@ Issues is a **modular monolith**: one deployable, feature packages under `dev.ve
 | **Custom fields** | `customfield` | platform |
 | **Phase & version planning** | `phase` | platform, project, workflow |
 | **Ticket management** | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business` | platform, identity, project, workflow, categories, phase, customfield |
+| **Git / SCM** | `git` | platform, identity, project, ticket |
 | **Classification** | `categories` | platform |
 | **Notifications** | `notifications` | platform, identity, ticket |
 | **Analytics** | `dashboards` | platform, project, ticket, workflow |
@@ -117,10 +118,12 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Status** | Named step in a workflow (e.g. TODO, IN_PROGRESS, DONE). | `WorkflowStatus`, `tb_workflow_status` |
 | **WIP limit** (workflow status) | Optional positive integer cap on tickets in that status within a workflow; absent = unlimited. | `tb_workflow_wip_limits` |
 | **Transition** | Allowed move from one status to another within a workflow. | `WorkflowTransition` |
+| **Status remap** (workflow edit) | When a **status** is removed from a workflow while tickets still use it (including soft-deleted), the editor requires a **replacement status**; tickets are moved in the same transaction with **STATUS_CHANGED** history and without subscriber notify. | Planned — [feature/workflow-configuration.md](../feature/workflow-configuration.md) v2 |
 | **Start status** | Required initial status for every new ticket in a workflow. | `Workflow.start` / `start_id` |
 | **Phase start status** | Optional status on a workflow; when a **phase** is **activated**, each assigned ticket moves here if a valid transition exists. | `Workflow.phaseStart`; UI **Status inicial da fase** |
 | **Finish status** | Workflow status marked as terminal with outcome **done** or **canceled**. | `WorkflowFinishStatus`, `tb_workflow_finish_statuses` |
 | **Finish outcome** | Classification of a finish status: `DONE` or `CANCELED`. | `FinishOutcome` enum |
+| **Git repository association** | One remote git repository linked to a **project** (URL, optional provider hint, optional default branch, webhook secret) for commit ingest and deep links. | Planned — `tb_project_git_repositories`; [feature/git-integration.md](../feature/git-integration.md) |
 | **Ticket template** | Optional default field values for new tickets in a project: built-in fields (title, description, category, priority) and, when configured, **custom field** defaults for in-scope project/workflow fields. | Embedded / related on `Project`; `customFieldDefaults` — [feature/custom-fields.md](../feature/custom-fields.md) |
 | **Template enabled** | Project manager opted in; when true, at least one template field must be configured; only configured fields pre-fill the create form. | `Project.ticketTemplateEnabled`; UI checkbox **Usar template de ticket** |
 | **Phase template objective** | Default plain-text **objective** copied into each new phase for the project. | `Project.phaseTemplateObjective` |
@@ -189,7 +192,9 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | **Comment** | Text note attached to a ticket. | `Comment`, `tb_comments` |
 | **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`). | `TicketHistory`, `TicketHistoryService` |
 | **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`, `LINK_ADDED`, `LINK_REMOVED`. | `TicketHistoryAction` |
-| **Activity feed** | Unified chronological UI on ticket detail merging comments and history events. | Ticket detail **Atividade** section |
+| **Linked commit** | Immutable record that a git commit (SHA) mentioned a ticket identifier; shown on the **activity feed**. Author may match an Issues **user** by email or remain unmatched (name/email from SCM). | Planned — `tb_ticket_commits`; [feature/git-integration.md](../feature/git-integration.md) |
+| **Commit ingest** | Delivery of commits into Issues via forge **push webhook** (HMAC) and/or authenticated **inbound API** (PAT or project service account). | Planned — `POST …/git/webhook`, `POST …/git/commits` |
+| **Activity feed** | Unified chronological UI on ticket detail merging comments, history events, and **linked commits**. | Ticket detail **Atividade** / Histórico section |
 | **Subscriber** | User watching a ticket; receives notifications on changes. | `Ticket.subscribers`, M:N `tb_tickets_subscribers` |
 | **Subscribe** | Add a user to ticket subscribers. | `PUT /tickets/{id}/subscribe` |
 | **Unsubscribe** | Remove a subscriber from a ticket. | `DELETE /tickets/{id}/subscribe/{subscriberId}` |
@@ -255,7 +260,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 7. **Request/Response contract** — HTTP body types are records named `*Request` / `*Response` (ArchUnit enforced).
 8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, only **configured** template fields pre-fill the create form; the user may submit without filling unconfigured template fields. Required ticket fields still follow `CreateTicketRequest` validation. Template may include **custom field** defaults for in-scope fields ([feature/custom-fields.md](../feature/custom-fields.md) **FQ5**).
 9. **Project description** — Required on create and update (`CreateProjectRequest.description` must not be blank); may contain rich-text HTML from the shared editor (no separate plain-text max beyond non-blank).
-10. **CSV import** — CSV parsed on the server (OpenCSV); upload and rows stored in `tb_ticket_imports` / `tb_ticket_import_rows` before mapping and execution. **Project-scoped** imports fix `project_id` on the batch; **global** imports leave `project_id` null and require a **project column** mapping — each row's project is resolved by name (case-insensitive). Author is the importing user; identifiers are always auto-generated (never read from CSV). Category resolved by name; assignee by email; status by workflow status name within the row's project workflow. Optional priority defaults to `MEDIUM`. Partial import: valid rows are created; invalid rows are reported per row without rolling back siblings. Status on import: ticket is created at workflow start; if a different status is mapped, a direct transition from start to that status must exist (multi-hop paths are not supported).
+10. **CSV import** — CSV parsed on the server (OpenCSV); upload and rows stored in `tb_ticket_imports` / `tb_ticket_import_rows` before mapping and execution. **Project-scoped** imports fix `project_id` on the batch; **global** imports leave `project_id` null and require a **project column** mapping — each row's project is resolved by name (case-insensitive). Author is the importing user; identifiers are always auto-generated (never read from CSV). Category resolved by name; assignee by email; status by workflow status name within the row's project workflow. Optional priority defaults to `MEDIUM`. Optional **story points** column maps to built-in `storyPoints` (≥ 0). Partial import: valid rows are created; invalid rows are reported per row without rolling back siblings. Status on import: ticket is created at workflow start; if a different status is mapped, a direct transition from start to that status must exist (multi-hop paths are not supported).
 11. **One active phase per project** — activating phase B **completes** the previously active phase; never two `ACTIVE` phases in the same project.
 12. **Phase–ticket project match** — a ticket's phase must belong to the ticket's project.
 13. **Assignable phases** — tickets may be assigned only to phases in `PLANNED` or `ACTIVE` status.
@@ -264,7 +269,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 16. **Version labels SemVer** — version labels must be valid SemVer; unique per project.
 17. **Version scope** — observed, target, and deliverable version references must belong to the ticket's or phase's project.
 18. **Finish statuses** — each workflow defines finish statuses tagged `DONE` or `CANCELED`.
-19. **Finish date** — moving to a `DONE` finish status sets `finished_at`; moving out of a `DONE` finish status clears `finished_at`. `CANCELED` does not set finish date.
+19. **Finish date** — moving to a `DONE` finish status sets `finished_at`; moving out of a `DONE` finish status clears `finished_at`. `CANCELED` does not set `finished_at` (uses `canceled_at` instead — see 19a). Mutual exclusivity: entering DONE clears `canceled_at`; entering CANCELED clears `finished_at`.
 19a. **Canceled at** — moving to a `CANCELED` finish status sets `canceled_at`; moving out of `CANCELED` clears `canceled_at`. Used as burndown burn day for canceled tickets.
 19b. **Story points** — optional non-negative integer on a ticket; null means unset. Burndown warns on unset in-scope tickets and treats them as 0 until set; setting points increases remaining (scope add).
 19c. **Burndown** — phase-scoped remaining story points vs ideal line over phase start/end; chart disabled (not hidden) when dates incomplete; peer route of Kanban.
@@ -281,7 +286,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 30. **Ticket search** — global across projects for any authenticated user; not filtered by membership.
 31. **Saved query ownership** — each saved query has exactly one **owner**; only the owner may update or delete. Non-owners must **clone** another user's query before editing.
 32. **Show at home** — optional per saved query (`show_at_home`); when enabled, the owner's query appears as a home section (one section per flagged query; snapshot per visit).
-33. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter.
+33. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter. Built-in fields include `points` / `storypoints` for story points.
 34. **Search indexing** — PostgreSQL **`tsvector` + GIN** indexes on ticket and comment text columns (`search_vector`).
 35. **Due date** — optional user-planned deadline on a ticket (`due_date`); independent of workflow **finish date** (`finished_at`).
 36. **Project prefix immutability** — once a project has at least one ticket (including soft-deleted), its **prefix** cannot change.
@@ -325,6 +330,10 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 67. **Agent channel attribution** — mutations via API token persist `via_agent` and are shown as **Agente em nome de &lt;nome&gt;** (PAT: user name; service account: SA display name). (Planned.)
 68. **Service account scope** — a service account belongs to exactly one project; tokens authorize **member-aligned** powers on that project only. Managed at `/projects/:projectId/service-accounts`. (Planned.)
 76. **Issues MCP deployment** — MCP runs as a **separate Quarkus project** calling Issues HTTP APIs; the Issues repo may later become a **multi-module** reactor that includes MCP. (Planned.)
+77. **Git repository association** — at most one remote per project in current scope; configurable by project owner or admin only. (Planned — [git-integration.md](../feature/git-integration.md).)
+78. **Linked commit** — commits mentioning `{prefix}-{seq}` (subject or body) link to non-deleted tickets in the associated project; idempotent on `(ticket_id, sha)`; no subscriber notification and no auto-transition on link. (Planned.)
+79. **Commit ingest auth** — forge push webhook verified with per-project HMAC secret; inbound API uses Bearer personal API token or project service account. (Planned.)
+80. **Workflow status edit** — after create, statuses may be added, renamed (workflow-local detach/attach), or removed. Removing a status with tickets requires a replacement; remaps include soft-deleted tickets; orphan transitions and workflow CF status-required links to that status are dropped; remap writes history and does not notify. (Planned — [workflow-configuration.md](../feature/workflow-configuration.md) v2.)
 
 ---
 
@@ -338,7 +347,9 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | Custom field | `CustomField` | Key, label, type, required, enabled, owner (project XOR workflow), enum options, status-required links |
 | Phase | `Phase` | Lifecycle, objective, deliverables, deliverable version |
 | Version | `Version` | SemVer label, changelog (derived) |
-| Ticket | `Ticket` | Title, status, assignee, phase, versions, finish date, subscribers, comments, **ticket type**, **custom field values**, **ticket links** |
+| Ticket | `Ticket` | Title, status, assignee, phase, versions, finish date, subscribers, comments, **ticket type**, **custom field values**, **ticket links**, **linked commits** |
+| Git repository association | Project git remote | One remote per project, webhook secret, ingest config |
+| Linked commit | Ticket ↔ commit SHA | Idempotent `(ticket_id, sha)` |
 | Notification | `Notification` | Read state per user per event |
 
 ---
@@ -357,6 +368,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | Notification | `notifications.Notification`, `notifications.NotificationsEndpoint` |
 | Audit | `ticket.history.TicketHistoryService` |
 | Custom field | `customfield.CustomField`, `customfield.CustomFieldService` |
+| Git repository association / linked commit | Planned — `git.*` ([feature/git-integration.md](../feature/git-integration.md)) |
 
 ---
 

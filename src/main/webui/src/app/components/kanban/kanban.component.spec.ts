@@ -41,6 +41,9 @@ describe('KanbanComponent', () => {
 
   const emptyPlanningFields = {
     finishedAt: null,
+    canceledAt: null,
+    dueDate: null,
+    storyPoints: null,
     observedVersionId: null,
     observedVersionLabel: null,
     targetVersionId: null,

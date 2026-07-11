@@ -3,6 +3,7 @@ package dev.vepo.issues.ticket;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -17,4 +18,5 @@ public record CreateTicketRequest(@NotNull @Size(min = 5, max = 255) String titl
                                   TicketType ticketType,
                                   LocalDate dueDate,
                                   Long phaseId,
+                                  @Min(0) Integer storyPoints,
                                   List<CustomFieldValueRequest> customFields) {}

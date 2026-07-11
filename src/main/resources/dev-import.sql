@@ -138,8 +138,9 @@ BEGIN
         (phase_mvp_id, 0, 'Autenticação e usuários'),
         (phase_mvp_id, 1, 'Tickets e workflow Kanban');
 
-    INSERT INTO tb_phases (project_id, name, objective, status, deliverable_version_id, created_at)
-    VALUES (proj_issues_id, 'Release 1.1', 'Melhorias e importação CSV', 'ACTIVE', ver_1_1_0_id, NOW() - INTERVAL '3 days')
+    INSERT INTO tb_phases (project_id, name, objective, status, start_date, end_date, deliverable_version_id, created_at)
+    VALUES (proj_issues_id, 'Release 1.1', 'Melhorias e importação CSV', 'ACTIVE',
+            CURRENT_DATE - INTERVAL '14 days', CURRENT_DATE + INTERVAL '14 days', ver_1_1_0_id, NOW() - INTERVAL '3 days')
     RETURNING id INTO phase_next_id;
 
     INSERT INTO tb_phase_deliverables (phase_id, sort_order, text) VALUES
@@ -467,6 +468,18 @@ BEGIN
     UPDATE tb_tickets
     SET phase_id = phase_next_id
     WHERE identifier = 'ISS-016';
+
+    UPDATE tb_tickets
+    SET story_points = 5
+    WHERE identifier IN ('ISS-004', 'ISS-016');
+
+    UPDATE tb_tickets
+    SET story_points = 3
+    WHERE identifier IN ('ISS-008', 'ISS-009');
+
+    UPDATE tb_tickets
+    SET story_points = 8
+    WHERE identifier = 'ISS-010';
 
     UPDATE tb_tickets
     SET observed_version_id = ver_1_0_0_id,

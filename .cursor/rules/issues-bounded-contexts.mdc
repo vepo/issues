@@ -18,6 +18,7 @@ Single Maven module; logical boundaries in `dev.vepo.issues.*`. Full table: [doc
 | Custom fields | `customfield` |
 | Phase & version planning | `phase` |
 | Ticket management | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business` |
+| Git / SCM | `git` |
 | Classification | `categories` |
 | Notifications | `notifications` |
 | Analytics | `dashboards` |

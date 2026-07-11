@@ -5,6 +5,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
 import { BacklogComponent } from './components/backlog/backlog.component';
 import { KanbanComponent } from './components/kanban/kanban.component';
+import { BurndownComponent } from './components/burndown/burndown.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { PasswordResetRequestComponent } from './components/password-reset-request/password-reset-request.component';
@@ -59,6 +60,14 @@ export const routes: Routes = [
       project: projectResolver,
       statuses: statusResolver,
       tickets: ticketsResolver
+    },
+    canActivate: [authGuard],
+  },
+  {
+    path: 'project/:projectId/burndown',
+    component: BurndownComponent,
+    resolve: {
+      project: projectResolver,
     },
     canActivate: [authGuard],
   },

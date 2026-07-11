@@ -1,0 +1,89 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Burndown</h1>
+      <p class="page-subtitle">{{ project.name }}</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'kanban']">
+        <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
+        <span i18n>Kanban</span>
+      </a>
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'dashboard']">
+        <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
+        <span i18n>Painel</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="page-panel burndown-panel">
+    <div class="burndown-controls">
+      <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
+        <mat-label i18n>Fase</mat-label>
+        <mat-select
+          [value]="selectedPhaseId"
+          (selectionChange)="onPhaseChange($event.value)"
+          i18n-aria-label
+          aria-label="Selecionar fase">
+          @if (phases.length === 0) {
+            <mat-option [value]="null" i18n>Nenhuma fase disponível</mat-option>
+          }
+          @for (phase of phases; track phase.id) {
+            <mat-option [value]="phase.id">{{ phase.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <span
+        [matTooltip]="datesIncompleteTooltip"
+        [matTooltipDisabled]="chartEnabled"
+        matTooltipPosition="above">
+        <button
+          class="btn"
+          matButton="filled"
+          type="button"
+          [disabled]="!chartEnabled || loading"
+          (click)="showBurndown()"
+          i18n>
+          Ver burndown
+        </button>
+      </span>
+    </div>
+
+    @if (selectedPhaseId == null && phases.length > 0) {
+      <p class="page-subtitle" i18n>Selecione uma fase para visualizar o Burndown.</p>
+    }
+    @if (phases.length === 0) {
+      <p class="empty-state" i18n>Nenhuma fase neste projeto. Crie uma fase com datas para usar o Burndown.</p>
+    }
+
+    @if (burndown?.warnings?.length) {
+      <div class="burndown-warnings" role="status">
+        <mat-icon fontIcon="warning" aria-hidden="true"></mat-icon>
+        <span i18n>Tickets sem story points:</span>
+        @for (warning of burndown!.warnings!; track warning.ticketId; let last = $last) {
+          <a [routerLink]="['/ticket', warning.identifier]">{{ warning.identifier }}</a>@if (!last) {<span>, </span>}
+        }
+      </div>
+    }
+
+    @if (loadError) {
+      <p class="form-error">{{ loadError }}</p>
+    }
+
+    @if (chartVisible && burndown?.datesComplete) {
+      <div class="burndown-summary">
+        <span i18n>Compromisso: {{ burndown?.commitmentPoints ?? 0 }} pts</span>
+        <span i18n>Restante: {{ burndown?.remainingPoints ?? 0 }} pts</span>
+      </div>
+      <div class="burndown-chart">
+        <canvas
+          baseChart
+          [data]="lineChartData"
+          [options]="lineChartOptions"
+          [type]="'line'">
+        </canvas>
+      </div>
+    }
+  </div>
+</div>

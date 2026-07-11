@@ -86,6 +86,11 @@
     </mat-select>
   </mat-form-field>
 
+  <mat-form-field class="form-field" appearance="outline">
+    <mat-label i18n>Story points</mat-label>
+    <input matInput type="number" min="0" formControlName="storyPoints" />
+  </mat-form-field>
+
   <app-custom-field-form-section
     [projectId]="selectedProjectId"
     [templateDefaults]="customFieldDefaults" />

@@ -72,7 +72,7 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 - **Projects** — name, prefix (immutable once tickets exist), description, assigned workflow, **project owner** (PM role), **project members**, optional **ticket template** (built-in defaults plus in-scope **custom field** defaults), and **project custom field** definitions
 - **Project allocation** — dedicated page to add/remove members; removal blocked while member has open assigned tickets
-- **Project hub** — member landing page with links to Kanban, Backlog, and dashboard (replaces project grid on home)
+- **Project hub** — member landing page with links to Kanban, Burndown, Backlog, and dashboard (replaces project grid on home)
 - **Header Projetos** — labeled menu for all authenticated users listing viewable projects; each item opens that project’s Kanban; PM/admin also **Gerenciar projetos**
 - **Workflow builder** — create workflows with statuses, transitions, optional per-status **WIP limits**, and **workflow custom fields** (incl. status-required) (`/workflows` UI + API)
 - **Categories admin** — list, create, edit, and delete ticket categories (`/categories`, admin); delete blocked while tickets or project templates reference the category
@@ -83,6 +83,8 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 - **Home hub** — personal work view: open tickets in your projects, tickets assigned to you, and recent activity (comments + status changes)
 - **Kanban board** — columns by workflow status; optional swimlanes (assignee / priority); WIP `n/limit` with hard drop/move enforcement; move tickets between stages
+- **Burndown** — phase story-points remaining vs ideal line; peer of Kanban; chart requires phase start/end dates; warns when tickets lack points
+- **Dashboards** — project analytics widgets (pie, KPI, table) with per-user layout
 - **Project backlog** — ranked planning list (separate from Priority); infinite scroll; PM/admin drag-and-drop reorder; excludes done and deleted tickets
 - **Project dashboard** — charts (tickets by day, status, priority), recent tickets (top 20), performance KPIs; widget layout saved per user on the server
 - **Global search** — simple term search and **query language** (ANTLR, plain text) across ticket fields, comments, and custom fields (`cf.<key>`)

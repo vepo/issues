@@ -48,6 +48,9 @@ public class TicketImportRow {
     @Enumerated(EnumType.STRING)
     private TicketPriority priority;
 
+    @Column(name = "story_points")
+    private Integer storyPoints;
+
     @Column(name = "assignee_email")
     private String assigneeEmail;
 
@@ -139,6 +142,14 @@ public class TicketImportRow {
         this.priority = priority;
     }
 
+    public Integer getStoryPoints() {
+        return storyPoints;
+    }
+
+    public void setStoryPoints(Integer storyPoints) {
+        this.storyPoints = storyPoints;
+    }
+
     public String getAssigneeEmail() {
         return assigneeEmail;
     }
@@ -201,6 +212,7 @@ public class TicketImportRow {
                                    description,
                                    categoryName,
                                    priority,
+                                   storyPoints,
                                    assigneeEmail,
                                    statusName,
                                    projectName,

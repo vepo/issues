@@ -120,6 +120,7 @@ final class TicketQueryPredicateBuilder extends TicketQueryBaseVisitor<Predicate
             case "updated", "updatedat" -> dateCompare(ticket.get("updatedAt"), op, (String) value);
             case "finished", "finishedat" -> dateCompare(ticket.get("finishedAt"), op, (String) value);
             case "duedate", "due" -> localDateCompare(ticket.get("dueDate"), op, (String) value);
+            case "points", "storypoints" -> integerCompare(ticket.get("storyPoints"), op, String.valueOf(value));
             default -> throw new InvalidQueryException("Unknown field: %s".formatted(field));
         };
     }
@@ -148,6 +149,7 @@ final class TicketQueryPredicateBuilder extends TicketQueryBaseVisitor<Predicate
             case "observedversion" -> cb.isNull(ticket.get("observedVersion"));
             case "finished", "finishedat" -> cb.isNull(ticket.get("finishedAt"));
             case "duedate", "due" -> cb.isNull(ticket.get("dueDate"));
+            case "points", "storypoints" -> cb.isNull(ticket.get("storyPoints"));
             case "description" -> cb.or(cb.isNull(ticket.get("description")), cb.equal(ticket.get("description"), ""));
             default -> throw new InvalidQueryException("IS EMPTY not supported for field: %s".formatted(field));
         };

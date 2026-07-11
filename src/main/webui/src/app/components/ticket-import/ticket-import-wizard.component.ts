@@ -53,6 +53,7 @@ export class TicketImportWizardComponent implements OnInit {
     { key: 'descriptionColumn', label: 'Descrição', required: true },
     { key: 'categoryColumn', label: 'Categoria', required: true },
     { key: 'priorityColumn', label: 'Prioridade', required: false },
+    { key: 'storyPointsColumn', label: 'Story points', required: false },
     { key: 'assigneeEmailColumn', label: 'Responsável (e-mail)', required: false },
     { key: 'statusColumn', label: 'Status', required: false },
   ];
@@ -87,6 +88,7 @@ export class TicketImportWizardComponent implements OnInit {
     categoryColumn: new FormControl(SKIP_COLUMN, Validators.required),
     projectColumn: new FormControl(SKIP_COLUMN),
     priorityColumn: new FormControl(SKIP_COLUMN),
+    storyPointsColumn: new FormControl(SKIP_COLUMN),
     assigneeEmailColumn: new FormControl(SKIP_COLUMN),
     statusColumn: new FormControl(SKIP_COLUMN),
   });
@@ -304,6 +306,7 @@ export class TicketImportWizardComponent implements OnInit {
       categoryColumn: value.categoryColumn || undefined,
       projectColumn: this.projectScoped ? undefined : value.projectColumn || undefined,
       priorityColumn: emptyToUndefined(value.priorityColumn),
+      storyPointsColumn: emptyToUndefined(value.storyPointsColumn),
       assigneeEmailColumn: emptyToUndefined(value.assigneeEmailColumn),
       statusColumn: emptyToUndefined(value.statusColumn),
       customFieldColumns,
@@ -387,6 +390,7 @@ export class TicketImportWizardComponent implements OnInit {
       categoryColumn: SKIP_COLUMN,
       projectColumn: SKIP_COLUMN,
       priorityColumn: SKIP_COLUMN,
+      storyPointsColumn: SKIP_COLUMN,
       assigneeEmailColumn: SKIP_COLUMN,
       statusColumn: SKIP_COLUMN,
     });
@@ -482,6 +486,7 @@ export class TicketImportWizardComponent implements OnInit {
       descriptionColumn: guess(['description', 'descricao', 'descrição', 'detalhe']),
       categoryColumn: guess(['category', 'categoria', 'tipo']),
       priorityColumn: guess(['priority', 'prioridade']),
+      storyPointsColumn: guess(['story points', 'storypoints', 'points', 'pontos']),
       assigneeEmailColumn: guess(['assignee', 'responsavel', 'responsável', 'email']),
       statusColumn: guess(['status', 'estado', 'situação', 'situacao']),
     });

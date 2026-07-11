@@ -87,4 +87,27 @@ class UpdateTicketEndpointTest {
                .statusCode(200)
                .body("dueDate", equalTo("2026-09-01"));
     }
+
+    @Test
+    @DisplayName("Should update ticket story points")
+    void shouldUpdateTicketStoryPoints() {
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "title": "%s",
+                         "description": "%s",
+                         "categoryId": %d,
+                         "priority": "MEDIUM",
+                         "storyPoints": 8
+                     }""".formatted(fixtures.ticket().title(),
+                                    fixtures.ticket().description(),
+                                    fixtures.feature().getId()))
+               .post("/api/tickets/" + fixtures.ticket().id())
+               .then()
+               .statusCode(200)
+               .body("storyPoints", equalTo(8));
+    }
 }

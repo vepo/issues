@@ -61,6 +61,12 @@ public class Ticket {
     @Column(name = "finished_at")
     private LocalDateTime finishedAt;
 
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
+
+    @Column(name = "story_points")
+    private Integer storyPoints;
+
     @Column(name = "due_date")
     private LocalDate dueDate;
 
@@ -184,6 +190,22 @@ public class Ticket {
 
     public void setFinishedAt(LocalDateTime finishedAt) {
         this.finishedAt = finishedAt;
+    }
+
+    public LocalDateTime getCanceledAt() {
+        return canceledAt;
+    }
+
+    public void setCanceledAt(LocalDateTime canceledAt) {
+        this.canceledAt = canceledAt;
+    }
+
+    public Integer getStoryPoints() {
+        return storyPoints;
+    }
+
+    public void setStoryPoints(Integer storyPoints) {
+        this.storyPoints = storyPoints;
     }
 
     public LocalDate getDueDate() {

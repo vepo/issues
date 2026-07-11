@@ -60,6 +60,9 @@ public class TicketImport {
     @Column(name = "priority_column")
     private String priorityColumn;
 
+    @Column(name = "story_points_column")
+    private String storyPointsColumn;
+
     @Column(name = "assignee_email_column")
     private String assigneeEmailColumn;
 
@@ -164,6 +167,14 @@ public class TicketImport {
         this.priorityColumn = priorityColumn;
     }
 
+    public String getStoryPointsColumn() {
+        return storyPointsColumn;
+    }
+
+    public void setStoryPointsColumn(String storyPointsColumn) {
+        this.storyPointsColumn = storyPointsColumn;
+    }
+
     public String getAssigneeEmailColumn() {
         return assigneeEmailColumn;
     }
@@ -238,6 +249,7 @@ public class TicketImport {
                                  descriptionColumn,
                                  categoryColumn,
                                  priorityColumn,
+                                 storyPointsColumn,
                                  assigneeEmailColumn,
                                  statusColumn,
                                  projectColumn,
@@ -249,6 +261,7 @@ public class TicketImport {
         descriptionColumn = mapping.descriptionColumn();
         categoryColumn = mapping.categoryColumn();
         priorityColumn = mapping.priorityColumn();
+        storyPointsColumn = mapping.storyPointsColumn();
         assigneeEmailColumn = mapping.assigneeEmailColumn();
         statusColumn = mapping.statusColumn();
         projectColumn = mapping.projectColumn();

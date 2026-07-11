@@ -72,6 +72,47 @@ class CreateTicketEndpointTest {
     }
 
     @Test
+    @DisplayName("Should create ticket with story points")
+    void shouldCreateTicketWithStoryPoints() {
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "title": "Ticket With Story Points",
+                         "description": "This ticket has story points assigned.",
+                         "projectId": %d,
+                         "categoryId": %d,
+                         "storyPoints": 5
+                     }""".formatted(fixtures.project().id(), fixtures.bug().getId()))
+               .post("/api/tickets")
+               .then()
+               .statusCode(201)
+               .body("storyPoints", equalTo(5));
+    }
+
+    @Test
+    @DisplayName("Should reject negative story points on create")
+    void shouldRejectNegativeStoryPointsOnCreate() {
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "title": "Invalid Story Points",
+                         "description": "This ticket has invalid story points.",
+                         "projectId": %d,
+                         "categoryId": %d,
+                         "storyPoints": -1
+                     }""".formatted(fixtures.project().id(), fixtures.bug().getId()))
+               .post("/api/tickets")
+               .then()
+               .statusCode(400);
+    }
+
+    @Test
     @DisplayName("It should be possible to create a ticket assigned to a phase")
     void shouldCreateTicketWithPhaseAssignment() {
         var phaseId = given().header(fixtures.pmAuthenticatedHeader())
