@@ -3,6 +3,7 @@ package dev.vepo.issues.ticket.csvimport;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -64,6 +65,9 @@ public class TicketImport {
 
     @Column(name = "status_column")
     private String statusColumn;
+
+    @Column(name = "custom_field_column_mapping", columnDefinition = "TEXT")
+    private String customFieldColumnMapping;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -176,6 +180,14 @@ public class TicketImport {
         this.statusColumn = statusColumn;
     }
 
+    public String getCustomFieldColumnMapping() {
+        return customFieldColumnMapping;
+    }
+
+    public void setCustomFieldColumnMapping(String customFieldColumnMapping) {
+        this.customFieldColumnMapping = customFieldColumnMapping;
+    }
+
     public TicketImportStatus getStatus() {
         return status;
     }
@@ -221,14 +233,15 @@ public class TicketImport {
         return project != null;
     }
 
-    public ColumnMapping toColumnMapping() {
+    public ColumnMapping toColumnMapping(Map<String, String> customFieldColumns) {
         return new ColumnMapping(titleColumn,
                                  descriptionColumn,
                                  categoryColumn,
                                  priorityColumn,
                                  assigneeEmailColumn,
                                  statusColumn,
-                                 projectColumn);
+                                 projectColumn,
+                                 customFieldColumns);
     }
 
     public void applyColumnMapping(ColumnMapping mapping) {

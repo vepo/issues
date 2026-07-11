@@ -59,6 +59,14 @@ public class TicketHistoryService {
         createEntry(ticket, user, TicketHistoryAction.RESTORED, null, null, null, null);
     }
 
+    public void logLinkAdded(Ticket ticket, User user, String linkType, String otherIdentifier, Long linkId) {
+        createEntry(ticket, user, TicketHistoryAction.LINK_ADDED, linkType, null, otherIdentifier, linkId);
+    }
+
+    public void logLinkRemoved(Ticket ticket, User user, String linkType, String otherIdentifier, Long linkId) {
+        createEntry(ticket, user, TicketHistoryAction.LINK_REMOVED, linkType, otherIdentifier, null, linkId);
+    }
+
     private void createEntry(Ticket ticket,
                              User user,
                              TicketHistoryAction action,

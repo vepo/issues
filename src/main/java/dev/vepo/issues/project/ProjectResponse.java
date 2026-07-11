@@ -1,5 +1,9 @@
 package dev.vepo.issues.project;
 
+import java.util.List;
+
+import dev.vepo.issues.customfield.CustomFieldValueResponse;
+
 public record ProjectResponse(long id,
                               String name,
                               String prefix,
@@ -11,6 +15,12 @@ public record ProjectResponse(long id,
                               boolean prefixLocked) {
 
     public static ProjectResponse load(Project project, boolean prefixLocked) {
+        return load(project, prefixLocked, List.of());
+    }
+
+    public static ProjectResponse load(Project project,
+                                       boolean prefixLocked,
+                                       List<CustomFieldValueResponse> customFieldDefaults) {
         return new ProjectResponse(project.getId(),
                                    project.getName(),
                                    project.getPrefix(),
@@ -18,7 +28,7 @@ public record ProjectResponse(long id,
                                    new ProjectWorkflowResponse(project.getWorkflow().getId(),
                                                                project.getWorkflow().getName()),
                                    ProjectOwnerResponse.load(project.getOwner()),
-                                   TicketTemplateResponse.load(project),
+                                   TicketTemplateResponse.load(project, customFieldDefaults),
                                    PhaseTemplateResponse.load(project),
                                    prefixLocked);
     }

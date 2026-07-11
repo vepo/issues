@@ -52,6 +52,20 @@ public class TicketImportJson {
         return read(json, ERRORS_LIST);
     }
 
+    public String writeStringMap(Map<String, String> values) {
+        if (values == null || values.isEmpty()) {
+            return write(Map.of());
+        }
+        return write(values);
+    }
+
+    public Map<String, String> readStringMap(String json) {
+        if (json == null || json.isBlank()) {
+            return Map.of();
+        }
+        return read(json, STRING_MAP);
+    }
+
     private <T> T read(String json, TypeReference<T> type) {
         try {
             return objectMapper.readValue(json, type);

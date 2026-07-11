@@ -2,6 +2,9 @@ package dev.vepo.issues.ticket;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import dev.vepo.issues.customfield.CustomFieldValueResponse;
 
 public record TicketResponse(long id,
                              String identifier,
@@ -15,6 +18,7 @@ public record TicketResponse(long id,
                              long project,
                              long status,
                              String priority,
+                             String ticketType,
                              LocalDateTime finishedAt,
                              LocalDate dueDate,
                              Long observedVersionId,
@@ -23,8 +27,13 @@ public record TicketResponse(long id,
                              String targetVersionLabel,
                              Long phaseId,
                              String phaseName,
-                             boolean deleted) {
+                             boolean deleted,
+                             List<CustomFieldValueResponse> customFields) {
     public static TicketResponse load(Ticket ticket) {
+        return load(ticket, List.of());
+    }
+
+    public static TicketResponse load(Ticket ticket, List<CustomFieldValueResponse> customFields) {
         return new TicketResponse(ticket.getId(),
                                   ticket.getIdentifier(),
                                   ticket.getTitle(),
@@ -37,6 +46,7 @@ public record TicketResponse(long id,
                                   ticket.getProject().getId(),
                                   ticket.getStatus().getId(),
                                   ticket.getPriority().name(),
+                                  ticket.getTicketType() != null ? ticket.getTicketType().name() : TicketType.TASK.name(),
                                   ticket.getFinishedAt(),
                                   ticket.getDueDate(),
                                   ticket.getObservedVersion() != null ? ticket.getObservedVersion().getId() : null,
@@ -45,6 +55,7 @@ public record TicketResponse(long id,
                                   ticket.getTargetVersion() != null ? ticket.getTargetVersion().getLabel() : null,
                                   ticket.getPhase() != null ? ticket.getPhase().getId() : null,
                                   ticket.getPhase() != null ? ticket.getPhase().getName() : null,
-                                  ticket.isDeleted());
+                                  ticket.isDeleted(),
+                                  customFields == null ? List.of() : List.copyOf(customFields));
     }
 }

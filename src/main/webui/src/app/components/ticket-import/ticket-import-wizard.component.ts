@@ -12,6 +12,7 @@ import { ImportRowValidation } from '../../generated/model/importRowValidation';
 import { Project, ProjectWorkflow, ProjectsService } from '../../services/projects.service';
 import { User, UsersService, emptyFilter } from '../../services/users.service';
 import { TicketImportPreviewRow, TicketImportResult, TicketImportService, TicketImportUpload } from '../../services/ticket-import.service';
+import { CustomField, CustomFieldService } from '../../services/custom-field.service';
 
 const SKIP_COLUMN = '';
 
@@ -43,6 +44,7 @@ export class TicketImportWizardComponent implements OnInit {
   private readonly ticketImportService = inject(TicketImportService);
   private readonly projectsService = inject(ProjectsService);
   private readonly usersService = inject(UsersService);
+  private readonly customFieldService = inject(CustomFieldService);
 
   readonly projectMappingField: MappingField = { key: 'projectColumn', label: 'Projeto', required: true };
 
@@ -61,6 +63,8 @@ export class TicketImportWizardComponent implements OnInit {
   projects: Project[] = [];
   users: User[] = [];
   workflowsByProjectId = new Map<number, ProjectWorkflow>();
+  inScopeCustomFields: CustomField[] = [];
+  customFieldColumnControls = new FormGroup<Record<string, FormControl<string>>>({});
   fixingRowId: number | null = null;
   fileName = '';
   uploadResult: TicketImportUpload | null = null;
@@ -96,8 +100,25 @@ export class TicketImportWizardComponent implements OnInit {
       this.updateProjectColumnValidators();
       if (this.projectId != null) {
         this.ensureWorkflow(this.projectId);
+        this.loadInScopeCustomFields(this.projectId);
       }
     });
+  }
+
+  private loadInScopeCustomFields(projectId: number): void {
+    this.customFieldService.listInScope(projectId).subscribe(fields => {
+      this.inScopeCustomFields = fields;
+      this.rebuildCustomFieldColumnControls();
+    });
+  }
+
+  private rebuildCustomFieldColumnControls(): void {
+    const controls: Record<string, FormControl<string>> = {};
+    for (const field of this.inScopeCustomFields) {
+      const existing = this.customFieldColumnControls.get(field.key)?.value ?? SKIP_COLUMN;
+      controls[field.key] = new FormControl(existing, { nonNullable: true });
+    }
+    this.customFieldColumnControls = new FormGroup(controls);
   }
 
   mappingFields(): MappingField[] {
@@ -105,6 +126,10 @@ export class TicketImportWizardComponent implements OnInit {
       return this.baseMappingFields;
     }
     return [this.projectMappingField, ...this.baseMappingFields];
+  }
+
+  customFieldControl(key: string): FormControl<string> {
+    return this.customFieldColumnControls.controls[key];
   }
 
   requiredMappingFields(): MappingField[] {
@@ -266,6 +291,13 @@ export class TicketImportWizardComponent implements OnInit {
 
   buildColumnMapping(): ColumnMapping {
     const value = this.mappingForm.getRawValue();
+    const customFieldColumns: Record<string, string> = {};
+    for (const [key, control] of Object.entries(this.customFieldColumnControls.controls)) {
+      const header = emptyToUndefined(control.value);
+      if (header) {
+        customFieldColumns[key] = header;
+      }
+    }
     return {
       titleColumn: value.titleColumn || undefined,
       descriptionColumn: value.descriptionColumn || undefined,
@@ -274,6 +306,7 @@ export class TicketImportWizardComponent implements OnInit {
       priorityColumn: emptyToUndefined(value.priorityColumn),
       assigneeEmailColumn: emptyToUndefined(value.assigneeEmailColumn),
       statusColumn: emptyToUndefined(value.statusColumn),
+      customFieldColumns,
     };
   }
 
@@ -357,6 +390,7 @@ export class TicketImportWizardComponent implements OnInit {
       assigneeEmailColumn: SKIP_COLUMN,
       statusColumn: SKIP_COLUMN,
     });
+    this.rebuildCustomFieldColumnControls();
     this.updateProjectColumnValidators();
     this.stepper?.reset();
   }
@@ -451,6 +485,14 @@ export class TicketImportWizardComponent implements OnInit {
       assigneeEmailColumn: guess(['assignee', 'responsavel', 'responsável', 'email']),
       statusColumn: guess(['status', 'estado', 'situação', 'situacao']),
     });
+
+    const customPatch: Record<string, string> = {};
+    for (const field of this.inScopeCustomFields) {
+      customPatch[field.key] =
+        headers.find(header => header.toLowerCase() === field.key.toLowerCase()
+          || header.toLowerCase().includes(field.key.toLowerCase())) ?? SKIP_COLUMN;
+    }
+    this.customFieldColumnControls.patchValue(customPatch);
   }
 }
 

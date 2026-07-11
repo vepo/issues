@@ -1,23 +1,51 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ProjectMembersService } from '../../services/project-members.service';
+import { ProjectsService } from '../../services/projects.service';
 import { Category, CategoryService } from '../../services/category.service';
 import { ProjectStatus, StatusService } from '../../services/status.service';
 import { User } from '../../services/users.service';
-import { Comment, CreateCommentRequest, TicketExpanded, TicketService, UpdateTicketRequest } from '../../services/ticket.service';
+import {
+  Comment,
+  CreateCommentRequest,
+  Ticket,
+  TicketExpanded,
+  TicketLink,
+  TicketLinkType,
+  TicketService,
+  TicketType,
+  UpdateTicketRequest,
+} from '../../services/ticket.service';
 import { Version, VersionService } from '../../services/version.service';
 import { Phase, PhaseService } from '../../services/phase.service';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
+import { CustomFieldFormSectionComponent } from '../custom-fields/custom-field-form-section.component';
+import { plainTextLengthValidator } from '../../core/plain-text-length';
+import { TICKET_TYPE_OPTIONS } from '../ticket-form/ticket-form.component';
+
+export interface LinkGroup {
+  label: string;
+  links: TicketLink[];
+}
+
+export const PEER_LINK_TYPE_OPTIONS: { value: TicketLinkType; label: string }[] = [
+  { value: 'BLOCKS', label: 'Bloqueia' },
+  { value: 'RELATES_TO', label: 'Relacionado a' },
+  { value: 'DUPLICATES', label: 'Duplicata de' },
+  { value: 'DERIVED_FROM', label: 'Derivado de' },
+  { value: 'REMAINING_WORK_OF', label: 'Trabalho restante de' },
+];
 
 @Component({
   selector: 'app-ticket-view',
@@ -27,13 +55,15 @@ import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.co
     NormalizePipe,
     FormsModule,
     ReactiveFormsModule,
+    RouterLink,
     RichTextEditorComponent,
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatIconModule
+    MatIconModule,
+    CustomFieldFormSectionComponent,
   ]
 })
 export class TicketViewComponent implements OnInit {
@@ -41,12 +71,15 @@ export class TicketViewComponent implements OnInit {
   private readonly ticketService = inject(TicketService);
   private readonly authService = inject(AuthService);
   private readonly membersService = inject(ProjectMembersService);
+  private readonly projectsService = inject(ProjectsService);
   private readonly categoryService = inject(CategoryService);
   private readonly statusService = inject(StatusService);
   private readonly versionService = inject(VersionService);
   private readonly phaseService = inject(PhaseService);
   private readonly dialog = inject(MatDialog);
   private readonly formBuilder = inject(FormBuilder);
+
+  @ViewChild(CustomFieldFormSectionComponent) customFieldsSection?: CustomFieldFormSectionComponent;
 
   ticket?: TicketExpanded;
   comments: Comment[] = [];
@@ -63,12 +96,23 @@ export class TicketViewComponent implements OnInit {
   assignablePhases: Phase[] = [];
   selectedStatusId: number | null = null;
   selectedAssigneeId: number | null = null;
+  doneStatusNames = new Set<string>();
+
+  readonly ticketTypes = TICKET_TYPE_OPTIONS;
+  readonly peerLinkTypes = PEER_LINK_TYPE_OPTIONS;
+  newLinkType: TicketLinkType = 'RELATES_TO';
+  linkSearchTerm = '';
+  linkSearchResults: Ticket[] = [];
+  selectedLinkTarget: Ticket | null = null;
+  linking = false;
+  private readonly linkSearch$ = new Subject<string>();
 
   editForm: FormGroup = this.formBuilder.group({
     title: ['', [Validators.required, Validators.minLength(5)]],
-    description: ['', [Validators.required, Validators.minLength(5)]],
+    description: ['', [Validators.required, plainTextLengthValidator(5, 1200)]],
     categoryId: [null as number | null, Validators.required],
     priority: ['MEDIUM', Validators.required],
+    ticketType: ['TASK' as TicketType, Validators.required],
     dueDate: [null as string | null],
     observedVersionId: [null as number | null],
     targetVersionId: [null as number | null],
@@ -91,8 +135,23 @@ export class TicketViewComponent implements OnInit {
         this.loadProjectStatuses();
         this.loadProjectVersions();
         this.loadAssignablePhases();
+        this.loadDoneStatusNames();
         this.populateEditForm();
       }
+    });
+
+    this.linkSearch$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(term => {
+        const trimmed = term.trim();
+        if (trimmed.length < 2) {
+          return of([] as Ticket[]);
+        }
+        return this.ticketService.search(trimmed, -1);
+      })
+    ).subscribe(results => {
+      this.linkSearchResults = results.filter(t => t.id !== this.ticket?.id && !t.deleted);
     });
   }
 
@@ -123,6 +182,20 @@ export class TicketViewComponent implements OnInit {
                      });
   }
 
+  loadDoneStatusNames(): void {
+    if (!this.ticket?.project?.id) {
+      return;
+    }
+    this.projectsService.findWorkflowByProjectId(this.ticket.project.id).subscribe(workflow => {
+      this.doneStatusNames = new Set(
+        (workflow.finishStatuses ?? [])
+          .filter(fs => fs.outcome === 'DONE')
+          .map(fs => fs.status)
+          .filter((name): name is string => !!name)
+      );
+    });
+  }
+
   loadAssignablePhases(): void {
     if (!this.ticket?.project?.id) {
       return;
@@ -151,10 +224,108 @@ export class TicketViewComponent implements OnInit {
       description: this.ticket.description,
       categoryId: category?.id ?? null,
       priority: this.ticket.priority ?? 'MEDIUM',
+      ticketType: (this.ticket.ticketType as TicketType) ?? 'TASK',
       dueDate: this.ticket.dueDate ?? null,
       observedVersionId: this.ticket.observedVersionId ?? null,
       targetVersionId: this.ticket.targetVersionId ?? null,
       phaseId: this.ticket.phaseId ?? null
+    });
+  }
+
+  ticketTypeLabel(type?: string | null): string {
+    return this.ticketTypes.find(t => t.value === type)?.label ?? 'Tarefa';
+  }
+
+  isEpic(): boolean {
+    return this.ticket?.ticketType === 'EPIC';
+  }
+
+  groupedLinks(): LinkGroup[] {
+    const links = (this.ticket?.links ?? []).filter(link => !link.otherDeleted) as TicketLink[];
+    const groups = new Map<string, TicketLink[]>();
+    for (const link of links) {
+      const label = link.displayLabel || link.linkType || '';
+      const existing = groups.get(label) ?? [];
+      existing.push(link);
+      groups.set(label, existing);
+    }
+    return Array.from(groups.entries()).map(([label, groupLinks]) => ({ label, links: groupLinks }));
+  }
+
+  childLinks(): TicketLink[] {
+    return ((this.ticket?.links ?? []) as TicketLink[]).filter(
+      link => link.linkType === 'CHILD_OF' && link.direction === 'INBOUND' && !link.otherDeleted
+    );
+  }
+
+  childrenProgressLabel(): string {
+    const summary = this.ticket?.childrenSummary;
+    const done = summary?.done ?? 0;
+    const total = summary?.total ?? 0;
+    return `${done}/${total} concluídas`;
+  }
+
+  onLinkSearchInput(term: string): void {
+    this.linkSearchTerm = term;
+    this.selectedLinkTarget = null;
+    this.linkSearch$.next(term);
+  }
+
+  selectLinkTarget(ticket: Ticket): void {
+    this.selectedLinkTarget = ticket;
+    this.linkSearchTerm = `${ticket.identifier} — ${ticket.title}`;
+    this.linkSearchResults = [];
+  }
+
+  createLink(): void {
+    if (!this.ticket || !this.selectedLinkTarget || this.linking) {
+      return;
+    }
+    this.linking = true;
+    this.ticketService.createLink(this.ticket.id, {
+      targetTicketId: this.selectedLinkTarget.id,
+      linkType: this.newLinkType,
+    }).subscribe({
+      next: () => {
+        this.linking = false;
+        this.selectedLinkTarget = null;
+        this.linkSearchTerm = '';
+        this.linkSearchResults = [];
+        this.reloadTicket();
+      },
+      error: () => {
+        this.linking = false;
+      }
+    });
+  }
+
+  removeLink(link: TicketLink): void {
+    if (!this.ticket) {
+      return;
+    }
+    this.ticketService.deleteLink(this.ticket.id, link.id).subscribe({
+      next: () => this.reloadTicket()
+    });
+  }
+
+  openCreateChildDialog(): void {
+    if (!this.ticket) {
+      return;
+    }
+    const dialogRef = this.dialog.open(CreateChildTicketDialogComponent, {
+      width: '480px',
+      data: { epicIdentifier: this.ticket.identifier },
+    });
+    dialogRef.afterClosed().subscribe((result?: { title: string; description?: string }) => {
+      if (!result || !this.ticket) {
+        return;
+      }
+      this.ticketService.createChild(this.ticket.id, {
+        title: result.title,
+        description: result.description,
+      }).subscribe({
+        next: () => this.reloadTicket()
+      });
     });
   }
 
@@ -235,8 +406,48 @@ export class TicketViewComponent implements OnInit {
     }
   }
 
+  formatCustomFieldValue(value: unknown): string {
+    if (value === null || value === undefined || value === '') {
+      return '—';
+    }
+    if (typeof value === 'boolean') {
+      return value ? 'Sim' : 'Não';
+    }
+    return String(value);
+  }
+
+  historyActionLabel(action: string | undefined | null): string {
+    switch (action) {
+      case 'LINK_ADDED':
+        return 'Vínculo adicionado';
+      case 'LINK_REMOVED':
+        return 'Vínculo removido';
+      case 'CREATED':
+        return 'Criado';
+      case 'FIELD_CHANGED':
+        return 'Campo alterado';
+      case 'STATUS_CHANGED':
+        return 'Status alterado';
+      case 'ASSIGNEE_CHANGED':
+        return 'Responsável alterado';
+      case 'SUBSCRIBED':
+        return 'Observador adicionado';
+      case 'UNSUBSCRIBED':
+        return 'Observador removido';
+      case 'DELETED':
+        return 'Excluído';
+      case 'RESTORED':
+        return 'Restaurado';
+      default:
+        return action || '';
+    }
+  }
+
   saveTicket(): void {
     if (!this.ticket || this.editForm.invalid) {
+      return;
+    }
+    if (this.customFieldsSection && !this.customFieldsSection.isValid()) {
       return;
     }
     this.isSaving = true;
@@ -246,12 +457,14 @@ export class TicketViewComponent implements OnInit {
       description: value.description,
       categoryId: value.categoryId,
       priority: value.priority as UpdateTicketRequest['priority'],
+      ticketType: value.ticketType as TicketType,
       dueDate: value.dueDate || undefined,
       planningFields: {
         phaseId: value.phaseId ?? null,
         observedVersionId: value.observedVersionId ?? null,
         targetVersionId: value.targetVersionId ?? null
-      }
+      },
+      customFields: this.customFieldsSection?.toValueRequests() ?? [],
     }).subscribe({
       next: () => {
         this.isSaving = false;
@@ -272,12 +485,45 @@ export class TicketViewComponent implements OnInit {
                       .subscribe(() => this.reloadTicket());
   }
 
+  isMovingToDoneStatus(statusId: number | null): boolean {
+    if (statusId == null) {
+      return false;
+    }
+    const status = this.projectStatuses.find(s => s.id === statusId);
+    return !!status?.name && this.doneStatusNames.has(status.name);
+  }
+
+  hasOpenChildren(): boolean {
+    const summary = this.ticket?.childrenSummary;
+    if (!summary) {
+      return false;
+    }
+    return (summary.total ?? 0) > (summary.done ?? 0);
+  }
+
   moveTicket(): void {
     if (!this.ticket || this.selectedStatusId == null || this.selectedStatusId === this.currentStatusId()) {
       return;
     }
-    this.ticketService.move(this.ticket.id, this.selectedStatusId)
-                      .subscribe(() => this.reloadTicket());
+    const doMove = () => {
+      this.ticketService.move(this.ticket!.id, this.selectedStatusId!)
+                        .subscribe(() => this.reloadTicket());
+    };
+    if (this.isEpic() && this.hasOpenChildren() && this.isMovingToDoneStatus(this.selectedStatusId)) {
+      const confirmed = this.dialog.open(EpicDoneWarningDialogComponent, {
+        data: {
+          done: this.ticket.childrenSummary?.done ?? 0,
+          total: this.ticket.childrenSummary?.total ?? 0,
+        },
+      });
+      confirmed.afterClosed().subscribe(result => {
+        if (result) {
+          doMove();
+        }
+      });
+      return;
+    }
+    doMove();
   }
 
   canDelete(): boolean {
@@ -324,6 +570,7 @@ export class TicketViewComponent implements OnInit {
         this.loadProjectStatuses();
         this.loadProjectVersions();
         this.loadAssignablePhases();
+        this.loadDoneStatusNames();
         this.populateEditForm();
       }
     });
@@ -347,3 +594,69 @@ export class TicketViewComponent implements OnInit {
   `
 })
 export class TicketDeleteDialogComponent {}
+
+@Component({
+  selector: 'app-epic-done-warning-dialog',
+  imports: [MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title i18n>Épico com subtarefas abertas</h2>
+    <mat-dialog-content>
+      <p i18n>
+        Este épico ainda tem {{ data.done }}/{{ data.total }} subtarefas concluídas.
+        Deseja movê-lo para um status de conclusão mesmo assim?
+      </p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
+      <button class="btn" matButton="filled" [mat-dialog-close]="true" i18n>Mover mesmo assim</button>
+    </mat-dialog-actions>
+  `
+})
+export class EpicDoneWarningDialogComponent {
+  readonly data = inject<{ done: number; total: number }>(MAT_DIALOG_DATA);
+}
+
+@Component({
+  selector: 'app-create-child-ticket-dialog',
+  imports: [
+    MatDialogModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    RichTextEditorComponent,
+  ],
+  template: `
+    <h2 mat-dialog-title i18n>Nova subtarefa</h2>
+    <mat-dialog-content>
+      <p class="text-muted" i18n>Será criada no mesmo projeto do épico {{ data.epicIdentifier }}.</p>
+      <form [formGroup]="form" class="edit">
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Título</mat-label>
+          <input matInput formControlName="title" required />
+        </mat-form-field>
+        <div class="form-field form-field--rich-text">
+          <label class="form-label" i18n>Descrição (opcional)</label>
+          <app-rich-text-editor formControlName="description" placeholder="Descrição opcional..."></app-rich-text-editor>
+        </div>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
+      <button class="btn" matButton="filled" [disabled]="form.invalid" [mat-dialog-close]="form.value" i18n>Criar</button>
+    </mat-dialog-actions>
+  `
+})
+export class CreateChildTicketDialogComponent {
+  readonly data = inject<{ epicIdentifier: string }>(MAT_DIALOG_DATA);
+  private readonly formBuilder = inject(FormBuilder);
+
+  form = this.formBuilder.group({
+    title: ['', [Validators.required, Validators.minLength(5)]],
+    description: [''],
+  });
+}

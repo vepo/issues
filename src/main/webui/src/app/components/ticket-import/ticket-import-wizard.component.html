@@ -94,6 +94,29 @@
                 </div>
               </section>
             }
+
+            @if (projectScoped && inScopeCustomFields.length > 0) {
+              <section class="import-mapping__section">
+                <h2 class="import-mapping__heading" i18n>Campos personalizados</h2>
+                <p class="form-hint" i18n>Associe colunas do CSV às chaves dos campos no escopo do projeto.</p>
+                <div class="import-mapping__grid">
+                  @for (field of inScopeCustomFields; track field.key) {
+                    <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
+                      <mat-label>{{ field.label }} ({{ field.key }})</mat-label>
+                      <mat-select [formControl]="customFieldControl(field.key)">
+                        <mat-option [value]="''" i18n>Não importar</mat-option>
+                        @for (header of headerOptions(); track header) {
+                          <mat-option [value]="header">{{ header }}</mat-option>
+                        }
+                      </mat-select>
+                      <mat-hint [title]="sampleValue(customFieldControl(field.key).value)">
+                        Exemplo: {{ sampleValueShort(customFieldControl(field.key).value) }}
+                      </mat-hint>
+                    </mat-form-field>
+                  }
+                </div>
+              </section>
+            }
           </form>
         </div>
         <div class="step-actions">

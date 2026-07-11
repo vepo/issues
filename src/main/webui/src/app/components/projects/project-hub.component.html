@@ -8,12 +8,16 @@
   <header class="page-header">
     <div>
       <h1 class="page-title">{{ project?.name }}</h1>
-      <p class="page-subtitle">{{ project?.description }}</p>
+      <p class="page-subtitle rich-text-display" [innerHTML]="project?.description"></p>
     </div>
     <div class="page-header__actions">
       <a class="btn" matButton="filled" [routerLink]="['/project', project?.id, 'kanban']">
         <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
         <span i18n>Kanban</span>
+      </a>
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'backlog']">
+        <mat-icon fontIcon="reorder" aria-hidden="true"></mat-icon>
+        <span i18n>Backlog</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'dashboard']">
         <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>

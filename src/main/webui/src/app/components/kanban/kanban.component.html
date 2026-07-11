@@ -11,6 +11,7 @@
           <mat-select
             [value]="phaseFilter"
             (selectionChange)="phaseFilter = $event.value"
+            panelClass="board-phase-filter-panel"
             i18n-aria-label
             aria-label="Filtrar por fase">
             <mat-option value="all" i18n>Todos</mat-option>
@@ -25,13 +26,14 @@
         </mat-form-field>
       </div>
       <div class="board-phase-filter">
-        <span class="board-phase-filter__label" i18n>Faixa</span>
+        <span class="board-phase-filter__label" i18n>Agrupar por</span>
         <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
           <mat-select
             [value]="swimlaneMode"
             (selectionChange)="swimlaneMode = $event.value"
+            panelClass="board-phase-filter-panel"
             i18n-aria-label
-            aria-label="Agrupar por faixa">
+            aria-label="Agrupar por">
             <mat-option value="none" i18n>Nenhuma</mat-option>
             <mat-option value="assignee" i18n>Responsável</mat-option>
             <mat-option value="priority" i18n>Prioridade</mat-option>
@@ -45,6 +47,10 @@
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'tickets', 'import']">
         <mat-icon fontIcon="upload_file" aria-hidden="true"></mat-icon>
         <span i18n>Importar CSV</span>
+      </a>
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'backlog']">
+        <mat-icon fontIcon="reorder" aria-hidden="true"></mat-icon>
+        <span i18n>Backlog</span>
       </a>
       <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'dashboard']">
         <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>

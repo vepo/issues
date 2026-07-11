@@ -1,0 +1,58 @@
+<div class="page backlog-page">
+  <nav class="breadcrumb" aria-label="Navegação">
+    <a routerLink="/" i18n>Início</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <a [routerLink]="['/projects', project?.id]">{{ project?.name }}</a>
+    <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
+    <span class="breadcrumb__current" i18n>Backlog</span>
+  </nav>
+
+  <header class="page-header">
+    <div>
+      <h1 class="page-title" i18n>Backlog</h1>
+      <p class="page-subtitle" i18n>Tickets ordenados por rank de planejamento (não por prioridade)</p>
+    </div>
+    <div class="page-header__actions">
+      <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'kanban']">
+        <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
+        <span i18n>Kanban</span>
+      </a>
+    </div>
+  </header>
+
+  <section class="page-panel page-panel--flush backlog-panel" (scroll)="onScroll($event)">
+    <div
+      class="backlog-list"
+      cdkDropList
+      [cdkDropListDisabled]="!canReorder() || reordering"
+      (cdkDropListDropped)="drop($event)">
+      @for (ticket of tickets; track ticket.id) {
+        <div
+          class="backlog-row"
+          [class.backlog-row--draggable]="canReorder()"
+          cdkDrag
+          [cdkDragDisabled]="!canReorder() || reordering">
+          @if (canReorder()) {
+            <span class="backlog-row__handle" cdkDragHandle aria-hidden="true">
+              <mat-icon fontIcon="drag_indicator"></mat-icon>
+            </span>
+          } @else {
+            <span class="backlog-row__handle backlog-row__handle--spacer" aria-hidden="true"></span>
+          }
+          <a class="backlog-row__id" [routerLink]="['/ticket', ticket.identifier]">{{ ticket.identifier }}</a>
+          <span class="backlog-row__title">{{ ticket.title }}</span>
+          <span class="status-badge">{{ ticket.statusName | normalize }}</span>
+          <span class="status-badge status-badge--muted">{{ ticket.priority }}</span>
+          <span class="backlog-row__assignee">{{ ticket.assigneeName || '—' }}</span>
+        </div>
+      }
+    </div>
+
+    @if (!loading && tickets.length === 0) {
+      <div class="data-table--empty" i18n>Nenhum ticket no backlog.</div>
+    }
+    @if (loading) {
+      <div class="backlog-loading" i18n>Carregando…</div>
+    }
+  </section>
+</div>

@@ -125,4 +125,269 @@ class CreateTicketEndpointTest {
                .statusCode(404)
                .body("message", equalTo("Project does not found! projectId=9999"));
     }
+
+    @Test
+    @DisplayName("Should create ticket with custom field values and reject missing required")
+    void shouldCreateTicketWithCustomFieldsAndRejectMissingRequired() {
+        var suffix = java.util.UUID.randomUUID().toString().substring(0, 8);
+        var workflow = Given.simpleWorkflow();
+        var project = given().header(fixtures.pmAuthenticatedHeader())
+                             .contentType(ContentType.JSON)
+                             .body("""
+                                   {
+                                     "name": "CF Ticket Project %s",
+                                     "description": "Isolated project for CF ticket tests.",
+                                     "prefix": "CT%s",
+                                     "workflowId": %d
+                                   }
+                                   """.formatted(suffix, suffix.substring(0, 4).toUpperCase(), workflow.id()))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(dev.vepo.issues.project.ProjectResponse.class);
+
+        var key = "cf_" + suffix;
+        var fieldId = given().header(fixtures.pmAuthenticatedHeader())
+                             .contentType(ContentType.JSON)
+                             .body("""
+                                   {
+                                     "key": "%s",
+                                     "label": "Sprint",
+                                     "type": "INTEGER",
+                                     "required": true,
+                                     "integerMin": 1,
+                                     "integerMax": 99
+                                   }
+                                   """.formatted(key))
+                             .post("/api/projects/%d/custom-fields".formatted(project.id()))
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .path("id");
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "title": "Missing required CF",
+                         "description": "Should fail without custom field.",
+                         "projectId": %d,
+                         "categoryId": %d
+                     }""".formatted(project.id(), fixtures.bug().getId()))
+               .post("/api/tickets")
+               .then()
+               .statusCode(400);
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "title": "Ticket with sprint",
+                         "description": "Has required custom field.",
+                         "projectId": %d,
+                         "categoryId": %d,
+                         "customFields": [{"key": "%s", "value": 12}]
+                     }""".formatted(project.id(), fixtures.bug().getId(), key))
+               .post("/api/tickets")
+               .then()
+               .statusCode(201)
+               .body("customFields.key", org.hamcrest.Matchers.hasItem(key))
+               .body("customFields.value", org.hamcrest.Matchers.hasItem(12));
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "key": "%s",
+                       "label": "Sprint",
+                       "type": "INTEGER",
+                       "required": true,
+                       "enabled": false,
+                       "integerMin": 1,
+                       "integerMax": 99
+                     }
+                     """.formatted(key))
+               .put("/api/projects/%d/custom-fields/%d".formatted(project.id(), fieldId))
+               .then()
+               .statusCode(200);
+    }
+
+    @Test
+    @DisplayName("Should accept ticket description when plain text is within 1200 even if HTML is longer")
+    void shouldAcceptTicketDescriptionWhenPlainTextIsWithinLimitButHtmlExceedsRawSize() {
+        var plain = "a".repeat(1200);
+        var htmlDescription = "<p>%s</p>".formatted(plain);
+        assert htmlDescription.length() > 1200;
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "title": "Rich description ticket",
+                         "description": "%s",
+                         "projectId": %d,
+                         "categoryId": %d
+                     }""".formatted(htmlDescription, fixtures.project().id(), fixtures.bug().getId()))
+               .post("/api/tickets")
+               .then()
+               .statusCode(201)
+               .body("description", equalTo(htmlDescription));
+    }
+
+    @Test
+    @DisplayName("Should reject ticket description when plain text exceeds 1200 even when wrapped in HTML")
+    void shouldRejectTicketDescriptionWhenPlainTextExceedsLimit() {
+        var plain = "a".repeat(1201);
+        var htmlDescription = "<b>%s</b>".formatted(plain);
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "title": "Too long plain description",
+                         "description": "%s",
+                         "projectId": %d,
+                         "categoryId": %d
+                     }""".formatted(htmlDescription, fixtures.project().id(), fixtures.bug().getId()))
+               .post("/api/tickets")
+               .then()
+               .statusCode(400);
+    }
+
+    @Test
+    @DisplayName("Should reject ticket description when plain text is below minimum even if HTML is longer")
+    void shouldRejectTicketDescriptionWhenPlainTextIsBelowMinimum() {
+        var htmlDescription = "<p>hi</p>";
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .when()
+               .body("""
+                     {
+                         "title": "Short plain description",
+                         "description": "%s",
+                         "projectId": %d,
+                         "categoryId": %d
+                     }""".formatted(htmlDescription, fixtures.project().id(), fixtures.bug().getId()))
+               .post("/api/tickets")
+               .then()
+               .statusCode(400);
+    }
+
+    @Test
+    @DisplayName("Should accept TEXT custom field when plain text is within 1200 even if HTML is longer")
+    void shouldAcceptTextCustomFieldWhenPlainTextIsWithinLimitButHtmlExceedsRawSize() {
+        var suffix = java.util.UUID.randomUUID().toString().substring(0, 8);
+        var workflow = Given.simpleWorkflow();
+        var project = given().header(fixtures.pmAuthenticatedHeader())
+                             .contentType(ContentType.JSON)
+                             .body("""
+                                   {
+                                     "name": "TEXT CF Project %s",
+                                     "description": "Isolated project for TEXT CF plain-text tests.",
+                                     "prefix": "TX%s",
+                                     "workflowId": %d
+                                   }
+                                   """.formatted(suffix, suffix.substring(0, 4).toUpperCase(), workflow.id()))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(dev.vepo.issues.project.ProjectResponse.class);
+
+        var key = "notes_" + suffix;
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "key": "%s",
+                       "label": "Notes",
+                       "type": "TEXT",
+                       "required": false
+                     }
+                     """.formatted(key))
+               .post("/api/projects/%d/custom-fields".formatted(project.id()))
+               .then()
+               .statusCode(201);
+
+        var plain = "b".repeat(1200);
+        var htmlValue = "<p>%s</p>".formatted(plain);
+        assert htmlValue.length() > 1200;
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "title": "Ticket with long HTML TEXT CF",
+                         "description": "Description within limits.",
+                         "projectId": %d,
+                         "categoryId": %d,
+                         "customFields": [{"key": "%s", "value": "%s"}]
+                     }""".formatted(project.id(), fixtures.bug().getId(), key, htmlValue))
+               .post("/api/tickets")
+               .then()
+               .statusCode(201)
+               .body("customFields.key", org.hamcrest.Matchers.hasItem(key))
+               .body("customFields.value", org.hamcrest.Matchers.hasItem(htmlValue));
+    }
+
+    @Test
+    @DisplayName("Should reject TEXT custom field when plain text exceeds 1200")
+    void shouldRejectTextCustomFieldWhenPlainTextExceedsLimit() {
+        var suffix = java.util.UUID.randomUUID().toString().substring(0, 8);
+        var workflow = Given.simpleWorkflow();
+        var project = given().header(fixtures.pmAuthenticatedHeader())
+                             .contentType(ContentType.JSON)
+                             .body("""
+                                   {
+                                     "name": "TEXT CF Over Project %s",
+                                     "description": "Isolated project for TEXT CF over-limit tests.",
+                                     "prefix": "TO%s",
+                                     "workflowId": %d
+                                   }
+                                   """.formatted(suffix, suffix.substring(0, 4).toUpperCase(), workflow.id()))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(dev.vepo.issues.project.ProjectResponse.class);
+
+        var key = "notes_" + suffix;
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "key": "%s",
+                       "label": "Notes",
+                       "type": "TEXT",
+                       "required": false
+                     }
+                     """.formatted(key))
+               .post("/api/projects/%d/custom-fields".formatted(project.id()))
+               .then()
+               .statusCode(201);
+
+        var plain = "c".repeat(1201);
+        var htmlValue = "<em>%s</em>".formatted(plain);
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "title": "Ticket with overlong TEXT CF",
+                         "description": "Description within limits.",
+                         "projectId": %d,
+                         "categoryId": %d,
+                         "customFields": [{"key": "%s", "value": "%s"}]
+                     }""".formatted(project.id(), fixtures.bug().getId(), key, htmlValue))
+               .post("/api/tickets")
+               .then()
+               .statusCode(400);
+    }
 }

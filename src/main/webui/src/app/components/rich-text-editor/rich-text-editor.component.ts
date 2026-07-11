@@ -1,18 +1,36 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnChanges,
+  SimpleChanges,
+  forwardRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-rich-text-editor',
   templateUrl: './rich-text-editor.component.html',
   styleUrls: ['./rich-text-editor.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => RichTextEditorComponent),
+      multi: true,
+    },
+  ],
 })
-export class RichTextEditorComponent implements AfterViewInit, OnChanges {
-  @Input() placeholder: string = 'Digite seu texto...';
-  @Input() value: string = '';
-  @Input() disabled: boolean = false;
+export class RichTextEditorComponent implements AfterViewInit, OnChanges, ControlValueAccessor {
+  @Input() placeholder = 'Digite seu texto...';
+  @Input() value = '';
+  @Input() disabled = false;
   @Output() valueChange = new EventEmitter<string>();
 
   @ViewChild('editor') editorRef!: ElementRef<HTMLDivElement>;
@@ -22,77 +40,115 @@ export class RichTextEditorComponent implements AfterViewInit, OnChanges {
   isUnderline = false;
   isList = false;
 
-  ngAfterViewInit() {
+  private onChange: (value: string) => void = () => undefined;
+  private onTouched: () => void = () => undefined;
+  private pendingValue: string | null = null;
+
+  ngAfterViewInit(): void {
     this.setupEditor();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // indetify external change on value
-    if (this.editorRef && changes && changes['value'] && !changes['value'].previousValue && changes['value'].currentValue && changes['value'].firstChange) {
-      this.editorRef.nativeElement.innerHTML = changes['value'].currentValue;
-    } else if (this.editorRef && changes['value'] && changes['value'].currentValue == '' && changes['value'].previousValue != '') {
-      this.editorRef.nativeElement.innerHTML = '';
+    if (!this.editorRef) {
+      return;
+    }
+    if (changes['value']) {
+      const next = changes['value'].currentValue ?? '';
+      if (this.editorRef.nativeElement.innerHTML !== next) {
+        this.editorRef.nativeElement.innerHTML = next;
+      }
+    }
+    if (changes['disabled']) {
+      this.editorRef.nativeElement.contentEditable = this.disabled ? 'false' : 'true';
     }
   }
 
-  setupEditor() {
+  writeValue(value: string | null): void {
+    const next = value ?? '';
+    this.value = next;
     if (this.editorRef) {
-      this.editorRef.nativeElement.innerHTML = this.value;
-      this.editorRef.nativeElement.addEventListener('input', () => {
-        this.value = this.editorRef.nativeElement.innerHTML;
-        this.valueChange.emit(this.value);
-      });
+      if (this.editorRef.nativeElement.innerHTML !== next) {
+        this.editorRef.nativeElement.innerHTML = next;
+      }
+    } else {
+      this.pendingValue = next;
     }
   }
 
-  formatText(command: string, value: string = '') {
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+    if (this.editorRef) {
+      this.editorRef.nativeElement.contentEditable = isDisabled ? 'false' : 'true';
+    }
+  }
+
+  setupEditor(): void {
+    if (!this.editorRef) {
+      return;
+    }
+    const initial = this.pendingValue ?? this.value;
+    this.pendingValue = null;
+    this.editorRef.nativeElement.innerHTML = initial;
+    this.editorRef.nativeElement.contentEditable = this.disabled ? 'false' : 'true';
+    this.editorRef.nativeElement.addEventListener('input', () => this.emitChange());
+    this.editorRef.nativeElement.addEventListener('blur', () => this.onTouched());
+  }
+
+  formatText(command: string, value = ''): void {
+    if (this.disabled) {
+      return;
+    }
     document.execCommand(command, false, value);
     this.editorRef.nativeElement.focus();
     this.updateToolbarState();
     this.emitChange();
   }
 
-  updateToolbarState() {
+  updateToolbarState(): void {
     this.isBold = document.queryCommandState('bold');
     this.isItalic = document.queryCommandState('italic');
     this.isUnderline = document.queryCommandState('underline');
   }
 
-  emitChange() {
+  emitChange(): void {
+    if (!this.editorRef?.nativeElement) {
+      return;
+    }
     this.value = this.editorRef.nativeElement.innerHTML;
     this.valueChange.emit(this.value);
+    this.onChange(this.value);
   }
 
-  insertLink() {
+  insertLink(): void {
     const url = prompt('Digite a URL:');
     if (url) {
       this.formatText('createLink', url);
     }
   }
 
-  insertList() {
+  insertList(): void {
     this.formatText('insertUnorderedList');
     this.isList = !this.isList;
   }
 
-  clearFormatting() {
+  clearFormatting(): void {
     this.formatText('removeFormat');
     this.updateToolbarState();
   }
 
   getPlainText(): string {
-    if (this.editorRef && this.editorRef.nativeElement) {
-      return this.editorRef.nativeElement.innerText || '';
-    } else {
-      return '';
-    }
+    return this.editorRef?.nativeElement?.innerText ?? '';
   }
 
   getHtml(): string {
-    if (this.editorRef && this.editorRef.nativeElement) {
-      return this.editorRef.nativeElement.innerHTML || '';
-    } else {
-      return '';
-    }
+    return this.editorRef?.nativeElement?.innerHTML ?? '';
   }
-} 
+}

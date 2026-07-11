@@ -4,11 +4,15 @@ import { NotificationApi } from '../generated/api/notification.service';
 import { NotificationPageResponse } from '../generated/model/notificationPageResponse';
 import { UserNotificationEvent } from '../generated/model/userNotificationEvent';
 import { UpdateNotificationStatusReadRequest } from '../generated/model/updateNotificationStatusReadRequest';
+import { UnreadNotificationCountResponse } from '../generated/model/unreadNotificationCountResponse';
+import { MarkAllNotificationsReadResponse } from '../generated/model/markAllNotificationsReadResponse';
 import { asLoaded, Loaded } from '../core/required-types';
 import { ServerSideEventsClient } from './sse.client';
 
 export type UserNotification = Loaded<UserNotificationEvent>;
 export type NotificationPage = Loaded<NotificationPageResponse>;
+export type UnreadNotificationCount = Loaded<UnreadNotificationCountResponse>;
+export type MarkAllNotificationsRead = Loaded<MarkAllNotificationsReadResponse>;
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +49,14 @@ export class NotificationService {
 
   list(page = 0, size = 20): Observable<NotificationPage> {
     return this.api.listNotifications(page, size).pipe(map(asLoaded));
+  }
+
+  unreadCount(): Observable<UnreadNotificationCount> {
+    return this.api.getUnreadNotificationCount().pipe(map(asLoaded));
+  }
+
+  markAllAsRead(): Observable<MarkAllNotificationsRead> {
+    return this.api.markAllNotificationsRead().pipe(map(asLoaded));
   }
 
   markAsRead(id: number): Observable<UserNotification> {

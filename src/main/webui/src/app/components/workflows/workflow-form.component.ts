@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FinishOutcome } from '../../generated/model/finishOutcome';
 import { Workflow } from '../../services/workflow.service';
+import { CustomFieldAdminComponent } from '../custom-fields/custom-field-admin.component';
 
 export type WorkflowFormMode = 'create' | 'edit';
 
@@ -28,7 +29,8 @@ export interface WorkflowFormValue {
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    CustomFieldAdminComponent
   ],
   templateUrl: './workflow-form.component.html',
   styleUrl: './workflow-form.component.scss'

@@ -51,27 +51,30 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 ### Tickets & workflow
 
-- **Tickets** — create via `/tickets/new` or project-scoped route; edit, assign, optional **due date**, set priority, and soft-delete work items scoped to a project
+- **Tickets** — create via `/tickets/new` or project-scoped route; edit, assign, optional **due date**, set **ticket type** (Épico / História / Tarefa), set priority, and soft-delete work items scoped to a project
 - **Identifiers** — human-readable keys (`ISS-001`) from project prefix + sequence
 - **Workflows** — configurable status graphs with allowed transitions per project
 - **Priority** — `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` on create and edit
+- **Ticket links** — typed relationships (`BLOCKS`, `RELATES_TO`, `DUPLICATES`, `DERIVED_FROM`, `REMAINING_WORK_OF`, `CHILD_OF`); **Vínculos** and Epic **Subtarefas** with progress on ticket detail; cross-project allowed
 - **Move ticket** — status changes validated against workflow rules
 - **Finish date** — set when moving to a workflow **done** finish status; cleared when leaving done
 - **Versions** — SemVer labels per project; ticket **planned** and **shipped** version fields; grouped **version changelog** (excludes canceled tickets)
 - **Phases** — time-boxed planning periods with objective and deliverables; **activate** / **complete** lifecycle; optional ticket phase assignment; **project phase template** copied into new phases
 - **Categories** — classify tickets with name and color
-- **Comments** — discussion thread on each ticket
-- **Ticket history** — structured audit log (create, field changes, assign, move, subscribe, delete) merged with comments in the **Atividade** feed
+- **Comments** — discussion thread on each ticket (rich-text editor)
+- **Rich text** — shared editor for ticket Description, Text custom fields, project description, and ticket template description
+- **Ticket history** — structured audit log (create, field changes, assign, move, subscribe, delete, link add/remove) merged with comments in the **Atividade** feed
 - **Subscribers** — watch tickets and receive alerts on changes
-- **CSV import** — bulk-create tickets from a CSV file; project-scoped (from Kanban) or global (header Importar, project per row from CSV column); server parses with OpenCSV, stores rows in database, then column-mapping wizard creates tickets
+- **CSV import** — bulk-create tickets from a CSV file; project-scoped (from Kanban) or global (header Importar, project per row from CSV column); map built-in columns and **custom field keys**; server parses with OpenCSV, stores rows in database, then column-mapping wizard creates tickets
+- **Custom fields** — typed attributes (String, Text, Integer, Boolean, Enum) defined on projects and workflows; values on create/detail; required and status-required; template defaults; query with `cf.<key>`
 
 ### Projects & administration
 
-- **Projects** — name, prefix (immutable once tickets exist), description, assigned workflow, **project owner** (PM role), **project members**, and optional **ticket template** (default title, description, category, priority for new tickets)
+- **Projects** — name, prefix (immutable once tickets exist), description, assigned workflow, **project owner** (PM role), **project members**, optional **ticket template** (built-in defaults plus in-scope **custom field** defaults), and **project custom field** definitions
 - **Project allocation** — dedicated page to add/remove members; removal blocked while member has open assigned tickets
-- **Project hub** — member landing page with links to Kanban and dashboard (replaces project grid on home)
+- **Project hub** — member landing page with links to Kanban, Backlog, and dashboard (replaces project grid on home)
 - **Header Projetos** — labeled menu for all authenticated users listing viewable projects; each item opens that project’s Kanban; PM/admin also **Gerenciar projetos**
-- **Workflow builder** — create workflows with statuses, transitions, and optional per-status **WIP limits** (`/workflows` UI + API)
+- **Workflow builder** — create workflows with statuses, transitions, optional per-status **WIP limits**, and **workflow custom fields** (incl. status-required) (`/workflows` UI + API)
 - **Categories admin** — list, create, edit, and delete ticket categories (`/categories`, admin); delete blocked while tickets or project templates reference the category
 - **User management** — admin CRUD and soft-delete (blocked while assignee on open tickets); public self-registration (`/login/register`) with strong password policy
 - **Roles** — `user`, `admin`, `project-manager` (combinable)
@@ -80,14 +83,15 @@ Generated TypeScript clients land in `src/app/generated/` (gitignored). Angular 
 
 - **Home hub** — personal work view: open tickets in your projects, tickets assigned to you, and recent activity (comments + status changes)
 - **Kanban board** — columns by workflow status; optional swimlanes (assignee / priority); WIP `n/limit` with hard drop/move enforcement; move tickets between stages
+- **Project backlog** — ranked planning list (separate from Priority); infinite scroll; PM/admin drag-and-drop reorder; excludes done and deleted tickets
 - **Project dashboard** — charts (tickets by day, status, priority), recent tickets (top 20), performance KPIs; widget layout saved per user on the server
-- **Global search** — simple term search and **query language** (ANTLR, plain text) across ticket fields including comments
+- **Global search** — simple term search and **query language** (ANTLR, plain text) across ticket fields, comments, and custom fields (`cf.<key>`)
 - **Saved queries** — name, share by link, optional home sections, clone for non-owners
 - **Ticket detail** — expanded view with unified **Atividade** feed (comments + history), assignee, and status actions
 
 ### Notifications & email
 
-- **In-app notifications** — persisted alerts with mark-as-read
+- **In-app notifications** — persisted alerts, accurate unread badge, mark-as-read, and mark all as read
 - **Real-time delivery** — SSE channel registers on login for live pushes; dropdown loads history via paginated API with infinite scroll; SSE auto-reconnects after network drop
 - **Email** — password reset and ticket change notifications (Mailer + Qute)
 

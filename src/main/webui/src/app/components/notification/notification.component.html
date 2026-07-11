@@ -4,12 +4,25 @@
   [matMenuTriggerFor]="notifications"
   aria-label="Notificações">
   <mat-icon fontIcon="notifications" aria-hidden="true"></mat-icon>
-  @let unread = eventsUnread();
-  @if (unread > 0) {
-    <span class="notification-badge" aria-hidden="true">{{ unread }}</span>
+  @let badge = badgeLabel();
+  @if (badge) {
+    <span class="notification-badge" aria-hidden="true">{{ badge }}</span>
   }
 </button>
 <mat-menu #notifications="matMenu" class="menu-panel notifications">
+  <div class="notifications-header" (click)="$event.stopPropagation()">
+    <span class="notifications-title" i18n>Notificações</span>
+    @if (unread > 0) {
+      <button
+        type="button"
+        class="notifications-mark-all"
+        [disabled]="markingAll"
+        (click)="markAllAsRead($event)"
+        i18n>
+        Marcar todas como lidas
+      </button>
+    }
+  </div>
   <div class="notifications-scroll" (scroll)="onScroll($event)" (click)="$event.stopPropagation()">
     @if (events.length === 0 && !loading) {
       <div class="menu-empty" i18n>Nenhuma notificação</div>

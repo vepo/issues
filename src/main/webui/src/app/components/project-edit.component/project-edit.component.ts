@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -12,10 +12,26 @@ import { CreateOrUpdateProjectRequest, Project, ProjectsService } from '../../se
 import { User, UsersService } from '../../services/users.service';
 import { Workflow } from '../../services/workflow.service';
 import { AuthService } from '../../services/auth.service';
+import { CustomFieldAdminComponent } from '../custom-fields/custom-field-admin.component';
+import { CustomFieldFormSectionComponent } from '../custom-fields/custom-field-form-section.component';
+import { CustomField, CustomFieldService } from '../../services/custom-field.service';
+import { CustomFieldValueResponse } from '../../generated/model/customFieldValueResponse';
+import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
+import { optionalPlainTextLengthValidator } from '../../core/plain-text-length';
 
 @Component({
   selector: 'app-project-edit.component',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule, MatCheckboxModule],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    CustomFieldAdminComponent,
+    CustomFieldFormSectionComponent,
+    RichTextEditorComponent,
+  ],
   templateUrl: './project-edit.component.html'
 })
 export class ProjectEditComponent implements OnInit, OnDestroy {
@@ -23,7 +39,10 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
   private readonly projectsService = inject(ProjectsService);
   private readonly usersService = inject(UsersService);
   private readonly authService = inject(AuthService);
+  private readonly customFieldService = inject(CustomFieldService);
   private readonly router = inject(Router);
+
+  @ViewChild('templateCustomFields') templateCustomFields?: CustomFieldFormSectionComponent;
 
   private templateEnabledSubscription?: Subscription;
 
@@ -34,6 +53,8 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
   categories: Category[] = [];
   projectManagers: User[] = [];
   showOwnerPicker = false;
+  inScopeFields: CustomField[] = [];
+  templateCustomDefaults: CustomFieldValueResponse[] = [];
   readonly priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
 
   projectForm = new FormGroup({
@@ -92,7 +113,15 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
           this.projectForm.controls.prefix.enable({ emitEvent: false });
         }
         this.updateTemplateValidators(template?.enabled ?? false);
+        this.templateCustomDefaults = template?.customFieldDefaults ?? [];
+        this.loadInScopeFields(project.id);
       }
+    });
+  }
+
+  private loadInScopeFields(projectId: number): void {
+    this.customFieldService.listInScope(projectId).subscribe(fields => {
+      this.inScopeFields = fields;
     });
   }
 
@@ -143,6 +172,10 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
       .map(line => line.trim())
       .filter(line => line.length > 0);
 
+    if (templateEnabled && this.templateCustomFields && !this.templateCustomFields.isValid()) {
+      return;
+    }
+
     const request: CreateOrUpdateProjectRequest = {
       name,
       description,
@@ -155,6 +188,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
             description: templateDescription?.trim() || undefined,
             categoryId: templateCategoryId != null && templateCategoryId > 0 ? templateCategoryId : undefined,
             priority: templatePriority ?? undefined,
+            customFieldDefaults: this.templateCustomFields?.toValueRequests() ?? [],
           }
         : { enabled: false },
       phaseTemplate: {
@@ -180,7 +214,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
 
     if (enabled) {
       title.setValidators([Validators.minLength(5), Validators.maxLength(255)]);
-      templateDescription.setValidators([Validators.minLength(5), Validators.maxLength(1200)]);
+      templateDescription.setValidators([optionalPlainTextLengthValidator(5, 1200)]);
       categoryId.clearValidators();
     } else {
       title.clearValidators();

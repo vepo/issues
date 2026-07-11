@@ -3,6 +3,7 @@ import { CreateTicketComponent } from './components/create-ticket/create-ticket.
 import { TicketImportWizardComponent } from './components/ticket-import/ticket-import-wizard.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
+import { BacklogComponent } from './components/backlog/backlog.component';
 import { KanbanComponent } from './components/kanban/kanban.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
@@ -58,6 +59,14 @@ export const routes: Routes = [
       project: projectResolver,
       statuses: statusResolver,
       tickets: ticketsResolver
+    },
+    canActivate: [authGuard],
+  },
+  {
+    path: 'project/:projectId/backlog',
+    component: BacklogComponent,
+    resolve: {
+      project: projectResolver
     },
     canActivate: [authGuard],
   },

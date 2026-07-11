@@ -40,12 +40,16 @@ describe('NotificationComponent', () => {
       'listen',
       'reconnected',
       'list',
+      'unreadCount',
+      'markAllAsRead',
       'disconnect',
       'markAsRead',
     ]);
     notificationService.listen.and.returnValue(liveEvents.asObservable());
     notificationService.reconnected.and.returnValue(reconnected.asObservable());
     notificationService.list.and.callFake((page: number) => of(page === 0 ? page0 : page1));
+    notificationService.unreadCount.and.returnValue(of({ unread: 3 }));
+    notificationService.markAllAsRead.and.returnValue(of({ updated: 3, unread: 0 }));
 
     await TestBed.configureTestingModule({
       imports: [NotificationComponent],
@@ -63,8 +67,10 @@ describe('NotificationComponent', () => {
   it('should create and load first page', () => {
     expect(component).toBeTruthy();
     expect(notificationService.list).toHaveBeenCalledWith(0, 20);
+    expect(notificationService.unreadCount).toHaveBeenCalled();
     expect(component.events.length).toBe(2);
     expect(component.hasMore).toBeTrue();
+    expect(component.unread).toBe(3);
   });
 
   it('should load next page on scroll near bottom', () => {
@@ -79,10 +85,37 @@ describe('NotificationComponent', () => {
     expect(component.hasMore).toBeFalse();
   });
 
-  it('should reload page 0 after SSE reconnect', () => {
+  it('should reload page 0 and unread after SSE reconnect', () => {
     notificationService.list.calls.reset();
+    notificationService.unreadCount.calls.reset();
     notificationService.list.and.returnValue(of(page0));
+    notificationService.unreadCount.and.returnValue(of({ unread: 5 }));
     reconnected.next();
     expect(notificationService.list).toHaveBeenCalledWith(0, 20);
+    expect(notificationService.unreadCount).toHaveBeenCalled();
+    expect(component.unread).toBe(5);
+  });
+
+  it('should show badge count, 99+, and hide when zero', () => {
+    component.unread = 3;
+    expect(component.badgeLabel()).toBe('3');
+    component.unread = 100;
+    expect(component.badgeLabel()).toBe('99+');
+    component.unread = 0;
+    expect(component.badgeLabel()).toBeNull();
+  });
+
+  it('should mark all as read then reload list and unread', () => {
+    notificationService.list.calls.reset();
+    notificationService.unreadCount.calls.reset();
+    notificationService.unreadCount.and.returnValue(of({ unread: 0 }));
+    notificationService.list.and.returnValue(of({ ...page0, items: page0.items.map(i => ({ ...i, read: true })) }));
+
+    component.markAllAsRead(new Event('click'));
+
+    expect(notificationService.markAllAsRead).toHaveBeenCalled();
+    expect(notificationService.unreadCount).toHaveBeenCalled();
+    expect(notificationService.list).toHaveBeenCalledWith(0, 20);
+    expect(component.unread).toBe(0);
   });
 });

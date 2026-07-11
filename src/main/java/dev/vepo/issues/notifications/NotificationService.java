@@ -34,4 +34,14 @@ public class NotificationService {
         notification.setRead(request.read());
         return UserNotificationEvent.load(notificationRepository.save(notification));
     }
+
+    public UnreadNotificationCountResponse countUnread(String username) {
+        return new UnreadNotificationCountResponse(notificationRepository.countUnreadByUsername(username));
+    }
+
+    @Transactional
+    public MarkAllNotificationsReadResponse markAllAsRead(String username) {
+        var updated = notificationRepository.markAllReadByUsername(username);
+        return new MarkAllNotificationsReadResponse(updated, 0);
+    }
 }

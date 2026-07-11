@@ -71,4 +71,48 @@ class TicketQueryLanguageServiceTest {
         assertThat(results).isNotEmpty();
         assertThat(results).anyMatch(ticket -> java.time.LocalDate.parse("2026-08-20").equals(ticket.getDueDate()));
     }
+
+    @Test
+    @DisplayName("Should search tickets by custom field key")
+    void shouldSearchTicketsByCustomFieldKey() {
+        var key = "sprint_q_" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "key": "%s",
+                       "label": "Sprint",
+                       "type": "INTEGER",
+                       "required": false,
+                       "integerMin": 1,
+                       "integerMax": 99
+                     }
+                     """.formatted(key))
+               .post("/api/projects/%d/custom-fields".formatted(fixtures.project().id()))
+               .then()
+               .statusCode(201);
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .body("""
+                     {
+                         "title": "Query CF ticket title",
+                         "description": "Ticket for custom field query test.",
+                         "projectId": %d,
+                         "categoryId": %d,
+                         "customFields": [{"key": "%s", "value": 12}]
+                     }""".formatted(fixtures.project().id(), fixtures.bug().getId(), key))
+               .post("/api/tickets")
+               .then()
+               .statusCode(201);
+
+        var user = userRepository.findByEmail("user@issues.vepo.dev").orElseThrow();
+        var results = queryLanguageService.execute("cf.%s = 12".formatted(key), user);
+        assertThat(results).isNotEmpty();
+        assertThat(results).anyMatch(ticket -> ticket.getTitle().equals("Query CF ticket title"));
+
+        var empty = queryLanguageService.execute("cf.%s = 99".formatted(key), user);
+        assertThat(empty).noneMatch(ticket -> ticket.getTitle().equals("Query CF ticket title"));
+    }
 }

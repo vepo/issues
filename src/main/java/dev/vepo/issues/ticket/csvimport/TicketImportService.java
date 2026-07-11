@@ -2,6 +2,7 @@ package dev.vepo.issues.ticket.csvimport;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -9,6 +10,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 import dev.vepo.issues.categories.CategoryRepository;
+import dev.vepo.issues.customfield.CustomFieldService;
+import dev.vepo.issues.customfield.CustomFieldValueRequest;
 import dev.vepo.issues.project.Project;
 import dev.vepo.issues.project.ProjectRepository;
 import dev.vepo.issues.ticket.Ticket;
@@ -41,6 +44,7 @@ public class TicketImportService {
     private final TicketImportJson importJson;
     private final TicketImportRowExecutor rowExecutor;
     private final TicketRepository ticketRepository;
+    private final CustomFieldService customFieldService;
 
     @Inject
     public TicketImportService(TicketImportRepository importRepository,
@@ -51,7 +55,8 @@ public class TicketImportService {
                                CsvImportParser csvImportParser,
                                TicketImportJson importJson,
                                TicketImportRowExecutor rowExecutor,
-                               TicketRepository ticketRepository) {
+                               TicketRepository ticketRepository,
+                               CustomFieldService customFieldService) {
         this.importRepository = importRepository;
         this.importRowRepository = importRowRepository;
         this.projectRepository = projectRepository;
@@ -61,6 +66,7 @@ public class TicketImportService {
         this.importJson = importJson;
         this.rowExecutor = rowExecutor;
         this.ticketRepository = ticketRepository;
+        this.customFieldService = customFieldService;
     }
 
     @Transactional
@@ -115,6 +121,7 @@ public class TicketImportService {
         }
         validateMapping(ticketImport, mapping, importJson.readHeaders(ticketImport.getHeadersJson()));
         ticketImport.applyColumnMapping(mapping);
+        ticketImport.setCustomFieldColumnMapping(importJson.writeStringMap(mapping.customFieldColumns()));
         ticketImport.setStatus(TicketImportStatus.MAPPED);
 
         for (var row : importRowRepository.findByImportId(importId)) {
@@ -127,6 +134,7 @@ public class TicketImportService {
             row.setPriority(mapped.priority());
             row.setAssigneeEmail(mapped.assigneeEmail());
             row.setStatusName(mapped.statusName());
+            row.setCustomFieldValuesJson(importJson.writeStringMap(mapped.customFieldValues()));
             row.setValid(null);
             row.setValidationErrorsJson(null);
             row.setImportError(null);
@@ -189,7 +197,7 @@ public class TicketImportService {
             }
             try {
                 var rowProjectId = resolveProjectId(ticketImport, row);
-                var ticketResponse = rowExecutor.importRow(rowProjectId, row.toMappedImportRow(), username);
+                var ticketResponse = rowExecutor.importRow(rowProjectId, toMappedRow(row), username);
                 var ticket = ticketRepository.findById(ticketResponse.id()).orElseThrow();
                 row.setTicket(ticket);
                 row.setImportError(null);
@@ -228,6 +236,10 @@ public class TicketImportService {
 
     public MappedImportRow mapRow(TicketImport ticketImport, int rowNumber, Map<String, String> values, ColumnMapping mapping) {
         var projectName = ticketImport.isProjectScoped() ? null : blankToNull(cellValue(values, mapping.projectColumn()));
+        var customFieldValues = new LinkedHashMap<String, String>();
+        for (var entry : mapping.customFieldColumns().entrySet()) {
+            customFieldValues.put(entry.getKey(), cellValue(values, entry.getValue()));
+        }
         return new MappedImportRow(rowNumber,
                                    cellValue(values, mapping.titleColumn()),
                                    cellValue(values, mapping.descriptionColumn()),
@@ -235,11 +247,12 @@ public class TicketImportService {
                                    parsePriority(cellValue(values, mapping.priorityColumn())),
                                    blankToNull(cellValue(values, mapping.assigneeEmailColumn())),
                                    blankToNull(cellValue(values, mapping.statusColumn())),
-                                   projectName);
+                                   projectName,
+                                   customFieldValues);
     }
 
     private ImportRowValidationResponse validateAndPersistRow(TicketImport ticketImport, TicketImportRow row) {
-        var mapped = row.toMappedImportRow();
+        var mapped = toMappedRow(row);
         List<String> errors;
         boolean valid;
         if (row.getValid() != null && row.getValidationErrorsJson() != null) {
@@ -299,6 +312,12 @@ public class TicketImportService {
             }
         }
 
+        if (project != null) {
+            errors.addAll(customFieldService.validateImportValues(project.getId(),
+                                                                  project.getWorkflow().getId(),
+                                                                  row.customFieldValues()));
+        }
+
         return errors;
     }
 
@@ -326,10 +345,25 @@ public class TicketImportService {
                 throw new BadRequestException("Unknown CSV column: %s".formatted(required));
             }
         }
+        for (var entry : mapping.customFieldColumns().entrySet()) {
+            if (isBlank(entry.getKey())) {
+                throw new BadRequestException("Custom field key is required in column mapping");
+            }
+            if (isBlank(entry.getValue())) {
+                throw new BadRequestException("Custom field column mapping is required for key: %s".formatted(entry.getKey()));
+            }
+            if (!headers.contains(entry.getValue())) {
+                throw new BadRequestException("Unknown CSV column: %s".formatted(entry.getValue()));
+            }
+        }
+    }
+
+    private MappedImportRow toMappedRow(TicketImportRow row) {
+        return row.toMappedImportRow(importJson.readStringMap(row.getCustomFieldValuesJson()));
     }
 
     private long resolveProjectId(TicketImport ticketImport, TicketImportRow row) {
-        return resolveProject(ticketImport, row.toMappedImportRow()).orElseThrow(() -> new BadRequestException("Project is required")).getId();
+        return resolveProject(ticketImport, toMappedRow(row)).orElseThrow(() -> new BadRequestException("Project is required")).getId();
     }
 
     private Optional<Project> resolveProject(TicketImport ticketImport, MappedImportRow row) {
@@ -428,5 +462,19 @@ public class TicketImportService {
         } catch (IllegalArgumentException ex) {
             return null;
         }
+    }
+
+    static List<CustomFieldValueRequest> toCustomFieldRequests(Map<String, String> values) {
+        if (values == null || values.isEmpty()) {
+            return List.of();
+        }
+        var requests = new ArrayList<CustomFieldValueRequest>();
+        for (var entry : values.entrySet()) {
+            if (isBlank(entry.getValue())) {
+                continue;
+            }
+            requests.add(new CustomFieldValueRequest(entry.getKey(), entry.getValue()));
+        }
+        return requests;
     }
 }

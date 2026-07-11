@@ -1,12 +1,14 @@
 # Notifications
 
-**Feature version:** 2  
+**Feature version:** 3  
 **Status:** done  
-**Requested:** retrospective baseline (documented 2026-07-03)
+**Requested:** retrospective baseline (documented 2026-07-03); v3 polish 2026-07-11
 
 ## Summary
 
 In-app notifications for ticket subscribers: persisted alerts, mark-as-read, and real-time delivery via Server-Sent Events (SSE). The dropdown loads history via a **paginated list API** with **infinite scroll**; SSE delivers **live** events only. After a network drop the client **auto-reconnects** SSE using a fresh access token (refresh if needed).
+
+**v3:** accurate **unread count** badge from the server (fixes pagination under-count) and **Marcar todas como lidas** for all unread notifications of the current user.
 
 ## Wireframe
 
@@ -15,25 +17,27 @@ In-app notifications for ticket subscribers: persisted alerts, mark-as-read, and
 | Field | Value |
 |-------|-------|
 | **Source** | ASCII below (global shell widget) |
-| **Last updated** | 2026-07-10 |
+| **Last updated** | 2026-07-11 |
 
 ### Widget: global header (no dedicated route)
 
 | Region | Elements | Notes |
 |--------|----------|-------|
-| Badge | Unread count on bell icon | From loaded items + live SSE; unread = `!read` |
-| Dropdown | Notification list | Newest first; click marks read + navigates to ticket |
+| Badge | Unread count on bell icon | Server **unread count** (**FQ1**); hide when 0; display `99+` when unread > 99 (**FQ4**) |
+| Dropdown header | Label **Notificações** + **Marcar todas como lidas** | Mark-all only when unread > 0 (**FQ3**); secondary text button; stops menu close on click |
+| Dropdown list | Notification list | Newest first; click marks read + navigates to ticket |
 | Scroll | Infinite scroll | Near bottom → fetch next page; show subtle loading; stop when `hasMore` false |
 | Empty | Short empty state | When first page empty |
 
 ```
-Header:  …  [🔔 3]  …
-         ┌─────────────────────────────┐
-         │ Ticket PROJ-1 updated       │
-         │ Comment on PROJ-2           │
-         │ …                           │
-         │ (scroll → load more)        │
-         └─────────────────────────────┘
+Header:  …  [🔔 3]  …          (or [🔔 99+] when unread > 99)
+         ┌─────────────────────────────────┐
+         │ Notificações  [Marcar todas…]   │  ← when unread > 0
+         │ Ticket PROJ-1 updated           │
+         │ Comment on PROJ-2               │
+         │ …                               │
+         │ (scroll → load more)            │
+         └─────────────────────────────────┘
 ```
 
 ## Impact
@@ -41,90 +45,145 @@ Header:  …  [🔔 3]  …
 | Area | Effect |
 |------|--------|
 | Bounded contexts | `notifications` |
-| Packages / files | `notifications.list`, `NotificationService`, `NotificationRepository`, `register` (SSE live-only), Angular `notification` + `sse.client` |
-| API | **`GET /notifications?page=&size=`** (new); existing `GET /notifications/register` (SSE, no history dump); `POST /notifications/{id}/read` |
-| UI | Dropdown: initial page load + infinite scroll; SSE reconnect with token refresh |
-| Schema / seed | No Flyway change — index optional on `(receive_id, created_at)` if missing |
-| Tests | `ListNotificationsEndpointTest`; SSE/register regression; Angular notification + sse specs |
-| Docs | domain-spec invariant 42 (already); feature-catalog; ARCHITECTURE API row; README if needed |
+| Packages / files | `NotificationService`, `NotificationRepository`; `notifications.unread.UnreadNotificationCountEndpoint`; `notifications.readall.MarkAllNotificationsReadEndpoint`; Angular `notification` + service |
+| API | `GET /notifications/unread-count`; `POST /notifications/read-all`; list / SSE / single read unchanged |
+| UI | Badge from server unread (+ `99+`); dropdown header **Marcar todas como lidas**; after mark-all reload page 0 + unread (**FQ5**) |
+| Schema / seed | None — filter existing `tb_notifications.read` |
+| Tests | Unread + mark-all endpoint tests; Angular badge / mark-all / display-cap specs |
+| Docs | domain-spec terms + invariant; feature-catalog; README; ui-elements-gallery §8.2; ARCHITECTURE API rows |
 
 ### Risks
 
-- Removing SSE history dump changes reconnect behaviour — client must load list via REST after connect/reconnect (**AQ3**).
-- Stale JWT on long-lived SSE — reconnect must refresh access token (**AQ4**).
+- Mark-all must filter by authenticated username (never global update).
+- Live SSE may arrive during/after mark-all — client reloads page 0 + unread after success (**FQ5**); new live events still merge and bump unread.
+- Path order: `unread-count` and `read-all` must not collide with `{id}/read` (literal paths vs path param).
 
 ### Feature questions (FQ*n*)
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| FQ1 | How should SSE reconnect after network drop? | answered | **Yes** — client auto-reconnects SSE after network drop |
-| FQ2 | What retention or pagination strategy applies at high notification volume? | answered | **Infinite scroll** — paginated fetch as user scrolls the notification list |
+| FQ1 | Should the bell badge show **total unread** from the server (not only loaded pages)? | answered | **Yes** — dedicated unread count from server |
+| FQ2 | Does **Marcar todas como lidas** mark **all** unread for the user, or only items currently loaded in the dropdown? | answered | **All** unread for the authenticated user |
+| FQ3 | Where is the mark-all control? | answered | Dropdown header: **Marcar todas como lidas**, only when unread > 0 |
+| FQ4 | Cap badge display (e.g. `99+`) when unread is large? | answered | **Yes** — show `99+` when unread > 99 |
+| FQ5 | After mark-all, should the client reload page 0 and unread count, or only flip local `read` flags? | answered | **Reload** page 0 and unread count |
 
 ## Architecture
 
-**Guide:** technical design for changelog v2.
+**Guide:** technical design for changelog v3.
 
 | Area | Design |
 |------|--------|
-| Bounded contexts | `notifications` owns list + SSE + mark-as-read |
-| Packages / layers | `ListNotificationsEndpoint` → `NotificationService.list` → `NotificationRepository.findPage` |
-| API | `GET /api/notifications?page=0&size=20` → `NotificationPageResponse`; SSE register = live events only |
-| Schema | No new tables; query `ORDER BY created_at DESC, id DESC`; ensure index if useful |
-| Cross-context | Unchanged CDI ticket events → persist + push to open sinks |
-| Frontend | Open menu / init: fetch page 0; scroll → next pages; SSE prepend/merge by id; reconnect via `sse.client` + `AuthService.refreshToken` on auth failure |
-| Tests | Endpoint pagination; Angular scroll/load; reconnect uses current/refreshed token |
+| Bounded contexts | `notifications` owns unread count + mark-all |
+| Packages / layers | Endpoints → `NotificationService` → `NotificationRepository` |
+| API | See API surface below |
+| Schema | No Flyway change; JPQL bulk update `read = true` where unread for user (**AQ2**) |
+| Cross-context | Unchanged CDI ticket events → persist + SSE |
+| Frontend | Fetch unread on init + after reconnect; badge display cap; mark-all → POST then reload page 0 + unread |
+| Tests | Endpoint tests; Angular specs for badge text and mark-all flow |
 
 ### Packages / layers
 
 | Layer | Type | Responsibility |
 |-------|------|----------------|
-| Endpoint | `notifications.list.ListNotificationsEndpoint` | `GET /notifications` — `page` (default 0), `size` (default 20, max 50) |
-| Endpoint | `notifications.register.RegisterNotificationsEndpoint` | SSE register; **do not** dump history (**AQ3**) |
-| Service | `NotificationService.list(username, page, size)` | Clamp size; return page response |
-| Repository | `NotificationRepository.findPage` / `countByUsername` | Ordered page + total |
+| Endpoint | `notifications.unread.UnreadNotificationCountEndpoint` | `GET /notifications/unread-count` |
+| Endpoint | `notifications.readall.MarkAllNotificationsReadEndpoint` | `POST /notifications/read-all` |
+| Service | `NotificationService.countUnread` / `markAllAsRead` | Username-scoped; return response records |
+| Repository | `countUnreadByUsername` / `markAllReadByUsername` | Count + bulk update |
 
 ### API surface
 
 | Method | Path | Auth | Success | Notes |
 |--------|------|------|---------|-------|
-| `GET` | `/api/notifications` | authenticated roles | `200` `NotificationPageResponse` | Query: `page` ≥ 0, `size` 1–50 |
-| `GET` | `/api/notifications/register` | authenticated | SSE stream | Live `UserNotificationEvent` only |
-| `POST` | `/api/notifications/{id}/read` | authenticated | `UserNotificationEvent` | Unchanged |
-
-`NotificationPageResponse`:
+| `GET` | `/api/notifications/unread-count` | authenticated roles | `200` `UnreadNotificationCountResponse` | **FQ1** |
+| `POST` | `/api/notifications/read-all` | authenticated roles | `200` `MarkAllNotificationsReadResponse` | No body; **FQ2** |
+| existing | list / register / `{id}/read` | — | — | Unchanged |
 
 ```text
-record NotificationPageResponse(
-  List<UserNotificationEvent> items,
-  long total,
-  int page,
-  int size,
-  boolean hasMore
-)
+record UnreadNotificationCountResponse(long unread)
+
+record MarkAllNotificationsReadResponse(long updated, long unread)
 ```
 
-`operationId`: `listNotifications`. Tag: `Notification`.
+- `operationId`: `getUnreadNotificationCount`, `markAllNotificationsRead`
+- Tag: `Notification`
+- Roles: same as list (`USER`, `ADMIN`, `PROJECT_MANAGER`)
+- `MarkAllNotificationsReadResponse.unread` is always `0` after success (**AQ3**)
+- Register literal paths before/alongside `{id}` so JAX-RS does not treat `unread-count` / `read-all` as ids (**AQ1**)
 
-Ordering: `created_at DESC`, then `id DESC` (stable).
+### Client behaviour
 
-### SSE + reconnect
-
-1. Client opens SSE with current Bearer access token.
-2. On stream end / network error: wait ~3s (existing), ensure valid token (`refreshToken` if needed), reconnect.
-3. After reconnect: optionally refresh page 0 of list to catch missed events (or rely on live stream only for new events after reconnect — **AQ5**: reload first page).
-4. Server: one sink per username (existing map); closed sinks dropped on next push.
+1. On init (and after SSE reconnect): `GET unread-count` + existing page-0 list load.
+2. Badge text: `unread` if 1–99; `99+` if > 99; hidden if 0 (**FQ4**).
+3. On live SSE unread event: increment local unread (or re-fetch count — prefer increment for new unread; re-fetch on reconnect).
+4. On single mark-as-read success: decrement unread (min 0) and merge event.
+5. On mark-all: `POST read-all` → reload page 0 + unread count (**FQ5**); hide mark-all when unread is 0.
 
 ### Architecture questions (AQ*n*)
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| AQ1 | Page size? | answered | Default **20**; query `size` max **50** |
-| AQ2 | Offset vs cursor? | answered | **Offset** `page` + `size` — sufficient for notification volumes |
-| AQ3 | SSE register still dumps full history? | answered | **No** — history via list API only; SSE = live pushes |
-| AQ4 | Token on reconnect? | answered | Reconnect with **current** access token; on 401 refresh via `POST /auth/refresh` then retry |
-| AQ5 | After SSE reconnect, reload list? | answered | **Yes** — reload page 0 and reset scroll paging so missed events while disconnected appear |
+| AQ1 | Unread count via dedicated endpoint vs field on page response? | answered | **Dedicated** `GET /notifications/unread-count` — badge needs count without depending on list payload |
+| AQ2 | Mark-all persistence: load entities vs bulk JPQL update? | answered | **Bulk JPQL** `UPDATE … SET read = true WHERE receive.username = :username AND read = false` |
+| AQ3 | Mark-all response shape? | answered | `MarkAllNotificationsReadResponse(updated, unread)` with `unread = 0` |
 
 ## Changelog
+
+### Mark all as read and accurate unread badge — 2026-07-11
+
+**Version:** 3  
+**Status:** done
+
+**Description:** Expose an accurate unread count for the header badge (fix pagination under-count) and a **Marcar todas como lidas** action that marks **all** unread notifications for the current user.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| Authentication | Same authenticated roles as existing notification endpoints |
+| — | Ticket event → notification create / SSE live push unchanged |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Bell badge shows server unread total; `99+` when > 99; hidden at 0 | FQ1, FQ4, Wireframe | ☑ |
+| FC2 | Dropdown header shows **Marcar todas como lidas** only when unread > 0 | FQ2, FQ3, Wireframe | ☑ |
+| FC3 | Mark-all updates only the authenticated user's unread notifications | Risks, FQ2, AQ2 | ☑ |
+| FC4 | After mark-all, client reloads page 0 and unread count | FQ5 | ☑ |
+| FC5 | Dropdown + badge match **Wireframe** | Wireframe | ☑ |
+| FC6 | `domain-specification.md` — Unread count + Mark all as read + invariants 63–64 | Impact / Docs | ☑ |
+| FC7 | `feature-catalog.md` + gallery §8.2 updated | Impact / Docs | ☑ |
+| FC8 | README notifications bullet mentions mark-all / accurate badge | Impact / Docs | ☑ |
+| FC9 | ARCHITECTURE API map includes unread-count and read-all | Architecture | ☑ |
+
+#### Tasks
+
+| ID | Task | Done |
+|----|------|------|
+| T1 | `NotificationRepository.countUnreadByUsername` + `markAllReadByUsername` (bulk JPQL) | ☑ |
+| T2 | `UnreadNotificationCountResponse` + `MarkAllNotificationsReadResponse`; service methods | ☑ |
+| T3 | `UnreadNotificationCountEndpoint` `GET /notifications/unread-count` | ☑ |
+| T4 | `MarkAllNotificationsReadEndpoint` `POST /notifications/read-all` | ☑ |
+| T5 | Endpoint tests — unread count; mark-all updates all for user; empty/idempotent; auth 401 | ☑ |
+| T6 | Angular facade — unread count + mark-all API | ☑ |
+| T7 | Angular UI — server badge + `99+`; header mark-all; reload page 0 + unread after mark-all; refresh unread on init/reconnect | ☑ |
+| T8 | Angular specs — badge display; mark-all calls API and reloads | ☑ |
+| T9 | OpenAPI codegen + docs (domain-spec, feature-catalog, gallery §8.2, README, ARCHITECTURE) | ☑ |
+
+#### Test coverage
+
+| ID | Test | Covers | Done |
+|----|------|--------|------|
+| TC1 | Unread count endpoint — correct total; 0 when none; 401 unauthenticated | T1–T3, T5 | ☑ |
+| TC2 | Mark-all — marks all unread for user; `updated` count; `unread` 0; idempotent second call | T1, T2, T4, T5 | ☑ |
+| TC3 | Mark-all does not affect another user's notifications | T4, T5 | ☑ |
+| TC4 | Angular — badge shows count / `99+` / hidden at 0 | T7, T8 | ☑ |
+| TC5 | Angular — mark-all triggers POST then reloads list + unread | T6–T8 | ☑ |
+
+**Development approval:** approved 2026-07-11 — tasks: T1, T2, T3, T4, T5, T6, T7, T8, T9
+
+**Implementation notes:** `GET /notifications/unread-count`; `POST /notifications/read-all` (bulk JPQL by username). Angular badge from server unread with `99+` cap; dropdown **Marcar todas como lidas** reloads page 0 + unread. `mvn verify` + `npm run build` + notification Angular specs green (2026-07-11).
 
 ### Initial implementation — baseline
 

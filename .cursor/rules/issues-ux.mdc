@@ -42,7 +42,7 @@ Reference: [microsoft.design](https://www.microsoft.design/)
 
 | Flat UI principle | Issues application |
 |-------------------|-------------------|
-| **Simple, minimal interfaces** | `.page` scaffold, ample whitespace (`$space-*`), no decorative chrome; one primary action per screen region |
+| **Simple, minimal interfaces** | `.page` scaffold, `$space-*` whitespace (comfortable compact density), no decorative chrome; one primary action per screen region |
 | **Clean sans-serif typography** | Roboto; hierarchy via size, weight, and color (`.page-title`, `.page-subtitle`, `$text-*`) — not via ornament |
 | **Bold, vibrant colors** | Navy chrome (`$base-background-color`), primary blue (`$base-active-color`), semantic reds/greens for errors/success |
 | **Flat iconography** | Material Icons — geometric, line-based; icon-only header actions (menu, notifications) |

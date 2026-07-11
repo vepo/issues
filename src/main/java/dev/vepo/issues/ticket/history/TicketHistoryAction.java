@@ -8,5 +8,7 @@ public enum TicketHistoryAction {
     SUBSCRIBED,
     UNSUBSCRIBED,
     DELETED,
-    RESTORED
+    RESTORED,
+    LINK_ADDED,
+    LINK_REMOVED
 }

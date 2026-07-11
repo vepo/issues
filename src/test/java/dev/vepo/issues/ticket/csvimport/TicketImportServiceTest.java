@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,7 @@ class TicketImportServiceTest {
     @BeforeEach
     void setUp() {
         fixtures = TicketTestFixtures.create();
-        mapping = new ColumnMapping("Title", "Description", "Category", "Priority", "Assignee", "Status", null);
+        mapping = new ColumnMapping("Title", "Description", "Category", "Priority", "Assignee", "Status", null, Map.of());
     }
 
     @Test
@@ -141,7 +142,7 @@ class TicketImportServiceTest {
         var importId = uploadCsvWithCategory(fixtures.bug().getName());
         ticketImportService.applyMapping(fixtures.project().id(),
                                          importId,
-                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null));
+                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, Map.of()));
 
         var row = importRowRepository.findByImportId(importId).getFirst();
         assertThat(row.getPriority()).isEqualTo(TicketPriority.MEDIUM);
@@ -160,7 +161,7 @@ class TicketImportServiceTest {
         var importId = uploadCsv(csv);
         ticketImportService.applyMapping(fixtures.project().id(),
                                          importId,
-                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null));
+                                         new ColumnMapping("Title", "Description", "Category", null, null, null, null, Map.of()));
 
         var response = ticketImportService.execute(fixtures.project().id(), importId, "project-manager");
 
@@ -185,7 +186,8 @@ class TicketImportServiceTest {
                                                                                                                     null,
                                                                                                                     null,
                                                                                                                     null,
-                                                                                                                    null)))
+                                                                                                                    null,
+                                                                                                                    Map.of())))
                                        .isInstanceOf(jakarta.ws.rs.BadRequestException.class);
     }
 
@@ -199,7 +201,7 @@ class TicketImportServiceTest {
                   %s,Global import title,Global import description,%s
                   """.formatted(fixtures.project().name(), fixtures.bug().getName());
         var importId = uploadGlobalCsv(csv);
-        var globalMapping = new ColumnMapping("Title", "Description", "Category", null, null, null, "Project");
+        var globalMapping = new ColumnMapping("Title", "Description", "Category", null, null, null, "Project", Map.of());
         ticketImportService.applyMapping(null, importId, globalMapping);
 
         var response = ticketImportService.execute(null, importId, "project-manager");
@@ -218,7 +220,7 @@ class TicketImportServiceTest {
                                        """.formatted(UUID.randomUUID(), fixtures.bug().getName()));
         ticketImportService.applyMapping(null,
                                          importId,
-                                         new ColumnMapping("Title", "Description", "Category", null, null, null, "Project"));
+                                         new ColumnMapping("Title", "Description", "Category", null, null, null, "Project", Map.of()));
 
         var preview = ticketImportService.preview(null, importId);
 
@@ -235,7 +237,7 @@ class TicketImportServiceTest {
                                        """.formatted(UUID.randomUUID(), fixtures.bug().getName()));
         ticketImportService.applyMapping(null,
                                          importId,
-                                         new ColumnMapping("Title", "Description", "Category", null, null, null, "Project"));
+                                         new ColumnMapping("Title", "Description", "Category", null, null, null, "Project", Map.of()));
         var preview = ticketImportService.preview(null, importId);
         var row = preview.rows().getFirst();
 

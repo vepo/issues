@@ -47,7 +47,9 @@ public class TicketImportRowExecutor {
                                                                    projectId,
                                                                    row.priority(),
                                                                    null,
-                                                                   null),
+                                                                   null,
+                                                                   null,
+                                                                   TicketImportService.toCustomFieldRequests(row.customFieldValues())),
                                            username);
 
         if (row.assigneeEmail() != null) {

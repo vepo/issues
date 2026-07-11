@@ -1,5 +1,7 @@
 package dev.vepo.issues.ticket.csvimport;
 
+import java.util.Map;
+
 import dev.vepo.issues.ticket.Ticket;
 import dev.vepo.issues.ticket.TicketPriority;
 import jakarta.persistence.Column;
@@ -51,6 +53,9 @@ public class TicketImportRow {
 
     @Column(name = "status_name")
     private String statusName;
+
+    @Column(name = "custom_field_values_json", columnDefinition = "TEXT")
+    private String customFieldValuesJson;
 
     private Boolean valid;
 
@@ -150,6 +155,14 @@ public class TicketImportRow {
         this.statusName = statusName;
     }
 
+    public String getCustomFieldValuesJson() {
+        return customFieldValuesJson;
+    }
+
+    public void setCustomFieldValuesJson(String customFieldValuesJson) {
+        this.customFieldValuesJson = customFieldValuesJson;
+    }
+
     public Boolean getValid() {
         return valid;
     }
@@ -182,7 +195,15 @@ public class TicketImportRow {
         this.importError = importError;
     }
 
-    public MappedImportRow toMappedImportRow() {
-        return new MappedImportRow(rowNumber, title, description, categoryName, priority, assigneeEmail, statusName, projectName);
+    public MappedImportRow toMappedImportRow(Map<String, String> customFieldValues) {
+        return new MappedImportRow(rowNumber,
+                                   title,
+                                   description,
+                                   categoryName,
+                                   priority,
+                                   assigneeEmail,
+                                   statusName,
+                                   projectName,
+                                   customFieldValues);
     }
 }

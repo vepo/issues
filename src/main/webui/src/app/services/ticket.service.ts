@@ -2,11 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { TicketApi } from '../generated/api/ticket.service';
 import { ProjectApi } from '../generated/api/project.service';
+import { ChildrenSummaryResponse } from '../generated/model/childrenSummaryResponse';
 import { CommentRequest } from '../generated/model/commentRequest';
 import { CommentResponse } from '../generated/model/commentResponse';
+import { CreateChildTicketRequest } from '../generated/model/createChildTicketRequest';
+import { CreateTicketLinkRequest } from '../generated/model/createTicketLinkRequest';
 import { CreateTicketRequest } from '../generated/model/createTicketRequest';
 import { MoveTicketRequest } from '../generated/model/moveTicketRequest';
 import { SubscribeTicketRequest } from '../generated/model/subscribeTicketRequest';
+import { TicketLinkResponse } from '../generated/model/ticketLinkResponse';
+import { TicketLinkType } from '../generated/model/ticketLinkType';
+import { TicketType } from '../generated/model/ticketType';
 import { UpdateAssigneeRequest } from '../generated/model/updateAssigneeRequest';
 import { UpdateTicketRequest } from '../generated/model/updateTicketRequest';
 import { TicketExpandedResponse } from '../generated/model/ticketExpandedResponse';
@@ -18,8 +24,10 @@ export type Ticket = Loaded<TicketResponse>;
 export type TicketExpanded = Loaded<TicketExpandedResponse>;
 export type Comment = Loaded<CommentResponse>;
 export type TicketHistory = Loaded<TicketHistoryResponse>;
+export type TicketLink = Loaded<TicketLinkResponse>;
+export type ChildrenSummary = Loaded<ChildrenSummaryResponse>;
 export type CreateCommentRequest = CommentRequest;
-export type { CreateTicketRequest, UpdateTicketRequest };
+export type { CreateTicketRequest, UpdateTicketRequest, CreateTicketLinkRequest, CreateChildTicketRequest, TicketLinkType, TicketType };
 
 @Injectable({
   providedIn: 'root'
@@ -94,5 +102,21 @@ export class TicketService {
 
   removeSubscription(ticketId: number, userId: number): Observable<TicketExpanded> {
     return this.api.unsubscribeTicket(ticketId, userId).pipe(map(asLoaded));
+  }
+
+  listLinks(ticketId: number): Observable<TicketLink[]> {
+    return this.api.listTicketLinks(ticketId).pipe(map(asLoadedArray));
+  }
+
+  createLink(ticketId: number, request: CreateTicketLinkRequest): Observable<TicketLink> {
+    return this.api.createTicketLink(ticketId, request).pipe(map(asLoaded));
+  }
+
+  deleteLink(ticketId: number, linkId: number): Observable<unknown> {
+    return this.api.deleteTicketLink(ticketId, linkId);
+  }
+
+  createChild(ticketId: number, request: CreateChildTicketRequest): Observable<Ticket> {
+    return this.api.createChildTicket(ticketId, request).pipe(map(asLoaded));
   }
 }

@@ -16,11 +16,16 @@ expression
     ;
 
 clause
-    : field=IDENTIFIER op=(EQ | NEQ | GT | LT | GTE | LTE | TILDE) value=literal       # CompareClause
-    | field=IDENTIFIER IN '(' literals ')'                                             # InClause
-    | field=IDENTIFIER NOT IN '(' literals ')'                                         # NotInClause
-    | field=IDENTIFIER IS EMPTY                                                          # IsEmptyClause
-    | field=IDENTIFIER IS NOT EMPTY                                                      # IsNotEmptyClause
+    : field=fieldRef op=(EQ | NEQ | GT | LT | GTE | LTE | TILDE) value=literal       # CompareClause
+    | field=fieldRef IN '(' literals ')'                                             # InClause
+    | field=fieldRef NOT IN '(' literals ')'                                         # NotInClause
+    | field=fieldRef IS EMPTY                                                          # IsEmptyClause
+    | field=fieldRef IS NOT EMPTY                                                      # IsNotEmptyClause
+    ;
+
+fieldRef
+    : CUSTOM_FIELD
+    | IDENTIFIER
     ;
 
 literal
@@ -60,6 +65,10 @@ STRING
 
 NUMBER
     : [0-9]+ ('.' [0-9]+)?
+    ;
+
+CUSTOM_FIELD
+    : 'cf.' [a-zA-Z_][a-zA-Z0-9_]*
     ;
 
 IDENTIFIER

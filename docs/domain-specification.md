@@ -79,7 +79,10 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
 | **Issues** | The product (change/ticket management). | UI title, email templates |
-| **User** | Registered account with name, email, optional local password, roles, and **auth provider**. | `User`, `tb_users` |
+| **User** | Registered account with name, email, optional local password, roles, **auth provider**, and optional **locale preference**. | `User`, `tb_users` |
+| **UI locale** | Language for product chrome, **system labels**, and formatting: `pt` or `en`. Source templates are Portuguese (`pt`). | Angular i18n; [feature/i18n.md](../feature/i18n.md) |
+| **Locale preference** | User’s stored **UI locale** on the server; edited on account settings. Unauthenticated visits use browser `Accept-Language`. | `User` column (planned); `GET /auth/me`, `POST /auth/profile` |
+| **System label** | Product-owned display string for fixed enums and UI copy (e.g. Priority, Phase status). Distinct from admin-authored names (workflow statuses, custom fields). | Shared `$localize` catalog (planned) |
 | **Auth provider** | Deployment-wide credential source: **LOCAL**, **LDAP**, or **ENDPOINT** (selected via `AUTH_PROVIDER`). | `AuthProvider`, `auth.provider` |
 | **Role** | Platform capability assigned to a user (multi-role). | `Role` enum |
 | **User** (role) | Default role; create and work on tickets. | `Role.USER` — label: "User" |
@@ -89,6 +92,14 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Password recovery** | Self-service flow to reset password via email link; **LOCAL** provider only. | `AuthenticationService` `/auth/recovery` |
 | **Password reset token** | Single-use secret sent by email. | `PasswordResetToken` |
 | **Auth capabilities** | Public flags telling the UI whether password recovery and change-password are available. | `GET /auth/capabilities` |
+| **Personal API token** | Long-lived secret a **user** creates to authenticate `/api` as themselves (scripts, MCP, CI) without password login. Secret shown once at create; revocable. Prefix e.g. `iss_pat_`. | Planned — [feature/agentic-integration.md](../feature/agentic-integration.md); UI: account **Tokens de API** |
+| **Service account** | Project-scoped machine identity for agents/CI; has its own tokens; managed at **`/projects/:projectId/service-accounts`** by project manager/admin. Display name used in **Agente em nome de &lt;nome&gt;**. Prefix e.g. `iss_sat_`. Permissions: **project member–aligned** on that project. | Planned — [feature/agentic-integration.md](../feature/agentic-integration.md) |
+| **Agent setup** | Guided account-settings flow (**Conectar agente**) that creates a token and offers **copy-ready** MCP/IDE configuration using **`issues.public-base-url`** and **`issues.mcp-public-base-url`**. | Planned — [feature/agentic-integration.md](../feature/agentic-integration.md) |
+| **Public base URL** | Configurable absolute base URL(s) of Issues API and MCP for generated agent config (`application.properties` in v1). | `issues.public-base-url`, `issues.mcp-public-base-url` |
+| **Issues MCP** | Separate Quarkus **Model Context Protocol** app (Java) calling Issues `/api` with the client’s Bearer token. May later join Issues as a **multi-module** reactor module. No Python MCP. | Planned — [feature/agentic-integration.md](../feature/agentic-integration.md) **AQ7** |
+| **Agent channel** | Request made with an API token; persisted as `via_agent`; UI shows **Agente em nome de &lt;nome&gt;** (PAT owner name or service account display name). | [feature/agentic-integration.md](../feature/agentic-integration.md) |
+| **Ticket context** | Composite read for agents: ticket detail + allowed transitions + in-scope custom fields in one response. | Planned `GET /tickets/{id}/context` |
+| **Agentic integration** | Capability for coding agents to read and update tickets while implementing features. Distinct from repo `.cursor/agents` used to *build* Issues. | [feature/agentic-integration.md](../feature/agentic-integration.md) |
 
 ### Projects & workflows
 
@@ -110,7 +121,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Phase start status** | Optional status on a workflow; when a **phase** is **activated**, each assigned ticket moves here if a valid transition exists. | `Workflow.phaseStart`; UI **Status inicial da fase** |
 | **Finish status** | Workflow status marked as terminal with outcome **done** or **canceled**. | `WorkflowFinishStatus`, `tb_workflow_finish_statuses` |
 | **Finish outcome** | Classification of a finish status: `DONE` or `CANCELED`. | `FinishOutcome` enum |
-| **Ticket template** | Optional default field values for new tickets in a project: built-in fields (title, description, category, priority) and, when configured, **custom field** defaults for in-scope project/workflow fields. | Embedded / related on `Project`; custom defaults planned — [feature/custom-fields.md](../feature/custom-fields.md) |
+| **Ticket template** | Optional default field values for new tickets in a project: built-in fields (title, description, category, priority) and, when configured, **custom field** defaults for in-scope project/workflow fields. | Embedded / related on `Project`; `customFieldDefaults` — [feature/custom-fields.md](../feature/custom-fields.md) |
 | **Template enabled** | Project manager opted in; when true, at least one template field must be configured; only configured fields pre-fill the create form. | `Project.ticketTemplateEnabled`; UI checkbox **Usar template de ticket** |
 | **Phase template objective** | Default plain-text **objective** copied into each new phase for the project. | `Project.phaseTemplateObjective` |
 | **Phase template deliverable** | Default **deliverable** row copied into each new phase for the project. | `tb_project_phase_deliverable_templates` |
@@ -118,7 +129,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Custom field type** | Allowed type: `STRING`, `TEXT`, `INTEGER`, `BOOLEAN`, `ENUM`. | `CustomFieldType` |
 | **Custom field key** | Stable machine identifier for a custom field; immutable after create; unique within owner and across a project’s in-scope union. | `CustomField.key` |
 | **String (custom field)** | Short plain text; per-field max length ≤ platform cap **255**. | Distinct from **Title** |
-| **Text (custom field)** | Long text using the same storage/editor model as **Description** (max **1200**). | Distinct from **Description** |
+| **Text (custom field)** | Long text using the same storage/editor model as **Description** (plain-text max **1200**; may store rich-text HTML). | Distinct from **Description** |
 | **Integer (custom field)** | Whole number with optional min and max bounds. | |
 | **Boolean (custom field)** | True/false; optional fields may be unset (null). | UI: checkbox |
 | **Enum (custom field)** | Single choice from a fixed set of **enum options**. | Single-select in v1 |
@@ -131,7 +142,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 
 ### Phases & versions
 
-Methodology-neutral planning terms. UI labels in PT-BR until i18n.
+Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); Portuguese remains the Angular source locale.
 
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
@@ -154,33 +165,42 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
 | **Ticket** | A change/work item within a project. | `Ticket`, `tb_tickets` |
+| **Ticket type** | Role of the ticket in planning: `EPIC`, `STORY`, or `TASK` (default). | `TicketType`; `tb_tickets.ticket_type`; UI Épico / História / Tarefa |
+| **Epic** | Feature-level ticket (`type=EPIC`) that groups child tickets; delivery work is on children; may span many **phases**. Distinct from **Phase** and **Category**. | Hierarchy via `CHILD_OF` links |
 | **Identifier** | Human-readable ticket key: `{project.prefix}-{seq}` (e.g. `ISS-003`). | `Ticket.identifier`, URL `/ticket/:ticketIdentifier` |
 | **Title** | Short summary of the ticket. | `Ticket.title` |
-| **Description** | Longer explanation of the work. | `Ticket.description` |
+| **Description** | Longer explanation of the work; may contain rich-text HTML from the shared editor. Plain-text length max **1200**. | `Ticket.description` |
 | **Category** | Classification label with display color (e.g. Feature, Bug). Tickets reference category **by id** (`category_id`). | `Category`, `tb_categories` |
 | **Assignee** | User responsible for the ticket (optional). | `Ticket.assignee` |
 | **Author** | User who created the ticket. | `Ticket.author` |
 | **Current status** | Ticket's position in the project workflow. | `Ticket.status` → `WorkflowStatus` |
 | **Priority** | Ticket urgency level. | `TicketPriority` enum: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`; `Ticket.priority` |
+| **Backlog** | Project-scoped ordered list of non-deleted, non-done tickets for planning “what’s next.” | UI `/project/:projectId/backlog`; [feature/ticket-backlog.md](../feature/ticket-backlog.md) |
+| **Backlog rank** | Relative position of a ticket in the project backlog (lower = higher in the list). Distinct from **Priority**. | `Ticket.backlogRank`; `tb_tickets.backlog_rank` |
+| **Reorder (backlog)** | Change a ticket’s backlog rank relative to peers; project-manager and admin only. | `POST /projects/{id}/backlog/reorder` |
 | **Soft delete** | Ticket marked deleted without physical removal; may be **restored** by admin/PM. | `Ticket.deleted`; excluded from search until restored |
 | **Move (ticket)** | Change ticket status following workflow transition rules. | `POST /tickets/{id}/move`, `MoveTicketRequest` |
 | **Phase (on ticket)** | Optional assignment of a ticket to a project phase. | `Ticket.phase`; UI **Fase** |
 | **Observed version** | Version where the change was observed or shipped. | `Ticket.observedVersion`; UI **Versão observada** |
 | **Target version** | Version where the change is intended to land. | `Ticket.targetVersion`; UI **Versão alvo** |
 | **Finish date** | Timestamp set when ticket reaches a **done** finish status; cleared when leaving done. | `Ticket.finishedAt`; UI **Data de conclusão** |
+| **Story points** | Optional non-negative integer estimate of ticket size/effort; null means unset (burndown warns and treats as 0 until set). | `Ticket.storyPoints` |
 | **Due date** | Optional user-planned deadline for the ticket; distinct from finish date. | `Ticket.dueDate`; UI **Data de vencimento** |
 | **Comment** | Text note attached to a ticket. | `Comment`, `tb_comments` |
 | **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`). | `TicketHistory`, `TicketHistoryService` |
-| **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`. | `TicketHistoryAction` |
+| **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`, `LINK_ADDED`, `LINK_REMOVED`. | `TicketHistoryAction` |
 | **Activity feed** | Unified chronological UI on ticket detail merging comments and history events. | Ticket detail **Atividade** section |
 | **Subscriber** | User watching a ticket; receives notifications on changes. | `Ticket.subscribers`, M:N `tb_tickets_subscribers` |
 | **Subscribe** | Add a user to ticket subscribers. | `PUT /tickets/{id}/subscribe` |
 | **Unsubscribe** | Remove a subscriber from a ticket. | `DELETE /tickets/{id}/subscribe/{subscriberId}` |
+| **Ticket link** | Directed association between two tickets with a **link type**; may be **cross-project**. | `TicketLink`, `tb_ticket_links`; UI **Vínculos** |
+| **Link type** | Fixed kind: `BLOCKS`, `RELATES_TO`, `DUPLICATES`, `DERIVED_FROM`, `REMAINING_WORK_OF`, `CHILD_OF`. | `TicketLinkType` |
+| **Child ticket** / **Subtask** | Ticket linked to an **Epic** via `CHILD_OF` (source=child, target=Epic). | UI **Subtarefas** |
 | **CSV import** | Bulk creation of tickets from a CSV file. May be **project-scoped** (fixed project) or **global** (project resolved per row from a mapped column). | `POST /projects/{projectId}/tickets/import/upload` or `POST /tickets/import/upload`; UI at `/project/:projectId/tickets/import` or `/tickets/import` |
-| **Column mapping** | User-defined association between CSV header names and ticket fields (title, description, category, priority, assignee, status, optionally project, and **custom fields** when in scope). | `ColumnMapping`, import wizard step 2; custom field mapping planned |
+| **Column mapping** | User-defined association between CSV header names and ticket fields (title, description, category, priority, assignee, status, optionally project, and **custom fields** by **key** when in scope). | `ColumnMapping` / `customFieldColumns`; import wizard step 2 |
 | **Import row** | One CSV data row after column mapping, validated and stored before ticket creation. | `TicketImportRow`, `tb_ticket_import_rows` |
 | **Ticket import batch** | Server-side persisted CSV upload with parsed rows awaiting mapping and execution. | `TicketImport`, `tb_ticket_imports` |
-| **Custom field value** | The value stored on a **ticket** for one in-scope **custom field**. | Planned — part of ticket consistency boundary |
+| **Custom field value** | The value stored on a **ticket** for one **custom field** (writable when in-scope; orphan former-workflow values retained read-only until cleared). | `TicketCustomFieldValue`, `tb_ticket_custom_field_values` |
 
 ### Notifications & real-time
 
@@ -188,7 +208,9 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 |------|---------|--------------|
 | **Notification** | Alert persisted for a subscriber about a ticket event. | `Notification`, `tb_notifications` |
 | **Notification channel** | SSE stream registered by the client. | `GET /notifications/register` |
-| **Mark as read** | User acknowledges a notification. | `POST /notifications/{id}/read` |
+| **Unread count** | Number of unread notifications for the current user; drives the header badge (display capped at `99+`). | `GET /notifications/unread-count` |
+| **Mark as read** | User acknowledges a single notification. | `POST /notifications/{id}/read` |
+| **Mark all as read** | User acknowledges all of their unread notifications at once. | `POST /notifications/read-all` |
 | **Ticket change email** | Transactional email when a subscribed ticket changes. | `MailerService`, Qute template `notifyTicketChange.html` |
 
 ### Analytics & views
@@ -196,7 +218,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
 | **Kanban** | Board view grouping tickets by workflow status columns. | `/project/:projectId/kanban` |
-| **Swimlane** | Optional Kanban row grouping by **assignee** or **priority** (toolbar **Faixa**; default none). View-only — not persisted. | Kanban toolbar |
+| **Swimlane** | Optional Kanban row grouping by **assignee** or **priority** (toolbar **Agrupar por**; default none). View-only — not persisted. | Kanban toolbar |
 | **WIP limit** | Optional maximum non-deleted tickets allowed in a **workflow status** for a given workflow; shared by all projects using that workflow. | `tb_workflow_wip_limits`; workflow form; Kanban `n/limit` |
 | **Dashboard** | Project analytics page with charts and KPIs. | `/project/:projectId/dashboard` |
 | **Dashboard widget** | Chart, table, or KPI visualization. | `DashboardType` enum |
@@ -206,8 +228,12 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | **Tickets by priority** | Pie chart of tickets grouped by priority. | `tickets-by-priority` |
 | **Recent tickets** | Table of the **20** most recently updated non-deleted tickets in the project. | `recent-tickets` |
 | **Performance KPI** | Summary metrics for project throughput. | `performance-kpi` |
+| **Burndown** | Project view of remaining **story points** for a **phase** vs an **ideal line** over the phase date range. Peer route of Kanban. | `/project/:projectId/burndown`; [feature/burndown.md](../feature/burndown.md) |
+| **Story points** | Optional non-negative integer size/effort estimate on a ticket; used by burndown. | `Ticket.storyPoints`; UI **Story points** |
+| **Ideal line** | Linear projection from remaining points at phase start date to zero at phase end date. | Burndown chart |
+| **Canceled at** | Timestamp set when ticket reaches a **CANCELED** finish status; cleared when leaving canceled; used as burn day for burndown. | `Ticket.canceledAt` |
 | **Search** | Full-text ticket search across projects. | `/search`, `GET /tickets/search` |
-| **Query language** | Issues-native **plain text** search syntax, parsed with **ANTLR**; inspired by Jira JQL — **not JQL-compatible**; field predicates over tickets, comments, and (planned) **custom fields**. | `POST /tickets/search/query`; `TicketQuery.g4` |
+| **Query language** | Issues-native **plain text** search syntax, parsed with **ANTLR**; inspired by Jira JQL — **not JQL-compatible**; field predicates over tickets, comments, and **custom fields** via `cf.<key>`. | `POST /tickets/search/query`; `TicketQuery.g4` |
 | **Saved query** | Named, persisted query text owned by a user; shareable via stable URL slug; optional **show at home** flag. | `tb_saved_queries`; `/search/q/:slug`, `/search/queries` |
 | **Show at home** (saved query) | When enabled on edit, owned saved query renders as a ticket table section on the home screen. | Home `/` |
 | **Clone saved query** | Non-owner copies another user's saved query into a new owned query (required before edit). | `POST …/saved-queries/{id}/clone` |
@@ -228,7 +254,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 6. **Roles** — Endpoint access enforced via `@RolesAllowed`; class-level `@DenyAll` on protected resources.
 7. **Request/Response contract** — HTTP body types are records named `*Request` / `*Response` (ArchUnit enforced).
 8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, only **configured** template fields pre-fill the create form; the user may submit without filling unconfigured template fields. Required ticket fields still follow `CreateTicketRequest` validation. Template may include **custom field** defaults for in-scope fields ([feature/custom-fields.md](../feature/custom-fields.md) **FQ5**).
-9. **Project description** — Required on create and update (`CreateProjectRequest.description` must not be blank).
+9. **Project description** — Required on create and update (`CreateProjectRequest.description` must not be blank); may contain rich-text HTML from the shared editor (no separate plain-text max beyond non-blank).
 10. **CSV import** — CSV parsed on the server (OpenCSV); upload and rows stored in `tb_ticket_imports` / `tb_ticket_import_rows` before mapping and execution. **Project-scoped** imports fix `project_id` on the batch; **global** imports leave `project_id` null and require a **project column** mapping — each row's project is resolved by name (case-insensitive). Author is the importing user; identifiers are always auto-generated (never read from CSV). Category resolved by name; assignee by email; status by workflow status name within the row's project workflow. Optional priority defaults to `MEDIUM`. Partial import: valid rows are created; invalid rows are reported per row without rolling back siblings. Status on import: ticket is created at workflow start; if a different status is mapped, a direct transition from start to that status must exist (multi-hop paths are not supported).
 11. **One active phase per project** — activating phase B **completes** the previously active phase; never two `ACTIVE` phases in the same project.
 12. **Phase–ticket project match** — a ticket's phase must belong to the ticket's project.
@@ -239,6 +265,9 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 17. **Version scope** — observed, target, and deliverable version references must belong to the ticket's or phase's project.
 18. **Finish statuses** — each workflow defines finish statuses tagged `DONE` or `CANCELED`.
 19. **Finish date** — moving to a `DONE` finish status sets `finished_at`; moving out of a `DONE` finish status clears `finished_at`. `CANCELED` does not set finish date.
+19a. **Canceled at** — moving to a `CANCELED` finish status sets `canceled_at`; moving out of `CANCELED` clears `canceled_at`. Used as burndown burn day for canceled tickets.
+19b. **Story points** — optional non-negative integer on a ticket; null means unset. Burndown warns on unset in-scope tickets and treats them as 0 until set; setting points increases remaining (scope add).
+19c. **Burndown** — phase-scoped remaining story points vs ideal line over phase start/end; chart disabled (not hidden) when dates incomplete; peer route of Kanban.
 20. **Version changelog** — derived, not persisted separately. Includes non-canceled tickets linked by target version, observed version, or phase deliverable version. Excludes tickets in a `CANCELED` finish status; they reappear when moved out of canceled. Sorted by finish date ascending (nulls last) within grouped sections.
 21. **Ticket create — no default phase** — new tickets have no phase unless the user selects one from **planned** and **active** phases in the create form.
 22. **Phase/version history** — changes to phase, observed version, target version, due date, and finish date on tickets are logged via `TicketHistoryService`.
@@ -247,7 +276,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 25. **Project owner** — each project has exactly one **project owner** with the project-manager role, assigned at creation. Only the project owner or an **admin** may update the project, manage allocation, or change project configuration. **Owner transfer:** admin or the current project owner may assign a new owner on edit; the new owner must have the project-manager role and need not already be a **project member** — they are added as a member when the transfer completes.
 26. **Member removal** — a **project member** cannot be removed while they are **assignee** on a non-finished ticket in that project; tickets must be reassigned first.
 27. **Home scope** — `user` role: home lists and activity include **member** projects only. **Project owner:** owned projects. **Admin:** all projects.
-28. **Project hub access** — any **project member** (and admin) may open the project hub and navigate to Kanban and dashboard; project edit and allocation require project owner or admin.
+28. **Project hub access** — any **project member** (and admin) may open the project hub and navigate to Kanban, Burndown, and dashboard; project edit and allocation require project owner or admin.
 29. **Project list (viewable)** — `GET /projects` returns **viewable** projects: **admin** sees all; other users see the union of projects they **own** and projects where they are a **project member**. The header **Project navigation menu** uses this list.
 30. **Ticket search** — global across projects for any authenticated user; not filtered by membership.
 31. **Saved query ownership** — each saved query has exactly one **owner**; only the owner may update or delete. Non-owners must **clone** another user's query before editing.
@@ -260,10 +289,20 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 38. **Kanban drag validation** — client blocks drag/drop to columns with no valid workflow transition; server remains authoritative on `moveTicket`.
 50. **WIP limit** — optional per workflow×status (`tb_workflow_wip_limits`); null/absent = unlimited. Count is non-deleted tickets in that status for the **project**. `moveTicket` into a status at or over its limit is rejected (400); client also blocks the drop. Ticket **create** and CSV **import** do not enforce WIP in the current product scope.
 51. **Kanban swimlanes** — optional toolbar grouping by assignee or priority (default none); preference is not persisted server-side.
+72. **Backlog membership** — project backlog lists non-deleted tickets that are not in a **DONE** finish status (`finished_at` is null). Soft-deleted and done tickets are excluded; canceled (no finish date) remain eligible.
+73. **Backlog rank** — every ticket has a project-scoped integer `backlog_rank`. New tickets (create / CSV import) receive `max(rank)+1` in the project (append at end). Rank is independent of **Priority**.
+74. **Backlog reorder** — only `PROJECT_MANAGER` and `ADMIN` may reorder; other authenticated users with project access may view. Reorder is relative (`beforeTicketId` or end); changes are audited as `FIELD_CHANGED` / `backlogRank`.
+75. **Backlog pagination** — backlog list is paginated (default page size 20); UI uses infinite scroll.
 39. **User removal** — a user cannot be deleted while they are **assignee** on tickets whose status is not workflow **start**, **done**, or **canceled** finish status.
 40. **Self-registration** — new users may register via a public registration flow (default role `user`).
-41. **Account profile** — authenticated users may update their own name and email on account settings.
+41. **Account profile** — authenticated users may update their own name, email, and **locale preference** (`pt` \| `en`) on account settings. **Locale preference** is seeded from the browser / active SPA locale on **register** and on **first provisioning** (LDAP/ENDPOINT user create); users may change it later in account settings. API errors and emails are not localized with the UI locale in v1. User-authored content (ticket fields, custom field labels, workflow status names, etc.) is not auto-translated.
 42. **Notifications pagination** — notification list uses **infinite scroll** with paginated API; SSE client **auto-reconnects** after network drop.
+63. **Unread badge** — header badge shows the server **unread count** for the current user (not only loaded list pages); display as `99+` when unread > 99; hidden when 0.
+64. **Mark all as read** — marks every unread notification for the authenticated user only; after success the client reloads the first list page and unread count.
+65. **Ticket type** — every ticket has type `EPIC`, `STORY`, or `TASK` (default `TASK`).
+69. **Epic hierarchy** — only an **Epic** may be the parent of a `CHILD_OF` link; each child has at most one parent; depth is one (Epic → children); cycles are rejected.
+70. **Ticket links** — peer and hierarchy links may connect tickets in **different projects**; the user must be able to view both ends; creating a link requires update rights on the source ticket’s project context.
+71. **Epic finish with open children** — server allows moving an Epic to a done finish status while children are open; UI warns.
 43. **Refresh token** — opaque server-side token in `tb_refresh_tokens`; issued on login; rotated on `POST /auth/refresh`; revoked on password change or reset. Access JWT TTL configured via `auth.access-token-minutes` (default 15 min).
 44. **Dashboard layout** — one layout per user per project, stored server-side; browser `localStorage` layouts are not migrated.
 45. **Recent tickets widget** — shows at most **20** non-deleted tickets ordered by `updated_at` descending.
@@ -282,6 +321,10 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 60. **Custom field history** — value changes logged as `FIELD_CHANGED` with `field` = custom field **key**.
 61. **Custom field roles** — project definitions: project owner or admin; workflow definitions: project-manager or admin; values: same roles as ticket create/update.
 62. **Custom field notifications** — custom field value changes do not trigger notifications or email in the current product scope.
+66. **Personal API token** — secret shown once at create; stored hashed only; revoke disables Bearer auth immediately. (Planned — [agentic-integration.md](../feature/agentic-integration.md).)
+67. **Agent channel attribution** — mutations via API token persist `via_agent` and are shown as **Agente em nome de &lt;nome&gt;** (PAT: user name; service account: SA display name). (Planned.)
+68. **Service account scope** — a service account belongs to exactly one project; tokens authorize **member-aligned** powers on that project only. Managed at `/projects/:projectId/service-accounts`. (Planned.)
+76. **Issues MCP deployment** — MCP runs as a **separate Quarkus project** calling Issues HTTP APIs; the Issues repo may later become a **multi-module** reactor that includes MCP. (Planned.)
 
 ---
 
@@ -295,7 +338,7 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | Custom field | `CustomField` | Key, label, type, required, enabled, owner (project XOR workflow), enum options, status-required links |
 | Phase | `Phase` | Lifecycle, objective, deliverables, deliverable version |
 | Version | `Version` | SemVer label, changelog (derived) |
-| Ticket | `Ticket` | Title, status, assignee, phase, versions, finish date, subscribers, comments, **custom field values** |
+| Ticket | `Ticket` | Title, status, assignee, phase, versions, finish date, subscribers, comments, **ticket type**, **custom field values**, **ticket links** |
 | Notification | `Notification` | Read state per user per event |
 
 ---
@@ -305,6 +348,8 @@ Methodology-neutral planning terms. UI labels in PT-BR until i18n.
 | Domain term | Primary types |
 |-------------|---------------|
 | Ticket | `ticket.Ticket`, `ticket.TicketService` |
+| Ticket type | `ticket.TicketType` |
+| Ticket link | `ticket.link.TicketLink`, `ticket.link.TicketLinkService` |
 | Workflow | `workflow.Workflow`, `workflow.WorkflowService` |
 | Project | `project.Project`, `project.ProjectService` |
 | Phase | `phase.Phase`, `phase.PhaseService` |

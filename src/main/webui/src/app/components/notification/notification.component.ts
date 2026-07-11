@@ -20,19 +20,25 @@ export class NotificationComponent implements OnInit, OnDestroy {
   private readonly subscriptions = new Subscription();
 
   events: UserNotification[] = [];
+  unread = 0;
   page = 0;
   hasMore = true;
   loading = false;
+  markingAll = false;
   private readonly pageSize = 20;
 
   ngOnInit(): void {
+    this.refreshUnread();
     this.loadPage(0, true);
     this.notificationService.connect();
     this.subscriptions.add(
       this.notificationService.listen().subscribe(event => this.mergeLiveEvent(event)),
     );
     this.subscriptions.add(
-      this.notificationService.reconnected().subscribe(() => this.loadPage(0, true)),
+      this.notificationService.reconnected().subscribe(() => {
+        this.refreshUnread();
+        this.loadPage(0, true);
+      }),
     );
   }
 
@@ -41,8 +47,11 @@ export class NotificationComponent implements OnInit, OnDestroy {
     this.notificationService.disconnect();
   }
 
-  eventsUnread(): number {
-    return this.events.filter(e => !e.read).length;
+  badgeLabel(): string | null {
+    if (this.unread <= 0) {
+      return null;
+    }
+    return this.unread > 99 ? '99+' : String(this.unread);
   }
 
   onScroll(event: Event): void {
@@ -55,6 +64,24 @@ export class NotificationComponent implements OnInit, OnDestroy {
     }
   }
 
+  markAllAsRead(event: Event): void {
+    event.stopPropagation();
+    if (this.markingAll || this.unread <= 0) {
+      return;
+    }
+    this.markingAll = true;
+    this.notificationService.markAllAsRead().subscribe({
+      next: () => {
+        this.markingAll = false;
+        this.refreshUnread();
+        this.loadPage(0, true);
+      },
+      error: () => {
+        this.markingAll = false;
+      },
+    });
+  }
+
   navigate(notification: UserNotification): void {
     if (!notification.read) {
       this.notificationService.markAsRead(notification.id).subscribe(updated => {
@@ -64,6 +91,14 @@ export class NotificationComponent implements OnInit, OnDestroy {
     } else {
       void this.router.navigate(['/', 'ticket', notification.ticketId]);
     }
+  }
+
+  private refreshUnread(): void {
+    this.notificationService.unreadCount().subscribe({
+      next: response => {
+        this.unread = response.unread ?? 0;
+      },
+    });
   }
 
   private loadPage(page: number, reset: boolean): void {
@@ -86,8 +121,16 @@ export class NotificationComponent implements OnInit, OnDestroy {
   }
 
   private mergeLiveEvent(event: UserNotification): void {
+    const previous = this.events.find(e => e.id === event.id);
     this.events = this.mergeById([event], this.events);
     this.events.sort((a, b) => b.timestamp - a.timestamp);
+    if (!previous && !event.read) {
+      this.unread += 1;
+    } else if (previous && !previous.read && event.read) {
+      this.unread = Math.max(0, this.unread - 1);
+    } else if (previous?.read && !event.read) {
+      this.unread += 1;
+    }
   }
 
   private mergeById(primary: UserNotification[], secondary: UserNotification[]): UserNotification[] {

@@ -21,7 +21,7 @@ Canonical reference for developers and AI agents. Domain language lives in [docs
 
 ## 3. Domain overview
 
-**Issues** is a change/ticket management system. A **Project** scopes **Tickets** that follow a **Workflow** of **Statuses** via **Transitions**. Tickets have **Categories**, **Assignees**, **Comments**, **History**, and **Subscribers** who receive **Notifications**.
+**Issues** is a change/ticket management system. A **Project** scopes **Tickets** that follow a **Workflow** of **Statuses** via **Transitions**. Tickets have **Categories**, **Assignees**, **Comments**, **History**, **Custom fields**, and **Subscribers** who receive **Notifications**.
 
 ```mermaid
 erDiagram
@@ -30,12 +30,16 @@ erDiagram
     User }o--o{ Ticket : subscribes
     Project ||--o{ Ticket : contains
     Project }||--|| Workflow : uses
+    Project ||--o{ CustomField : defines
     Workflow ||--o{ WorkflowStatus : includes
     Workflow ||--o{ WorkflowTransition : defines
+    Workflow ||--o{ CustomField : defines
     Ticket }o--|| WorkflowStatus : current_status
     Ticket }o--o| Category : classified_by
     Ticket ||--o{ Comment : has
     Ticket ||--o{ TicketHistory : audited_by
+    Ticket ||--o{ CustomFieldValue : has
+    CustomField ||--o{ CustomFieldValue : valued_as
     User ||--o{ Notification : receives
     Notification }o--|| Ticket : refers_to
 ```
@@ -69,10 +73,13 @@ dev.vepo.issues/
 │   ├── create/ update/ find/ search/ delete/
 ├── project/                   # ProjectService, ProjectPaths
 │   ├── list/ create/ update/ find/ workflow/ status/
+│   ├── customfield/           # Nested project custom-field CRUD + in-scope list
 │   └── tickets/list/          # ListProjectTicketsEndpoint
 ├── workflow/                  # WorkflowService
 │   ├── list/ create/
+│   ├── customfield/           # Nested workflow custom-field CRUD (status-required)
 │   └── status/list/           # ListStatusesEndpoint
+├── customfield/               # CustomFieldService — defs, values, template defaults, validation
 ├── phase/                     # PhaseService, VersionService, PhasePaths
 │   ├── list/ create/ update/ find/ activate/ complete/
 │   └── version/               # Version CRUD + changelog endpoints
@@ -80,7 +87,7 @@ dev.vepo.issues/
 │   ├── list/ create/ update/ delete/
 ├── ticket/                    # TicketService, TicketPaths
 │   ├── list/ search/ find/ create/ update/ assign/ delete/ move/
-│   ├── search/query/          # ANTLR query language (SearchTicketsByQueryEndpoint)
+│   ├── search/query/          # ANTLR query language (SearchTicketsByQueryEndpoint; cf.<key>)
 │   ├── search/saved/          # SavedQuery CRUD + clone
 │   ├── comments/list/ comments/add/
 │   ├── history/               # TicketHistoryService + GetTicketHistoryEndpoint
@@ -172,14 +179,16 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Users | `user.find.FindUserByIdEndpoint` | `GET /users/{id}` |
 | Users | `user.search.SearchUsersEndpoint` | `GET /users/search` |
 | Projects | `project.*` | `/projects` (+ workflow, status subpaths) |
+| Project custom fields | `project.customfield.*` | `/projects/{id}/custom-fields` (+ `/in-scope`) |
 | Project tickets | `project.tickets.list.ListProjectTicketsEndpoint` | `GET /projects/{id}/tickets` |
-| Tickets | `ticket.*` | `/tickets` (+ comments, history, subscribe) |
+| Tickets | `ticket.*` | `/tickets` (+ comments, history, subscribe; `customFields` on create/update/detail) |
 | Ticket search | `ticket.search.SearchTicketsEndpoint` | `GET /tickets/search` |
-| Query language | `ticket.search.query.SearchTicketsByQueryEndpoint` | `POST /tickets/search/query` |
+| Query language | `ticket.search.query.SearchTicketsByQueryEndpoint` | `POST /tickets/search/query` (`cf.<key>`) |
 | Saved queries | `ticket.search.saved.*` | `/saved-queries` (CRUD, by-slug, clone) |
 | Home | `home.tickets.*`, `home.activity.*`, `home.savedqueries.*` | `/home/tickets/*`, `/home/activity`, `/home/saved-queries` |
 | Workflows | `workflow.list.ListWorkflowsEndpoint` | `GET /workflows` |
 | Workflows | `workflow.create.CreateWorkflowEndpoint` | `POST /workflows` |
+| Workflow custom fields | `workflow.customfield.*` | `/workflows/{id}/custom-fields` |
 | Phases | `phase.*` | `/projects/{id}/phases` |
 | Versions | `phase.version.*` | `/projects/{id}/versions` |
 | Statuses | `workflow.status.list.ListStatusesEndpoint` | `GET /status` |
@@ -191,6 +200,8 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Dashboards | `dashboards.layout.GetDashboardLayoutEndpoint` | `GET /projects/{id}/dashboard/layout` |
 | Dashboards | `dashboards.layout.SaveDashboardLayoutEndpoint` | `PUT /projects/{id}/dashboard/layout` |
 | Notifications | `notifications.list.ListNotificationsEndpoint` | `GET /notifications?page=&size=` |
+| Notifications | `notifications.unread.UnreadNotificationCountEndpoint` | `GET /notifications/unread-count` |
+| Notifications | `notifications.readall.MarkAllNotificationsReadEndpoint` | `POST /notifications/read-all` |
 | Notifications | `notifications.register.RegisterNotificationsEndpoint` | `GET /notifications/register` (SSE, live only) |
 | Notifications | `notifications.read.UpdateNotificationReadEndpoint` | `POST /notifications/{id}/read` |
 
@@ -263,12 +274,18 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Item | Status |
 |------|--------|
 | Workflow update API/UI | Partial — edit name, start status, and transitions; status list fixed after create (**blocked:** [workflow-configuration.md](feature/workflow-configuration.md) Q1/Q2 open) |
-| Kanban swimlanes + WIP limits | Done — [kanban-board.md](feature/kanban-board.md) v2; `tb_workflow_wip_limits`; hard enforce on `moveTicket`; Faixa toolbar |
+| Kanban swimlanes + WIP limits | Done — [kanban-board.md](feature/kanban-board.md) v3; `tb_workflow_wip_limits`; hard enforce on `moveTicket`; **Agrupar por** toolbar |
 | Header **Projetos** menu (all users → Kanban) | Done — [project-navigation.md](feature/project-navigation.md) v1; `GET /projects` viewable scope |
 | Immutable project prefix | Done — [project-administration.md](feature/project-administration.md) v2; `prefixLocked` on `ProjectResponse`; reject prefix change when tickets exist |
 | Pluggable auth (LOCAL / LDAP / ENDPOINT) | Done — [authentication.md](feature/authentication.md) v3; `AUTH_PROVIDER` + CDI `CredentialAuthenticator`; `GET /auth/capabilities` |
 | Notifications SSE reconnect + infinite scroll | Done — [notifications.md](feature/notifications.md) v2; `GET /notifications` page API; SSE live-only; client reconnect + token refresh |
-| Custom fields (project/workflow defs, ticket values) | Planned — [custom-fields.md](feature/custom-fields.md) v1; `customfield` package; nested `/projects|workflows/{id}/custom-fields`; ticket values; import `cf` keys; query `cf.<key>` |
+| Notifications mark-all + unread badge | Done — [notifications.md](feature/notifications.md) v3; `GET /notifications/unread-count`; `POST /notifications/read-all`; badge `99+` |
+| Shared rich-text editor | Done — [rich-text-editor.md](feature/rich-text-editor.md) v1; Description, Text CF, project/template description; `PlainTextLength` / `@PlainTextSize` |
+| Custom fields (project/workflow defs, ticket values) | Done — [custom-fields.md](feature/custom-fields.md) v1; `customfield` package; nested `/projects|workflows/{id}/custom-fields`; ticket values; import by key; query `cf.<key>` |
+| Agentic Development integration (PAT + SA + separate Quarkus MCP) | Tasks-ready — [agentic-integration.md](feature/agentic-integration.md) v1; MCP separate project, multi-module path; await task approval |
+| Ticket links, epics & subtasks | Done — [ticket-links.md](feature/ticket-links.md) v1; `TicketType`; `tb_ticket_links`; cross-project; Epic hierarchy; Angular Vínculos/Subtarefas |
+| Project ticket backlog (ranked list + reorder) | Done — [ticket-backlog.md](feature/ticket-backlog.md) v1; `backlog_rank`; `GET/POST …/backlog`; Angular infinite scroll + drag |
+| Burndown (story points, Kanban-peer page) | Tasks-ready — [burndown.md](feature/burndown.md) v1; await task approval T1–T10 |
 
 ## 14. OpenAPI → TypeScript codegen
 

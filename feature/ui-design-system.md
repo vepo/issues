@@ -1,12 +1,12 @@
 # UI design system — class consistency
 
-**Feature version:** 1  
+**Feature version:** 2  
 **Status:** done  
-**Requested:** 2026-07-03
+**Requested:** 2026-07-03 · density update 2026-07-11
 
 ## Summary
 
-The Issues SPA already defines a flat UI design language ([docs/ui-elements-gallery.md](../docs/ui-elements-gallery.md), [colors.scss](../src/main/webui/src/colors.scss), [styles.scss](../src/main/webui/src/styles.scss)). In practice, screens diverge: duplicate CSS rules, undocumented template classes, component-local SCSS with hard-coded spacing, and incomplete i18n. This feature consolidates styling into **compatible global classes** so every element maps to the gallery and tokens — no ad-hoc padding or one-off patterns.
+The Issues SPA already defines a flat UI design language ([docs/ui-elements-gallery.md](../docs/ui-elements-gallery.md), [colors.scss](../src/main/webui/src/colors.scss), [styles.scss](../src/main/webui/src/styles.scss)). Version 1 consolidated styling into **compatible global classes**. Version 2 tightens global density so more content fits per viewport without a redesign or “tiny UI” — **comfortable compact** via token-first changes.
 
 ## Wireframe
 
@@ -15,7 +15,7 @@ The Issues SPA already defines a flat UI design language ([docs/ui-elements-gall
 | Field | Value |
 |-------|-------|
 | **Source** | [ui-elements-gallery.md](../docs/ui-elements-gallery.md) — canonical element matrix |
-| **Last updated** | 2026-07-03 |
+| **Last updated** | 2026-07-11 |
 
 ### Pattern reference (all routes)
 
@@ -30,32 +30,128 @@ The Issues SPA already defines a flat UI design language ([docs/ui-elements-gall
 
 No single Excalidraw — implementation must match gallery § per screen when consolidating styles.
 
+### Density wireframe (v2 — comfortable compact)
+
+Same layout regions and gallery classes; **rhythm only** changes. Floors: control height ≥ 36px; body text ≥ 0.8125rem; icon targets ≥ 36×36; focus ring 2px.
+
+```
+Today (airy)                     Comfortable compact (~15–25% less chrome)
+┌──────────────────────────┐     ┌──────────────────────────┐
+│ Title 1.5rem             │     │ Title 1.25rem            │
+│ subtitle                 │     │ subtitle 0.875rem        │
+│                          │     │ ┌──────────────────────┐ │
+│  ┌────────────────────┐  │     │ │ more table rows      │ │
+│  │ sparse panel 24px  │  │  →  │ │ more kanban cards    │ │
+│  │ pad / 40px ctrls   │  │     │ │ panel pad 16px       │ │
+│  └────────────────────┘  │     │ │ controls 36px        │ │
+└──────────────────────────┘     │ └──────────────────────┘ │
+                                 └──────────────────────────┘
+```
+
+| Region | Density change |
+|--------|----------------|
+| App shell | Slightly less header/context/main vertical padding; `$shell-padding-x` 16→12 |
+| Page header | Title/subtitle smaller; `margin-bottom` one step down |
+| Panels / tables | `$panel-padding` via `$space-lg` 24→16; table cells tighter |
+| Toolbar controls | `$control-height` 40→36; Material `density: -1` |
+| Kanban | Card pad `$space-sm`; `min-width` 220; description clamp 2; board/column gaps `$space-sm` |
+| Auth | **Same** density as app (**FQ2**) — no special airy exception |
+
 ## Impact
 
 | Area | Effect |
 |------|--------|
 | Bounded contexts | None (presentation only) |
-| Packages / files | `src/main/webui/src/styles.scss`, `colors.scss`, ~6 component SCSS files, ~22 HTML templates, `toast.component.ts`, `docs/ui-elements-gallery.md`, `docs/ui-nielsen-audit.md` |
+| Packages / files | **v1:** `styles.scss`, `colors.scss`, component SCSS, templates, gallery. **v2 density:** `colors.scss` tokens, Material theme `density` in `styles.scss`, page/header/kanban rules, outlier component SCSS (dashboard, notification, rich-text), gallery + UX notes |
 | API | None |
-| UI | All authenticated routes; auth pages; dialogs; toasts |
+| UI | All authenticated routes; auth pages; dialogs; toasts — denser rhythm, same structure |
 | Schema / seed | None |
-| Tests | Update Angular specs if class selectors change; visual regression via existing component specs |
-| Docs | `ui-elements-gallery.md`, `ui-nielsen-audit.md`, `conventions-checklist.md`; README only if user-visible capability wording changes |
+| Tests | `npm run build`; existing Angular specs; manual visual smoke (no screenshot tooling) |
+| Docs | `ui-elements-gallery.md` Design tokens + density note; optional `issues-ux.mdc` “comfortable compact” line; domain-spec unchanged (no new vocabulary) |
 
 ### Risks
 
-- Large `styles.scss` edit may cause subtle regressions across many screens — mitigate with screen-by-screen checklist and `npm run build` + targeted specs per batch.
-- Deprecating `div.table` (navy) is safe today (no template uses it) but gallery/docs must lead code to avoid reintroduction.
-- i18n marker additions require `ng extract-i18n` if translation locales are added later.
+- Large `styles.scss` / token edit may cause subtle regressions across many screens — mitigate with visual smoke checklist and `npm run build`.
+- Kanban cards may feel cramped if padding and description clamp both shrink — verify clamp 2 + `$space-sm` pad together.
+- Material `density: -1` can surprise outline fields — verify create-ticket and dialogs.
+- Mobile (`max-width: 750px`) may need a floor if shell/control shrink feels too tight — check header wrap.
+- Deprecating `div.table` (navy) is safe today (no template uses it) but gallery/docs must lead code to avoid reintroduction. *(v1)*
+- i18n marker additions require `ng extract-i18n` if translation locales are added later. *(v1; out of scope)*
 
-### Open questions
+### Feature questions (FQ*n*)
 
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| Q1 | Standardize on **`div.data-table`** (light chrome) and remove **`div.table`** (navy) from active use? | answered | **Yes** — remove `div.table` from CSS and gallery |
-| Q2 | **Filter chip active state:** filled blue (`.filter-chip--active`) or outline (`.filter-chip.active`)? | answered | **`.filter-chip--active`** — only pattern used in templates (search, users) |
-| Q3 | **i18n scope** | answered | **Out of scope** — no systematic i18n pass; fix obvious untranslated UI copy only when touching a screen |
-| Q4 | **Rollout** | answered | **Big-bang** — single change set |
+| Q1 | Standardize on **`div.data-table`** (light chrome) and remove **`div.table`** (navy) from active use? | answered | **Yes** — remove `div.table` from CSS and gallery *(v1)* |
+| Q2 | **Filter chip active state:** filled blue (`.filter-chip--active`) or outline (`.filter-chip.active`)? | answered | **`.filter-chip--active`** — only pattern used in templates (search, users) *(v1)* |
+| Q3 | **i18n scope** | answered | **Out of scope** — no systematic i18n pass *(v1)* |
+| Q4 | **Rollout (v1)** | answered | **Big-bang** — single change set *(v1)* |
+| FQ1 | How aggressive is the density reduction? | answered | **A — Mild (~15%)** — token table in Architecture; control height 36px; Material `-1`; not 32px / `-2` |
+| FQ2 | Auth pages (login / password reset) — same density or keep airy? | answered | **Same density** as the rest of the app |
+| FQ3 | Per-user density preference (setting / toggle)? | answered | **Out of scope** — global density only |
+| FQ4 | Rollout for density | answered | **Big-bang** — tokens + Material density first; one visual smoke checklist |
+
+## Architecture
+
+**Guide:** technical design for the current changelog entry (comfortable density). Phase 5 must match unless revised here first ([architecture-design.mdc](../.cursor/rules/architecture-design.mdc)).
+
+| Area | Design |
+|------|--------|
+| Bounded contexts | Presentation only — no Java package changes |
+| Packages / layers | N/A (no Endpoint/Service/Repository) |
+| API | None |
+| Schema / seed | None |
+| Cross-context | None |
+| Frontend | Token-first: change `colors.scss` scale + semantic tokens; set Material `density: -1` in `styles.scss` `mat.theme`; tighten page/header/title and kanban card rules that hard-code rem; sweep outlier component SCSS to tokens; update gallery |
+| Tests | `npm run build`; smoke checklist; existing specs if selectors break |
+
+### Token map (FQ1 = mild)
+
+| Token | Current | Target |
+|-------|---------|--------|
+| `$space-xs` | 4px | unchanged |
+| `$space-sm` | 8px | unchanged |
+| `$space-md` | 16px (`1rem`) | **12px** (`0.75rem`) |
+| `$space-lg` | 24px (`1.5rem`) | **16px** (`1rem`) |
+| `$space-xl` | 32px (`2rem`) | **24px** (`1.5rem`) |
+| `$panel-padding` | `$space-lg` | keep alias (becomes 16px) |
+| `$table-cell-padding-x` | `$space-md` | keep alias (becomes 12px) |
+| `$table-cell-padding-y` | `$space-sm` (8px) | **6px** (`0.375rem`) |
+| `$shell-padding-x` | 16px | **12px** (`0.75rem`) |
+| `$control-height` | 40px (`2.5rem`) | **36px** (`2.25rem`) |
+| `$control-font-size` | 0.875rem | unchanged |
+| `$control-padding-x` | 0.75rem | **0.625rem** |
+| Material `density` | `0` | **`-1`** (**AQ1**) |
+
+### Typography / surface overrides (in `styles.scss`)
+
+| Selector | Change |
+|----------|--------|
+| `.page-title` | `1.5rem` → `1.25rem` |
+| `.page-subtitle` | `0.95rem` → `0.875rem` |
+| `.page` padding | top/bottom one step down (`md` / `lg`) |
+| `.page-header` `margin-bottom` | `lg` → `md` |
+| Kanban `.card` padding | → `$space-sm` |
+| Kanban `.card` `min-width` | 250px → **220px** |
+| Kanban `.card .title` | `1.1rem` → `0.9375rem` |
+| Kanban `.card .description` | `-webkit-line-clamp: 3` → **2** |
+| `.board` / column gaps | prefer `$space-sm` where `$space-md`/`$space-lg` only add air |
+
+### Floors (must not cross)
+
+- Control height ≥ 36px (this pass)
+- Body / table text ≥ 0.8125rem
+- Icon hit targets ≥ 36×36
+- Focus rings remain 2px
+- Flat UI language unchanged (colors, square corners, no elevation growth)
+
+### Architecture questions (AQ*n*)
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| AQ1 | Material theme density: keep `0` and only shrink custom tokens, or set `-1`? | answered | **`density: -1`** — aligns outline fields with 36px controls |
+| AQ2 | Mutate `$space-*` in place vs introduce parallel `$density-*` tokens? | answered | **In place** (**FQ4** big-bang) — single source of truth; no dual scales |
+| AQ3 | Kanban-specific overrides in global `.card` / `.board` only, or component SCSS? | answered | **Global** in `styles.scss` (kanban already global); component SCSS only for true outliers |
 
 ---
 
@@ -214,6 +310,63 @@ Domain         .board, .column, .card, .project-grid, .project-card, .activity-f
 
 ## Changelog
 
+### Comfortable UI density — 2026-07-11
+
+**Version:** 2  
+**Status:** done
+
+**Description:** Reduce global spacing, control height, and selected typography so more elements fit on screen while staying readable — **comfortable compact** (~15% denser). Token-first; Material `density: -1`; kanban and page chrome tightened; auth uses the same density. No API, schema, or flat-UI language redesign.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| All UI routes | Denser layout — more rows/cards visible; same classes and behaviour |
+| Kanban board | Shorter/narrower cards; more tickets visible per column |
+| Project dashboard | Widgets inherit tighter tokens; outlier SCSS aligned |
+| Auth / account | Same density as app (**FQ2**) |
+| — | No API or schema impact |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Spacing/control tokens match Architecture token map | FQ1, Architecture | ☑ |
+| FC2 | Material theme `density: -1` | AQ1 | ☑ |
+| FC3 | Page title/subtitle and page chrome match Wireframe density | Wireframe, FQ1 | ☑ |
+| FC4 | Kanban cards: pad `$space-sm`, min-width 220, title 0.9375rem, clamp 2 | Wireframe | ☑ |
+| FC5 | Auth screens use same tokens (not exempt) | FQ2 | ☑ |
+| FC6 | Floors held: control ≥36px; body ≥0.8125rem; focus 2px | Architecture | ☑ |
+| FC7 | No per-user density setting | FQ3 | ☑ |
+| FC8 | `ui-elements-gallery.md` Design tokens + density note updated | Impact / Docs | ☑ |
+| FC9 | Visual smoke: home, kanban, search, ticket, users, forms, login, mobile ≤750px | TC3 | ☑ |
+| FC10 | `npm run build` green | TC1 | ☑ |
+
+#### Tasks
+
+| ID | Task | Done |
+|----|------|------|
+| T1 | **Tokens + Material** — update `$space-md/lg/xl`, table-y, shell, control height/padding in `colors.scss`; set `density: -1` in `styles.scss` | ☑ |
+| T2 | **Page chrome + type** — `.page` / `.page-header` / `.page-title` / `.page-subtitle` per Architecture | ☑ |
+| T3 | **Kanban density** — `.board` / `.column` / `.card` gaps, padding, min-width, title, line-clamp | ☑ |
+| T4 | **Outlier SCSS** — dashboard, notification, rich-text (and similar) hard-coded pad → tokens where needed | ☑ |
+| T5 | **Docs** — gallery Design tokens + density note; optional one-line comfortable-compact in `issues-ux.mdc` | ☑ |
+| T6 | **Verify** — `npm run build` + manual smoke checklist (FC9) | ☑ |
+
+#### Test coverage
+
+| ID | Test | Covers | Done |
+|----|------|--------|------|
+| TC1 | `npm run build` (production) | T1–T5 | ☑ |
+| TC2 | Existing `*.component.spec.ts` for any touched components | T2–T4 if selectors change | ☑ |
+| TC3 | Manual smoke: login, home, kanban, search, ticket, users, dashboard, create-ticket, mobile ≤750px | Full visual; FC6/FC9 | ☑ |
+
+**Development approval:** approved 2026-07-11 — tasks: T1, T2, T3, T4, T5, T6
+
+**Implementation notes:** 2026-07-11 comfortable-compact density. Tokens: `$space-md/lg/xl` → 12/16/24px; `$shell-padding-x` 12px; `$control-height` 36px; `$table-cell-padding-y` 6px; Material `density: -1`. Page title 1.25rem / subtitle 0.875rem. Kanban: card pad `$space-sm`, min-width 220, clamp 2. Dashboard/notification/rich-text tightened to tokens. Gallery + `issues-ux.mdc` updated. `npm run build` green. Follow-up: Kanban phase/`Agrupar por` selects — widened `.board-phase-filter` (max 22rem), stopped stacking fixed heights on infix+trigger (vertical clip), `panelClass="board-phase-filter-panel"` for wrapping options.
+
+---
+
 ### Unify application CSS classes and i18n — 2026-07-03
 
 **Version:** 1  
@@ -269,26 +422,22 @@ Domain         .board, .column, .card, .project-grid, .project-card, .activity-f
 
 ---
 
-## Recommended implementation order
+## Recommended implementation order (v2 density)
 
 ```mermaid
 flowchart TD
-  T1[T1 Tokens] --> T2[T2 Deduplicate styles.scss]
-  T2 --> T3[T3 Deprecate div.table]
-  T2 --> T4[T4 Shared patterns]
-  T4 --> T5[T5 Template alignment]
-  T4 --> T6[T6 Component SCSS cleanup]
-  T5 --> T7[T7 i18n pass]
-  T6 --> T7
-  T7 --> T8[T8 Gallery docs]
-  T8 --> TC[TC1 npm run build + specs]
+  T1[T1 Tokens + Material -1] --> T2[T2 Page chrome + type]
+  T1 --> T3[T3 Kanban density]
+  T2 --> T4[T4 Outlier SCSS]
+  T3 --> T4
+  T4 --> T5[T5 Gallery / UX docs]
+  T5 --> T6[T6 Build + smoke]
 ```
 
-1. **Tokens + dedupe** (T1–T2) — lowest risk, fixes cascade bugs (filter chips).
-2. **Pattern extraction** (T3–T4) — workflow list and ticket toolbar become gallery citizens.
-3. **Template sweep** (T5) — one screen group per commit optional (Q4).
-4. **i18n** (T7) — can parallel templates; TS strings after Q3 answer.
-5. **Docs** (T8) — lock the contract for future features.
+1. **Tokens + Material** (T1) — cascade wins everywhere that already uses `$space-*` / `$control-*`.
+2. **Chrome + kanban** (T2–T3) — remaining hard-coded rem/px that tokens do not reach.
+3. **Outliers + docs** (T4–T5) — dashboard/notification/rich-text; lock contract in gallery.
+4. **Verify** (T6) — build + smoke; hold floors.
 
 ---
 
@@ -298,4 +447,6 @@ flowchart TD
 - CSS modules or Tailwind migration
 - Runtime i18n library (`ngx-translate`)
 - Visual regression screenshot tooling (Percy/Chromatic)
-- Redesign of flat UI language itself
+- Full redesign of flat UI language (colors, geometry, elevation)
+- Per-user density preference (**FQ3**)
+- Aggressive density (32px controls / Material `-2`) — revisit only if mild pass is insufficient

@@ -1,12 +1,12 @@
 # Kanban board
 
-**Feature version:** 2  
+**Feature version:** 3  
 **Status:** done  
-**Requested:** retrospective baseline (documented 2026-07-03)
+**Requested:** retrospective baseline (documented 2026-07-03) · swimlane label 2026-07-11
 
 ## Summary
 
-Project-scoped board view grouping tickets into columns by workflow status. Users drag tickets between columns; moves are validated against workflow transitions (server authoritative; client connects only to `moveable` targets). Optional **swimlanes** (toolbar: none / assignee / priority; default none) and per-workflow-status **WIP limits** with hard enforcement on move. Category colors display on cards.
+Project-scoped board view grouping tickets into columns by workflow status. Users drag tickets between columns; moves are validated against workflow transitions (server authoritative; client connects only to `moveable` targets). Optional **swimlanes** (toolbar **Agrupar por**: none / assignee / priority; default none) and per-workflow-status **WIP limits** with hard enforcement on move. Category colors display on cards.
 
 ## Wireframe
 
@@ -15,13 +15,13 @@ Project-scoped board view grouping tickets into columns by workflow status. User
 | Field | Value |
 |-------|-------|
 | **Source** | ASCII below |
-| **Last updated** | 2026-07-10 |
+| **Last updated** | 2026-07-11 |
 
 ### Screen: `/project/:projectId/kanban`
 
 | Region | Elements |
 |--------|----------|
-| Toolbar | **Novo ticket**, **Importar CSV**, phase filter, **Faixa** select (`Nenhuma` / `Responsável` / `Prioridade`, default `Nenhuma`), links to Fases/Versões/Painel |
+| Toolbar | **Novo ticket**, **Importar CSV**, phase filter, **Agrupar por** select (`Nenhuma` / `Responsável` / `Prioridade`, default `Nenhuma`), links to Fases/Versões/Painel |
 | Board (no swimlanes) | One row of columns per workflow status |
 | Board (swimlanes on) | Horizontal lane bands; each lane is a row of status cells; lane label = assignee name / “Sem responsável”, or priority label |
 | Column / cell header | Status name; count; when WIP set: `n/limit` (over-limit styling when `n >= limit`) |
@@ -30,7 +30,7 @@ Project-scoped board view grouping tickets into columns by workflow status. User
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  Kanban — Project X  [Fase ▼] [Faixa: Nenhuma ▼]  Novo …    │
+│  Kanban — Project X  [Fase ▼] [Agrupar por: Nenhuma ▼] Novo │
 ├──────────┬──────────┬──────────┬──────────┬──────────────────┤
 │ To Do 2/5│ Doing 3/3│ Review   │ Done     │                  │
 │ ┌──────┐ │ ┌──────┐ │          │          │  (no lanes)      │
@@ -38,7 +38,7 @@ Project-scoped board view grouping tickets into columns by workflow status. User
 └──────────┴──────────┴──────────┴──────────┴──────────────────┘
 
 ┌──────────────────────────────────────────────────────────────┐
-│  … [Faixa: Responsável ▼]                                    │
+│  … [Agrupar por: Responsável ▼]                              │
 ├──────────┬──────────┬──────────┬──────────┬──────────────────┤
 │ To Do    │ Doing 3/3│ Review   │ Done     │                  │
 │ ═════════ Alice ═══════════════════════════════════════════  │
@@ -61,7 +61,7 @@ Project-scoped board view grouping tickets into columns by workflow status. User
 | Bounded contexts | `ticket` (move WIP), `workflow` (WIP config), `project` (status list exposes WIP); UI `kanban` + workflow form |
 | Packages / files | `workflow` create/update/response; `ProjectStatusResponse`; move path in `ticket`; `kanban.component.*`; `workflow-form` |
 | API | `CreateWorkflowRequest` / `UpdateWorkflowRequest` + `WorkflowResponse` carry optional WIP per status; `ProjectStatusResponse.wipLimit`; `moveTicket` **400** when target at/over WIP |
-| UI | Kanban Faixa selector + lane layout; WIP badges + hard drop block; workflow form WIP column |
+| UI | Kanban **Agrupar por** selector + lane layout; WIP badges + hard drop block; workflow form WIP column |
 | Schema | `tb_workflow_wip_limits (workflow_id, status_id, wip_limit)` — absence = unlimited |
 | Tests | Workflow create/update WIP; move over-limit; Kanban connectedTo / enterPredicate / swimlanes / WIP UI |
 | Docs | domain-spec (swimlane, WIP, invariants); feature-catalog Kanban + workflow; README; ARCHITECTURE §13 |
@@ -76,6 +76,7 @@ Project-scoped board view grouping tickets into columns by workflow status. User
 | FQ4 | Where is WIP limit configured? | answered | **A** — per **workflow status** (shared by all projects using that workflow); edit on workflow create/edit |
 | FQ5 | WIP enforcement when column is at/over limit? | answered | **B** — **hard** — client blocks drop; server rejects move with **400** |
 | FQ6 | Does WIP apply to ticket **create** / CSV **import** into a status? | answered | **Moves only** for this changelog — create and import do not check WIP (opened by **FQ5**; can revisit later) |
+| FQ7 | Swimlane toolbar label in Portuguese? | answered | **Agrupar por** (not **Faixa**) — clearer action label for the group-by select |
 
 ## Architecture
 
@@ -122,7 +123,7 @@ Null/absent row = unlimited (**AQ2**). Do not put WIP on global `tb_workflow_sta
 
 ### Swimlanes (**FQ3** D)
 
-- Toolbar `Faixa`: `none` \| `assignee` \| `priority`; default `none`; **not persisted** (**AQ1**).
+- Toolbar **Agrupar por** (`FQ7`): `none` \| `assignee` \| `priority`; default `none`; **not persisted** (**AQ1**).
 - Assignee lanes: one per distinct assignee among `visibleTickets()`, plus **Sem responsável**.
 - Priority lanes: one per priority value present (stable order HIGH → MEDIUM → LOW or enum order).
 - Drop cells: status×lane; `cdkDropListConnectedTo` = valid transition targets’ cells (all lanes) + same-status other lanes if needed for cross-lane same-status moves (assignee/priority change is **not** via drag — drag only changes status; card stays in lane matching ticket fields after refresh).
@@ -150,7 +151,7 @@ Keep `cdkDropListConnectedTo` ← `moveable`. Add specs; optional muted style fo
 
 | Surface | Work |
 |---------|------|
-| `kanban.component` | Faixa select; lane layout; WIP badges; enter predicate |
+| `kanban.component` | **Agrupar por** select; lane layout; WIP badges; enter predicate |
 | `workflow-form` | WIP input per status row (create + edit) |
 | Codegen | After OpenAPI change |
 
@@ -259,4 +260,51 @@ Keep `cdkDropListConnectedTo` ← `moveable`. Add specs; optional muted style fo
 | TC4 | T5 | Workflow form WIP inputs wired through create/edit | ☑ |
 | TC5 | T6–T8 | `kanban.component.spec.ts` — lanes, connectedTo, WIP enter block | ☑ |
 
-**Implementation notes:** `tb_workflow_wip_limits`; `WorkflowWipLimit`; create/update `wipLimits`; `ProjectStatusResponse.wipLimit`; hard WIP in `TicketService.moveTicket`; Kanban Faixa + swimlanes + `cdkDropListEnterPredicate`; workflow form WIP column.
+**Implementation notes:** `tb_workflow_wip_limits`; `WorkflowWipLimit`; create/update `wipLimits`; `ProjectStatusResponse.wipLimit`; hard WIP in `TicketService.moveTicket`; Kanban swimlanes + `cdkDropListEnterPredicate`; workflow form WIP column.
+
+### Rename swimlane toolbar label to Agrupar por — 2026-07-11
+
+**Version:** 3  
+**Status:** done
+
+**Description:** Replace Portuguese toolbar label **Faixa** with **Agrupar por** (visible label + `aria-label`). Domain term remains **Swimlane**; code identifiers stay `swimlane*`. Update wireframe, domain-spec UI note, feature-catalog, ARCHITECTURE §13.
+
+**Development approval:** approved 2026-07-11 — tasks: T1, T2
+
+**Impact on other features:** None identified — Kanban toolbar copy and docs only.
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Toolbar label and `aria-label` are **Agrupar por**; options unchanged | FQ7 / Wireframe | ☑ |
+| FC2 | Wireframe ASCII and region table use **Agrupar por** | Wireframe | ☑ |
+| FC3 | domain-spec Swimlane row, feature-catalog Kanban row, ARCHITECTURE §13 say **Agrupar por** (not Faixa) | Docs | ☑ |
+
+#### Architecture (v3)
+
+| Area | Design |
+|------|--------|
+| Bounded contexts | Presentation / docs only — no Java package changes |
+| Packages / layers | N/A |
+| API / schema | None |
+| Frontend | `kanban.component.html` — label text + `aria-label`; no behaviour change |
+| Tests | Existing Kanban specs (no label assertions today); smoke that select still binds |
+| Docs | domain-spec, feature-catalog, ARCHITECTURE §13 |
+
+**AQ:** none — string rename only (**FQ7**).
+
+#### Tasks
+
+| ID | Deliverable | Done |
+|----|-------------|------|
+| T1 | Kanban template: label + `aria-label` → **Agrupar por** | ☑ |
+| T2 | Docs: domain-spec, feature-catalog, ARCHITECTURE §13; confirm feature wireframe | ☑ |
+
+#### Test coverage
+
+| ID | Covers | Tests | Done |
+|----|--------|-------|------|
+| TC1 | T1 | Manual / visual smoke — select still groups by none/assignee/priority; no new unit assertion required (i18n string) | ☑ |
+
+**Implementation notes:** Label + `aria-label` set to **Agrupar por** in `kanban.component.html`; docs updated (domain-spec, feature-catalog, ARCHITECTURE §13).

@@ -181,6 +181,12 @@
     </div>
   </section>
 
+  <app-custom-field-admin
+    owner="workflow"
+    [ownerId]="mode === 'edit' ? (initialWorkflow?.id ?? null) : null"
+    [statusNames]="statusNames()"
+    sectionTitle="Campos personalizados (processo)" />
+
   <div class="actions form-actions">
     <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancelled.emit()" i18n>Cancelar</button>
     <button class="btn" matButton="filled" type="submit" [disabled]="workflowForm.invalid || isSaving">

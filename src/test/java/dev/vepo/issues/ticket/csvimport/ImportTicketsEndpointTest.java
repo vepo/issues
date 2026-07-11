@@ -108,6 +108,63 @@ class ImportTicketsEndpointTest {
                .statusCode(401);
     }
 
+    @Test
+    @DisplayName("Should import ticket with custom field value mapped by key")
+    void shouldImportTicketWithCustomFieldValueMappedByKey() throws IOException {
+        var key = "sprint_" + UUID.randomUUID().toString().substring(0, 8);
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "key": "%s",
+                       "label": "Sprint",
+                       "type": "INTEGER",
+                       "required": false,
+                       "integerMin": 1,
+                       "integerMax": 99
+                     }
+                     """.formatted(key))
+               .post("/api/projects/%d/custom-fields".formatted(fixtures.project().id()))
+               .then()
+               .statusCode(201);
+
+        var importId = uploadCsv("""
+                                 Title,Description,Category,Sprint
+                                 CF import ticket title,CF import ticket description,%s,12
+                                 """.formatted(fixtures.bug().getName()));
+
+        var mapping = """
+                      {
+                        "mapping": {
+                          "titleColumn": "Title",
+                          "descriptionColumn": "Description",
+                          "categoryColumn": "Category",
+                          "customFieldColumns": {
+                            "%s": "Sprint"
+                          }
+                        }
+                      }
+                      """.formatted(key);
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body(mapping)
+               .when()
+               .put("/api/projects/%d/tickets/import/%d/mapping".formatted(fixtures.project().id(), importId))
+               .then()
+               .statusCode(204);
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .accept(ContentType.JSON)
+               .when()
+               .post("/api/projects/%d/tickets/import/%d/execute".formatted(fixtures.project().id(), importId))
+               .then()
+               .statusCode(200)
+               .body("created", hasSize(1))
+               .body("errors", hasSize(0))
+               .body("created[0].customFields.key", org.hamcrest.Matchers.hasItem(key))
+               .body("created[0].customFields.value", org.hamcrest.Matchers.hasItem(12));
+    }
+
     private long uploadCsv(String csv) throws IOException {
         var file = Files.createTempFile("import-", ".csv");
         Files.writeString(file, csv, StandardCharsets.UTF_8);

@@ -261,6 +261,7 @@ export class KanbanComponent implements OnInit {
       categoryName: ticket.categoryName,
       categoryColor: ticket.categoryColor,
       priority: ticket.priority,
+      ticketType: ticket.ticketType,
       finishedAt: ticket.finishedAt,
       dueDate: ticket.dueDate,
       observedVersionId: ticket.observedVersionId,
@@ -269,7 +270,8 @@ export class KanbanComponent implements OnInit {
       targetVersionLabel: ticket.targetVersionLabel,
       phaseId: ticket.phaseId,
       phaseName: ticket.phaseName,
-      deleted: ticket.deleted
+      deleted: ticket.deleted,
+      customFields: ticket.customFields ?? [],
     };
   }
 }

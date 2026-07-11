@@ -2,7 +2,15 @@ package dev.vepo.issues.project;
 
 import java.util.List;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
+
 import dev.vepo.issues.categories.CategoryRepository;
+import dev.vepo.issues.customfield.CustomFieldService;
+import dev.vepo.issues.infra.PlainTextLength;
 import dev.vepo.issues.ticket.TicketPriority;
 import dev.vepo.issues.ticket.TicketRepository;
 import dev.vepo.issues.user.Role;
@@ -10,11 +18,6 @@ import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
 import dev.vepo.issues.workflow.WorkflowRepository;
 import dev.vepo.issues.workflow.WorkflowResponse;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
 
 @ApplicationScoped
 public class ProjectService {
@@ -26,6 +29,7 @@ public class ProjectService {
     private final ProjectMemberService memberService;
     private final UserRepository userRepository;
     private final TicketRepository ticketRepository;
+    private final CustomFieldService customFieldService;
 
     @Inject
     public ProjectService(ProjectRepository repository,
@@ -34,7 +38,8 @@ public class ProjectService {
                           ProjectAccessService accessService,
                           ProjectMemberService memberService,
                           UserRepository userRepository,
-                          TicketRepository ticketRepository) {
+                          TicketRepository ticketRepository,
+                          CustomFieldService customFieldService) {
         this.repository = repository;
         this.workflowRepository = workflowRepository;
         this.categoryRepository = categoryRepository;
@@ -42,6 +47,7 @@ public class ProjectService {
         this.memberService = memberService;
         this.userRepository = userRepository;
         this.ticketRepository = ticketRepository;
+        this.customFieldService = customFieldService;
     }
 
     @Transactional
@@ -72,6 +78,7 @@ public class ProjectService {
         if (!owner.getId().equals(creator.getId())) {
             memberService.ensureMember(project, creator);
         }
+        applyCustomFieldTemplateDefaults(project, request.ticketTemplate());
         return toResponse(project);
     }
 
@@ -83,14 +90,24 @@ public class ProjectService {
         if (!project.getPrefix().equals(request.prefix()) && ticketRepository.countProjectTickets(projectId) > 0) {
             throw new BadRequestException("Project prefix cannot be changed while the project has tickets");
         }
+        var previousWorkflowId = project.getWorkflow().getId();
+        var newWorkflow = requireWorkflow(request.workflowId());
+        if (!previousWorkflowId.equals(newWorkflow.getId())) {
+            customFieldService.assertNoKeyCollisionOnWorkflowChange(projectId, newWorkflow.getId());
+        }
         project.setName(request.name());
         project.setPrefix(request.prefix());
         project.setDescription(request.description());
-        project.setWorkflow(requireWorkflow(request.workflowId()));
+        project.setWorkflow(newWorkflow);
         applyTicketTemplate(project, request.ticketTemplate());
         applyPhaseTemplate(project, request.phaseTemplate());
         applyOwnerTransfer(project, request.ownerId(), user);
-        return toResponse(repository.save(project));
+        repository.save(project);
+        if (!previousWorkflowId.equals(newWorkflow.getId())) {
+            customFieldService.dropStaleTemplateDefaults(projectId, newWorkflow.getId());
+        }
+        applyCustomFieldTemplateDefaults(project, request.ticketTemplate());
+        return toResponse(project);
     }
 
     public ProjectResponse findById(long projectId, String username) {
@@ -99,7 +116,10 @@ public class ProjectService {
     }
 
     private ProjectResponse toResponse(Project project) {
-        return ProjectResponse.load(project, ticketRepository.countProjectTickets(project.getId()) > 0);
+        var defaults = customFieldService.getTemplateDefaults(project.getId(), project.getWorkflow().getId());
+        return ProjectResponse.load(project,
+                                    ticketRepository.countProjectTickets(project.getId()) > 0,
+                                    defaults);
     }
 
     public WorkflowResponse findWorkflow(long projectId, String username) {
@@ -178,6 +198,16 @@ public class ProjectService {
         project.setTicketTemplatePriority(template.priority());
     }
 
+    private void applyCustomFieldTemplateDefaults(Project project, TicketTemplateRequest template) {
+        if (template == null || !template.enabled()) {
+            customFieldService.setTemplateDefaults(project.getId(), project.getWorkflow().getId(), List.of());
+            return;
+        }
+        customFieldService.setTemplateDefaults(project.getId(),
+                                               project.getWorkflow().getId(),
+                                               template.customFieldDefaults());
+    }
+
     private String normalizeTemplateText(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -190,8 +220,9 @@ public class ProjectService {
         var hasDescription = template.description() != null && !template.description().isBlank();
         var hasCategory = template.categoryId() != null;
         var hasPriority = template.priority() != null;
+        var hasCustomDefaults = template.customFieldDefaults() != null && !template.customFieldDefaults().isEmpty();
 
-        if (!hasTitle && !hasDescription && !hasCategory && !hasPriority) {
+        if (!hasTitle && !hasDescription && !hasCategory && !hasPriority && !hasCustomDefaults) {
             throw new BadRequestException("Ticket template must configure at least one field");
         }
         if (hasTitle) {
@@ -202,7 +233,8 @@ public class ProjectService {
         }
         if (hasDescription) {
             var description = template.description().trim();
-            if (description.length() < 5 || description.length() > 1200) {
+            var plainLength = PlainTextLength.of(description);
+            if (plainLength < 5 || plainLength > 1200) {
                 throw new BadRequestException("Ticket template description must be between 5 and 1200 characters");
             }
         }

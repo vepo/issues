@@ -34,7 +34,7 @@ public class TicketHistory {
     @Column(nullable = false, length = 32)
     public TicketHistoryAction action;
 
-    @Column(length = 32)
+    @Column(length = 64)
     public String field;
 
     @Column(name = "old_value", columnDefinition = "TEXT")

@@ -1,13 +1,17 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { CreateTicketRequest } from '../../services/ticket.service';
+import { CreateTicketRequest, TicketType } from '../../services/ticket.service';
 import { Category } from '../../services/category.service';
 import { Project } from '../../services/projects.service';
 import { Phase, PhaseService } from '../../services/phase.service';
+import { CustomFieldFormSectionComponent } from '../custom-fields/custom-field-form-section.component';
+import { CustomFieldValueResponse } from '../../generated/model/customFieldValueResponse';
+import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
+import { plainTextLengthValidator } from '../../core/plain-text-length';
 
 export interface TicketFormValues {
   title: string;
@@ -15,6 +19,7 @@ export interface TicketFormValues {
   categoryId: number;
   projectId: number;
   priority: CreateTicketRequest['priority'];
+  ticketType: TicketType;
 }
 
 export interface TicketFormDefaults {
@@ -22,35 +27,57 @@ export interface TicketFormDefaults {
   description?: string;
   categoryId?: number;
   priority?: CreateTicketRequest['priority'];
+  ticketType?: TicketType;
+  customFieldDefaults?: CustomFieldValueResponse[];
 }
+
+export const TICKET_TYPE_OPTIONS: { value: TicketType; label: string }[] = [
+  { value: 'EPIC', label: 'Épico' },
+  { value: 'STORY', label: 'História' },
+  { value: 'TASK', label: 'Tarefa' },
+];
 
 @Component({
   selector: 'app-ticket-form',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatSelectModule],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatSelectModule,
+    CustomFieldFormSectionComponent,
+    RichTextEditorComponent,
+  ],
   templateUrl: './ticket-form.component.html'
 })
 export class TicketFormComponent implements OnInit {
   private readonly phaseService = inject(PhaseService);
+
+  @ViewChild(CustomFieldFormSectionComponent) customFieldsSection?: CustomFieldFormSectionComponent;
 
   @Input() projects: Project[] = [];
   @Input() categories: Category[] = [];
   @Input() initialProjectId: number | null = null;
   @Input() lockProject = false;
   @Input() isSaving = false;
+  @Input() customFieldDefaults: CustomFieldValueResponse[] | null = null;
 
   @Output() submitted = new EventEmitter<CreateTicketRequest>();
   @Output() cancelled = new EventEmitter<void>();
   @Output() projectSelected = new EventEmitter<number>();
 
   readonly priorities: CreateTicketRequest['priority'][] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+  readonly ticketTypes = TICKET_TYPE_OPTIONS;
   assignablePhases: Phase[] = [];
+  selectedProjectId: number | null = null;
 
   ticketForm = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(255)]),
     projectId: new FormControl(-1, [Validators.required, Validators.min(1)]),
-    description: new FormControl('', [Validators.required, Validators.minLength(5), Validators.maxLength(1200)]),
+    description: new FormControl('', [Validators.required, plainTextLengthValidator(5, 1200)]),
     categoryId: new FormControl(-1, [Validators.required, Validators.min(1)]),
     priority: new FormControl<CreateTicketRequest['priority']>('MEDIUM', [Validators.required]),
+    ticketType: new FormControl<TicketType>('TASK', [Validators.required]),
     dueDate: new FormControl<string | null>(null),
     phaseId: new FormControl<number | null>(null),
   });
@@ -65,6 +92,7 @@ export class TicketFormComponent implements OnInit {
       description?: string;
       categoryId?: number;
       priority?: CreateTicketRequest['priority'];
+      ticketType?: TicketType;
     } = {};
     if (value.title !== undefined) {
       patch.title = value.title;
@@ -78,12 +106,19 @@ export class TicketFormComponent implements OnInit {
     if (value.priority !== undefined) {
       patch.priority = value.priority;
     }
+    if (value.ticketType !== undefined) {
+      patch.ticketType = value.ticketType;
+    }
     this.ticketForm.patchValue(patch);
+    if (value.customFieldDefaults !== undefined) {
+      this.customFieldDefaults = value.customFieldDefaults;
+    }
   }
 
   ngOnInit(): void {
     if (this.initialProjectId != null && this.initialProjectId > 0) {
       this.ticketForm.patchValue({ projectId: this.initialProjectId });
+      this.selectedProjectId = this.initialProjectId;
       if (this.lockProject) {
         this.ticketForm.get('projectId')?.disable();
       }
@@ -92,9 +127,11 @@ export class TicketFormComponent implements OnInit {
 
     this.ticketForm.get('projectId')?.valueChanges.subscribe(projectId => {
       if (projectId != null && projectId > 0) {
+        this.selectedProjectId = projectId;
         this.projectSelected.emit(projectId);
         this.loadAssignablePhases(projectId);
       } else {
+        this.selectedProjectId = null;
         this.assignablePhases = [];
         this.ticketForm.patchValue({ phaseId: null });
       }
@@ -132,8 +169,11 @@ export class TicketFormComponent implements OnInit {
       this.ticketForm.markAllAsTouched();
       return;
     }
-    const { title, description, categoryId, projectId, priority, dueDate, phaseId } = this.ticketForm.getRawValue();
-    if (!title || !description || categoryId == null || categoryId < 1 || projectId == null || projectId < 1 || !priority) {
+    if (this.customFieldsSection && !this.customFieldsSection.isValid()) {
+      return;
+    }
+    const { title, description, categoryId, projectId, priority, ticketType, dueDate, phaseId } = this.ticketForm.getRawValue();
+    if (!title || !description || categoryId == null || categoryId < 1 || projectId == null || projectId < 1 || !priority || !ticketType) {
       return;
     }
     this.submitted.emit({
@@ -142,8 +182,10 @@ export class TicketFormComponent implements OnInit {
       categoryId,
       projectId,
       priority,
+      ticketType,
       dueDate: dueDate || undefined,
       phaseId: phaseId ?? undefined,
+      customFields: this.customFieldsSection?.toValueRequests() ?? [],
     });
   }
 

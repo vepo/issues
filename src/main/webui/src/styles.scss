@@ -14,7 +14,7 @@ html {
       tertiary: mat.$blue-palette,
     ),
     typography: Roboto,
-    density: 0,
+    density: -1,
   ));
 
   --mat-sys-primary: #{colors.$base-active-color};
@@ -149,17 +149,17 @@ body {
 
 .main-header {
   padding: 0 colors.$shell-padding-x;
-  min-height: 48px;
+  min-height: 2.75rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
   .shell-inner {
     display: flex;
     align-items: center;
     width: 100%;
-    min-height: 48px;
+    min-height: 2.75rem;
     gap: colors.$space-md;
     flex-wrap: nowrap;
-    padding: colors.$space-sm 0;
+    padding: colors.$space-xs 0;
   }
 
   .brand {
@@ -388,7 +388,7 @@ main {
   display: flex;
   flex-direction: column;
   margin: 0 auto;
-  padding: 0 colors.$shell-padding-x colors.$space-xl;
+  padding: 0 colors.$shell-padding-x colors.$space-lg;
   width: 100%;
   box-sizing: border-box;
   overflow: auto;
@@ -446,7 +446,7 @@ main {
 .page {
   width: 100%;
   margin: 0;
-  padding: colors.$space-lg 0 colors.$space-xl;
+  padding: colors.$space-md 0 colors.$space-lg;
   box-sizing: border-box;
 }
 
@@ -455,12 +455,12 @@ main {
   justify-content: space-between;
   align-items: flex-start;
   gap: colors.$space-md;
-  margin-bottom: colors.$space-lg;
+  margin-bottom: colors.$space-md;
   flex-wrap: wrap;
 
   .page-title {
     margin: 0 0 colors.$space-xs;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 600;
     line-height: 1.3;
     letter-spacing: -0.01em;
@@ -469,8 +469,8 @@ main {
   .page-subtitle {
     margin: 0;
     color: colors.$text-secondary;
-    font-size: 0.95rem;
-    line-height: 1.5;
+    font-size: 0.875rem;
+    line-height: 1.45;
 
     .status-badge {
       margin-left: colors.$space-sm;
@@ -498,6 +498,26 @@ main {
     color: colors.$text-secondary;
     flex-shrink: 0;
     line-height: colors.$control-height;
+  }
+
+  // Phase names include status — need more than the default 13rem toolbar cap
+  .form-field.form-field--control {
+    min-width: 11rem;
+    max-width: 22rem;
+  }
+}
+
+// Overlay panel (attached to body) — show full option labels
+.board-phase-filter-panel.mat-mdc-select-panel {
+  max-width: min(90vw, 28rem);
+
+  .mat-mdc-option {
+    height: auto;
+    min-height: colors.$control-height;
+    white-space: normal;
+    line-height: 1.3;
+    padding-top: colors.$space-xs;
+    padding-bottom: colors.$space-xs;
   }
 }
 
@@ -962,7 +982,7 @@ main {
 .card {
   background: colors.$surface-card;
   border: solid 1px colors.$border-subtle;
-  min-width: 250px;
+  min-width: 220px;
   word-break: break-word;
   border-radius: colors.$radius-none;
   box-shadow: colors.$shadow-card;
@@ -971,7 +991,7 @@ main {
     border-bottom-style: solid;
   }
 
-  padding: colors.$space-md;
+  padding: colors.$space-sm;
 
   &.cdk-drag-preview {
     box-sizing: border-box;
@@ -994,7 +1014,7 @@ main {
 
   .title {
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 0.9375rem;
     color: colors.$text-primary;
   }
 
@@ -1004,7 +1024,7 @@ main {
     font-size: 0.875rem;
     line-height: 1.45;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -1033,7 +1053,7 @@ main {
 
 .board {
   display: flex;
-  gap: colors.$space-md;
+  gap: colors.$space-sm;
   overflow-x: auto;
   min-height: 70vh;
   align-items: flex-start;
@@ -1046,7 +1066,7 @@ main {
 
   .board-swimlane-header {
     display: flex;
-    gap: colors.$space-md;
+    gap: colors.$space-sm;
     align-items: center;
     position: sticky;
     top: 0;
@@ -1073,7 +1093,7 @@ main {
 
   .swimlane {
     display: flex;
-    gap: colors.$space-md;
+    gap: colors.$space-sm;
     align-items: stretch;
     margin-bottom: colors.$space-md;
 
@@ -1088,7 +1108,7 @@ main {
 
     &__columns {
       display: flex;
-      gap: colors.$space-md;
+      gap: colors.$space-sm;
       flex: 1;
       min-width: 0;
     }
@@ -1096,7 +1116,7 @@ main {
 
   .column {
     background: colors.$surface-card;
-    padding: colors.$space-md;
+    padding: colors.$space-sm;
     display: flex;
     flex-direction: column;
     border: 1px solid colors.$border-subtle;
@@ -1121,8 +1141,8 @@ main {
 
     .header {
       font-weight: 600;
-      margin-bottom: colors.$space-md;
-      font-size: 0.95rem;
+      margin-bottom: colors.$space-sm;
+      font-size: 0.875rem;
       padding-bottom: colors.$space-sm;
       border-bottom: 1px solid colors.$border-subtle;
       display: flex;
@@ -1153,8 +1173,8 @@ main {
       display: flex;
       flex-direction: column;
       flex-grow: 1;
-      min-height: 40px;
-      padding: 4px;
+      min-height: colors.$control-height;
+      padding: colors.$space-xs;
       gap: colors.$space-sm;
       transition: background-color 0.15s ease;
 
@@ -1262,7 +1282,7 @@ mat-form-field.form-field {
     margin: 0;
 
     .mat-mdc-form-field-infix {
-      min-height: 2.5rem;
+      min-height: colors.$control-height;
       padding: colors.$space-xs colors.$space-sm;
     }
 
@@ -1284,17 +1304,19 @@ mat-form-field.form-field {
 
     .mat-mdc-text-field-wrapper {
       height: colors.$control-height;
-      padding: 0 colors.$space-xs;
+      padding: 0;
     }
 
     .mat-mdc-form-field-flex {
-      height: colors.$control-height;
+      height: 100%;
       align-items: center;
+      min-height: 0;
     }
 
+    // Do not stack fixed heights on infix + trigger — clips label at 36px density
     .mat-mdc-form-field-infix {
-      min-height: colors.$control-height;
-      height: colors.$control-height;
+      min-height: 0;
+      height: auto;
       padding: 0 colors.$control-padding-x;
       display: flex;
       align-items: center;
@@ -1307,17 +1329,67 @@ mat-form-field.form-field {
       padding-bottom: 0;
     }
 
+    .mat-mdc-select {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
     .mat-mdc-select-trigger {
-      min-height: colors.$control-height;
-      height: colors.$control-height;
-      padding: 0 colors.$space-xs;
+      min-height: 0;
+      height: auto;
+      width: 100%;
+      padding: 0;
       font-size: colors.$control-font-size;
+      display: flex;
+      align-items: center;
+      line-height: 1.25;
+    }
+
+    .mat-mdc-select-value {
+      max-width: 100%;
     }
 
     .mat-mdc-select-value,
     .mat-mdc-select-min-line {
       font-size: colors.$control-font-size;
+      line-height: 1.25;
     }
+  }
+}
+
+div.form-field--rich-text {
+  display: flex;
+  flex-direction: column;
+  gap: colors.$space-xs;
+  margin-bottom: colors.$space-md;
+
+  .form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: colors.$text-secondary;
+  }
+
+  .form-error {
+    font-size: 0.75rem;
+    color: colors.$base-error-color;
+  }
+}
+
+.rich-text-display {
+  line-height: 1.5;
+
+  p {
+    margin: 0 0 colors.$space-sm;
+  }
+
+  ul {
+    margin: 0 0 colors.$space-sm;
+    padding-left: colors.$space-lg;
+  }
+
+  a {
+    color: colors.$base-active-color;
   }
 }
 
@@ -1459,9 +1531,9 @@ form {
 }
 
 .mat-mdc-button-base.btn-icon-only {
-  min-width: 2.5rem;
-  width: 2.5rem;
-  height: 2.5rem;
+  min-width: colors.$control-height;
+  width: colors.$control-height;
+  height: colors.$control-height;
   padding: 0;
 
   .mdc-button__label {
@@ -1482,6 +1554,93 @@ form {
   margin: 0 0 colors.$space-md;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.ticket-links,
+.ticket-subtasks {
+  margin: colors.$space-xl 0;
+  padding-top: colors.$space-lg;
+  border-top: 1px solid colors.$border-subtle;
+}
+
+.ticket-subtasks__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: colors.$space-md;
+  margin-bottom: colors.$space-md;
+
+  .section-title {
+    margin-bottom: 0;
+  }
+}
+
+.ticket-link-group {
+  margin-bottom: colors.$space-md;
+}
+
+.ticket-link-group__title {
+  margin: 0 0 colors.$space-sm;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: colors.$text-secondary;
+}
+
+.ticket-link-list {
+  list-style: none;
+  margin: 0 0 colors.$space-md;
+  padding: 0;
+}
+
+.ticket-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: colors.$space-sm colors.$space-md;
+  padding: colors.$space-sm 0;
+  border-bottom: 1px solid colors.$border-subtle;
+}
+
+.ticket-link-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: colors.$space-sm;
+  margin-top: colors.$space-md;
+
+  .form-field--grow {
+    flex: 1 1 16rem;
+    min-width: 12rem;
+  }
+}
+
+.ticket-link-search-results {
+  list-style: none;
+  margin: 0 0 colors.$space-md;
+  padding: 0;
+  border: 1px solid colors.$border-subtle;
+  background: colors.$surface-card;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.ticket-link-search-results__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  width: 100%;
+  padding: colors.$space-sm colors.$space-md;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: colors.$text-primary;
+
+  &:hover,
+  &:focus-visible {
+    background: colors.$surface-muted;
+  }
 }
 
 .success-message {

@@ -1,7 +1,7 @@
 # Custom fields
 
-**Feature version:** 1  
-**Status:** tasks-ready  
+**Feature version:** 2  
+**Status:** done  
 **Requested:** 2026-07-10
 
 ## Summary
@@ -17,7 +17,7 @@ Projects and workflows define **custom fields** — named, typed attributes beyo
 | Field | Value |
 |-------|-------|
 | **Source** | ASCII below |
-| **Last updated** | 2026-07-10 |
+| **Last updated** | 2026-07-11 |
 
 ### Screen: Project edit — custom fields + template defaults (`/projects/:projectId/edit`)
 
@@ -58,6 +58,27 @@ Projects and workflows define **custom fields** — named, typed attributes beyo
 │  Campos personalizados (processo)                       │
 │  │ key │ label │ tipo │ obr. │ status obr. │ [Editar]   │
 │  [ Adicionar campo ]                                    │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Screen: Workflow create — custom fields (disabled) (`/workflows/new`)
+
+| Region | Elements | Notes |
+|--------|----------|-------|
+| Section | **Campos personalizados (processo)** | Always visible on create (**FQ25**) |
+| Actions | **Adicionar campo** disabled | Nested API needs workflow id |
+| Hint | `.form-hint` explaining save-first | Do not hide the section |
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Novo processo                                          │
+├─────────────────────────────────────────────────────────┤
+│  … statuses / transitions / WIP …                       │
+│  Campos personalizados (processo)                       │
+│  [ Adicionar campo ]  (disabled)                        │
+│  Salve o processo antes de adicionar campos             │
+│  personalizados.                                        │
+│                         [Cancelar]  [Salvar]            │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -131,6 +152,7 @@ Query help documents `cf.<key>` predicates (**FQ23**). No Kanban card display (*
 | FQ22 | Import identity? | answered | Map by custom field **key**; global import validates key exists on row’s project scope |
 | FQ23 | Query syntax? | answered | `cf.<key>` with type-appropriate operators (`=`, `!=`, `~`, comparisons, `IS EMPTY`, `IN` as applicable) |
 | FQ24 | TEXT max size? | answered | **Same as Description** — max **1200** characters |
+| FQ25 | Custom fields on **new** workflow? | answered | **Show** the section; keep **Adicionar campo** disabled; explain that the process must be **saved** first (definitions require a workflow id) |
 
 **Gate:** all blocking **FQ*n*** answered.
 
@@ -248,10 +270,71 @@ Also: `tb_ticket_history.field` → `VARCHAR(64)`. Import: JSON column `custom_f
 
 ## Changelog
 
-### Add custom fields for tickets — 2026-07-10
+### Show disabled custom fields on new workflow — 2026-07-11
+
+**Version:** 2  
+**Status:** done
+
+**Description:** On **Novo processo**, keep the **Campos personalizados (processo)** section visible but disabled, with a clear hint that fields can only be added after the workflow is saved (API is nested under `/workflows/{id}/custom-fields`).
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| Workflow create (`/workflows/new`) | Section always shown; add disabled + hint (**FQ25**) |
+| Workflow edit | Unchanged (section already interactive) |
+| Project create/edit | None (projects already exist before edit UI) |
+| API / schema | None |
+
+#### Feature checklist
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC20 | Create workflow form shows **Campos personalizados (processo)** | FQ25, Wireframe | ☑ |
+| FC21 | **Adicionar campo** is disabled when there is no workflow id | FQ25 | ☑ |
+| FC22 | Hint explains save-first (PT-BR) | FQ25, Wireframe | ☑ |
+| FC23 | Edit workflow still allows add/edit as today | Regression | ☑ |
+| FC24 | Wireframe + feature-catalog note updated | Docs | ☑ |
+
+#### Architecture (this entry)
+
+| Area | Design |
+|------|--------|
+| Bounded contexts | UI only — `workflow` form + shared `custom-field-admin`; no backend change |
+| Packages / layers | `workflow-form.component.html` always renders `app-custom-field-admin`; pass `ownerId` null on create |
+| API / schema | None — definitions remain nested under persisted workflow id |
+| Frontend | `CustomFieldAdminComponent`: when `ownerId` is null, show save-first `.form-hint`, keep add button disabled, skip list load |
+| Tests | Angular spec: create mode shows disabled add + hint; edit mode unchanged |
+
+No blocking **AQ*n*** for this entry (UI-only; nested CRUD already decided in **AQ5**).
+
+#### Tasks
+
+| ID | Task | Done |
+|----|------|------|
+| T16 | Always render `app-custom-field-admin` on workflow form (create + edit); pass `null` `ownerId` on create | ☑ |
+| T17 | `CustomFieldAdminComponent`: when `ownerId` is null, show PT-BR save-first hint; keep **Adicionar campo** disabled | ☑ |
+| T18 | Angular unit test for create (disabled + hint) and edit still interactive | ☑ |
+| T19 | Update feature-catalog create-workflow steps; confirm Wireframe above | ☑ |
+
+#### Test coverage
+
+| ID | Test | Covers | Done |
+|----|------|--------|------|
+| TC10 | Angular: workflow form / custom-field-admin — create shows disabled add + hint | T16, T17 | ☑ |
+| TC11 | Angular: with `ownerId` set, add remains enabled (smoke) | T17 | ☑ |
+
+**Development approval:** approved 2026-07-11 — tasks: T16, T17, T18, T19
+
+**Implementation notes:** Shipped 2026-07-11.
+
+- Workflow form always renders `app-custom-field-admin`; create passes `ownerId=null`.
+- Save-first `.form-hint`: *Salve o processo antes de adicionar campos personalizados.*
+- Tests: `custom-field-admin.component.spec.ts` (2/2); `npm run build` green.
+- Docs: feature-catalog create-workflow steps.
 
 **Version:** 1  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Typed custom fields on projects and workflows; values on tickets; required + status-required; template defaults; CSV import by key; query `cf.<key>`; history; soft-disable / block delete-if-in-use.
 
@@ -272,63 +355,69 @@ Also: `tb_ticket_history.field` → `VARCHAR(64)`. Import: JSON column `custom_f
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Project can define custom fields (all five types) | S1 | ☐ |
-| FC2 | Workflow can define custom fields + status-required | S2, FQ2 | ☐ |
-| FC3 | String max ≤ configured and ≤ 255 | FQ9 | ☐ |
-| FC4 | Text uses Description editor/storage model, max 1200 | FQ8, FQ24 | ☐ |
-| FC5 | Integer min/max enforced | S3 | ☐ |
-| FC6 | Enum single-select; option remove blocked if in use | FQ4, FQ11 | ☐ |
-| FC7 | Create + detail persist in-scope values; union by key | FQ3, FQ18 | ☐ |
-| FC8 | Required on create/update; status-required on move/create-as-start | FQ19 | ☐ |
-| FC9 | `FIELD_CHANGED` history with field key | FQ16 | ☐ |
-| FC10 | Template defaults for in-scope fields; stale dropped on workflow change | FQ5, FQ21 | ☐ |
-| FC11 | CSV import maps by key | FQ6, FQ22 | ☐ |
-| FC12 | Query supports `cf.<key>` | FQ7, FQ23 | ☐ |
-| FC13 | Soft-disable; hard delete blocked if values | FQ14 | ☐ |
-| FC14 | Orphan workflow values read-only after workflow change | FQ15 | ☐ |
-| FC15 | Duplicate keys rejected across project ∪ workflow | FQ18 | ☐ |
-| FC16 | Roles: owner/admin project defs; PM/admin workflow; ticket editors for values | FQ13 | ☐ |
-| FC17 | No Kanban card custom fields; no notify/email for CF changes | FQ17, FQ20 | ☐ |
-| FC18 | UI matches **Wireframe** | Wireframe | ☐ |
-| FC19 | domain-spec / feature-catalog / README / ARCHITECTURE updated | Docs | ☐ |
+| FC1 | Project can define custom fields (all five types) | S1 | ☑ |
+| FC2 | Workflow can define custom fields + status-required | S2, FQ2 | ☑ |
+| FC3 | String max ≤ configured and ≤ 255 | FQ9 | ☑ |
+| FC4 | Text uses Description editor/storage model, max 1200 | FQ8, FQ24 | ☑ |
+| FC5 | Integer min/max enforced | S3 | ☑ |
+| FC6 | Enum single-select; option remove blocked if in use | FQ4, FQ11 | ☑ |
+| FC7 | Create + detail persist in-scope values; union by key | FQ3, FQ18 | ☑ |
+| FC8 | Required on create/update; status-required on move/create-as-start | FQ19 | ☑ |
+| FC9 | `FIELD_CHANGED` history with field key | FQ16 | ☑ |
+| FC10 | Template defaults for in-scope fields; stale dropped on workflow change | FQ5, FQ21 | ☑ |
+| FC11 | CSV import maps by key | FQ6, FQ22 | ☑ |
+| FC12 | Query supports `cf.<key>` | FQ7, FQ23 | ☑ |
+| FC13 | Soft-disable; hard delete blocked if values | FQ14 | ☑ |
+| FC14 | Orphan workflow values read-only after workflow change | FQ15 | ☑ |
+| FC15 | Duplicate keys rejected across project ∪ workflow | FQ18 | ☑ |
+| FC16 | Roles: owner/admin project defs; PM/admin workflow; ticket editors for values | FQ13 | ☑ |
+| FC17 | No Kanban card custom fields; no notify/email for CF changes | FQ17, FQ20 | ☑ |
+| FC18 | UI matches **Wireframe** | Wireframe | ☑ |
+| FC19 | domain-spec / feature-catalog / README / ARCHITECTURE updated | Docs | ☑ |
 
 #### Tasks (phase 3)
 
 | ID | Task | Done |
 |----|------|------|
-| T1 | Schema: custom field tables + history `field` widen + import JSON columns in `V1.0.0`; entities + repositories | ☐ |
-| T2 | `CustomFieldService` — definition CRUD, key collision, enable/disable, enum option guards | ☐ |
-| T3 | Project nested endpoints: list / in-scope / create / update / delete + tests | ☐ |
-| T4 | Workflow nested endpoints: list / create / update / delete (status-required) + tests | ☐ |
-| T5 | Ticket values on create/update/detail responses; required validation; history `FIELD_CHANGED` + tests | ☐ |
-| T6 | `moveTicket` status-required validation + tests | ☐ |
-| T7 | Project template custom defaults (API + apply on create) + workflow-change collision/orphan/stale-default handling + tests | ☐ |
-| T8 | CSV import mapping + execution for custom field keys + tests | ☐ |
-| T9 | Query language `cf.<key>` grammar + predicate builder + tests | ☐ |
-| T10 | `dev-import.sql` sample custom fields/values | ☐ |
-| T11 | Angular: definition admin on project + workflow forms | ☐ |
-| T12 | Angular: shared field renderer on create ticket + ticket detail | ☐ |
-| T13 | Angular: import mapping UI for custom field keys | ☐ |
-| T14 | Angular: search help for `cf.*`; regenerate API client | ☐ |
-| T15 | Docs: domain-spec finalize, feature-catalog, README, ARCHITECTURE §13 | ☐ |
+| T1 | Schema: custom field tables + history `field` widen + import JSON columns in `V1.0.0`; entities + repositories | ☑ |
+| T2 | `CustomFieldService` — definition CRUD, key collision, enable/disable, enum option guards | ☑ |
+| T3 | Project nested endpoints: list / in-scope / create / update / delete + tests | ☑ |
+| T4 | Workflow nested endpoints: list / create / update / delete (status-required) + tests | ☑ |
+| T5 | Ticket values on create/update/detail responses; required validation; history `FIELD_CHANGED` + tests | ☑ |
+| T6 | `moveTicket` status-required validation + tests | ☑ |
+| T7 | Project template custom defaults (API + apply on create) + workflow-change collision/orphan/stale-default handling + tests | ☑ |
+| T8 | CSV import mapping + execution for custom field keys + tests | ☑ |
+| T9 | Query language `cf.<key>` grammar + predicate builder + tests | ☑ |
+| T10 | `dev-import.sql` sample custom fields/values | ☑ |
+| T11 | Angular: definition admin on project + workflow forms | ☑ |
+| T12 | Angular: shared field renderer on create ticket + ticket detail | ☑ |
+| T13 | Angular: import mapping UI for custom field keys | ☑ |
+| T14 | Angular: search help for `cf.*`; regenerate API client | ☑ |
+| T15 | Docs: domain-spec finalize, feature-catalog, README, ARCHITECTURE §13 | ☑ |
 
 #### Test coverage
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | `CreateProjectCustomFieldEndpointTest` / update / delete (collision, delete-if-in-use, disable) | T2, T3 | ☐ |
-| TC2 | `CreateWorkflowCustomFieldEndpointTest` (status-required) | T2, T4 | ☐ |
-| TC3 | `CreateTicketEndpointTest` / update — custom values, required, template defaults | T5, T7 | ☐ |
-| TC4 | `MoveTicketEndpointTest` — status-required reject/accept | T6 | ☐ |
-| TC5 | `UpdateProjectEndpointTest` — workflow change collision; template custom defaults | T7 | ☐ |
-| TC6 | CSV import mapping/execute tests with custom field keys | T8 | ☐ |
-| TC7 | `TicketQueryLanguageServiceTest` — `cf.<key>` predicates | T9 | ☐ |
-| TC8 | `ArchitectureTest` still green for new Request/Response records | T3–T5 | ☐ |
-| TC9 | Angular specs: field admin, ticket form section, import mapping | T11–T13 | ☐ |
+| TC1 | `CreateProjectCustomFieldEndpointTest` / update / delete (collision, delete-if-in-use, disable) | T2, T3 | ☑ |
+| TC2 | `CreateWorkflowCustomFieldEndpointTest` (status-required) | T2, T4 | ☑ |
+| TC3 | `CreateTicketEndpointTest` / update — custom values, required, template defaults | T5, T7 | ☑ |
+| TC4 | `MoveTicketEndpointTest` — status-required reject/accept | T6 | ☑ |
+| TC5 | `UpdateProjectEndpointTest` — workflow change collision; template custom defaults | T7 | ☑ |
+| TC6 | CSV import mapping/execute tests with custom field keys | T8 | ☑ |
+| TC7 | `TicketQueryLanguageServiceTest` — `cf.<key>` predicates | T9 | ☑ |
+| TC8 | `ArchitectureTest` still green for new Request/Response records | T3–T5 | ☑ |
+| TC9 | Angular specs: field admin, ticket form section, import mapping | T11–T13 | ☑ |
 
-**Development approval:** pending
+**Development approval:** approved 2026-07-10 — tasks: T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15
 
-**Implementation notes:** —
+**Implementation notes:** Shipped 2026-07-10.
+
+- **Backend:** `customfield.CustomFieldService` (+ entities/repos); nested `project.customfield.*` / `workflow.customfield.*` endpoints; ticket create/update/move + template defaults / workflow-change collision & stale-default drop in `ProjectService`; CSV `customFieldColumns`; query grammar `cf.<key>`.
+- **Frontend:** `custom-field-admin` / `custom-field-dialog` on project + workflow forms; `custom-field-form-section` on create + detail (orphan read-only); import mapping; `query-language-reference` `cf.<chave>`; API codegen.
+- **Seed:** `dev-import.sql` sample project/workflow fields and ticket values.
+- **Tests run / present:** `CreateProjectCustomFieldEndpointTest`, `CreateWorkflowCustomFieldEndpointTest`, `CreateTicketEndpointTest` (CF), `MoveTicketEndpointTest` (status-required), `UpdateProjectEndpointTest` (workflow-change collision + template CF defaults), `ImportTicketsEndpointTest` (customFieldColumns), `TicketQueryLanguageServiceTest` (`cf.*`), Angular `custom-field-form-section.component.spec.ts`, `ticket-import-wizard.component.spec.ts` (CF mapping). `mvn verify` green.
+- **Docs:** domain-spec UL/invariants, feature-catalog routes, README Features, ARCHITECTURE §5/§7/§13, backlog `done`.
 
 ## Scope (product)
 

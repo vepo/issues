@@ -11,7 +11,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: colors.$space-lg;
+    margin-bottom: colors.$space-md;
 
     h2 {
       margin: 0;
@@ -27,13 +27,13 @@
   .dashboard-container {
     display: flex;
     flex: 1;
-    gap: colors.$space-lg;
+    gap: colors.$space-md;
 
     .widgets-panel {
-      width: 250px;
+      width: 220px;
       border: 1px solid colors.$border-subtle;
       border-radius: colors.$radius-none;
-      padding: colors.$space-md;
+      padding: colors.$space-sm;
       background: colors.$surface-toolbar;
       
       h3 {
@@ -65,9 +65,9 @@
       .widgets-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: colors.$space-lg;
+        gap: colors.$space-md;
         min-height: 500px;
-        padding: colors.$space-md;
+        padding: colors.$space-sm;
         border: 1px solid colors.$border-subtle;
         border-radius: colors.$radius-none;
         background: colors.$surface-toolbar;
@@ -83,7 +83,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: colors.$space-sm colors.$space-md;
+            padding: colors.$space-xs colors.$space-sm;
             border-bottom: 1px solid colors.$border-subtle;
             background: colors.$surface-muted;
 
@@ -121,8 +121,8 @@
           }
 
           .widget-content {
-            padding: colors.$space-md;
-            height: calc(100% - 45px);
+            padding: colors.$space-sm;
+            height: calc(100% - 2.25rem);
 
             .chart-container,
             .kpi-container,

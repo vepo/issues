@@ -26,7 +26,12 @@ export const QUERY_LANGUAGE_FIELDS: QueryFieldHelp[] = [
   { name: 'dueDate / due', operators: '=, !=, >, <, >=, <=, IS EMPTY, IS NOT EMPTY', description: 'Data de vencimento (ISO-8601, ex.: 2026-08-15)' },
   { name: 'created / createdAt', operators: '=, !=, >, <, >=, <=', description: 'Data de criação (ISO-8601)' },
   { name: 'updated / updatedAt', operators: '=, !=, >, <, >=, <=', description: 'Data de atualização (ISO-8601)' },
-  { name: 'finished / finishedAt', operators: '=, !=, >, <, >=, <=, IS EMPTY, IS NOT EMPTY', description: 'Data de conclusão (ISO-8601)' }
+  { name: 'finished / finishedAt', operators: '=, !=, >, <, >=, <=, IS EMPTY, IS NOT EMPTY', description: 'Data de conclusão (ISO-8601)' },
+  {
+    name: 'cf.<chave>',
+    operators: '=, !=, ~, >, <, >=, <=, IN, IS EMPTY, IS NOT EMPTY',
+    description: 'Campo personalizado pela chave (ex.: cf.sprint = 12). Operadores dependem do tipo do campo.'
+  }
 ];
 
 export const QUERY_LANGUAGE_EXAMPLES: QueryExample[] = [
@@ -45,6 +50,10 @@ export const QUERY_LANGUAGE_EXAMPLES: QueryExample[] = [
   {
     label: 'Comentários',
     query: 'comment ~ "revisão"'
+  },
+  {
+    label: 'Campo personalizado',
+    query: 'cf.sprint = 12 AND cf.environment = "homolog"'
   },
   {
     label: 'Vários projetos com ordenação',

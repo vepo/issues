@@ -32,12 +32,12 @@ $text-secondary: #5A6472;
 $text-muted: #8A929E;
 $focus-ring-color: #1565C0;
 
-// Spacing scale (8px grid)
+// Spacing scale — comfortable compact (mild density)
 $space-xs: 0.25rem; // 4px
 $space-sm: 0.5rem;  // 8px
-$space-md: 1rem;    // 16px
-$space-lg: 1.5rem;  // 24px
-$space-xl: 2rem;    // 32px
+$space-md: 0.75rem; // 12px
+$space-lg: 1rem;    // 16px
+$space-xl: 1.5rem;  // 24px
 
 // Semantic feedback (toasts)
 $semantic-success-bg: #E8F5E9;
@@ -67,14 +67,14 @@ $header-button-border: rgba(255, 255, 255, 0.35);
 $header-button-hover-bg: rgba(255, 255, 255, 0.2);
 
 // App shell alignment (GitHub-style: full-width chrome, content inset only)
-$shell-padding-x: 1rem;
+$shell-padding-x: 0.75rem; // 12px
 
 // Layout semantics (panels, tables)
 $panel-padding: $space-lg;
 $table-cell-padding-x: $space-md;
-$table-cell-padding-y: $space-sm;
+$table-cell-padding-y: 0.375rem; // 6px
 
 // Toolbar / action-row controls (buttons, compact selects, filter chips)
-$control-height: 2.5rem; // 40px — aligns with Material button default
+$control-height: 2.25rem; // 36px — comfortable compact floor
 $control-font-size: 0.875rem;
-$control-padding-x: 0.75rem;
+$control-padding-x: 0.625rem;

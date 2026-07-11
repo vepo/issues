@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import dev.vepo.issues.customfield.CustomFieldValueResponse;
 import dev.vepo.issues.ticket.history.TicketHistory;
+import dev.vepo.issues.ticket.link.ChildrenSummaryResponse;
+import dev.vepo.issues.ticket.link.TicketLinkResponse;
 
 public record TicketExpandedResponse(long id,
                                      String identifier,
@@ -13,6 +16,7 @@ public record TicketExpandedResponse(long id,
                                      String category,
                                      String categoryColor,
                                      String priority,
+                                     String ticketType,
                                      TicketUserResponse author,
                                      TicketUserResponse assignee,
                                      List<TicketUserResponse> subscribers,
@@ -27,9 +31,26 @@ public record TicketExpandedResponse(long id,
                                      Long phaseId,
                                      String phaseName,
                                      boolean deleted,
-                                     List<TicketHistoryResponse> history) {
+                                     List<TicketHistoryResponse> history,
+                                     List<CustomFieldValueResponse> customFields,
+                                     List<TicketLinkResponse> links,
+                                     ChildrenSummaryResponse childrenSummary) {
 
     public static TicketExpandedResponse load(Ticket ticket, List<TicketHistory> history) {
+        return load(ticket, history, List.of(), List.of(), new ChildrenSummaryResponse(0, 0));
+    }
+
+    public static TicketExpandedResponse load(Ticket ticket,
+                                              List<TicketHistory> history,
+                                              List<CustomFieldValueResponse> customFields) {
+        return load(ticket, history, customFields, List.of(), new ChildrenSummaryResponse(0, 0));
+    }
+
+    public static TicketExpandedResponse load(Ticket ticket,
+                                              List<TicketHistory> history,
+                                              List<CustomFieldValueResponse> customFields,
+                                              List<TicketLinkResponse> links,
+                                              ChildrenSummaryResponse childrenSummary) {
         return new TicketExpandedResponse(ticket.getId(),
                                           ticket.getIdentifier(),
                                           ticket.getTitle(),
@@ -37,6 +58,7 @@ public record TicketExpandedResponse(long id,
                                           ticket.getCategory().getName(),
                                           ticket.getCategory().getColor(),
                                           ticket.getPriority().name(),
+                                          ticket.getTicketType() != null ? ticket.getTicketType().name() : TicketType.TASK.name(),
                                           TicketUserResponse.load(ticket.getAuthor()),
                                           TicketUserResponse.load(ticket.getAssignee()),
                                           ticket.getSubscribers()
@@ -56,7 +78,10 @@ public record TicketExpandedResponse(long id,
                                           ticket.isDeleted(),
                                           history.stream()
                                                  .map(TicketHistoryResponse::load)
-                                                 .toList());
+                                                 .toList(),
+                                          customFields == null ? List.of() : List.copyOf(customFields),
+                                          links == null ? List.of() : List.copyOf(links),
+                                          childrenSummary == null ? new ChildrenSummaryResponse(0, 0) : childrenSummary);
     }
 
 }

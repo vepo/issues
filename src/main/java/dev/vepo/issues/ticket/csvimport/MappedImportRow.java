@@ -1,5 +1,7 @@
 package dev.vepo.issues.ticket.csvimport;
 
+import java.util.Map;
+
 import dev.vepo.issues.ticket.TicketPriority;
 
 public record MappedImportRow(int rowNumber,
@@ -9,4 +11,10 @@ public record MappedImportRow(int rowNumber,
                               TicketPriority priority,
                               String assigneeEmail,
                               String statusName,
-                              String projectName) {}
+                              String projectName,
+                              Map<String, String> customFieldValues) {
+
+    public MappedImportRow {
+        customFieldValues = customFieldValues == null ? Map.of() : Map.copyOf(customFieldValues);
+    }
+}

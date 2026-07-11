@@ -2,10 +2,11 @@ package dev.vepo.issues.ticket;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -270,6 +271,67 @@ public class TicketRepository {
                               """, Comment.class)
                  .setParameter("projectIds", projectIds)
                  .getResultStream();
+    }
+
+    public List<Ticket> findBacklogPage(long projectId, int page, int size) {
+        return em.createQuery("""
+                              SELECT t FROM Ticket t
+                              WHERE t.project.id = :projectId
+                              AND t.deleted = false
+                              AND t.finishedAt IS NULL
+                              ORDER BY t.backlogRank ASC, t.id ASC
+                              """, Ticket.class)
+                 .setParameter("projectId", projectId)
+                 .setFirstResult(page * size)
+                 .setMaxResults(size)
+                 .getResultList();
+    }
+
+    public long countBacklog(long projectId) {
+        return em.createQuery("""
+                              SELECT COUNT(t) FROM Ticket t
+                              WHERE t.project.id = :projectId
+                              AND t.deleted = false
+                              AND t.finishedAt IS NULL
+                              """, Long.class)
+                 .setParameter("projectId", projectId)
+                 .getSingleResult();
+    }
+
+    public int maxBacklogRank(long projectId) {
+        var max = em.createQuery("""
+                                 SELECT MAX(t.backlogRank) FROM Ticket t
+                                 WHERE t.project.id = :projectId
+                                 """, Integer.class)
+                    .setParameter("projectId", projectId)
+                    .getSingleResult();
+        return max == null ? 0 : max;
+    }
+
+    public List<Ticket> findBacklogEligibleOrdered(long projectId) {
+        return em.createQuery("""
+                              SELECT t FROM Ticket t
+                              WHERE t.project.id = :projectId
+                              AND t.deleted = false
+                              AND t.finishedAt IS NULL
+                              ORDER BY t.backlogRank ASC, t.id ASC
+                              """, Ticket.class)
+                 .setParameter("projectId", projectId)
+                 .getResultList();
+    }
+
+    public Optional<Ticket> findBacklogEligibleById(long projectId, long ticketId) {
+        return em.createQuery("""
+                              SELECT t FROM Ticket t
+                              WHERE t.id = :ticketId
+                              AND t.project.id = :projectId
+                              AND t.deleted = false
+                              AND t.finishedAt IS NULL
+                              """, Ticket.class)
+                 .setParameter("ticketId", ticketId)
+                 .setParameter("projectId", projectId)
+                 .getResultStream()
+                 .findFirst();
     }
 
     public Stream<Ticket> findForVersionChangelog(long projectId, long versionId, ChangelogAssociation association) {

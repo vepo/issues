@@ -36,10 +36,10 @@
         <mat-hint i18n>O prefixo não pode ser alterado após a criação de tickets</mat-hint>
       }
     </mat-form-field>
-    <mat-form-field class="form-field form-field--textarea" appearance="outline">
-      <mat-label i18n>Descrição</mat-label>
-      <textarea matInput formControlName="description" rows="5" required></textarea>
-    </mat-form-field>
+    <div class="form-field form-field--rich-text">
+      <label class="form-label" i18n>Descrição</label>
+      <app-rich-text-editor formControlName="description" placeholder="Descrição do projeto..."></app-rich-text-editor>
+    </div>
 
     <section class="form-section">
       <mat-checkbox formControlName="templateEnabled" i18n>Usar template de ticket</mat-checkbox>
@@ -49,10 +49,10 @@
           <mat-label i18n>Título do template</mat-label>
           <input matInput formControlName="templateTitle" />
         </mat-form-field>
-        <mat-form-field class="form-field form-field--textarea" appearance="outline">
-          <mat-label i18n>Descrição do template</mat-label>
-          <textarea matInput formControlName="templateDescription" rows="5"></textarea>
-        </mat-form-field>
+        <div class="form-field form-field--rich-text">
+          <label class="form-label" i18n>Descrição do template</label>
+          <app-rich-text-editor formControlName="templateDescription" placeholder="Descrição padrão do ticket..."></app-rich-text-editor>
+        </div>
         <mat-form-field class="form-field" appearance="outline">
           <mat-label i18n>Categoria do template</mat-label>
           <mat-select formControlName="templateCategoryId">
@@ -71,8 +71,23 @@
             }
           </mat-select>
         </mat-form-field>
+
+        @if (editMode && inScopeFields.length > 0) {
+          <h3 class="section-title" i18n>Template — campos personalizados</h3>
+          <app-custom-field-form-section
+            #templateCustomFields
+            [definitions]="inScopeFields"
+            [initialValues]="templateCustomDefaults" />
+        }
       }
     </section>
+
+    @if (editMode && projectId) {
+      <app-custom-field-admin
+        owner="project"
+        [ownerId]="projectId"
+        sectionTitle="Campos personalizados (projeto)" />
+    }
 
     <section class="form-section">
       <h2 class="section-title" i18n>Template de fase</h2>

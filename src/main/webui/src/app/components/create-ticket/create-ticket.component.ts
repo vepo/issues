@@ -86,9 +86,10 @@ export class CreateTicketComponent implements OnInit {
       if (template.priority) {
         defaults.priority = template.priority;
       }
+      defaults.customFieldDefaults = template.customFieldDefaults ?? [];
       this.formDefaults = defaults;
     } else {
-      this.formDefaults = { priority: 'MEDIUM' };
+      this.formDefaults = { priority: 'MEDIUM', customFieldDefaults: [] };
     }
   }
 

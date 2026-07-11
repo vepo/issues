@@ -104,6 +104,13 @@ public class Ticket {
     @Column(nullable = false)
     private TicketPriority priority = TicketPriority.MEDIUM;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ticket_type", nullable = false, length = 16)
+    private TicketType ticketType = TicketType.TASK;
+
+    @Column(name = "backlog_rank", nullable = false)
+    private int backlogRank = 0;
+
     public Ticket() {}
 
     public Ticket(String identifier, String title, String description, Category category, User author, User assignee, Project project, WorkflowStatus status) {
@@ -116,6 +123,8 @@ public class Ticket {
         this.project = project;
         this.status = status;
         this.priority = TicketPriority.MEDIUM;
+        this.ticketType = TicketType.TASK;
+        this.backlogRank = 0;
         this.createdAt = this.updatedAt = LocalDateTime.now();
         this.deleted = false;
         this.subscribers = emptySet();
@@ -255,6 +264,22 @@ public class Ticket {
 
     public void setPriority(TicketPriority priority) {
         this.priority = priority;
+    }
+
+    public TicketType getTicketType() {
+        return ticketType;
+    }
+
+    public void setTicketType(TicketType ticketType) {
+        this.ticketType = ticketType;
+    }
+
+    public int getBacklogRank() {
+        return backlogRank;
+    }
+
+    public void setBacklogRank(int backlogRank) {
+        this.backlogRank = backlogRank;
     }
 
     public boolean isDeleted() {

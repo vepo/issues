@@ -26,18 +26,27 @@
     }
   </mat-form-field>
 
-  <mat-form-field class="form-field form-field--textarea" appearance="outline">
-    <mat-label i18n>Descrição</mat-label>
-    <textarea matInput formControlName="description" rows="5"></textarea>
+  <div class="form-field form-field--rich-text">
+    <label class="form-label" i18n>Descrição</label>
+    <app-rich-text-editor formControlName="description" placeholder="Insira a descrição do ticket..."></app-rich-text-editor>
     @if (description && description.touched && description.invalid && description.hasError('required')) {
-      <mat-error i18n>Descrição é um campo obrigatório!</mat-error>
+      <div class="form-error" i18n>Descrição é um campo obrigatório!</div>
     }
-    @if (description && description.touched && description.invalid && description.hasError('minlength')) {
-      <mat-error i18n>Descrição deve ter ao menos 5 caracteres!</mat-error>
+    @if (description && description.touched && description.invalid && description.hasError('plainTextMinLength')) {
+      <div class="form-error" i18n>Descrição deve ter ao menos 5 caracteres!</div>
     }
-    @if (description && description.touched && description.invalid && description.hasError('maxlength')) {
-      <mat-error i18n>Descrição deve ter no máximo 1200 caracteres!</mat-error>
+    @if (description && description.touched && description.invalid && description.hasError('plainTextMaxLength')) {
+      <div class="form-error" i18n>Descrição deve ter no máximo 1200 caracteres!</div>
     }
+  </div>
+
+  <mat-form-field class="form-field" appearance="outline">
+    <mat-label i18n>Tipo</mat-label>
+    <mat-select formControlName="ticketType" required>
+      @for (type of ticketTypes; track type.value) {
+        <mat-option [value]="type.value">{{ type.label }}</mat-option>
+      }
+    </mat-select>
   </mat-form-field>
 
   <mat-form-field class="form-field" appearance="outline">
@@ -76,6 +85,10 @@
       }
     </mat-select>
   </mat-form-field>
+
+  <app-custom-field-form-section
+    [projectId]="selectedProjectId"
+    [templateDefaults]="customFieldDefaults" />
 
   <div class="actions form-actions">
     <button matButton="outlined" class="btn btn-secondary" type="button" (click)="cancel()" i18n>Cancelar</button>

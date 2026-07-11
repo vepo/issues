@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { ProjectsService } from '../../services/projects.service';
 import { TicketService } from '../../services/ticket.service';
 import { PhaseService } from '../../services/phase.service';
+import { CustomFieldService } from '../../services/custom-field.service';
 import { CreateTicketComponent } from './create-ticket.component';
 
 describe('CreateTicketComponent', () => {
@@ -18,6 +19,8 @@ describe('CreateTicketComponent', () => {
 
     const phaseService = jasmine.createSpyObj('PhaseService', ['list']);
     phaseService.list.and.returnValue(of([]));
+    const customFieldService = jasmine.createSpyObj('CustomFieldService', ['listInScope']);
+    customFieldService.listInScope.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [CreateTicketComponent],
@@ -67,6 +70,7 @@ describe('CreateTicketComponent', () => {
         { provide: Router, useValue: router },
         { provide: ProjectsService, useValue: jasmine.createSpyObj('ProjectsService', ['findById']) },
         { provide: PhaseService, useValue: phaseService },
+        { provide: CustomFieldService, useValue: customFieldService },
       ],
     }).compileComponents();
 
@@ -93,7 +97,7 @@ describe('CreateTicketComponent', () => {
     }];
     component['applyTemplateFromProject'](component.projects[0]);
 
-    expect(component.formDefaults).toEqual({ title: 'Title only' });
+    expect(component.formDefaults).toEqual({ title: 'Title only', customFieldDefaults: [] });
   });
 
   it('should pre-fill defaults from project template', () => {
@@ -101,6 +105,7 @@ describe('CreateTicketComponent', () => {
       title: 'New work item',
       categoryId: 2,
       priority: 'MEDIUM',
+      customFieldDefaults: [],
     }));
   });
 });

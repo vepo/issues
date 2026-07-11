@@ -5,6 +5,7 @@ import { TicketImportWizardComponent } from './ticket-import-wizard.component';
 import { TicketImportService } from '../../services/ticket-import.service';
 import { ProjectsService } from '../../services/projects.service';
 import { UsersService } from '../../services/users.service';
+import { CustomFieldService } from '../../services/custom-field.service';
 
 describe('TicketImportWizardComponent', () => {
   let fixture: ComponentFixture<TicketImportWizardComponent>;
@@ -54,6 +55,14 @@ describe('TicketImportWizardComponent', () => {
             ])),
           },
         },
+        {
+          provide: CustomFieldService,
+          useValue: {
+            listInScope: jasmine.createSpy('listInScope').and.returnValue(of([
+              { id: 1, key: 'sprint', label: 'Sprint', type: 'INTEGER', required: false, enabled: true, enumOptions: [], statusRequired: [] },
+            ])),
+          },
+        },
       ],
     }).compileComponents();
 
@@ -87,5 +96,21 @@ describe('TicketImportWizardComponent', () => {
       preview: { projectName: 'Missing' },
     };
     expect(fixture.componentInstance.hasProjectError(row)).toBeTrue();
+  });
+
+  it('should include custom field columns in mapping payload', () => {
+    fixture.componentInstance.inScopeCustomFields = [
+      { id: 1, key: 'sprint', label: 'Sprint', type: 'INTEGER', required: false, enabled: true, enumOptions: [], statusRequired: [] } as never,
+    ];
+    fixture.componentInstance['rebuildCustomFieldColumnControls']();
+    fixture.componentInstance.customFieldControl('sprint').setValue('Sprint');
+    fixture.componentInstance.mappingForm.patchValue({
+      titleColumn: 'Title',
+      descriptionColumn: 'Description',
+      categoryColumn: 'Category',
+    });
+
+    const mapping = fixture.componentInstance.buildColumnMapping();
+    expect(mapping.customFieldColumns).toEqual({ sprint: 'Sprint' });
   });
 });

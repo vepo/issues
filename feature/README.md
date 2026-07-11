@@ -171,6 +171,7 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 | Create ticket | `feature/create-ticket.md` | 1 | done |
 | Import tickets (CSV) | `feature/ticket-import.md` | 1 | done |
 | Kanban board | `feature/kanban-board.md` | 1 | done |
+| Ticket backlog (ranked list + reorder) | `feature/ticket-backlog.md` | 1 | tasks-ready |
 | Project dashboard | `feature/project-dashboard.md` | 2 | done |
 | Project administration | `feature/project-administration.md` | 2 | done |
 | User management | `feature/user-management.md` | 2 | done |
@@ -182,7 +183,11 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 | UI design system (class consistency) | `feature/ui-design-system.md` | 1 | done |
 | Home screen (personal work hub) | `feature/home-screen.md` | 1 | tasks-ready |
 | Project navigation (header Projetos) | `feature/project-navigation.md` | 1 | done |
-| Custom fields (project/workflow definitions, ticket values) | `feature/custom-fields.md` | 1 | tasks-ready |
+| Custom fields (project/workflow definitions, ticket values) | `feature/custom-fields.md` | 1 | done |
+| Agentic Development integration (PAT, MCP, agent skill) | `feature/agentic-integration.md` | 1 | tasks-ready |
+| Git integration (project repo, commits on ticket history) | `feature/git-integration.md` | 1 | planned |
+| Ticket links, epics & subtasks | `feature/ticket-links.md` | 1 | done |
+| Burndown (phase remaining vs ideal) | `feature/burndown.md` | 1 | tasks-ready |
 
 ## Versioning
 

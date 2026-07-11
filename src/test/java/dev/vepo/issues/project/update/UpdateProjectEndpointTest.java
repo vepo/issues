@@ -344,6 +344,178 @@ class UpdateProjectEndpointTest {
                .body("prefixLocked", is(false));
     }
 
+    @Test
+    @DisplayName("Should reject workflow change when project custom field key collides with new workflow")
+    void shouldRejectWorkflowChangeOnCustomFieldKeyCollision() {
+        var suffix = UUID.randomUUID().toString().substring(0, 8);
+        var otherWorkflow = given().header(pmAuthenticatedHeader)
+                                   .contentType(ContentType.JSON)
+                                   .body("""
+                                         {
+                                             "name": "Other WF %s",
+                                             "statuses": ["TODO", "Done"],
+                                             "start": "TODO",
+                                             "transitions": [{"from": "TODO", "to": "Done"}],
+                                             "finishStatuses": [{"status": "Done", "outcome": "DONE"}]
+                                         }
+                                         """.formatted(suffix))
+                                   .post("/api/workflows")
+                                   .then()
+                                   .statusCode(201)
+                                   .extract()
+                                   .as(WorkflowResponse.class);
+        var created = given().header(pmAuthenticatedHeader)
+                             .contentType(ContentType.JSON)
+                             .body("""
+                                   {
+                                       "name": "CF Collision %s",
+                                       "description": "Workflow change collision test.",
+                                       "prefix": "CC%s",
+                                       "workflowId": %d
+                                   }""".formatted(suffix, suffix.substring(0, 4).toUpperCase(), workflow.id()))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(ProjectResponse.class);
+
+        var key = "shared_" + suffix;
+        given().header(pmAuthenticatedHeader)
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "key": "%s",
+                       "label": "Project Shared",
+                       "type": "STRING",
+                       "required": false,
+                       "stringMaxLength": 32
+                     }
+                     """.formatted(key))
+               .post("/api/projects/%d/custom-fields".formatted(created.id()))
+               .then()
+               .statusCode(201);
+
+        given().header(pmAuthenticatedHeader)
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "key": "%s",
+                       "label": "Workflow Shared",
+                       "type": "STRING",
+                       "required": false,
+                       "stringMaxLength": 32
+                     }
+                     """.formatted(key))
+               .post("/api/workflows/%d/custom-fields".formatted(otherWorkflow.id()))
+               .then()
+               .statusCode(201);
+
+        given().header(pmAuthenticatedHeader)
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "%s",
+                         "description": "Workflow change collision test.",
+                         "prefix": "%s",
+                         "workflowId": %d
+                     }""".formatted(created.name(), created.prefix(), otherWorkflow.id()))
+               .post("/api/projects/" + created.id())
+               .then()
+               .statusCode(400);
+    }
+
+    @Test
+    @DisplayName("Should persist custom field template defaults and drop them when out of scope after workflow change")
+    void shouldPersistAndDropStaleCustomFieldTemplateDefaults() {
+        var suffix = UUID.randomUUID().toString().substring(0, 8);
+        var otherWorkflow = given().header(pmAuthenticatedHeader)
+                                   .contentType(ContentType.JSON)
+                                   .body("""
+                                         {
+                                             "name": "Template WF %s",
+                                             "statuses": ["TODO", "Done"],
+                                             "start": "TODO",
+                                             "transitions": [{"from": "TODO", "to": "Done"}],
+                                             "finishStatuses": [{"status": "Done", "outcome": "DONE"}]
+                                         }
+                                         """.formatted(suffix))
+                                   .post("/api/workflows")
+                                   .then()
+                                   .statusCode(201)
+                                   .extract()
+                                   .as(WorkflowResponse.class);
+        var created = given().header(pmAuthenticatedHeader)
+                             .contentType(ContentType.JSON)
+                             .body("""
+                                   {
+                                       "name": "CF Template %s",
+                                       "description": "Template custom defaults test.",
+                                       "prefix": "CT%s",
+                                       "workflowId": %d
+                                   }""".formatted(suffix, suffix.substring(0, 4).toUpperCase(), workflow.id()))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(ProjectResponse.class);
+
+        var key = "sprint_" + suffix;
+        given().header(pmAuthenticatedHeader)
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "key": "%s",
+                       "label": "Sprint",
+                       "type": "INTEGER",
+                       "required": false,
+                       "integerMin": 1,
+                       "integerMax": 99
+                     }
+                     """.formatted(key))
+               .post("/api/projects/%d/custom-fields".formatted(created.id()))
+               .then()
+               .statusCode(201);
+
+        given().header(pmAuthenticatedHeader)
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "%s",
+                         "description": "Template custom defaults test.",
+                         "prefix": "%s",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "title": "Default title here",
+                             "customFieldDefaults": [{"key": "%s", "value": 3}]
+                         }
+                     }""".formatted(created.name(), created.prefix(), workflow.id(), key))
+               .post("/api/projects/" + created.id())
+               .then()
+               .statusCode(201)
+               .body("ticketTemplate.enabled", equalTo(true))
+               .body("ticketTemplate.customFieldDefaults.key", org.hamcrest.Matchers.hasItem(key));
+
+        given().header(pmAuthenticatedHeader)
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "%s",
+                         "description": "Template custom defaults test.",
+                         "prefix": "%s",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "title": "Default title here"
+                         }
+                     }""".formatted(created.name(), created.prefix(), otherWorkflow.id()))
+               .post("/api/projects/" + created.id())
+               .then()
+               .statusCode(201)
+               .body("workflow.id", equalTo((int) otherWorkflow.id()))
+               .body("ticketTemplate.customFieldDefaults.size()", equalTo(0));
+    }
+
     private ProjectResponse createProject(String namePrefix, String prefixSeed) {
         var suffix = UUID.randomUUID().toString().substring(0, 6);
         return given().header(pmAuthenticatedHeader)

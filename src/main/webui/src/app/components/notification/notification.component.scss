@@ -49,13 +49,43 @@
   pointer-events: none;
 }
 
+.notifications-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: colors.$space-sm;
+  padding: colors.$space-sm colors.$space-md;
+  border-bottom: 1px solid colors.$border-subtle;
+}
+
+.notifications-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: colors.$text-primary;
+}
+
+.notifications-mark-all {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: colors.$base-active-color;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  text-align: right;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
 .notifications-scroll {
   max-height: 320px;
   overflow-y: auto;
 }
 
 .menu-empty {
-  padding: colors.$space-md colors.$space-lg;
+  padding: colors.$space-sm colors.$space-md;
   color: colors.$text-muted;
   font-size: 0.875rem;
   text-align: center;

@@ -3,6 +3,7 @@ import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { CustomFieldService } from '../../services/custom-field.service';
 import { ProjectsService } from '../../services/projects.service';
 import { UsersService } from '../../services/users.service';
 import { ProjectEditComponent } from './project-edit.component';
@@ -24,6 +25,13 @@ describe('ProjectEditComponent', () => {
         { provide: ProjectsService, useValue: projectsService },
         { provide: AuthService, useValue: { hasRole: () => true, getAuthUserId: () => 1 } },
         { provide: UsersService, useValue: { search: () => of([]) } },
+        {
+          provide: CustomFieldService,
+          useValue: {
+            listInScope: jasmine.createSpy('listInScope').and.returnValue(of([])),
+            listProjectFields: jasmine.createSpy('listProjectFields').and.returnValue(of([])),
+          },
+        },
         { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
       ],
     }).compileComponents();

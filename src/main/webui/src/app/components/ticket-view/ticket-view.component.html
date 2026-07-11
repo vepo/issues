@@ -5,6 +5,7 @@
       <h1 class="page-title">#{{ ticket.identifier }} — {{ ticket.title }}</h1>
       <p class="page-subtitle">
         {{ ticket.project.name }}
+        <span class="status-badge">{{ ticketTypeLabel(ticket.ticketType) }}</span>
         <span class="status-badge">{{ ticket.status | normalize }}</span>
         @if (isDeleted()) {
           <span class="status-badge status-badge--muted" i18n>excluído</span>
@@ -53,9 +54,17 @@
           <mat-label i18n>Título</mat-label>
           <input matInput formControlName="title" required />
         </mat-form-field>
-        <mat-form-field class="form-field form-field--textarea" appearance="outline">
-          <mat-label i18n>Descrição</mat-label>
-          <textarea matInput formControlName="description" rows="5" required></textarea>
+        <div class="form-field form-field--rich-text">
+          <label class="form-label" i18n>Descrição</label>
+          <app-rich-text-editor formControlName="description" placeholder="Insira a descrição do ticket..."></app-rich-text-editor>
+        </div>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Tipo</mat-label>
+          <mat-select formControlName="ticketType" required>
+            @for (type of ticketTypes; track type.value) {
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
+            }
+          </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
           <mat-label i18n>Categoria</mat-label>
@@ -109,6 +118,9 @@
             }
           </mat-select>
         </mat-form-field>
+        <app-custom-field-form-section
+          [projectId]="ticket.project.id ?? null"
+          [initialValues]="ticket.customFields ?? []" />
         <div class="form-actions">
           <button class="btn" matButton="filled" type="submit" [disabled]="editForm.invalid || isSaving">
             <span i18n>{{ isSaving ? 'Salvando...' : 'Salvar' }}</span>
@@ -119,6 +131,10 @@
       <dl class="detail-list">
         <dt i18n>Projeto</dt>
         <dd>{{ ticket.project.name }}</dd>
+        <dt i18n>Tipo</dt>
+        <dd>
+          <span class="status-badge">{{ ticketTypeLabel(ticket.ticketType) }}</span>
+        </dd>
         <dt i18n>Categoria</dt>
         <dd>
           <span class="category-badge" [style.border-left-color]="ticket.categoryColor">
@@ -154,6 +170,19 @@
           <dt i18n>Versão entregue</dt>
           <dd>{{ ticket.observedVersionLabel }}</dd>
         }
+        @for (field of ticket.customFields ?? []; track field.key) {
+          <dt>
+            <code>{{ field.key }}</code>
+            @if (field.orphan) {
+              <span class="text-muted" i18n> (fora do escopo)</span>
+            }
+          </dt>
+          @if (field.type === 'TEXT') {
+            <dd class="rich-text-display" [innerHTML]="formatCustomFieldValue(field.value)"></dd>
+          } @else {
+            <dd>{{ formatCustomFieldValue(field.value) }}</dd>
+          }
+        }
         <dt i18n>Subscritos</dt>
         <dd>
           @if (ticket.subscribers.length > 0) {
@@ -167,7 +196,7 @@
           }
         </dd>
         <dt i18n>Descrição</dt>
-        <dd>{{ ticket.description }}</dd>
+        <dd class="rich-text-display" [innerHTML]="ticket.description"></dd>
       </dl>
     }
 
@@ -199,6 +228,109 @@
         <button class="btn btn-secondary" matButton="outlined" type="button" (click)="moveTicket()" i18n>Mover ticket</button>
       </div>
     </div>
+    }
+
+    @if (!isDeleted()) {
+    <section class="ticket-links" aria-labelledby="vinculos-heading">
+      <h2 id="vinculos-heading" class="section-title" i18n>Vínculos</h2>
+      @if (groupedLinks().length > 0) {
+        @for (group of groupedLinks(); track group.label) {
+          <div class="ticket-link-group">
+            <h3 class="ticket-link-group__title">{{ group.label }}</h3>
+            <ul class="ticket-link-list">
+              @for (link of group.links; track link.id) {
+                <li class="ticket-link-row">
+                  <a [routerLink]="['/ticket', link.otherIdentifier]">{{ link.otherIdentifier }}</a>
+                  <span class="text-muted">{{ link.otherProjectPrefix }}</span>
+                  <span>{{ link.otherTitle }}</span>
+                  <span class="status-badge">{{ link.otherStatus | normalize }}</span>
+                  <button
+                    class="btn btn-secondary btn-icon-only"
+                    matButton="outlined"
+                    type="button"
+                    (click)="removeLink(link)"
+                    i18n-aria-label
+                    aria-label="Remover vínculo">
+                    <mat-icon fontIcon="close" aria-hidden="true"></mat-icon>
+                    <span class="visually-hidden" i18n>Remover</span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      } @else {
+        <div class="empty-state" i18n>Nenhum vínculo neste ticket.</div>
+      }
+
+      <div class="ticket-link-add">
+        <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n>Tipo</mat-label>
+          <mat-select [(ngModel)]="newLinkType" name="linkType">
+            @for (type of peerLinkTypes; track type.value) {
+              <mat-option [value]="type.value">{{ type.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="form-field form-field--grow" appearance="outline" subscriptSizing="dynamic">
+          <mat-label i18n>Buscar ticket…</mat-label>
+          <input
+            matInput
+            [ngModel]="linkSearchTerm"
+            (ngModelChange)="onLinkSearchInput($event)"
+            name="linkSearch"
+            autocomplete="off" />
+        </mat-form-field>
+        <button
+          class="btn"
+          matButton="filled"
+          type="button"
+          [disabled]="!selectedLinkTarget || linking"
+          (click)="createLink()"
+          i18n>
+          Vincular
+        </button>
+      </div>
+      @if (linkSearchResults.length > 0) {
+        <ul class="ticket-link-search-results" role="listbox">
+          @for (result of linkSearchResults; track result.id) {
+            <li>
+              <button type="button" class="ticket-link-search-results__item" (click)="selectLinkTarget(result)">
+                <strong>{{ result.identifier }}</strong>
+                <span>{{ result.title }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    @if (isEpic()) {
+    <section class="ticket-subtasks" aria-labelledby="subtarefas-heading">
+      <div class="ticket-subtasks__header">
+        <h2 id="subtarefas-heading" class="section-title" i18n>Subtarefas</h2>
+        <span class="text-muted">{{ childrenProgressLabel() }}</span>
+      </div>
+      @if (childLinks().length > 0) {
+        <ul class="ticket-link-list">
+          @for (child of childLinks(); track child.id) {
+            <li class="ticket-link-row">
+              <a [routerLink]="['/ticket', child.otherIdentifier]">{{ child.otherIdentifier }}</a>
+              <span>{{ child.otherTitle }}</span>
+              <span class="status-badge">{{ child.otherStatus | normalize }}</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="empty-state" i18n>Nenhuma subtarefa neste épico.</div>
+      }
+      <div class="form-actions">
+        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="openCreateChildDialog()" i18n>
+          Nova subtarefa
+        </button>
+      </div>
+    </section>
+    }
     }
 
     <nav class="tabs" aria-label="Seções do ticket">
@@ -237,9 +369,12 @@
                 <div>{{ entry.user?.email }}</div>
                 <div>
                   @if (entry.field) {
-                    {{ entry.action }} — {{ entry.field }}: {{ entry.oldValue || '—' }} → {{ entry.newValue || '—' }}
+                    {{ historyActionLabel(entry.action) }} — {{ entry.field }}: {{ entry.oldValue || '—' }} → {{ entry.newValue || '—' }}
                   } @else {
-                    {{ entry.action }}
+                    {{ historyActionLabel(entry.action) }}
+                    @if (entry.newValue) {
+                      — {{ entry.newValue }}
+                    }
                   }
                 </div>
               </div>

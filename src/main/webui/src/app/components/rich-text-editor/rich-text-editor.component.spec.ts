@@ -249,4 +249,22 @@ describe('RichTextEditorComponent', () => {
       expect(component.getHtml()).toBe('');
     });
   });
+
+  describe('ControlValueAccessor', () => {
+    it('should write value into the editor', () => {
+      component.writeValue('<p>From form</p>');
+      fixture.detectChanges();
+      expect(editorElement.innerHTML).toBe('<p>From form</p>');
+    });
+
+    it('should notify onChange when content is edited', fakeAsync(() => {
+      const onChange = jasmine.createSpy('onChange');
+      component.registerOnChange(onChange);
+      editorElement.innerHTML = '<p>Typed</p>';
+      editorElement.dispatchEvent(new Event('input'));
+      tick();
+      expect(onChange).toHaveBeenCalledWith('<p>Typed</p>');
+    }));
+  });
+
 });

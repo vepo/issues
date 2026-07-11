@@ -28,7 +28,7 @@
             <div class="left-aligned">
               <a [routerLink]="['/projects', entry.id]">{{ entry.name }}</a>
             </div>
-            <div class="left-aligned">{{ entry.description }}</div>
+            <div class="left-aligned rich-text-display" [innerHTML]="entry.description"></div>
             <div class="left-aligned">{{ entry.prefix }}</div>
             <div class="cell-actions">
               <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', entry.id]">

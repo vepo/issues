@@ -347,4 +347,123 @@ class MoveTicketEndpointTest {
                .statusCode(400)
                .body("message", equalTo("Stage not defined in project! stageId=9999"));
     }
+
+    @Test
+    @DisplayName("Should reject move when status-required custom field is missing")
+    void shouldRejectMoveWhenStatusRequiredCustomFieldMissing() {
+        var suffix = java.util.UUID.randomUUID().toString().substring(0, 8);
+        var workflow = given().header(fixtures.pmAuthenticatedHeader())
+                              .contentType(ContentType.JSON)
+                              .body("""
+                                    {
+                                      "name": "CF Move Flow %s",
+                                      "statuses": ["TODO", "In Progress", "Done"],
+                                      "start": "TODO",
+                                      "transitions": [
+                                        {"from": "TODO", "to": "In Progress"},
+                                        {"from": "In Progress", "to": "Done"}
+                                      ],
+                                      "finishStatuses": [{"status": "Done", "outcome": "DONE"}]
+                                    }
+                                    """.formatted(suffix))
+                              .post("/api/workflows")
+                              .then()
+                              .statusCode(201)
+                              .extract()
+                              .as(dev.vepo.issues.workflow.WorkflowResponse.class);
+
+        var project = given().header(fixtures.pmAuthenticatedHeader())
+                             .contentType(ContentType.JSON)
+                             .body("""
+                                   {
+                                     "name": "CF Move Project %s",
+                                     "description": "Isolated project for status-required move.",
+                                     "prefix": "MV%s",
+                                     "workflowId": %d
+                                   }
+                                   """.formatted(suffix, suffix.substring(0, 4).toUpperCase(), workflow.id()))
+                             .post("/api/projects")
+                             .then()
+                             .statusCode(201)
+                             .extract()
+                             .as(dev.vepo.issues.project.ProjectResponse.class);
+
+        var key = "done_" + suffix;
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "key": "%s",
+                       "label": "Done notes",
+                       "type": "TEXT",
+                       "required": false,
+                       "statusRequired": ["Done"]
+                     }
+                     """.formatted(key))
+               .post("/api/workflows/%d/custom-fields".formatted(workflow.id()))
+               .then()
+               .statusCode(201);
+
+        var ticketId = given().header(fixtures.pmAuthenticatedHeader())
+                              .contentType(ContentType.JSON)
+                              .body("""
+                                    {
+                                      "title": "Move CF ticket %s",
+                                      "description": "Ticket for status-required custom field.",
+                                      "projectId": %d,
+                                      "categoryId": %d
+                                    }
+                                    """.formatted(suffix, project.id(), fixtures.bug().getId()))
+                              .post("/api/tickets")
+                              .then()
+                              .statusCode(201)
+                              .extract()
+                              .path("id");
+
+        var inProgressId = Given.status("In Progress").getId();
+        var doneId = Given.status("Done").getId();
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {"to": %d}
+                     """.formatted(inProgressId))
+               .post("/api/tickets/" + ticketId + "/move")
+               .then()
+               .statusCode(200);
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {"to": %d}
+                     """.formatted(doneId))
+               .post("/api/tickets/" + ticketId + "/move")
+               .then()
+               .statusCode(400);
+
+        given().header(fixtures.pmAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                       "title": "Move CF ticket %s",
+                       "description": "Ticket for status-required custom field.",
+                       "categoryId": %d,
+                       "priority": "MEDIUM",
+                       "customFields": [{"key": "%s", "value": "Completed work"}]
+                     }
+                     """.formatted(suffix, fixtures.bug().getId(), key))
+               .post("/api/tickets/" + ticketId)
+               .then()
+               .statusCode(200);
+
+        given().header(fixtures.userAuthenticatedHeader())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {"to": %d}
+                     """.formatted(doneId))
+               .post("/api/tickets/" + ticketId + "/move")
+               .then()
+               .statusCode(200)
+               .body("status", equalTo(doneId.intValue()));
+    }
 }

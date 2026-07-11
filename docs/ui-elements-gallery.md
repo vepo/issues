@@ -12,6 +12,8 @@ Related: [feature-catalog.md](feature-catalog.md) (routes), [colors.scss](../src
 
 Issues uses **flat UI design** — minimal ornament, bold color blocks, and typography-driven hierarchy. The approach draws from Microsoft's Metro design language (2010) and modern [Fluent Design](https://www.microsoft.design/) guidance for productivity software.
 
+**Density:** **Comfortable compact** — mild global density (~15% less chrome than the original airy scale). Prefer showing more content per viewport without shrinking below the floors below. Flat principles unchanged (no elevation growth, square corners, token-driven spacing).
+
 | Principle | Gallery expression |
 |-----------|-------------------|
 | **Simple, minimal interfaces** | `.page` / `.page-panel` layout; whitespace via `$space-*`; no decorative borders or textures |
@@ -48,16 +50,19 @@ Issues uses **flat UI design** — minimal ornament, bold color blocks, and typo
 | `$shadow-card` | `0 1px 2px rgba(0,0,0,.06)` | Light elevation on panels only |
 | `$shadow-toast` | `0 1px 3px rgba(0,0,0,.1)` | Toast feedback |
 | `$radius-none` | `0` | Square corners — Metro-influenced flat geometry |
-| `$space-sm` / `$space-md` / `$space-lg` | 8 / 16 / 24 px | Spacing grid |
-| `$panel-padding` | `$space-lg` (24px) | `.page-panel`, `.comment-form`, `form.edit.page-panel` |
-| `$table-cell-padding-x` / `$table-cell-padding-y` | 16px / 8px | `.data-table`, `.inline-table` cells |
-| `$shell-padding-x` | `1rem` (16px) | Horizontal inset for header, footer, main, context bar — full-width chrome |
-| `$control-height` | `2.5rem` (40px) | `.btn`, `.form-field--control`, `.filter-chip` — toolbar / action rows |
+| `$space-sm` / `$space-md` / `$space-lg` / `$space-xl` | 8 / **12** / **16** / **24** px | Comfortable-compact spacing grid (`$space-xs` = 4px) |
+| `$panel-padding` | `$space-lg` (**16px**) | `.page-panel`, `.comment-form`, `form.edit.page-panel` |
+| `$table-cell-padding-x` / `$table-cell-padding-y` | **12px** / **6px** | `.data-table`, `.inline-table` cells |
+| `$shell-padding-x` | `0.75rem` (**12px**) | Horizontal inset for header, footer, main, context bar — full-width chrome |
+| `$control-height` | `2.25rem` (**36px**) | `.btn`, `.form-field--control`, `.filter-chip` — toolbar / action rows |
 | `$control-font-size` | `0.875rem` | Label text on toolbar controls |
-| `$control-padding-x` | `0.75rem` | Horizontal padding on toolbar controls |
+| `$control-padding-x` | `0.625rem` | Horizontal padding on toolbar controls |
 
-Material theme CSS variables are aligned to `$base-active-color` in `styles.scss`. Button and compact field heights use `$control-height` via Material overrides and `.form-field--control`.
+**Density floors:** control height ≥ 36px; body/table text ≥ 0.8125rem; icon hit targets ≥ 36×36; focus ring 2px.
 
+Material theme uses `density: -1` and primary CSS variables aligned to `$base-active-color` in `styles.scss`. Button and compact field heights use `$control-height` via Material overrides and `.form-field--control`.
+
+Typography (page): `.page-title` **1.25rem**; `.page-subtitle` **0.875rem**.
 ---
 
 ## 1. App shell
@@ -133,7 +138,7 @@ All action buttons use `matButton` (or `matButton="filled"`) **plus** a gallery 
 | Property | Value |
 |----------|-------|
 | **Style** | `$base-active-color` solid fill, white label/icon, `$radius-none`, no gradient |
-| **Height** | `$control-height` (40px) |
+| **Height** | `$control-height` (36px) |
 | **Hover** | `$base-active-hover-color` |
 | **Disabled** | Gray, 60% opacity |
 | **Focus** | 2px `$focus-ring-color` outline |
@@ -221,10 +226,11 @@ Dashboard widget header; borderless, muted text, red on hover.
 
 | Property | Value |
 |----------|-------|
-| **Height** | `$control-height` (40px) — same as `.btn` |
-| **Width** | Auto; `min-width` 9rem, `max-width` 13rem typical |
+| **Height** | `$control-height` (36px) — same as `.btn`; only the outer wrapper is fixed-height (infix/trigger flex) so the label is not clipped |
+| **Width** | Auto; `min-width` 9rem, `max-width` 13rem typical; **Kanban** `.board-phase-filter` uses `min-width` 11rem / `max-width` 22rem for long phase names |
 | **Style** | Compact outline select/input; no subscript area |
-| **Used in** | Kanban phase filter in `.page-header__actions` |
+| **Used in** | Kanban phase / swimlane filters in `.page-header__actions`; ticket actions |
+| **Panel** | Kanban selects use `panelClass="board-phase-filter-panel"` — wrapping options, wider panel |
 
 Pair with inline label (e.g. `.board-phase-filter__label`) in action rows — not for full-page forms.
 
@@ -264,10 +270,13 @@ Native checkbox in users list (filter + read-only role display).
 |----------|-------|
 | **Inputs** | `value`, `disabled`, `placeholder` |
 | **Outputs** | `valueChange` |
-| **Style** | `.rich-text-editor` — toolbar + contenteditable area |
+| **Forms** | `ControlValueAccessor` — use with `formControlName` / `formControl` |
+| **Style** | `.rich-text-editor` — toolbar + contenteditable; wrapper `.form-field--rich-text` + `.form-label` |
+| **Display** | Read-only HTML via `.rich-text-display` + `[innerHTML]` (Angular sanitization) |
+| **Length** | Plain-text length helpers in `core/plain-text-length.ts` (align with server `PlainTextLength`) |
 | **Behavior** | Toolbar formatting; emits HTML string |
 
-**Used in:** ticket comments.
+**Used in:** ticket comments; ticket Description (create + edit); Text custom fields; project description; ticket template description.
 
 ---
 
@@ -348,7 +357,7 @@ Dashed muted panel with centered italic copy — search, lists, password-reset s
 
 | Variant | Style | Behavior |
 |---------|-------|----------|
-| Default | White, border, shadow | Hover: slightly stronger shadow (no lift) |
+| Default | White, border, shadow; pad `$space-sm`; `min-width` 220px; title `0.9375rem`; description clamp 2 | Hover: border highlight (no lift) |
 | `.empty` | Dashed border, muted text | Non-interactive empty state |
 | In `.box` | Wider padding | Legacy project home (prefer `.project-card`) |
 
@@ -393,10 +402,10 @@ Table layout showing active search filters (term, status). Muted toolbar backgro
 
 | Element | Class | Behavior |
 |---------|-------|----------|
-| Board row | `.board` | Horizontal scroll |
-| Column | `.column` | CDK `cdkDropList`; connected lists |
-| Column title | `.header` | Status name (normalized) |
-| Ticket card | `.card` + `cdkDrag` | Links to `/ticket/:identifier` |
+| Board row | `.board` | Horizontal scroll; gap `$space-sm` |
+| Column | `.column` | CDK `cdkDropList`; connected lists; pad `$space-sm` |
+| Column title | `.header` | Status name (normalized); `0.875rem` |
+| Ticket card | `.card` + `cdkDrag` | Links to `/ticket/:identifier` — see §4.10 |
 | Empty column | `.card.empty` | Placeholder text |
 | Drop target | `.cdk-drop-list-receiving` | Light navy tint border |
 
@@ -451,7 +460,7 @@ See §1.1.1 — header **Projetos** → Kanban per project; optional **Gerenciar
 
 ### 8.2 Notification menu (`mat-menu.menu-panel.notifications`)
 
-Unread count badge (`.unread-box` / `.unread`) — `$base-error-color`. Items navigate on click; mark read via service.
+Header row: title **Notificações** + text action **Marcar todas como lidas** (shown when server unread > 0). Unread badge (`.notification-badge`) uses server unread count — `$base-error-color`; display `99+` when unread > 99; hidden at 0. Items navigate on click; single mark-read via service; mark-all reloads page 0 + unread.
 
 ---
 
@@ -553,6 +562,17 @@ Wrapped in `.page` with standard `.page-header`. Inner `.page-panel` contains `.
 ---
 
 ## 14. Style review findings
+
+### 2026-07-11 — comfortable compact density
+
+| Area | Finding | Status |
+|------|---------|--------|
+| Spacing scale | Airy 16/24/32 md/lg/xl limited content density | Fixed — 12/16/24px; floors documented |
+| Controls | 40px / Material density 0 | Fixed — 36px / `density: -1` |
+| Page type | Title 1.5rem / subtitle 0.95rem | Fixed — 1.25rem / 0.875rem |
+| Kanban | Tall cards (pad 16, clamp 3, min-width 250) | Fixed — pad `$space-sm`, clamp 2, min-width 220 |
+| Toolbar select | Phase filter clipped at 13rem / stacked 36px heights | Fixed — `.board-phase-filter` wider; infix/trigger flex; `board-phase-filter-panel` |
+| Docs | Gallery tokens stale | Fixed — density note + token table |
 
 ### 2026-07-03 — design system consolidation
 

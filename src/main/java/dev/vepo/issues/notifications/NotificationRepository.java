@@ -40,6 +40,19 @@ public class NotificationRepository {
                       .getSingleResult();
     }
 
+    public long countUnreadByUsername(String username) {
+        return this.em.createQuery("SELECT COUNT(n) FROM Notification n WHERE n.receive.username = :username AND n.read = false",
+                                   Long.class)
+                      .setParameter("username", username)
+                      .getSingleResult();
+    }
+
+    public int markAllReadByUsername(String username) {
+        return this.em.createQuery("UPDATE Notification n SET n.read = true WHERE n.receive.username = :username AND n.read = false")
+                      .setParameter("username", username)
+                      .executeUpdate();
+    }
+
     public Optional<Notification> findById(long id) {
         return this.em.createQuery("FROM Notification n WHERE n.id = :id", Notification.class)
                       .setParameter("id", id)

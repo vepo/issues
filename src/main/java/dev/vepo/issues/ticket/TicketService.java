@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dev.vepo.issues.categories.CategoryRepository;
+import dev.vepo.issues.customfield.CustomFieldService;
+import dev.vepo.issues.customfield.CustomFieldValueResponse;
 import dev.vepo.issues.notifications.NotificationEvent;
 import dev.vepo.issues.phase.Phase;
 import dev.vepo.issues.phase.PhaseService;
@@ -25,6 +27,8 @@ import dev.vepo.issues.ticket.comments.CommentRequest;
 import dev.vepo.issues.ticket.comments.CommentResponse;
 import dev.vepo.issues.ticket.history.TicketHistory;
 import dev.vepo.issues.ticket.history.TicketHistoryService;
+import dev.vepo.issues.ticket.backlog.BacklogService;
+import dev.vepo.issues.ticket.link.TicketLinkService;
 import dev.vepo.issues.user.Role;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
@@ -33,6 +37,7 @@ import dev.vepo.issues.workflow.WorkflowRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
@@ -53,7 +58,10 @@ public class TicketService {
     private final PhaseService phaseService;
     private final ProjectMemberRepository memberRepository;
     private final ProjectAccessService projectAccessService;
+    private final CustomFieldService customFieldService;
     private final Event<NotificationEvent> notificationEmitter;
+    private final Provider<TicketLinkService> ticketLinkService;
+    private final BacklogService backlogService;
 
     @Inject
     public TicketService(TicketRepository repository,
@@ -66,7 +74,10 @@ public class TicketService {
                          PhaseService phaseService,
                          ProjectMemberRepository memberRepository,
                          ProjectAccessService projectAccessService,
-                         Event<NotificationEvent> notificationEmitter) {
+                         CustomFieldService customFieldService,
+                         Event<NotificationEvent> notificationEmitter,
+                         Provider<TicketLinkService> ticketLinkService,
+                         BacklogService backlogService) {
         this.repository = repository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
@@ -77,22 +88,25 @@ public class TicketService {
         this.phaseService = phaseService;
         this.memberRepository = memberRepository;
         this.projectAccessService = projectAccessService;
+        this.customFieldService = customFieldService;
         this.notificationEmitter = notificationEmitter;
+        this.ticketLinkService = ticketLinkService;
+        this.backlogService = backlogService;
     }
 
     @Transactional
     public List<TicketResponse> listAll(String status) {
         if (Objects.nonNull(status) && IS_NUMBER.test(status)) {
             return repository.findByStatusId(Long.parseLong(status))
-                             .map(TicketResponse::load)
+                             .map(this::toResponse)
                              .toList();
         } else if (Objects.nonNull(status) && !status.isBlank()) {
             return repository.findByStatusName(status)
-                             .map(TicketResponse::load)
+                             .map(this::toResponse)
                              .toList();
         }
         return repository.findAll()
-                         .map(TicketResponse::load)
+                         .map(this::toResponse)
                          .toList();
     }
 
@@ -104,7 +118,7 @@ public class TicketService {
                                          .map(s -> s.split("\\s+"))
                                          .orElseGet(() -> new String[] {}),
                                  statusId)
-                         .map(TicketResponse::load)
+                         .map(this::toResponse)
                          .toList();
     }
 
@@ -112,25 +126,27 @@ public class TicketService {
     public List<TicketResponse> findByProjectId(long projectId, String username) {
         projectAccessService.requireView(projectId, username);
         return repository.findByProjectId(projectId)
-                         .map(TicketResponse::load)
+                         .map(this::toResponse)
                          .toList();
     }
 
     @Transactional
     public TicketResponse findById(long id) {
-        return TicketResponse.load(requireTicket(id));
+        return toResponse(requireTicket(id));
     }
 
     @Transactional
     public TicketExpandedResponse findExpandedById(long id, String username) {
         var ticket = requireTicketForView(id, username);
-        return TicketExpandedResponse.load(ticket, loadHistory(id));
+        var user = requireUserByUsername(username);
+        return toExpandedResponse(ticket, loadHistory(id), user);
     }
 
     @Transactional
     public TicketExpandedResponse findExpandedByIdentifier(String identifier, String username) {
         var ticket = requireTicketByIdentifierForView(identifier, username);
-        return TicketExpandedResponse.load(ticket, loadHistory(ticket.getId()));
+        var user = requireUserByUsername(username);
+        return toExpandedResponse(ticket, loadHistory(ticket.getId()), user);
     }
 
     @Transactional
@@ -139,6 +155,11 @@ public class TicketService {
                                        .orElseThrow(() -> projectNotFound(request.projectId()));
         var author = requireUserByUsername(authorUsername);
         var projectTickets = repository.countProjectTickets(request.projectId());
+        var workflowId = project.getWorkflow().getId();
+        var startStatus = project.getWorkflow().getStart();
+        var customValues = customFieldService.resolveCreateValues(project.getId(), workflowId, request.customFields());
+        customFieldService.validateRequired(project.getId(), workflowId, customValues);
+        customFieldService.validateStatusRequiredForCreate(project.getId(), workflowId, startStatus.getId(), customValues);
         var ticket = new Ticket("%s-%03d".formatted(project.getPrefix(), projectTickets + 1),
                                 request.title(),
                                 request.description(),
@@ -147,19 +168,30 @@ public class TicketService {
                                 author,
                                 null,
                                 project,
-                                project.getWorkflow().getStart());
+                                startStatus);
         ticket.setPriority(Objects.nonNull(request.priority()) ? request.priority() : TicketPriority.MEDIUM);
+        ticket.setTicketType(Objects.nonNull(request.ticketType()) ? request.ticketType() : TicketType.TASK);
         ticket.setDueDate(request.dueDate());
         ticket.setPhase(phaseService.requireAssignablePhase(project.getId(), request.phaseId()));
+        ticket.setBacklogRank(backlogService.nextRank(project.getId()));
         repository.save(ticket);
         historyService.logTicketCreated(ticket, author);
-        return TicketResponse.load(ticket);
+        var changes = customFieldService.applyValuesToTicket(ticket.getId(),
+                                                             project.getId(),
+                                                             workflowId,
+                                                             customValues,
+                                                             false);
+        for (var change : changes) {
+            historyService.logFieldChanged(ticket, author, change.key(), change.oldValue(), change.newValue());
+        }
+        return toResponse(ticket);
     }
 
     @Transactional
     public TicketResponse update(long id, UpdateTicketRequest request, String username) {
         var entity = requireTicket(id);
         var user = requireUserByUsername(username);
+        var workflowId = entity.getProject().getWorkflow().getId();
 
         if (!entity.getTitle().equals(request.title())) {
             historyService.logFieldChanged(entity, user, "title", entity.getTitle(), request.title());
@@ -178,6 +210,13 @@ public class TicketService {
         }
         if (!entity.getPriority().equals(request.priority())) {
             historyService.logPriorityChanged(entity, user, entity.getPriority().name(), request.priority().name());
+        }
+        if (Objects.nonNull(request.ticketType()) && !entity.getTicketType().equals(request.ticketType())) {
+            historyService.logFieldChanged(entity,
+                                           user,
+                                           "ticketType",
+                                           entity.getTicketType().name(),
+                                           request.ticketType().name());
         }
         if (!Objects.equals(entity.getDueDate(), request.dueDate())) {
             historyService.logFieldChanged(entity,
@@ -210,10 +249,28 @@ public class TicketService {
         entity.setDescription(request.description());
         entity.setCategory(newCategory);
         entity.setPriority(request.priority());
+        if (Objects.nonNull(request.ticketType())) {
+            entity.setTicketType(request.ticketType());
+        }
         entity.setDueDate(request.dueDate());
         entity.setUpdatedAt(LocalDateTime.now());
 
-        return TicketResponse.load(entity);
+        if (request.customFields() != null) {
+            customFieldService.validateRequiredForUpdate(entity.getId(),
+                                                         entity.getProject().getId(),
+                                                         workflowId,
+                                                         request.customFields());
+            var changes = customFieldService.applyValuesToTicket(entity.getId(),
+                                                                 entity.getProject().getId(),
+                                                                 workflowId,
+                                                                 request.customFields(),
+                                                                 false);
+            for (var change : changes) {
+                historyService.logFieldChanged(entity, user, change.key(), change.oldValue(), change.newValue());
+            }
+        }
+
+        return toResponse(entity);
     }
 
     @Transactional
@@ -231,7 +288,7 @@ public class TicketService {
         if (!java.util.Objects.equals(fromAssignee, toAssignee)) {
             historyService.logAssigneeChanged(entity, user, fromAssignee, toAssignee);
         }
-        return TicketResponse.load(entity);
+        return toResponse(entity);
     }
 
     @Transactional
@@ -253,7 +310,7 @@ public class TicketService {
         repository.restore(id);
         ticket.setDeleted(false);
         historyService.logTicketRestored(ticket, user);
-        return TicketResponse.load(ticket);
+        return toResponse(ticket);
     }
 
     public List<CommentResponse> listComments(long id) {
@@ -312,6 +369,10 @@ public class TicketService {
         var fromStatus = ticket.getStatus().getName();
         var toStatus = to.getName();
         var workflowId = ticket.getProject().getWorkflow().getId();
+        customFieldService.validateStatusRequired(ticket.getId(),
+                                                  ticket.getProject().getId(),
+                                                  workflowId,
+                                                  to.getId());
         var fromFinishOutcome = workflowRepository.findFinishOutcome(workflowId, ticket.getStatus().getId());
         var toFinishOutcome = workflowRepository.findFinishOutcome(workflowId, to.getId());
         var user = requireUserByUsername(username);
@@ -325,7 +386,7 @@ public class TicketService {
                                                                                                                             username,
                                                                                                                             fromStatus,
                                                                                                                             toStatus)));
-        return TicketResponse.load(ticket);
+        return toResponse(ticket);
     }
 
     public List<TicketHistoryResponse> getHistory(long id) {
@@ -340,12 +401,12 @@ public class TicketService {
         var subscriber = requireUserById(request.subscriberId());
         var actor = requireUserByUsername(username);
         if (ticket.getSubscribers().stream().anyMatch(u -> u.getId().equals(subscriber.getId()))) {
-            return TicketExpandedResponse.load(ticket, loadHistory(id));
+            return toExpandedResponse(ticket, loadHistory(id), actor);
         }
         ticket.getSubscribers()
               .add(subscriber);
         historyService.logSubscribed(ticket, actor, subscriber.getName());
-        return TicketExpandedResponse.load(repository.save(ticket), loadHistory(id));
+        return toExpandedResponse(repository.save(ticket), loadHistory(id), actor);
     }
 
     @Transactional
@@ -358,11 +419,30 @@ public class TicketService {
         if (wasSubscribed) {
             historyService.logUnsubscribed(ticket, actor, subscriber.getName());
         }
-        return TicketExpandedResponse.load(repository.save(ticket), loadHistory(id));
+        return toExpandedResponse(repository.save(ticket), loadHistory(id), actor);
     }
 
     public List<Ticket> findTicketsByProjectId(long projectId) {
         return repository.findByProjectId(projectId).toList();
+    }
+
+    private TicketResponse toResponse(Ticket ticket) {
+        return TicketResponse.load(ticket, loadCustomFields(ticket));
+    }
+
+    private TicketExpandedResponse toExpandedResponse(Ticket ticket, List<TicketHistory> history, User user) {
+        var linkService = ticketLinkService.get();
+        return TicketExpandedResponse.load(ticket,
+                                           history,
+                                           loadCustomFields(ticket),
+                                           linkService.listLinksForExpand(ticket, user),
+                                           linkService.childrenSummary(ticket.getId()));
+    }
+
+    private List<CustomFieldValueResponse> loadCustomFields(Ticket ticket) {
+        return customFieldService.readValues(ticket.getId(),
+                                             ticket.getProject().getId(),
+                                             ticket.getProject().getWorkflow().getId());
     }
 
     private List<TicketHistory> loadHistory(long id) {

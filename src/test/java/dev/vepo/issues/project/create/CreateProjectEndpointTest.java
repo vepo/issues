@@ -367,4 +367,103 @@ class CreateProjectEndpointTest {
                .statusCode(400)
                .body("message", is("Ticket template description must be between 5 and 1200 characters"));
     }
+
+    @Test
+    @DisplayName("Should accept ticket template description when plain text is within 1200 even if HTML is longer")
+    void shouldAcceptTicketTemplateDescriptionWhenPlainTextIsWithinLimitButHtmlExceedsRawSize() {
+        var plain = "d".repeat(1200);
+        var htmlDescription = "<p>%s</p>".formatted(plain);
+        assert htmlDescription.length() > 1200;
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Rich Template Desc %s",
+                         "description": "Project with rich-text template description.",
+                         "prefix": "RTD",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "title": "Default ticket title",
+                             "description": "%s",
+                             "categoryId": %d,
+                             "priority": "MEDIUM"
+                         }
+                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8),
+                                    workflow.id(),
+                                    htmlDescription,
+                                    category.getId()))
+               .post("/api/projects")
+               .then()
+               .statusCode(201)
+               .body("ticketTemplate.description", is(htmlDescription));
+    }
+
+    @Test
+    @DisplayName("Should reject ticket template description when plain text exceeds 1200")
+    void shouldRejectTicketTemplateDescriptionWhenPlainTextExceedsLimit() {
+        var plain = "e".repeat(1201);
+        var htmlDescription = "<b>%s</b>".formatted(plain);
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Overlong Template Desc %s",
+                         "description": "Project with overlong template description.",
+                         "prefix": "OTD",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "title": "Default ticket title",
+                             "description": "%s",
+                             "categoryId": %d,
+                             "priority": "MEDIUM"
+                         }
+                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8),
+                                    workflow.id(),
+                                    htmlDescription,
+                                    category.getId()))
+               .post("/api/projects")
+               .then()
+               .statusCode(400)
+               .body("message", is("Ticket template description must be between 5 and 1200 characters"));
+    }
+
+    @Test
+    @DisplayName("Should reject ticket template description when plain text is below minimum even if HTML is longer")
+    void shouldRejectTicketTemplateDescriptionWhenPlainTextIsBelowMinimum() {
+        var htmlDescription = "<p>ab</p>";
+
+        given().header(pmAuthenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "Short Plain Template Desc %s",
+                         "description": "Project with short plain template description.",
+                         "prefix": "SPD",
+                         "workflowId": %d,
+                         "ticketTemplate": {
+                             "enabled": true,
+                             "title": "Default ticket title",
+                             "description": "%s",
+                             "categoryId": %d,
+                             "priority": "MEDIUM"
+                         }
+                     }""".formatted(java.util.UUID.randomUUID().toString().substring(0, 8),
+                                    workflow.id(),
+                                    htmlDescription,
+                                    category.getId()))
+               .post("/api/projects")
+               .then()
+               .statusCode(400)
+               .body("message", is("Ticket template description must be between 5 and 1200 characters"));
+    }
 }
