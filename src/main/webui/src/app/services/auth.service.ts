@@ -9,6 +9,7 @@ import { LoginResponse } from '../generated/model/loginResponse';
 import { RefreshTokenRequest } from '../generated/model/refreshTokenRequest';
 import { ResetPasswordRequest } from '../generated/model/resetPasswordRequest';
 import { asLoaded, Loaded } from '../core/required-types';
+import { currentPathLocale, UiLocaleCode } from '../core/ui-locale';
 
 export type CurrentUser = Loaded<GeneratedAuthResponse>;
 export type AuthResponse = LoginResponse;
@@ -58,16 +59,22 @@ export class AuthService {
     return this.api.confirmPasswordReset({ token, newPassword } as ConfirmPasswordResetRequest);
   }
 
-  register(username: string, name: string, email: string, password: string) {
-    return this.api.registerUser({ username, name, email, password });
+  register(username: string, name: string, email: string, password: string, locale?: UiLocaleCode) {
+    return this.api.registerUser({
+      username,
+      name,
+      email,
+      password,
+      locale: locale ?? currentPathLocale(),
+    });
   }
 
   changePassword(currentPassword: string, newPassword: string) {
     return this.api.changePassword({ currentPassword, newPassword });
   }
 
-  updateProfile(name: string, email: string) {
-    return this.api.updateProfile({ name, email }).pipe(map(asLoaded));
+  updateProfile(name: string, email: string, locale?: UiLocaleCode) {
+    return this.api.updateProfile({ name, email, locale }).pipe(map(asLoaded));
   }
 
   me() {

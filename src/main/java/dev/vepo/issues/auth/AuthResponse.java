@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import dev.vepo.issues.user.Role;
 import dev.vepo.issues.user.User;
 
-public record AuthResponse(long id, String username, String name, String email, Set<String> roles) {
+public record AuthResponse(long id, String username, String name, String email, Set<String> roles, String locale) {
 
     public static AuthResponse load(User user) {
         return new AuthResponse(user.getId(),
@@ -15,6 +15,7 @@ public record AuthResponse(long id, String username, String name, String email, 
                                 user.getEmail(),
                                 user.getRoles().stream()
                                     .map(Role::role)
-                                    .collect(Collectors.toSet()));
+                                    .collect(Collectors.toSet()),
+                                user.getUiLocale());
     }
 }

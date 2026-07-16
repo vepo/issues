@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 import { Project } from '../../services/projects.service';
 import { Phase } from '../../services/phase.service';
+import { phaseStatusLabel } from '../../core/system-labels';
 
 @Component({
   selector: 'app-phases-view',
@@ -30,10 +31,6 @@ export class PhasesViewComponent implements OnInit {
   }
 
   statusLabel(status: Phase['status']): string {
-    switch (status) {
-      case 'PLANNED': return 'Planejada';
-      case 'ACTIVE': return 'Ativa';
-      case 'COMPLETED': return 'Concluída';
-    }
+    return phaseStatusLabel(status);
   }
 }

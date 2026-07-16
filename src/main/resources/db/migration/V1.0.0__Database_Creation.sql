@@ -7,6 +7,7 @@ CREATE TABLE tb_users (
     auth_provider    VARCHAR(32) NOT NULL DEFAULT 'local',
     roles            VARCHAR(255) ARRAY,
     deleted     BOOLEAN DEFAULT false,
+    ui_locale        VARCHAR(8) NOT NULL DEFAULT 'pt',
 
     CONSTRAINT tb_users_email_UK    UNIQUE(email),
     CONSTRAINT tb_users_username_UK UNIQUE(username)

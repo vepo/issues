@@ -13,6 +13,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -37,7 +38,8 @@ public class LoginEndpoint {
     @Path("/login")
     @PermitAll
     @Operation(operationId = "login", summary = "Authenticate user")
-    public LoginResponse login(@Valid LoginRequest request) {
-        return authenticationService.login(request);
+    public LoginResponse login(@Valid LoginRequest request,
+                               @HeaderParam("Accept-Language") String acceptLanguage) {
+        return authenticationService.login(request, acceptLanguage);
     }
 }

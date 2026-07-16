@@ -551,6 +551,14 @@ Wrapped in `.page` with standard `.page-header`. Inner `.page-panel` contains `.
 
 ---
 
+## 12. Account settings
+
+| Element | Class / component | Properties | Style | Behavior |
+|---------|-------------------|------------|-------|----------|
+| Language select | `account-settings` `mat-select` `locale` | Português (`pt`) \| English (`en`) | Outline field under profile | Saves with profile; reloads `/{locale}/account/settings` |
+
+---
+
 ## 13. CSV import wizard
 
 | Element | Class / component | Properties | Style | Behavior |

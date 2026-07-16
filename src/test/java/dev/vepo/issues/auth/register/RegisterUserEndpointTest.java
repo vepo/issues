@@ -41,6 +41,119 @@ class RegisterUserEndpointTest {
         assertThat(response.username()).isEqualTo(username);
         assertThat(response.email()).isEqualTo(email);
         assertThat(response.roles()).containsExactly(Role.USER_ROLE);
+
+        var token = given().contentType(ContentType.JSON)
+                           .body("""
+                                 {
+                                     "email": "%s",
+                                     "password": "Secret123"
+                                 }
+                                 """.formatted(email))
+                           .when()
+                           .post("/api/auth/login")
+                           .then()
+                           .statusCode(200)
+                           .extract()
+                           .path("token")
+                           .toString();
+
+        given().header("Authorization", "Bearer " + token)
+               .when()
+               .get("/api/auth/me")
+               .then()
+               .statusCode(200)
+               .body("locale", org.hamcrest.Matchers.is("pt"));
+    }
+
+    @Test
+    void shouldSeedLocaleFromAcceptLanguageOnRegister() {
+        var suffix = UUID.randomUUID().toString().substring(0, 8);
+        var username = "enuser" + suffix;
+        var email = username + "@example.com";
+
+        given().contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .header("Accept-Language", "en-US,en;q=0.9")
+               .body("""
+                     {
+                         "username": "%s",
+                         "name": "English User",
+                         "email": "%s",
+                         "password": "Secret123"
+                     }
+                     """.formatted(username, email))
+               .when()
+               .post("/api/auth/register")
+               .then()
+               .statusCode(201);
+
+        var token = given().contentType(ContentType.JSON)
+                           .body("""
+                                 {
+                                     "email": "%s",
+                                     "password": "Secret123"
+                                 }
+                                 """.formatted(email))
+                           .when()
+                           .post("/api/auth/login")
+                           .then()
+                           .statusCode(200)
+                           .extract()
+                           .path("token")
+                           .toString();
+
+        given().header("Authorization", "Bearer " + token)
+               .when()
+               .get("/api/auth/me")
+               .then()
+               .statusCode(200)
+               .body("locale", org.hamcrest.Matchers.is("en"));
+    }
+
+    @Test
+    void shouldPreferExplicitLocaleOnRegisterOverAcceptLanguage() {
+        var suffix = UUID.randomUUID().toString().substring(0, 8);
+        var username = "ptuser" + suffix;
+        var email = username + "@example.com";
+
+        given().contentType(ContentType.JSON)
+               .accept(ContentType.JSON)
+               .header("Accept-Language", "en-US")
+               .body("""
+                     {
+                         "username": "%s",
+                         "name": "Explicit PT",
+                         "email": "%s",
+                         "password": "Secret123",
+                         "locale": "pt"
+                     }
+                     """.formatted(username, email))
+               .when()
+               .post("/api/auth/register")
+               .then()
+               .statusCode(201);
+
+        var token = given().contentType(ContentType.JSON)
+                           .body("""
+                                 {
+                                     "email": "%s",
+                                     "password": "Secret123"
+                                 }
+                                 """.formatted(email))
+                           .when()
+                           .post("/api/auth/login")
+                           .then()
+                           .statusCode(200)
+                           .extract()
+                           .path("token")
+                           .toString();
+
+        given().header("Authorization", "Bearer " + token)
+               .when()
+               .get("/api/auth/me")
+               .then()
+               .statusCode(200)
+               .body("locale", org.hamcrest.Matchers.is("pt"));
     }
 
     @Test

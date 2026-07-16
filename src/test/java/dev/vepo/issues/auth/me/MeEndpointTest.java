@@ -32,7 +32,8 @@ class MeEndpointTest {
                .body("email", is("user@issues.vepo.dev"))
                .body("roles", is(notNullValue()))
                .body("roles.size()", is(1))
-               .body("roles[0]", is("user"));
+               .body("roles[0]", is("user"))
+               .body("locale", is("pt"));
     }
 
     @Test

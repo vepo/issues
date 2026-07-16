@@ -13,6 +13,7 @@ import { Ticket, TicketService } from '../../services/ticket.service';
 import { Phase, PhaseService } from '../../services/phase.service';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import { ContextHintComponent } from '../context-hint/context-hint.component';
+import { phaseStatusLabel, priorityLabel } from '../../core/system-labels';
 
 /** `all` | `unplanned` | `active` | `phase:{id}` */
 type PhaseFilterValue = string;
@@ -80,11 +81,7 @@ export class KanbanComponent implements OnInit {
   }
 
   statusLabel(status: Phase['status']): string {
-    switch (status) {
-      case 'PLANNED': return 'Planejada';
-      case 'ACTIVE': return 'Ativa';
-      case 'COMPLETED': return 'Concluída';
-    }
+    return phaseStatusLabel(status);
   }
 
   visibleTickets(): Ticket[] {
@@ -136,7 +133,7 @@ export class KanbanComponent implements OnInit {
     const extras = [...priorities].filter(p => !PRIORITY_ORDER.includes(p)).sort();
     return [...ordered, ...extras].map(priority => ({
       key: `priority:${priority}`,
-      label: this.priorityLabel(priority)
+      label: priorityLabel(priority)
     }));
   }
 
@@ -235,16 +232,6 @@ export class KanbanComponent implements OnInit {
   private assigneeLabel(userId: number): string {
     const member = this.members.find(m => m.id === userId);
     return member?.name ?? `Usuário ${userId}`;
-  }
-
-  private priorityLabel(priority: string): string {
-    switch (priority) {
-      case 'CRITICAL': return 'Crítica';
-      case 'HIGH': return 'Alta';
-      case 'MEDIUM': return 'Média';
-      case 'LOW': return 'Baixa';
-      default: return priority;
-    }
   }
 
   fixLineBreak(ticket: Ticket): Ticket {

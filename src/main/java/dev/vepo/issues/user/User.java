@@ -44,6 +44,9 @@ public class User {
 
     private boolean deleted;
 
+    @Column(name = "ui_locale", nullable = false, length = 8)
+    private String uiLocale = UiLocale.DEFAULT;
+
     public User() {}
 
     public User(String username, String name, String email, String encodedPassword, Set<Role> roles) {
@@ -58,6 +61,7 @@ public class User {
         this.roles = roles;
         this.authProvider = authProvider == null ? AuthProvider.LOCAL : authProvider;
         this.deleted = false;
+        this.uiLocale = UiLocale.DEFAULT;
     }
 
     public Long getId() {
@@ -122,6 +126,14 @@ public class User {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getUiLocale() {
+        return uiLocale;
+    }
+
+    public void setUiLocale(String uiLocale) {
+        this.uiLocale = UiLocale.normalizeOrDefault(uiLocale);
     }
 
 }

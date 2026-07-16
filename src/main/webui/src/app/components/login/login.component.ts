@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { currentPathLocale, hrefForLocale, isAllowedLocale } from '../../core/ui-locale';
 
 @Component({
   selector: 'app-login',
@@ -31,8 +32,20 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.auth.login(this.email, this.password).subscribe({
-      next: async () => await this.router.navigate(['/']),
-      error: () => this.error = 'E-mail ou senha inválidos'
+      next: () => {
+        this.auth.me().subscribe({
+          next: async (user) => {
+            const preferred = user.locale;
+            if (isAllowedLocale(preferred) && preferred !== currentPathLocale()) {
+              window.location.assign(hrefForLocale(preferred, '/'));
+              return;
+            }
+            await this.router.navigate(['/']);
+          },
+          error: async () => await this.router.navigate(['/']),
+        });
+      },
+      error: () => this.error = $localize`:@@login.invalidCredentials:E-mail ou senha inválidos`
     });
   }
 

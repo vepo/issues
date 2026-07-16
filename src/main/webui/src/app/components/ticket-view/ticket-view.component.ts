@@ -32,7 +32,7 @@ import { NormalizePipe } from '../pipes/normalize.pipe';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
 import { CustomFieldFormSectionComponent } from '../custom-fields/custom-field-form-section.component';
 import { plainTextLengthValidator } from '../../core/plain-text-length';
-import { TICKET_TYPE_OPTIONS } from '../ticket-form/ticket-form.component';
+import { PEER_LINK_TYPE_OPTIONS, TICKET_TYPE_OPTIONS, ticketTypeLabel as systemTicketTypeLabel } from '../../core/system-labels';
 import {
   ActivityItem,
   buildActivityFeed,
@@ -46,14 +46,6 @@ export interface LinkGroup {
   label: string;
   links: TicketLink[];
 }
-
-export const PEER_LINK_TYPE_OPTIONS: { value: TicketLinkType; label: string }[] = [
-  { value: 'BLOCKS', label: 'Bloqueia' },
-  { value: 'RELATES_TO', label: 'Relacionado a' },
-  { value: 'DUPLICATES', label: 'Duplicata de' },
-  { value: 'DERIVED_FROM', label: 'Derivado de' },
-  { value: 'REMAINING_WORK_OF', label: 'Trabalho restante de' },
-];
 
 @Component({
   selector: 'app-ticket-view',
@@ -243,7 +235,7 @@ export class TicketViewComponent implements OnInit {
   }
 
   ticketTypeLabel(type?: string | null): string {
-    return this.ticketTypes.find(t => t.value === type)?.label ?? 'Tarefa';
+    return systemTicketTypeLabel(type);
   }
 
   isEpic(): boolean {

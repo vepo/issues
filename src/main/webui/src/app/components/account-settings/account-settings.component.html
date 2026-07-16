@@ -22,6 +22,14 @@
           <mat-label i18n>E-mail</mat-label>
           <input matInput type="email" formControlName="email" required autocomplete="email" />
         </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Idioma</mat-label>
+          <mat-select formControlName="locale">
+            @for (option of localeOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
         <dl class="detail-list detail-list--inline">
           <dt i18n>Usuário</dt>
           <dd>{{ user.username }}</dd>

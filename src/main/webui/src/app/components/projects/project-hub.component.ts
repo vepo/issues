@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { Phase, PhaseService } from '../../services/phase.service';
 import { Project } from '../../services/projects.service';
 import { Version, VersionService } from '../../services/version.service';
+import { phaseStatusLabel } from '../../core/system-labels';
 
 @Component({
   selector: 'app-project-hub',
@@ -45,11 +46,7 @@ export class ProjectHubComponent implements OnInit {
   }
 
   statusLabel(status: Phase['status']): string {
-    switch (status) {
-      case 'PLANNED': return 'Planejada';
-      case 'ACTIVE': return 'Ativa';
-      case 'COMPLETED': return 'Concluída';
-    }
+    return phaseStatusLabel(status);
   }
 
   private loadPlanning(projectId: number): void {

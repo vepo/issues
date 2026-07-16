@@ -306,6 +306,7 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Catalog compliance (SPA guards / menus) | Done — user `roleGuard`; `projectManageGuard`; admin project update; Conta Projetos + Processos for admin; seed saved-query owner |
 | Git integration (repo association + linked commits) | Done — [git-integration.md](feature/git-integration.md) v1; `git` package; webhook + inbound API; activity linked commits |
 | CSV import chunked upload | Done — [ticket-import.md](feature/ticket-import.md) v2; init/part/complete; 5 MB / 1 MB / 500 rows; legacy `POST …/upload` wrapper |
+| UI i18n (pt/en) | Done — [i18n.md](feature/i18n.md) v1; path prefixes `/pt/` `/en/`; `User.uiLocale`; account language select |
 
 ## 14. OpenAPI → TypeScript codegen
 

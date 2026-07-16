@@ -27,33 +27,33 @@ DO $$
     cf_env_homolog INTEGER;
 BEGIN
     -- Usuário com apenas a role PROJECT_MANAGER
-    INSERT INTO tb_users (username, name, email, encoded_password, roles) VALUES 
-                         ('proj-leader', 'Project Lead', 'project_lead@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{PROJECT_MANAGER}');
+    INSERT INTO tb_users (username, name, email, encoded_password, roles, ui_locale) VALUES 
+                         ('proj-leader', 'Project Lead', 'project_lead@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{PROJECT_MANAGER}', 'pt');
 
     -- Usuário com apenas a role USER
-    INSERT INTO tb_users (username, name, email, encoded_password, roles) VALUES 
-                         ('junior', 'Junior Developer', 'junior_dev@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{USER}');
+    INSERT INTO tb_users (username, name, email, encoded_password, roles, ui_locale) VALUES 
+                         ('junior', 'Junior Developer', 'junior_dev@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{USER}', 'pt');
 
     -- Combinação ADMIN + PROJECT_MANAGER
-    INSERT INTO tb_users (username, name, email, encoded_password, roles) VALUES 
-                         ('project-boss', 'Director of Projects', 'director_projects@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{ADMIN,PROJECT_MANAGER}');
+    INSERT INTO tb_users (username, name, email, encoded_password, roles, ui_locale) VALUES 
+                         ('project-boss', 'Director of Projects', 'director_projects@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{ADMIN,PROJECT_MANAGER}', 'pt');
 
     -- Combinação ADMIN + USER
-    INSERT INTO tb_users (username, name, email, encoded_password, roles) VALUES 
-                         ('tech-lead', 'Tech Lead', 'tech_lead@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{ADMIN,USER}');
+    INSERT INTO tb_users (username, name, email, encoded_password, roles, ui_locale) VALUES 
+                         ('tech-lead', 'Tech Lead', 'tech_lead@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{ADMIN,USER}', 'pt');
 
     -- Combinação PROJECT_MANAGER + USER
-    INSERT INTO tb_users (username, name, email, encoded_password, roles) VALUES 
-                         ('senior', 'Senior Developer', 'senior_dev@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{PROJECT_MANAGER,USER}');
+    INSERT INTO tb_users (username, name, email, encoded_password, roles, ui_locale) VALUES 
+                         ('senior', 'Senior Developer', 'senior_dev@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{PROJECT_MANAGER,USER}', 'pt');
 
     -- Combinação ADMIN + PROJECT_MANAGER + USER (Super Usuário)
-    INSERT INTO tb_users (username, name, email, encoded_password, roles) VALUES 
-                         ('cto-boss', 'Chief Technology Officer', 'cto@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{ADMIN,PROJECT_MANAGER,USER}')
+    INSERT INTO tb_users (username, name, email, encoded_password, roles, ui_locale) VALUES 
+                         ('cto-boss', 'Chief Technology Officer', 'cto@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{ADMIN,PROJECT_MANAGER,USER}', 'pt')
                          RETURNING ID INTO user_cto_id;
 
     -- Usuário sem roles (se aplicável)
-    INSERT INTO tb_users (username, name, email, encoded_password, roles) VALUES 
-                         ('guest-user', 'Guest User', 'guest@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{}');
+    INSERT INTO tb_users (username, name, email, encoded_password, roles, ui_locale) VALUES 
+                         ('guest-user', 'Guest User', 'guest@issues.ui', 'IwS3Mm4oGEfpwPDC3Vom20ViYgXhVCxHeBGr8aluY9tC9o668ghxJ2fMQQUwq+7GWJkzX1HguXOtdwVkblUzTw==', '{}', 'pt');
 
 
     INSERT INTO tb_categories (name, color) VALUES ('Feature', '#01172F') RETURNING id INTO feature_id;

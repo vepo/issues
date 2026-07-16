@@ -83,7 +83,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Issues** | The product (change/ticket management). | UI title, email templates |
 | **User** | Registered account with name, email, optional local password, roles, **auth provider**, and optional **locale preference**. | `User`, `tb_users` |
 | **UI locale** | Language for product chrome, **system labels**, and formatting: `pt` or `en`. Source templates are Portuguese (`pt`). | Angular i18n; [feature/i18n.md](../feature/i18n.md) |
-| **Locale preference** | User’s stored **UI locale** on the server; edited on account settings. Unauthenticated visits use browser `Accept-Language`. | `User` column (planned); `GET /auth/me`, `POST /auth/profile` |
+| **Locale preference** | User’s stored **UI locale** on the server; edited on account settings. Unauthenticated visits use browser `Accept-Language`. | `User.uiLocale` / `tb_users.ui_locale`; `GET /auth/me`, `POST /auth/profile` |
 | **System label** | Product-owned display string for fixed enums and UI copy (e.g. Priority, Phase status). Distinct from admin-authored names (workflow statuses, custom fields). | Shared `$localize` catalog (planned) |
 | **Auth provider** | Deployment-wide credential source: **LOCAL**, **LDAP**, or **ENDPOINT** (selected via `AUTH_PROVIDER`). | `AuthProvider`, `auth.provider` |
 | **Role** | Platform capability assigned to a user (multi-role). | `Role` enum |

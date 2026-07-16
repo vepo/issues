@@ -12,6 +12,7 @@ import { CustomFieldFormSectionComponent } from '../custom-fields/custom-field-f
 import { CustomFieldValueResponse } from '../../generated/model/customFieldValueResponse';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
 import { plainTextLengthValidator } from '../../core/plain-text-length';
+import { TICKET_TYPE_OPTIONS } from '../../core/system-labels';
 
 export interface TicketFormValues {
   title: string;
@@ -30,12 +31,6 @@ export interface TicketFormDefaults {
   ticketType?: TicketType;
   customFieldDefaults?: CustomFieldValueResponse[];
 }
-
-export const TICKET_TYPE_OPTIONS: { value: TicketType; label: string }[] = [
-  { value: 'EPIC', label: 'Épico' },
-  { value: 'STORY', label: 'História' },
-  { value: 'TASK', label: 'Tarefa' },
-];
 
 @Component({
   selector: 'app-ticket-form',

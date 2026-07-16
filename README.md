@@ -107,7 +107,8 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 
 - **Login** — short-lived JWT access token plus refresh token (`POST /auth/refresh`); credentials verified by the active provider (`AUTH_PROVIDER`: `local`, `ldap`, or `endpoint`)
 - **Password recovery** — email link with token; LOCAL provider only (hidden when capabilities say otherwise)
-- **Account** — edit name and email at `/account/settings`; change password only when LOCAL
+- **Account** — edit name, email, and **UI language** (`pt` / `en`) at `/account/settings`; change password only when LOCAL
+- **UI languages** — Portuguese (source) and English via path prefixes `/pt/` and `/en/`; preference stored on the user profile
 - **Personal API tokens** — create/list/revoke at account settings (**Tokens de API**); Bearer `iss_pat_…` for scripts and agents; secret shown once
 - **Agent setup** — **Conectar agente** generates a token and copy-ready MCP config (`issues.public-base-url` / `issues.mcp-public-base-url`)
 - **Issues MCP** — separate Quarkus MCP HTTP app ([`issues-mcp/`](issues-mcp/)) forwarding tools to Issues `/api` (not in the main reactor yet)

@@ -14,6 +14,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -39,7 +40,8 @@ public class RegisterUserEndpoint {
     @PermitAll
     @ResponseStatus(201)
     @Operation(operationId = "registerUser", summary = "Register a new user with role user")
-    public UserResponse register(@Valid RegisterUserRequest request) {
-        return authenticationService.register(request);
+    public UserResponse register(@Valid RegisterUserRequest request,
+                                 @HeaderParam("Accept-Language") String acceptLanguage) {
+        return authenticationService.register(request, acceptLanguage);
     }
 }

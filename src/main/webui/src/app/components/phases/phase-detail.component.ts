@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth.service';
 import { Project } from '../../services/projects.service';
 import { Phase, PhaseService } from '../../services/phase.service';
 import { Version, VersionService } from '../../services/version.service';
+import { phaseStatusLabel } from '../../core/system-labels';
 
 @Component({
   selector: 'app-phase-detail',
@@ -83,11 +84,7 @@ export class PhaseDetailComponent implements OnInit {
   }
 
   statusLabel(status: Phase['status']): string {
-    switch (status) {
-      case 'PLANNED': return 'Planejada';
-      case 'ACTIVE': return 'Ativa';
-      case 'COMPLETED': return 'Concluída';
-    }
+    return phaseStatusLabel(status);
   }
 
   populateForm(): void {

@@ -11,7 +11,16 @@
         }
       },
       "i18n": {
-        "sourceLocale": "pt"
+        "sourceLocale": {
+          "code": "pt",
+          "baseHref": "/pt/"
+        },
+        "locales": {
+          "en": {
+            "translation": "src/locale/messages.en.xlf",
+            "baseHref": "/en/"
+          }
+        }
       },
       "root": "",
       "sourceRoot": "src",
@@ -36,10 +45,12 @@
             ],
             "styles": [
               "src/styles.scss"
-            ]
+            ],
+            "i18nMissingTranslation": "warning"
           },
           "configurations": {
             "production": {
+              "localize": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -57,7 +68,18 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "localize": [
+                "pt"
+              ]
+            },
+            "development-en": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "localize": [
+                "en"
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -70,12 +92,18 @@
             },
             "development": {
               "buildTarget": "issues:build:development"
+            },
+            "development-en": {
+              "buildTarget": "issues:build:development-en"
             }
           },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
+          "builder": "@angular/build:extract-i18n",
+          "options": {
+            "outputPath": "src/locale"
+          }
         },
         "test": {
           "builder": "@angular/build:karma",

@@ -3,12 +3,18 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --hmr",
-    "build": "ng build",
+    "start": "ng serve --hmr --configuration=development",
+    "start:pt": "ng serve --hmr --configuration=development",
+    "start:en": "ng serve --hmr --configuration=development-en",
+    "start:locale": "node scripts/start-locale.js",
+    "build": "ng build --configuration=production",
     "prebuild": "npm run generate:api",
+    "build:check-i18n": "test -d dist/issues/browser/pt && test -d dist/issues/browser/en",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
+    "extract-i18n": "ng extract-i18n && node scripts/merge-en-xlf.js",
+    "merge-en-xlf": "node scripts/merge-en-xlf.js",
     "generate:api": "openapi-generator-cli generate -i ../../../target/openapi/openapi.yaml -g typescript-angular -o src/app/generated --additional-properties=ngVersion=20.1.3,providedInRoot=true,apiModulePrefix=Issues,basePath=,serviceSuffix=Api"
   },
   "prettier": {

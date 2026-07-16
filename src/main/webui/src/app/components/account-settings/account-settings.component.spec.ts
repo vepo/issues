@@ -31,6 +31,15 @@ describe('AccountSettingsComponent', () => {
       name: 'User',
       email: 'user@issues.vepo.dev',
       roles: new Set(['user']),
+      locale: 'pt',
+    } as any));
+    authService.updateProfile.and.returnValue(of({
+      id: 1,
+      username: 'user',
+      name: 'User',
+      email: 'user@issues.vepo.dev',
+      roles: new Set(['user']),
+      locale: 'en',
     } as any));
     apiTokenService.list.and.returnValue(of([
       {
@@ -106,5 +115,17 @@ describe('AccountSettingsComponent', () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('iss_pat_secret');
     expect(text).not.toContain('<YOUR_API_TOKEN>');
+  });
+
+  it('should show language select and save locale with profile', async () => {
+    await setup(true);
+    expect(fixture.nativeElement.textContent).toContain('Idioma');
+    const localeControl = fixture.debugElement.query(By.css('[formControlName=locale]'));
+    expect(localeControl).toBeTruthy();
+    const reloadSpy = spyOn(fixture.componentInstance, 'reloadForLocale');
+    fixture.componentInstance.profileForm.patchValue({ locale: 'en' });
+    fixture.componentInstance.saveProfile();
+    expect(authService.updateProfile).toHaveBeenCalledWith('User', 'user@issues.vepo.dev', 'en');
+    expect(reloadSpy).toHaveBeenCalledWith('en');
   });
 });

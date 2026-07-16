@@ -12,6 +12,7 @@ import dev.vepo.issues.mailer.MailerService;
 import dev.vepo.issues.user.PasswordResetToken;
 import dev.vepo.issues.user.PasswordResetTokenRepository;
 import dev.vepo.issues.user.Role;
+import dev.vepo.issues.user.UiLocale;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
 import dev.vepo.issues.user.UserResponse;
@@ -74,7 +75,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public UserResponse register(RegisterUserRequest request) {
+    public UserResponse register(RegisterUserRequest request, String acceptLanguage) {
         requireLocalPasswordOperations();
         userRepository.findByUsername(request.username())
                       .ifPresent(existing -> {
@@ -90,6 +91,7 @@ public class AuthenticationService {
                             passwordEncoder.hashPassword(request.password()),
                             Set.of(Role.USER),
                             AuthProvider.LOCAL);
+        user.setUiLocale(resolveSeedLocale(request.locale(), acceptLanguage));
         return UserResponse.load(userRepository.save(user));
     }
 
@@ -130,6 +132,9 @@ public class AuthenticationService {
                       });
         user.setName(request.name());
         user.setEmail(request.email());
+        if (request.locale() != null) {
+            user.setUiLocale(UiLocale.requireAllowed(request.locale()));
+        }
         return AuthResponse.load(user);
     }
 
@@ -148,9 +153,9 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request, String acceptLanguage) {
         var identity = resolveAuthenticator().authenticate(request.email(), request.password());
-        var user = resolveOrProvisionUser(identity);
+        var user = resolveOrProvisionUser(identity, acceptLanguage);
         return issueTokens(user);
     }
 
@@ -179,10 +184,10 @@ public class AuthenticationService {
                                                                           "No CredentialAuthenticator registered for provider %s".formatted(activeProvider)));
     }
 
-    private User resolveOrProvisionUser(VerifiedIdentity identity) {
+    private User resolveOrProvisionUser(VerifiedIdentity identity, String acceptLanguage) {
         return userRepository.findByEmail(identity.email())
                              .map(existing -> updateExistingUser(existing, identity))
-                             .orElseGet(() -> createExternalUser(identity));
+                             .orElseGet(() -> createExternalUser(identity, acceptLanguage));
     }
 
     private User updateExistingUser(User user, VerifiedIdentity identity) {
@@ -196,7 +201,7 @@ public class AuthenticationService {
         return user;
     }
 
-    private User createExternalUser(VerifiedIdentity identity) {
+    private User createExternalUser(VerifiedIdentity identity, String acceptLanguage) {
         if (identity.provider() == AuthProvider.LOCAL) {
             throw AuthFailures.invalidCredentials();
         }
@@ -211,7 +216,15 @@ public class AuthenticationService {
                                                                            ? Set.of(Role.USER)
                                                                            : new HashSet<>(identity.roles());
         var user = new User(username, name, identity.email(), null, roles, identity.provider());
+        user.setUiLocale(resolveSeedLocale(null, acceptLanguage));
         return userRepository.save(user);
+    }
+
+    private static String resolveSeedLocale(String requestedLocale, String acceptLanguage) {
+        if (requestedLocale != null && !requestedLocale.isBlank()) {
+            return UiLocale.normalizeOrDefault(requestedLocale);
+        }
+        return UiLocale.fromAcceptLanguage(acceptLanguage);
     }
 
     String allocateUniqueUsername(String preferred) {

@@ -33,7 +33,8 @@ class UpdateProfileEndpointTest {
                .then()
                .statusCode(200)
                .body("name", is("Updated Name"))
-               .body("email", is("updated-" + user.getEmail()));
+               .body("email", is("updated-" + user.getEmail()))
+               .body("locale", is("pt"));
 
         given().header("Authorization", "Bearer " + login.token())
                .when()
@@ -41,7 +42,58 @@ class UpdateProfileEndpointTest {
                .then()
                .statusCode(200)
                .body("name", is("Updated Name"))
-               .body("email", is("updated-" + user.getEmail()));
+               .body("email", is("updated-" + user.getEmail()))
+               .body("locale", is("pt"));
+    }
+
+    @Test
+    @DisplayName("Should update UI locale preference")
+    void shouldUpdateUiLocalePreference() {
+        var user = Given.randomUser();
+        var login = loginAs(user.getEmail());
+
+        given().header("Authorization", "Bearer " + login.token())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "%s",
+                         "email": "%s",
+                         "locale": "en"
+                     }
+                     """.formatted(user.getName(), user.getEmail()))
+               .when()
+               .post("/api/auth/profile")
+               .then()
+               .statusCode(200)
+               .body("locale", is("en"));
+
+        given().header("Authorization", "Bearer " + login.token())
+               .when()
+               .get("/api/auth/me")
+               .then()
+               .statusCode(200)
+               .body("locale", is("en"));
+    }
+
+    @Test
+    @DisplayName("Should reject invalid UI locale")
+    void shouldRejectInvalidUiLocale() {
+        var user = Given.randomUser();
+        var login = loginAs(user.getEmail());
+
+        given().header("Authorization", "Bearer " + login.token())
+               .contentType(ContentType.JSON)
+               .body("""
+                     {
+                         "name": "%s",
+                         "email": "%s",
+                         "locale": "fr"
+                     }
+                     """.formatted(user.getName(), user.getEmail()))
+               .when()
+               .post("/api/auth/profile")
+               .then()
+               .statusCode(400);
     }
 
     @Test

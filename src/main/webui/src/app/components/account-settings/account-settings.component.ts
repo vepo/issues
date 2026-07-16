@@ -13,6 +13,7 @@ import { AuthService, CurrentUser } from '../../services/auth.service';
 import { ApiToken, ApiTokenService, CreatedApiToken } from '../../services/api-token.service';
 import { ToastService } from '../../services/toast.service';
 import { strongPasswordValidators } from '../../core/password-policy';
+import { currentPathLocale, hrefForLocale, isAllowedLocale, UiLocaleCode } from '../../core/ui-locale';
 
 const TOKEN_PLACEHOLDER = '<YOUR_API_TOKEN>';
 
@@ -36,6 +37,11 @@ export class AccountSettingsComponent implements OnInit {
   private readonly apiTokenService = inject(ApiTokenService);
   private readonly toastService = inject(ToastService);
   private readonly formBuilder = inject(FormBuilder);
+
+  readonly localeOptions: { value: UiLocaleCode; label: string }[] = [
+    { value: 'pt', label: 'Português' },
+    { value: 'en', label: 'English' },
+  ];
 
   user: CurrentUser | null = null;
   loading = true;
@@ -61,7 +67,8 @@ export class AccountSettingsComponent implements OnInit {
 
   profileForm: FormGroup = this.formBuilder.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.email]]
+    email: ['', [Validators.required, Validators.email]],
+    locale: ['pt' as UiLocaleCode, Validators.required]
   });
 
   passwordForm: FormGroup = this.formBuilder.group({
@@ -81,14 +88,16 @@ export class AccountSettingsComponent implements OnInit {
     this.authService.me().subscribe({
       next: (user: CurrentUser) => {
         this.user = user;
+        const locale = isAllowedLocale(user.locale) ? user.locale : 'pt';
         this.profileForm.patchValue({
           name: user.name,
-          email: user.email
+          email: user.email,
+          locale
         });
         this.loading = false;
       },
       error: () => {
-        this.error = 'Não foi possível carregar seu perfil.';
+        this.error = $localize`:@@account.loadError:Não foi possível carregar seu perfil.`;
         this.loading = false;
       }
     });
@@ -102,18 +111,27 @@ export class AccountSettingsComponent implements OnInit {
     this.isSavingProfile = true;
     this.profileMessage = '';
     this.profileError = '';
-    const { name, email } = this.profileForm.value;
-    this.authService.updateProfile(name, email).subscribe({
+    const { name, email, locale } = this.profileForm.value;
+    const previousLocale = isAllowedLocale(this.user?.locale) ? this.user.locale : currentPathLocale();
+    this.authService.updateProfile(name, email, locale).subscribe({
       next: (user) => {
         this.user = user;
         this.isSavingProfile = false;
-        this.profileMessage = 'Perfil atualizado com sucesso.';
+        this.profileMessage = $localize`:@@account.profileSaved:Perfil atualizado com sucesso.`;
+        if (isAllowedLocale(locale) && locale !== previousLocale) {
+          this.reloadForLocale(locale);
+        }
       },
       error: () => {
         this.isSavingProfile = false;
-        this.profileError = 'Não foi possível atualizar o perfil. Verifique o e-mail informado.';
+        this.profileError = $localize`:@@account.profileSaveError:Não foi possível atualizar o perfil. Verifique o e-mail informado.`;
       }
     });
+  }
+
+  /** Exposed for tests — full page load into the other locale build. */
+  reloadForLocale(locale: UiLocaleCode): void {
+    window.location.assign(hrefForLocale(locale, '/account/settings'));
   }
 
   passwordsMismatch(): boolean {
