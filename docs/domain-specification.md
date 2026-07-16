@@ -35,6 +35,7 @@ erDiagram
     Ticket ||--o{ Comment : has
     Ticket ||--o{ TicketHistory : audited_by
     Ticket ||--o{ CustomFieldValue : has
+    Ticket ||--o{ Attachment : has
     Project ||--o{ CustomField : defines
     Workflow ||--o{ CustomField : defines
     CustomField ||--o{ EnumOption : offers
@@ -56,7 +57,7 @@ Issues is a **modular monolith**: one deployable, feature packages under `dev.ve
 | **Workflow configuration** | `workflow` | platform, customfield, identity, ticket |
 | **Custom fields** | `customfield` | platform |
 | **Phase & version planning** | `phase` | platform, project, workflow |
-| **Ticket management** | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business` | platform, identity, project, workflow, categories, phase, customfield |
+| **Ticket management** | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business`, `ticket.attachments` | platform, identity, project, workflow, categories, phase, customfield |
 | **Git / SCM** | `git` | platform, identity, project, ticket |
 | **Classification** | `categories` | platform |
 | **Notifications** | `notifications` | platform, identity, ticket |
@@ -196,7 +197,12 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | **Due date** | Optional user-planned deadline for the ticket; distinct from finish date. | `Ticket.dueDate`; UI **Data de vencimento** |
 | **Comment** | Text note attached to a ticket; may be marked **agent channel** (`via_agent`) when created via API token. | `Comment`, `tb_comments` |
 | **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`); may be marked **agent channel** (`via_agent`) when mutated via API token. | `TicketHistory`, `TicketHistoryService` |
-| **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`, `LINK_ADDED`, `LINK_REMOVED`. | `TicketHistoryAction` |
+| **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`, `LINK_ADDED`, `LINK_REMOVED`, `ATTACHMENT_ADDED`, `ATTACHMENT_REMOVED`. | `TicketHistoryAction` |
+| **Attachment** | A file bound to one **Ticket**: original filename, content type, size, storage key (filesystem path), uploaded-by, uploaded-at. Complements **Comments** (text); not CSV import batches or linked commits. | `Attachment`, `tb_ticket_attachments`; UI **Anexos** |
+| **Upload (attachment)** | Authenticated user with ticket **write** rights adds a file to a non-deleted ticket within size/type/caps. | `POST /tickets/{id}/attachments` (multipart) |
+| **Download (attachment)** | Caller with ticket **read** rights retrieves file bytes. | `GET /tickets/{id}/attachments/{attachmentId}` |
+| **Delete (attachment)** | Hard-removes attachment metadata and stored bytes; any ticket **writer** may delete. | `DELETE /tickets/{id}/attachments/{attachmentId}` |
+| **Attachment list** | Metadata-only listing on ticket detail (no file bodies). | `GET /tickets/{id}/attachments` |
 | **Linked commit** | Immutable record that a git commit (SHA) mentioned a ticket identifier; shown on the **activity feed**. Author may match an Issues **user** by email or remain unmatched (name/email from SCM). | `tb_ticket_commits`; [feature/git-integration.md](../feature/git-integration.md) |
 | **Commit ingest** | Delivery of commits into Issues via forge **push webhook** (HMAC) and/or authenticated **inbound API** (PAT or project service account). | `POST …/git/webhook`, `POST …/git/commits` |
 | **Activity feed** | Unified chronological UI on ticket detail merging comments, history events, and **linked commits**. | Ticket detail **Atividade** / Histórico section |
@@ -259,8 +265,9 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 1. **Ticket identifier** — Auto-generated on create as `{project.prefix}-{zeroPaddedSeq}`; unique per project.
 2. **Workflow enforcement** — `moveTicket` must validate that a transition exists in the project's workflow from current status to target status.
 3. **Soft delete** — Deleted tickets are excluded from search and list queries; only admin and project-manager may delete. **Restore** — admin/PM may restore a soft-deleted ticket; it reappears in lists and search.
-4. **History** — Create, field changes, assign, move, subscribe/unsubscribe, and delete actions are logged via `TicketHistoryService` as structured events. Comments appear in the activity feed only (not duplicated in history).
-5. **Notifications** — Fired asynchronously on status move; delivered to ticket subscribers via SSE and optionally email.
+3a. **Ticket attachments** — Files are ticket-scoped only (not on comments). Bytes live on the configured filesystem; metadata in `tb_ticket_attachments`. Max **10 MB** per file; max **20** files and **50 MB** total per ticket. Allow-listed extensions/MIME only. Upload/delete require ticket **write** on a non-deleted ticket; list/download follow ticket **read** (on soft-deleted tickets, only callers who may view the deleted ticket). Hard-delete removes metadata and bytes. History records `ATTACHMENT_ADDED` / `ATTACHMENT_REMOVED`. No subscriber notify in v1.
+4. **History** — Create, field changes, assign, move, subscribe/unsubscribe, delete, and **attachment add/remove** actions are logged via `TicketHistoryService` as structured events. Comments appear in the activity feed only (not duplicated in history).
+5. **Notifications** — Fired asynchronously on status move; delivered to ticket subscribers via SSE and optionally email. Attachment add/remove does **not** notify in v1.
 6. **Roles** — Endpoint access enforced via `@RolesAllowed`; class-level `@DenyAll` on protected resources.
 7. **Request/Response contract** — HTTP body types are records named `*Request` / `*Response` (ArchUnit enforced).
 8. **Ticket template** — At most one template per project (embedded on `Project`). When enabled, only **configured** template fields pre-fill the create form; the user may submit without filling unconfigured template fields. Required ticket fields still follow `CreateTicketRequest` validation. Template may include **custom field** defaults for in-scope fields ([feature/custom-fields.md](../feature/custom-fields.md) **FQ5**).
@@ -356,7 +363,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | Custom field | `CustomField` | Key, label, type, required, enabled, owner (project XOR workflow), enum options, status-required links |
 | Phase | `Phase` | Lifecycle, objective, deliverables, deliverable version |
 | Version | `Version` | SemVer label, changelog (derived) |
-| Ticket | `Ticket` | Title, status, assignee, phase, versions, finish date, subscribers, comments, **ticket type**, **custom field values**, **ticket links**, **linked commits** |
+| Ticket | `Ticket` | Title, status, assignee, phase, versions, finish date, subscribers, comments, **attachments**, **ticket type**, **custom field values**, **ticket links**, **linked commits** |
 | Git repository association | Project git remote | One remote per project, webhook secret, ingest config |
 | Linked commit | Ticket ↔ commit SHA | Idempotent `(ticket_id, sha)` |
 | Notification | `Notification` | Read state per user per event |
@@ -381,6 +388,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | Ticket context | `ticket.context.TicketContextService` |
 | Custom field | `customfield.CustomField`, `customfield.CustomFieldService` |
 | Git repository association / linked commit | Shipped — `git.*` ([feature/git-integration.md](../feature/git-integration.md)) |
+| Attachment | Shipped — `ticket.attachments` ([feature/ticket-attachments.md](../feature/ticket-attachments.md)) |
 | Issues MCP | External — [`issues-mcp/`](../issues-mcp/) (not a core package) |
 
 ---

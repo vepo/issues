@@ -137,13 +137,28 @@ describe('TicketViewComponent links', () => {
       'search',
       'move',
       'update',
+      'listAttachments',
+      'uploadAttachment',
+      'downloadAttachment',
+      'deleteAttachment',
     ]);
     ticketService.getComments.and.returnValue(of([]));
+    ticketService.listAttachments.and.returnValue(of([]));
     ticketService.createLink.and.returnValue(of(epicTicket.links[0] as any));
     ticketService.deleteLink.and.returnValue(of(undefined));
     ticketService.findExpandedByIdentifier.and.returnValue(of(epicTicket as any));
     ticketService.search.and.returnValue(of([]));
     ticketService.move.and.returnValue(of(epicTicket as any));
+    ticketService.uploadAttachment.and.returnValue(of({
+      id: 1,
+      originalFilename: 'spec.pdf',
+      contentType: 'application/pdf',
+      sizeBytes: 1024,
+      uploadedBy: { id: 1, name: 'Admin', username: 'admin', email: 'admin@issues.vepo.dev' },
+      uploadedAt: Date.now(),
+    } as any));
+    ticketService.downloadAttachment.and.returnValue(of(new Blob(['x'])));
+    ticketService.deleteAttachment.and.returnValue(of(undefined));
 
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
     dialog.open.and.returnValue({ afterClosed: () => of(true) } as never);
@@ -244,6 +259,52 @@ describe('TicketViewComponent links', () => {
     expect(component.historyActionLabel('LINK_REMOVED')).toBe('Vínculo removido');
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Vínculo adicionado');
+  });
+
+  it('should label ATTACHMENT history actions', () => {
+    expect(component.historyActionLabel('ATTACHMENT_ADDED')).toBe('Anexo adicionado');
+    expect(component.historyActionLabel('ATTACHMENT_REMOVED')).toBe('Anexo removido');
+  });
+
+  it('should render Anexos section and upload selected file', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Anexos');
+    expect(text).toContain('Nenhum anexo neste ticket.');
+
+    component.attachments = [{
+      id: 7,
+      originalFilename: 'spec.pdf',
+      contentType: 'application/pdf',
+      sizeBytes: 2048,
+      uploadedBy: { id: 1, name: 'Admin', username: 'admin', email: 'admin@issues.vepo.dev' },
+      uploadedAt: Date.now(),
+    } as never];
+    fixture.detectChanges();
+    const withFile = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(withFile).toContain('spec.pdf');
+    expect(withFile).toContain('Baixar');
+
+    const file = new File(['hello'], 'notes.txt', { type: 'text/plain' });
+    component.selectedAttachmentFile = file;
+    component.uploadAttachment();
+    expect(ticketService.uploadAttachment).toHaveBeenCalledWith(42, file);
+  });
+
+  it('should download and confirm delete attachment', () => {
+    const attachment = {
+      id: 7,
+      originalFilename: 'spec.pdf',
+      contentType: 'application/pdf',
+      sizeBytes: 2048,
+      uploadedBy: { id: 1, name: 'Admin', username: 'admin', email: 'admin@issues.vepo.dev' },
+      uploadedAt: Date.now(),
+    } as never;
+    component.downloadAttachment(attachment);
+    expect(ticketService.downloadAttachment).toHaveBeenCalledWith(42, 7);
+
+    component.confirmDeleteAttachment(attachment);
+    expect(dialog.open).toHaveBeenCalled();
+    expect(ticketService.deleteAttachment).toHaveBeenCalledWith(42, 7);
   });
 
   it('should render linked commits in history tab', () => {

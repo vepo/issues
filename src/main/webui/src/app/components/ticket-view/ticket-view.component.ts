@@ -16,6 +16,7 @@ import { Category, CategoryService } from '../../services/category.service';
 import { ProjectStatus, StatusService } from '../../services/status.service';
 import { User } from '../../services/users.service';
 import {
+  Attachment,
   Comment,
   CreateCommentRequest,
   Ticket,
@@ -83,6 +84,10 @@ export class TicketViewComponent implements OnInit {
 
   ticket?: TicketExpanded;
   comments: Comment[] = [];
+  attachments: Attachment[] = [];
+  selectedAttachmentFile: File | null = null;
+  uploadingAttachment = false;
+  attachmentError = '';
   newComment: string = '';
   activeTab: 'history' | 'comments' = 'history';
   loadingComments = false;
@@ -133,6 +138,7 @@ export class TicketViewComponent implements OnInit {
       if (this.ticket) {
         this.loadProjectMembers();
         this.loadComments();
+        this.loadAttachments();
         this.loadProjectStatuses();
         this.loadProjectVersions();
         this.loadAssignablePhases();
@@ -444,6 +450,10 @@ export class TicketViewComponent implements OnInit {
         return 'Excluído';
       case 'RESTORED':
         return 'Restaurado';
+      case 'ATTACHMENT_ADDED':
+        return $localize`:@@history.attachmentAdded:Anexo adicionado`;
+      case 'ATTACHMENT_REMOVED':
+        return $localize`:@@history.attachmentRemoved:Anexo removido`;
       default:
         return action || '';
     }
@@ -578,8 +588,94 @@ export class TicketViewComponent implements OnInit {
         this.loadProjectVersions();
         this.loadAssignablePhases();
         this.loadDoneStatusNames();
+        this.loadAttachments();
         this.populateEditForm();
       }
+    });
+  }
+
+  loadAttachments(): void {
+    if (!this.ticket) {
+      return;
+    }
+    this.ticketService.listAttachments(this.ticket.id).subscribe({
+      next: attachments => {
+        this.attachments = attachments;
+      },
+      error: () => {
+        this.attachments = [];
+      },
+    });
+  }
+
+  formatAttachmentSize(sizeBytes: number | undefined | null): string {
+    const size = sizeBytes ?? 0;
+    if (size < 1024) {
+      return `${size} B`;
+    }
+    if (size < 1024 * 1024) {
+      return `${(size / 1024).toFixed(1)} KB`;
+    }
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  onAttachmentFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedAttachmentFile = input.files?.[0] ?? null;
+    this.attachmentError = '';
+  }
+
+  uploadAttachment(): void {
+    if (!this.ticket || !this.selectedAttachmentFile || this.uploadingAttachment) {
+      return;
+    }
+    this.uploadingAttachment = true;
+    this.attachmentError = '';
+    this.ticketService.uploadAttachment(this.ticket.id, this.selectedAttachmentFile).subscribe({
+      next: () => {
+        this.uploadingAttachment = false;
+        this.selectedAttachmentFile = null;
+        this.loadAttachments();
+        this.reloadTicket();
+      },
+      error: err => {
+        this.uploadingAttachment = false;
+        this.attachmentError = err?.error?.message || $localize`:@@attachment.uploadFailed:Falha ao anexar o arquivo.`;
+      },
+    });
+  }
+
+  downloadAttachment(attachment: Attachment): void {
+    if (!this.ticket) {
+      return;
+    }
+    this.ticketService.downloadAttachment(this.ticket.id, attachment.id).subscribe(blob => {
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = attachment.originalFilename || 'attachment';
+      anchor.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  confirmDeleteAttachment(attachment: Attachment): void {
+    if (!this.ticket) {
+      return;
+    }
+    const confirmed = this.dialog.open(AttachmentDeleteDialogComponent, {
+      data: { filename: attachment.originalFilename },
+    });
+    confirmed.afterClosed().subscribe(result => {
+      if (!result || !this.ticket) {
+        return;
+      }
+      this.ticketService.deleteAttachment(this.ticket.id, attachment.id).subscribe({
+        next: () => {
+          this.loadAttachments();
+          this.reloadTicket();
+        },
+      });
     });
   }
 
@@ -613,6 +709,24 @@ export class TicketViewComponent implements OnInit {
   `
 })
 export class TicketDeleteDialogComponent {}
+
+@Component({
+  selector: 'app-attachment-delete-dialog',
+  imports: [MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title i18n>Excluir anexo</h2>
+    <mat-dialog-content>
+      <p i18n>Deseja excluir o anexo {{ data.filename }}?</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
+      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true" i18n>Excluir</button>
+    </mat-dialog-actions>
+  `
+})
+export class AttachmentDeleteDialogComponent {
+  readonly data = inject<{ filename: string }>(MAT_DIALOG_DATA);
+}
 
 @Component({
   selector: 'app-epic-done-warning-dialog',

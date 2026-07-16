@@ -42,6 +42,7 @@ class ArchitectureTest {
                       .filter(p -> !p.isAnnotatedWith(PathParam.class) && !p.isAnnotatedWith(QueryParam.class) && !p.isAnnotatedWith(Context.class)
                               && !p.isAnnotatedWith(HeaderParam.class))
                       .filter(p -> !p.getType().getName().equals("java.io.InputStream"))
+                      .filter(p -> !p.getType().getName().equals("org.jboss.resteasy.reactive.multipart.FileUpload"))
                       .filter(p -> !p.getType().getName().endsWith("Request"))
                       .map(p -> SimpleConditionEvent.violated(method, "Method %s has body parameter %s that is not a Request".formatted(method.getFullName(),
                                                                                                                                         p.getType().getName())))

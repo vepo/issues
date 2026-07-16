@@ -188,6 +188,7 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 | Git integration (project repo, commits on ticket history) | `feature/git-integration.md` | 1 | planned |
 | Ticket links, epics & subtasks | `feature/ticket-links.md` | 1 | done |
 | Burndown (phase remaining vs ideal) | `feature/burndown.md` | 1 | tasks-ready |
+| Ticket attachments (upload/download on ticket) | `feature/ticket-attachments.md` | 1 | done |
 
 ## Versioning
 

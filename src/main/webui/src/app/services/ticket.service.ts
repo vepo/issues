@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { TicketApi } from '../generated/api/ticket.service';
 import { ProjectApi } from '../generated/api/project.service';
+import { AttachmentResponse } from '../generated/model/attachmentResponse';
 import { ChildrenSummaryResponse } from '../generated/model/childrenSummaryResponse';
 import { CommentRequest } from '../generated/model/commentRequest';
 import { CommentResponse } from '../generated/model/commentResponse';
@@ -19,6 +20,7 @@ import { TicketExpandedResponse } from '../generated/model/ticketExpandedRespons
 import { TicketHistoryResponse } from '../generated/model/ticketHistoryResponse';
 import { TicketResponse } from '../generated/model/ticketResponse';
 import { asLoaded, asLoadedArray, Loaded } from '../core/required-types';
+import { HttpClient } from '@angular/common/http';
 
 export type Ticket = Loaded<TicketResponse>;
 export type TicketExpanded = Loaded<TicketExpandedResponse>;
@@ -26,6 +28,7 @@ export type Comment = Loaded<CommentResponse>;
 export type TicketHistory = Loaded<TicketHistoryResponse>;
 export type TicketLink = Loaded<TicketLinkResponse>;
 export type ChildrenSummary = Loaded<ChildrenSummaryResponse>;
+export type Attachment = Loaded<AttachmentResponse>;
 export type CreateCommentRequest = CommentRequest;
 export type { CreateTicketRequest, UpdateTicketRequest, CreateTicketLinkRequest, CreateChildTicketRequest, TicketLinkType, TicketType };
 
@@ -35,6 +38,7 @@ export type { CreateTicketRequest, UpdateTicketRequest, CreateTicketLinkRequest,
 export class TicketService {
   private readonly api = inject(TicketApi);
   private readonly projectApi = inject(ProjectApi);
+  private readonly http = inject(HttpClient);
 
   findByProjectId(projectId: number): Observable<Ticket[]> {
     return this.projectApi.listProjectTickets(projectId).pipe(map(asLoadedArray));
@@ -118,5 +122,23 @@ export class TicketService {
 
   createChild(ticketId: number, request: CreateChildTicketRequest): Observable<Ticket> {
     return this.api.createChildTicket(ticketId, request).pipe(map(asLoaded));
+  }
+
+  listAttachments(ticketId: number): Observable<Attachment[]> {
+    return this.api.listTicketAttachments(ticketId).pipe(map(asLoadedArray));
+  }
+
+  uploadAttachment(ticketId: number, file: File): Observable<Attachment> {
+    return this.api.uploadTicketAttachment(ticketId, file).pipe(map(asLoaded));
+  }
+
+  downloadAttachment(ticketId: number, attachmentId: number): Observable<Blob> {
+    return this.http.get(`/api/tickets/${ticketId}/attachments/${attachmentId}`, {
+      responseType: 'blob',
+    });
+  }
+
+  deleteAttachment(ticketId: number, attachmentId: number): Observable<unknown> {
+    return this.api.deleteTicketAttachment(attachmentId, ticketId);
   }
 }

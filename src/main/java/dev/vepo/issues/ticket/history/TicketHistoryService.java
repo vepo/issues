@@ -71,6 +71,14 @@ public class TicketHistoryService {
         createEntry(ticket, user, TicketHistoryAction.LINK_REMOVED, linkType, otherIdentifier, null, linkId);
     }
 
+    public void logAttachmentAdded(Ticket ticket, User user, String originalFilename, Long attachmentId) {
+        createEntry(ticket, user, TicketHistoryAction.ATTACHMENT_ADDED, null, null, originalFilename, attachmentId);
+    }
+
+    public void logAttachmentRemoved(Ticket ticket, User user, String originalFilename, Long attachmentId) {
+        createEntry(ticket, user, TicketHistoryAction.ATTACHMENT_REMOVED, null, originalFilename, null, attachmentId);
+    }
+
     private void createEntry(Ticket ticket,
                              User user,
                              TicketHistoryAction action,

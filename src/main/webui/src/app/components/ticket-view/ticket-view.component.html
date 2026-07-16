@@ -339,6 +339,75 @@
     }
     }
 
+    <section class="ticket-attachments" aria-labelledby="anexos-heading">
+      <h2 id="anexos-heading" class="section-title" i18n>Anexos</h2>
+      @if (attachments.length > 0) {
+        <ul class="ticket-link-list">
+          @for (attachment of attachments; track attachment.id) {
+            <li class="ticket-link-row">
+              <span class="ticket-attachment__name">{{ attachment.originalFilename }}</span>
+              <span class="text-muted">{{ formatAttachmentSize(attachment.sizeBytes) }}</span>
+              <span class="text-muted">{{ attachment.uploadedBy?.name }} · {{ attachment.uploadedAt | date: 'mediumDate' }}</span>
+              <button
+                class="btn btn-secondary"
+                matButton="outlined"
+                type="button"
+                (click)="downloadAttachment(attachment)"
+                i18n>
+                Baixar
+              </button>
+              @if (!isDeleted()) {
+                <button
+                  class="btn btn-cancel"
+                  matButton="filled"
+                  type="button"
+                  (click)="confirmDeleteAttachment(attachment)"
+                  i18n>
+                  Excluir
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="empty-state" i18n>Nenhum anexo neste ticket.</div>
+      }
+      @if (!isDeleted()) {
+        <div class="ticket-attachment-upload">
+          <input
+            #attachmentFileInput
+            type="file"
+            class="visually-hidden"
+            (change)="onAttachmentFileSelected($event)"
+            [disabled]="uploadingAttachment" />
+          <button
+            class="btn btn-secondary"
+            matButton="outlined"
+            type="button"
+            (click)="attachmentFileInput.click()"
+            [disabled]="uploadingAttachment"
+            i18n>
+            Escolher arquivo
+          </button>
+          @if (selectedAttachmentFile) {
+            <span class="text-muted">{{ selectedAttachmentFile.name }}</span>
+          }
+          <button
+            class="btn"
+            matButton="filled"
+            type="button"
+            [disabled]="!selectedAttachmentFile || uploadingAttachment"
+            (click)="uploadAttachment()"
+            i18n>
+            Anexar
+          </button>
+        </div>
+        @if (attachmentError) {
+          <p class="error">{{ attachmentError }}</p>
+        }
+      }
+    </section>
+
     <nav class="tabs" aria-label="Seções do ticket">
       <button
         type="button"

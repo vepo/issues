@@ -193,7 +193,8 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Project custom fields | `project.customfield.*` | `/projects/{id}/custom-fields` (+ `/in-scope`) |
 | Service accounts | `project.serviceaccount.*` | `/projects/{id}/service-accounts` (+ `…/tokens`) |
 | Project tickets | `project.tickets.list.ListProjectTicketsEndpoint` | `GET /projects/{id}/tickets` |
-| Tickets | `ticket.*` | `/tickets` (+ comments, history, subscribe; `customFields` on create/update/detail) |
+| Tickets | `ticket.*` | `/tickets` (+ comments, history, subscribe, **attachments**; `customFields` on create/update/detail) |
+| Ticket attachments | `ticket.attachments.*` | `GET/POST /tickets/{id}/attachments`; `GET/DELETE …/attachments/{attachmentId}` (multipart upload; binary download) |
 | Ticket context | `ticket.context.GetTicketContextEndpoint` | `GET /tickets/{id}/context` |
 | Ticket search | `ticket.search.SearchTicketsEndpoint` | `GET /tickets/search` |
 | Query language | `ticket.search.query.SearchTicketsByQueryEndpoint` | `POST /tickets/search/query` (`cf.<key>`) |
@@ -307,6 +308,7 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Git integration (repo association + linked commits) | Done — [git-integration.md](feature/git-integration.md) v1; `git` package; webhook + inbound API; activity linked commits |
 | CSV import chunked upload | Done — [ticket-import.md](feature/ticket-import.md) v2; init/part/complete; 5 MB / 1 MB / 500 rows; legacy `POST …/upload` wrapper |
 | UI i18n (pt/en) | Done — [i18n.md](feature/i18n.md) v1; path prefixes `/pt/` `/en/`; `User.uiLocale`; account language select |
+| Ticket attachments | Done — [ticket-attachments.md](feature/ticket-attachments.md) v1; filesystem storage; multipart upload; ticket detail **Anexos** |
 
 ## 14. OpenAPI → TypeScript codegen
 

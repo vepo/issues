@@ -286,7 +286,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">368,369</context>
+          <context context-type="linenumber">437,438</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/users-edit.component/users-edit.component.html</context>
@@ -841,7 +841,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">658</context>
+          <context context-type="linenumber">772</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/versions/version-detail.component.html</context>
@@ -1228,7 +1228,11 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">611,612</context>
+          <context context-type="linenumber">707,708</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
+          <context context-type="linenumber">723,724</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/users-view.component/users-view.component.html</context>
@@ -1296,15 +1300,19 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">610,611</context>
+          <context context-type="linenumber">706,707</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">629,630</context>
+          <context context-type="linenumber">722,723</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">668,669</context>
+          <context context-type="linenumber">743,744</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
+          <context context-type="linenumber">782,783</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/users-edit.component/users-edit.component.html</context>
@@ -1518,6 +1526,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/custom-fields/custom-field-admin.component.ts</context>
           <context context-type="linenumber">73</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
+          <context context-type="linenumber">366</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4631988859313313644" datatype="html">
@@ -3655,151 +3667,221 @@
           <context context-type="linenumber">335,336</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="8410130821438597563" datatype="html">
+        <source>Anexos</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
+          <context context-type="linenumber">343,344</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7032064758461143911" datatype="html">
+        <source> Baixar </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
+          <context context-type="linenumber">357</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7624148134224991173" datatype="html">
+        <source>Nenhum anexo neste ticket.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
+          <context context-type="linenumber">373,374</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7035874762432986757" datatype="html">
+        <source> Escolher arquivo </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
+          <context context-type="linenumber">390</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8604135305061545101" datatype="html">
+        <source> Anexar </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
+          <context context-type="linenumber">402</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="3768650012680578717" datatype="html">
         <source> Histórico </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">349,350</context>
+          <context context-type="linenumber">418,419</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5659696871444624756" datatype="html">
         <source> Comentários </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">358,359</context>
+          <context context-type="linenumber">427,428</context>
         </context-group>
       </trans-unit>
       <trans-unit id="146442697456175258" datatype="html">
         <source>Data</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">367,368</context>
+          <context context-type="linenumber">436,437</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5634682164378117878" datatype="html">
         <source>Alteração</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">369,370</context>
+          <context context-type="linenumber">438,439</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2443896980197208267" datatype="html">
         <source> Abrir </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">402</context>
+          <context context-type="linenumber">471</context>
         </context-group>
       </trans-unit>
       <trans-unit id="8244828798902645177" datatype="html">
         <source>Nenhuma atividade registrada para este ticket.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">412,413</context>
+          <context context-type="linenumber">481,482</context>
         </context-group>
       </trans-unit>
       <trans-unit id="6739068080324374312" datatype="html">
         <source>Adicionar comentário</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">419,420</context>
+          <context context-type="linenumber">488,489</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5731405754389427571" datatype="html">
         <source>Enviando...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">433,434</context>
+          <context context-type="linenumber">502,503</context>
         </context-group>
       </trans-unit>
       <trans-unit id="6876277655388242323" datatype="html">
         <source>Publicar comentário</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">435,436</context>
+          <context context-type="linenumber">504,505</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7813356073470726858" datatype="html">
         <source>Comentários (<x id="INTERPOLATION" equiv-text="{{ comments.length }}"/>)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">442,443</context>
+          <context context-type="linenumber">511,512</context>
         </context-group>
       </trans-unit>
       <trans-unit id="830028768044899918" datatype="html">
         <source>Carregando comentários...</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">444,445</context>
+          <context context-type="linenumber">513,514</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4928784582101452480" datatype="html">
         <source>Nenhum comentário ainda. Seja o primeiro a comentar.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.html</context>
-          <context context-type="linenumber">456,457</context>
+          <context context-type="linenumber">525,526</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="history.attachmentAdded" datatype="html">
+        <source>Anexo adicionado</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
+          <context context-type="linenumber">454</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="history.attachmentRemoved" datatype="html">
+        <source>Anexo removido</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
+          <context context-type="linenumber">456</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="attachment.uploadFailed" datatype="html">
+        <source>Falha ao anexar o arquivo.</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
+          <context context-type="linenumber">643</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2878222717107419235" datatype="html">
         <source>Excluir ticket</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">607,608</context>
+          <context context-type="linenumber">703,704</context>
         </context-group>
       </trans-unit>
       <trans-unit id="1828611022363997768" datatype="html">
         <source>Deseja excluir este ticket? Esta ação não pode ser desfeita.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">608</context>
+          <context context-type="linenumber">704</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="717968973521980072" datatype="html">
+        <source>Excluir anexo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
+          <context context-type="linenumber">717,718</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6557451535091380577" datatype="html">
+        <source>Deseja excluir o anexo <x id="INTERPOLATION" equiv-text="{{ data.filename }}"/>?</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
+          <context context-type="linenumber">719,720</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5699449783996013215" datatype="html">
         <source>Épico com subtarefas abertas</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">621,622</context>
+          <context context-type="linenumber">735,736</context>
         </context-group>
       </trans-unit>
       <trans-unit id="2083642093571525213" datatype="html">
         <source> Este épico ainda tem <x id="INTERPOLATION" equiv-text="{{ data.done }}"/>/<x id="INTERPOLATION_1" equiv-text="{{ data.total }}"/> subtarefas concluídas. Deseja movê-lo para um status de conclusão mesmo assim? </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">624,627</context>
+          <context context-type="linenumber">738,741</context>
         </context-group>
       </trans-unit>
       <trans-unit id="356743804431162750" datatype="html">
         <source>Mover mesmo assim</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">630,631</context>
+          <context context-type="linenumber">744,745</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7376815277799640180" datatype="html">
         <source>Nova subtarefa</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">653,654</context>
+          <context context-type="linenumber">767,768</context>
         </context-group>
       </trans-unit>
       <trans-unit id="889514057817938505" datatype="html">
         <source>Será criada no mesmo projeto do épico <x id="INTERPOLATION" equiv-text="{{ data.epicIdentifier }}"/>.</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">655,656</context>
+          <context context-type="linenumber">769,770</context>
         </context-group>
       </trans-unit>
       <trans-unit id="6593767714510911568" datatype="html">
         <source>Descrição (opcional)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">662,663</context>
+          <context context-type="linenumber">776,777</context>
         </context-group>
       </trans-unit>
       <trans-unit id="1185117915889403189" datatype="html">
         <source>Criar</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/ticket-view/ticket-view.component.ts</context>
-          <context context-type="linenumber">669,670</context>
+          <context context-type="linenumber">783,784</context>
         </context-group>
       </trans-unit>
       <trans-unit id="6418727326364998889" datatype="html">

@@ -65,8 +65,9 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 - **Phases** — time-boxed planning periods with objective and deliverables; **activate** / **complete** lifecycle; optional ticket phase assignment; **project phase template** copied into new phases
 - **Categories** — classify tickets with name and color
 - **Comments** — discussion thread on each ticket (rich-text editor)
+- **Attachments** — upload, list, download, and delete files on a ticket (max 10 MB each; images, PDF, Office, zip, etc.)
 - **Rich text** — shared editor for ticket Description, Text custom fields, project description, and ticket template description
-- **Ticket history** — structured audit log (create, field changes, assign, move, subscribe, delete, link add/remove) merged with comments in the **Atividade** feed
+- **Ticket history** — structured audit log (create, field changes, assign, move, subscribe, delete, link add/remove, attachment add/remove) merged with comments in the **Atividade** feed
 - **Subscribers** — watch tickets and receive alerts on changes
 - **CSV import** — bulk-create tickets from a CSV file; project-scoped (from Kanban) or global (header Importar, project per row from CSV column); **chunked upload** (max 5 MB / 1 MB parts / 500 rows); map built-in columns and **custom field keys**; server parses with OpenCSV, stores rows in database, then column-mapping wizard creates tickets
 - **Custom fields** — typed attributes (String, Text, Integer, Boolean, Enum) defined on projects and workflows; values on create/detail; required and status-required; template defaults; query with `cf.<key>`

@@ -10,5 +10,7 @@ public enum TicketHistoryAction {
     DELETED,
     RESTORED,
     LINK_ADDED,
-    LINK_REMOVED
+    LINK_REMOVED,
+    ATTACHMENT_ADDED,
+    ATTACHMENT_REMOVED
 }
