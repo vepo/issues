@@ -235,6 +235,61 @@ public class CustomFieldService {
     }
 
     @Transactional
+    public List<CustomFieldValueResponse> copyCompatibleValues(long ticketId,
+                                                               long sourceProjectId,
+                                                               long sourceWorkflowId,
+                                                               long targetProjectId,
+                                                               long targetWorkflowId,
+                                                               List<String> warnings) {
+        var targetByKey = listInScope(targetProjectId, targetWorkflowId)
+                                                                        .stream()
+                                                                        .collect(Collectors.toMap(CustomFieldResponse::key, Function.identity()));
+        var copied = new ArrayList<CustomFieldValueResponse>();
+        for (var source : readValues(ticketId, sourceProjectId, sourceWorkflowId)) {
+            if (!source.orphan() && !source.readOnly()) {
+                var target = targetByKey.get(source.key());
+                var incompatibility = cloneIncompatibility(source, target);
+                if (incompatibility == null) {
+                    copied.add(new CustomFieldValueResponse(source.key(), target.type(), source.value(), false, false));
+                } else {
+                    warnings.add("Custom field '%s' %s".formatted(source.key(), incompatibility));
+                }
+            }
+        }
+        return copied;
+    }
+
+    private String cloneIncompatibility(CustomFieldValueResponse source, CustomFieldResponse target) {
+        if (target == null) {
+            return "is not available in the target project";
+        }
+        if (target.type() != source.type()) {
+            return "has a different target type";
+        }
+        if (target.type() == CustomFieldType.ENUM
+                && target.enumOptions()
+                         .stream()
+                         .noneMatch(option -> Objects.equals(option.value(), source.value()))) {
+            return "has an invalid target enum value";
+        }
+        if (!satisfiesCloneConstraints(target, source.value())) {
+            return "does not satisfy target constraints";
+        }
+        return null;
+    }
+
+    private boolean satisfiesCloneConstraints(CustomFieldResponse target, Object value) {
+        return switch (target.type()) {
+            case STRING -> value instanceof String text
+                    && text.length() <= (target.stringMaxLength() == null ? STRING_PLATFORM_MAX : target.stringMaxLength());
+            case INTEGER -> value instanceof Number number
+                    && (target.integerMin() == null || number.longValue() >= target.integerMin())
+                    && (target.integerMax() == null || number.longValue() <= target.integerMax());
+            case TEXT, BOOLEAN, ENUM -> true;
+        };
+    }
+
+    @Transactional
     public List<CustomFieldValueChange> applyValuesToTicket(long ticketId,
                                                             long projectId,
                                                             long workflowId,

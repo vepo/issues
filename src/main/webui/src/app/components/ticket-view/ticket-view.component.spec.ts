@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -53,6 +53,7 @@ describe('TicketViewComponent links', () => {
   let component: TicketViewComponent;
   let ticketService: jasmine.SpyObj<TicketService>;
   let dialog: jasmine.SpyObj<MatDialog>;
+  let router: Router;
 
   const epicTicket = {
     id: 42,
@@ -201,6 +202,7 @@ describe('TicketViewComponent links', () => {
         { provide: PhaseService, useValue: phaseService },
         { provide: CustomFieldService, useValue: customFieldService },
         { provide: MatDialog, useValue: dialog },
+        provideRouter([]),
         {
           provide: ActivatedRoute,
           useValue: { data: of({ ticket: epicTicket }) },
@@ -212,12 +214,34 @@ describe('TicketViewComponent links', () => {
 
     fixture = TestBed.createComponent(TicketViewComponent);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    spyOn(router, 'navigate');
     fixture.detectChanges();
   });
 
   it('should show type badge Épico in header', () => {
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Épico');
+  });
+
+  it('should navigate from an active ticket to the global clone flow', () => {
+    const cloneButton = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('button'),
+    ).find(button => button.textContent?.includes('Clonar ticket'));
+
+    expect(cloneButton).toBeDefined();
+    cloneButton?.click();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/tickets/new'], {
+      queryParams: { cloneFrom: 42, targetProjectId: 1 },
+    });
+  });
+
+  it('should hide clone action for a deleted ticket', () => {
+    component.ticket = { ...epicTicket, deleted: true } as never;
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Clonar ticket');
   });
 
   it('should group and render vínculos', () => {

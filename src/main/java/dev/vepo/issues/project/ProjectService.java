@@ -57,18 +57,18 @@ public class ProjectService {
     @Transactional
     public List<ProjectResponse> listAll(String username) {
         var user = accessService.requireUser(username);
-        return accessService.listReadableProjects(user)
-                            .stream()
-                            .map(this::toResponse)
-                            .toList();
+        return toResponses(accessService.listReadableProjects(user));
+    }
+
+    @Transactional
+    public List<ProjectResponse> listWritable(String username) {
+        var user = accessService.requireUser(username);
+        return toResponses(accessService.listWritableProjects(user));
     }
 
     @Transactional
     public List<ProjectResponse> listPublic() {
-        return accessService.listPublicProjects()
-                            .stream()
-                            .map(this::toResponse)
-                            .toList();
+        return toResponses(accessService.listPublicProjects());
     }
 
     @Transactional
@@ -141,6 +141,12 @@ public class ProjectService {
         return ProjectResponse.load(project,
                                     ticketRepository.countProjectTickets(project.getId()) > 0,
                                     defaults);
+    }
+
+    private List<ProjectResponse> toResponses(List<Project> projects) {
+        return projects.stream()
+                       .map(this::toResponse)
+                       .toList();
     }
 
     public WorkflowResponse findWorkflow(long projectId, String username) {

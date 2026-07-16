@@ -2,12 +2,15 @@ package dev.vepo.issues.ticket.create;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import dev.vepo.issues.Given;
+import dev.vepo.issues.ticket.TicketResponse;
 import dev.vepo.issues.ticket.TicketTestFixtures;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -48,6 +51,49 @@ class CreateTicketEndpointTest {
                                                      .filter(status -> status.name().equals("TODO"))
                                                      .findFirst()
                                                      .orElseThrow(() -> new IllegalStateException("TODO status not found")).id()));
+    }
+
+    @Test
+    void shouldCreateFreshTicketFromReviewedCloneDefaultsWithoutMutatingSource() {
+        var source = fixtures.ticket();
+
+        var clone = given().header(fixtures.pmAuthenticatedHeader())
+                           .contentType(ContentType.JSON)
+                           .accept(ContentType.JSON)
+                           .body("""
+                                 {
+                                   "title": "%s",
+                                   "description": "%s",
+                                   "projectId": %d,
+                                   "categoryId": %d,
+                                   "priority": "%s",
+                                   "ticketType": "%s"
+                                 }
+                                 """.formatted(source.title(),
+                                               source.description(),
+                                               source.project(),
+                                               source.category(),
+                                               source.priority(),
+                                               source.ticketType()))
+                           .post("/api/tickets")
+                           .then()
+                           .statusCode(201)
+                           .extract()
+                           .as(TicketResponse.class);
+
+        assertNotEquals(source.id(), clone.id());
+        assertNotEquals(source.identifier(), clone.identifier());
+        given().header(fixtures.pmAuthenticatedHeader())
+               .get("/api/tickets/{id}", source.id())
+               .then()
+               .statusCode(200)
+               .body("identifier", equalTo(source.identifier()))
+               .body("title", equalTo(source.title()));
+        given().header(fixtures.pmAuthenticatedHeader())
+               .get("/api/tickets/{id}/history", clone.id())
+               .then()
+               .statusCode(200)
+               .body("action", hasItem("CREATED"));
     }
 
     @Test

@@ -25,6 +25,10 @@ export class ProjectsService {
     return this.api.listProjects().pipe(map(asLoadedArray));
   }
 
+  listWritable(): Observable<Project[]> {
+    return this.api.listWritableProjects().pipe(map(asLoadedArray));
+  }
+
   create(request: CreateOrUpdateProjectRequest): Observable<Project> {
     return this.api.createProject(request).pipe(map(asLoaded));
   }

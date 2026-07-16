@@ -73,7 +73,8 @@ dev.vepo.issues/
 ├── user/                      # User, Role; UserService; *Request/*Response
 │   ├── create/ update/ find/ search/ delete/
 ├── project/                   # ProjectService, ProjectPaths
-│   ├── list/ create/ update/ find/ workflow/ status/
+│   ├── list/                  # Viewable and writable project-list endpoints
+│   ├── create/ update/ find/ workflow/ status/
 │   ├── customfield/           # Nested project custom-field CRUD + in-scope list
 │   ├── serviceaccount/        # Project service accounts + tokens
 │   └── tickets/list/          # ListProjectTicketsEndpoint
@@ -89,6 +90,7 @@ dev.vepo.issues/
 │   ├── list/ create/ update/ delete/
 ├── ticket/                    # TicketService, TicketPaths
 │   ├── list/ search/ find/ create/ update/ assign/ delete/ move/
+│   ├── cloneprefill/          # Target-aware CloneTicketPrefillService + GET endpoint
 │   ├── search/query/          # ANTLR query language (SearchTicketsByQueryEndpoint; cf.<key>)
 │   ├── search/saved/          # SavedQuery CRUD + clone
 │   ├── comments/list/ comments/add/
@@ -143,6 +145,7 @@ Domain services orchestrate repositories, enforce invariants, and fire CDI event
 | `ApiTokenService` | Personal API token create/list/revoke (hash-only storage) |
 | `ServiceAccountService` | Project service accounts and tokens |
 | `TicketContextService` | Composite ticket context for agents |
+| `CloneTicketPrefillService` | Target-aware clone defaults and compatible custom-field mapping |
 
 ### Endpoint layer
 
@@ -190,12 +193,14 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Users | `user.find.FindUserByIdEndpoint` | `GET /users/{id}` |
 | Users | `user.search.SearchUsersEndpoint` | `GET /users/search` |
 | Projects | `project.*` | `/projects` (+ workflow, status subpaths) |
+| Writable projects | `project.list.ListWritableProjectsEndpoint` | `GET /projects/writable` |
 | Project custom fields | `project.customfield.*` | `/projects/{id}/custom-fields` (+ `/in-scope`) |
 | Service accounts | `project.serviceaccount.*` | `/projects/{id}/service-accounts` (+ `…/tokens`) |
 | Project tickets | `project.tickets.list.ListProjectTicketsEndpoint` | `GET /projects/{id}/tickets` |
 | Tickets | `ticket.*` | `/tickets` (+ comments, history, subscribe, **attachments**; `customFields` on create/update/detail) |
 | Ticket attachments | `ticket.attachments.*` | `GET/POST /tickets/{id}/attachments`; `GET/DELETE …/attachments/{attachmentId}` (multipart upload; binary download) |
 | Ticket context | `ticket.context.GetTicketContextEndpoint` | `GET /tickets/{id}/context` |
+| Ticket clone prefill | `ticket.cloneprefill.GetCloneTicketPrefillEndpoint` | `GET /tickets/{sourceId}/clone-prefill?targetProjectId=…` |
 | Ticket search | `ticket.search.SearchTicketsEndpoint` | `GET /tickets/search` |
 | Query language | `ticket.search.query.SearchTicketsByQueryEndpoint` | `POST /tickets/search/query` (`cf.<key>`) |
 | Saved queries | `ticket.search.saved.*` | `/saved-queries` (CRUD, by-slug, clone) |
@@ -236,6 +241,7 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | `/search/queries/new`, `/search/queries/:id/edit` | SavedQueryEdit | Create/edit saved query |
 | `/search/q/:slug` | SavedQueryView | Shared saved query + results |
 | `/ticket/:ticketIdentifier` | TicketView | Ticket detail (incl. **Agente em nome de …** attribution) |
+| `/tickets/new` | CreateTicket | Global create; clone context uses `cloneFrom` + `targetProjectId`, writable project selection, target template then source overrides |
 | `/account/settings` | AccountSettings | Profile, **Conectar agente**, **Tokens de API** |
 | `/projects/:projectId/service-accounts` | ServiceAccounts | Project service accounts (PM/admin) |
 | `/users`, `/users/new`, `/users/:userId` | Users CRUD | User admin |
@@ -309,6 +315,7 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | CSV import chunked upload | Done — [ticket-import.md](feature/ticket-import.md) v2; init/part/complete; 5 MB / 1 MB / 500 rows; legacy `POST …/upload` wrapper |
 | UI i18n (pt/en) | Done — [i18n.md](feature/i18n.md) v1; path prefixes `/pt/` `/en/`; `User.uiLocale`; account language select |
 | Ticket attachments | Done — [ticket-attachments.md](feature/ticket-attachments.md) v1; filesystem storage; multipart upload; ticket detail **Anexos** |
+| Clone ticket | Done — [ticket-management.md](feature/ticket-management.md) v4; active-ticket action, writable cross-project targets, target-aware prefill and warnings; intentionally no clone provenance or related-resource copying |
 
 ## 14. OpenAPI → TypeScript codegen
 

@@ -112,4 +112,29 @@ describe('TicketFormComponent', () => {
     expect(component.ticketForm.value.categoryId).toBe(-1);
     expect(component.ticketForm.value.priority).toBe('MEDIUM');
   });
+
+  it('should completely reset previous defaults before applying a new target baseline', () => {
+    component.defaults = {
+      title: 'Source clone title',
+      description: '<p>Source clone description</p>',
+      categoryId: 2,
+      priority: 'HIGH',
+      ticketType: 'EPIC',
+      customFieldDefaults: [{ key: 'environment', value: 'prod' }],
+    };
+
+    component.defaults = {
+      description: '<p>Target template description</p>',
+      customFieldDefaults: [],
+    };
+
+    expect(component.ticketForm.value).toEqual(jasmine.objectContaining({
+      title: '',
+      description: '<p>Target template description</p>',
+      categoryId: -1,
+      priority: 'MEDIUM',
+      ticketType: 'TASK',
+    }));
+    expect(component.customFieldDefaults).toEqual([]);
+  });
 });

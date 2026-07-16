@@ -1,9 +1,12 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map, Observable } from 'rxjs';
+import { asLoaded, asLoadedArray, Loaded } from '../core/required-types';
 import { TicketApi } from '../generated/api/ticket.service';
 import { ProjectApi } from '../generated/api/project.service';
 import { AttachmentResponse } from '../generated/model/attachmentResponse';
 import { ChildrenSummaryResponse } from '../generated/model/childrenSummaryResponse';
+import { CloneTicketPrefillResponse } from '../generated/model/cloneTicketPrefillResponse';
 import { CommentRequest } from '../generated/model/commentRequest';
 import { CommentResponse } from '../generated/model/commentResponse';
 import { CreateChildTicketRequest } from '../generated/model/createChildTicketRequest';
@@ -19,8 +22,6 @@ import { UpdateTicketRequest } from '../generated/model/updateTicketRequest';
 import { TicketExpandedResponse } from '../generated/model/ticketExpandedResponse';
 import { TicketHistoryResponse } from '../generated/model/ticketHistoryResponse';
 import { TicketResponse } from '../generated/model/ticketResponse';
-import { asLoaded, asLoadedArray, Loaded } from '../core/required-types';
-import { HttpClient } from '@angular/common/http';
 
 export type Ticket = Loaded<TicketResponse>;
 export type TicketExpanded = Loaded<TicketExpandedResponse>;
@@ -29,6 +30,7 @@ export type TicketHistory = Loaded<TicketHistoryResponse>;
 export type TicketLink = Loaded<TicketLinkResponse>;
 export type ChildrenSummary = Loaded<ChildrenSummaryResponse>;
 export type Attachment = Loaded<AttachmentResponse>;
+export type CloneTicketPrefill = CloneTicketPrefillResponse;
 export type CreateCommentRequest = CommentRequest;
 export type { CreateTicketRequest, UpdateTicketRequest, CreateTicketLinkRequest, CreateChildTicketRequest, TicketLinkType, TicketType };
 
@@ -66,6 +68,10 @@ export class TicketService {
 
   createTicket(request: CreateTicketRequest): Observable<Ticket> {
     return this.api.createTicket(request).pipe(map(asLoaded));
+  }
+
+  getClonePrefill(sourceId: number, targetProjectId: number): Observable<CloneTicketPrefill> {
+    return this.api.getCloneTicketPrefill(sourceId, targetProjectId);
   }
 
   update(ticketId: number, request: UpdateTicketRequest): Observable<Ticket> {

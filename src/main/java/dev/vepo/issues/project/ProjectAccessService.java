@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import dev.vepo.issues.user.Role;
 import dev.vepo.issues.user.User;
@@ -70,6 +71,11 @@ public class ProjectAccessService {
         return isAdmin(user) || isProjectOwner(user, project);
     }
 
+    public boolean canWrite(User user, Project project) {
+        return isAdmin(user) || isProjectOwner(user, project)
+                || memberRepository.isMember(project.getId(), user.getId());
+    }
+
     public void requireView(long projectId, String username) {
         var user = requireUser(username);
         var project = requireProject(projectId);
@@ -87,6 +93,14 @@ public class ProjectAccessService {
         var user = username.map(this::requireUser);
         if (!canRead(user, project)) {
             throw new ForbiddenException("Access denied to project %d".formatted(projectId));
+        }
+    }
+
+    public void requireWrite(long projectId, String username) {
+        var project = requireProject(projectId);
+        var user = requireUser(username);
+        if (!canWrite(user, project)) {
+            throw new ForbiddenException("Write access denied to project %d".formatted(projectId));
         }
     }
 
@@ -132,16 +146,32 @@ public class ProjectAccessService {
             return projectRepository.findAll().toList();
         }
         var byId = new LinkedHashMap<Long, Project>();
-        projectRepository.findByMemberUserId(user.getId())
-                         .forEach(project -> byId.put(project.getId(), project));
-        projectRepository.findOwnedByUserId(user.getId())
-                         .forEach(project -> byId.put(project.getId(), project));
-        projectRepository.findBySecurityLevels(List.of(SecurityLevel.INTERNAL, SecurityLevel.PUBLIC))
-                         .forEach(project -> byId.put(project.getId(), project));
-        return byId.values()
-                   .stream()
-                   .sorted(Comparator.comparing(Project::getName, String.CASE_INSENSITIVE_ORDER))
-                   .toList();
+        addProjectsById(byId, projectRepository.findByMemberUserId(user.getId()));
+        addProjectsById(byId, projectRepository.findOwnedByUserId(user.getId()));
+        addProjectsById(byId,
+                        projectRepository.findBySecurityLevels(List.of(SecurityLevel.INTERNAL, SecurityLevel.PUBLIC)));
+        return sortProjectsByName(byId);
+    }
+
+    public List<Project> listWritableProjects(User user) {
+        if (isAdmin(user)) {
+            return projectRepository.findAll().toList();
+        }
+        var byId = new LinkedHashMap<Long, Project>();
+        addProjectsById(byId, projectRepository.findByMemberUserId(user.getId()));
+        addProjectsById(byId, projectRepository.findOwnedByUserId(user.getId()));
+        return sortProjectsByName(byId);
+    }
+
+    private void addProjectsById(LinkedHashMap<Long, Project> projectsById, Stream<Project> projects) {
+        projects.forEach(project -> projectsById.put(project.getId(), project));
+    }
+
+    private List<Project> sortProjectsByName(LinkedHashMap<Long, Project> projectsById) {
+        return projectsById.values()
+                           .stream()
+                           .sorted(Comparator.comparing(Project::getName, String.CASE_INSENSITIVE_ORDER))
+                           .toList();
     }
 
     public List<Project> listPublicProjects() {

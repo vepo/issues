@@ -55,6 +55,7 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 ### Tickets & workflow
 
 - **Tickets** — create via `/tickets/new` or project-scoped route; edit, assign, optional **due date**, set **ticket type** (Épico / História / Tarefa), set priority, and soft-delete work items scoped to a project
+- **Clone ticket** — start from an active ticket, choose any writable target project, review compatible copied fields and omission warnings, then create a fresh ticket through the standard create flow
 - **Identifiers** — human-readable keys (`ISS-001`) from project prefix + sequence
 - **Workflows** — configurable status graphs with allowed transitions per project
 - **Priority** — `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` on create and edit

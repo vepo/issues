@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ProjectMembersService } from '../../services/project-members.service';
@@ -69,6 +69,7 @@ export interface LinkGroup {
 })
 export class TicketViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly ticketService = inject(TicketService);
   private readonly authService = inject(AuthService);
   private readonly membersService = inject(ProjectMembersService);
@@ -553,6 +554,18 @@ export class TicketViewComponent implements OnInit {
 
   isDeleted(): boolean {
     return this.ticket?.deleted === true;
+  }
+
+  cloneTicket(): void {
+    if (!this.ticket?.project?.id || this.isDeleted()) {
+      return;
+    }
+    void this.router.navigate(['/tickets/new'], {
+      queryParams: {
+        cloneFrom: this.ticket.id,
+        targetProjectId: this.ticket.project.id,
+      },
+    });
   }
 
   confirmRestore(): void {

@@ -83,13 +83,16 @@ export class TicketFormComponent implements OnInit {
     if (!value) {
       return;
     }
-    const patch: {
-      title?: string;
-      description?: string;
-      categoryId?: number;
-      priority?: CreateTicketRequest['priority'];
-      ticketType?: TicketType;
-    } = {};
+    const patch = {
+      title: '',
+      description: '',
+      categoryId: -1,
+      priority: 'MEDIUM' as CreateTicketRequest['priority'],
+      ticketType: 'TASK' as TicketType,
+      dueDate: null,
+      phaseId: null,
+      storyPoints: null,
+    };
     if (value.title !== undefined) {
       patch.title = value.title;
     }
@@ -106,9 +109,7 @@ export class TicketFormComponent implements OnInit {
       patch.ticketType = value.ticketType;
     }
     this.ticketForm.patchValue(patch);
-    if (value.customFieldDefaults !== undefined) {
-      this.customFieldDefaults = value.customFieldDefaults;
-    }
+    this.customFieldDefaults = value.customFieldDefaults ?? [];
   }
 
   ngOnInit(): void {

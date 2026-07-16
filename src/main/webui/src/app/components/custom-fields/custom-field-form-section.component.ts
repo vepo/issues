@@ -181,16 +181,11 @@ export class CustomFieldFormSectionComponent implements OnChanges {
 
   private patchValues(): void {
     const byKey = new Map<string, unknown>();
-    for (const value of this.templateDefaults ?? []) {
-      if (value.key) {
-        byKey.set(value.key, value.value);
-      }
+    for (const field of this.fields) {
+      byKey.set(field.key, defaultControlValue(field.type));
     }
-    for (const value of this.initialValues ?? []) {
-      if (value.key) {
-        byKey.set(value.key, value.value);
-      }
-    }
+    this.overlayValues(byKey, this.templateDefaults);
+    this.overlayValues(byKey, this.initialValues);
 
     const patch: Record<string, unknown> = {};
     for (const field of this.fields) {
@@ -216,6 +211,17 @@ export class CustomFieldFormSectionComponent implements OnChanges {
       this.valuesForm.disable({ emitEvent: false });
     } else {
       this.valuesForm.enable({ emitEvent: false });
+    }
+  }
+
+  private overlayValues(
+    valuesByKey: Map<string, unknown>,
+    values: CustomFieldValueResponse[] | null,
+  ): void {
+    for (const value of values ?? []) {
+      if (value.key) {
+        valuesByKey.set(value.key, value.value);
+      }
     }
   }
 

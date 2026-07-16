@@ -189,6 +189,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | **Reorder (backlog)** | Change a ticket’s backlog rank relative to peers; project-manager and admin only. | `POST /projects/{id}/backlog/reorder` |
 | **Soft delete** | Ticket marked deleted without physical removal; may be **restored** by admin/PM. | `Ticket.deleted`; excluded from search until restored |
 | **Move (ticket)** | Change ticket status following workflow transition rules. | `POST /tickets/{id}/move`, `MoveTicketRequest` |
+| **Clone ticket** | Create a distinct ticket from selected values of an existing active ticket. The clone has a fresh identifier, acting author, workflow lifecycle, backlog rank, timestamps, and `CREATED` history; the source is unchanged. | Done — `/ticket/:ticketIdentifier` → `/tickets/new`; [feature/ticket-management.md](../feature/ticket-management.md) v4 |
 | **Phase (on ticket)** | Optional assignment of a ticket to a project phase. | `Ticket.phase`; UI **Fase** |
 | **Observed version** | Version where the change was observed or shipped. | `Ticket.observedVersion`; UI **Versão observada** |
 | **Target version** | Version where the change is intended to land. | `Ticket.targetVersion`; UI **Versão alvo** |
@@ -266,6 +267,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 2. **Workflow enforcement** — `moveTicket` must validate that a transition exists in the project's workflow from current status to target status.
 3. **Soft delete** — Deleted tickets are excluded from search and list queries; only admin and project-manager may delete. **Restore** — admin/PM may restore a soft-deleted ticket; it reappears in lists and search.
 3a. **Ticket attachments** — Files are ticket-scoped only (not on comments). Bytes live on the configured filesystem; metadata in `tb_ticket_attachments`. Max **10 MB** per file; max **20** files and **50 MB** total per ticket. Allow-listed extensions/MIME only. Upload/delete require ticket **write** on a non-deleted ticket; list/download follow ticket **read** (on soft-deleted tickets, only callers who may view the deleted ticket). Hard-delete removes metadata and bytes. History records `ATTACHMENT_ADDED` / `ATTACHMENT_REMOVED`. No subscriber notify in v1.
+3b. **Clone identity and exclusions** — A cloned ticket is a new ticket, not a continuation of the source. The user reviews it in the normal create flow and may select any **writable** target project. It receives a new identifier, acting author, target workflow start status, backlog rank, timestamps, and ordinary create history. Clone defaults copy title, description, category, priority, ticket type, and target-compatible custom-field values; they omit assignee, phase, observed/target versions, due date, and story points. Comments, prior history, subscribers, attachments, linked commits, and ticket links (including parent/children) are never copied. The source must be active; no clone provenance is persisted.
 4. **History** — Create, field changes, assign, move, subscribe/unsubscribe, delete, and **attachment add/remove** actions are logged via `TicketHistoryService` as structured events. Comments appear in the activity feed only (not duplicated in history).
 5. **Notifications** — Fired asynchronously on status move; delivered to ticket subscribers via SSE and optionally email. Attachment add/remove does **not** notify in v1.
 6. **Roles** — Endpoint access enforced via `@RolesAllowed`; class-level `@DenyAll` on protected resources.
@@ -386,6 +388,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | Personal API token | `auth.apitoken.ApiToken`, `ApiTokenService` |
 | Service account | `project.serviceaccount.ServiceAccount`, `ServiceAccountService` |
 | Ticket context | `ticket.context.TicketContextService` |
+| Clone ticket | `ticket.cloneprefill.CloneTicketPrefillService`, `ticket.CloneTicketPrefillResponse` |
 | Custom field | `customfield.CustomField`, `customfield.CustomFieldService` |
 | Git repository association / linked commit | Shipped — `git.*` ([feature/git-integration.md](../feature/git-integration.md)) |
 | Attachment | Shipped — `ticket.attachments` ([feature/ticket-attachments.md](../feature/ticket-attachments.md)) |

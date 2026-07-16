@@ -93,4 +93,78 @@ describe('CustomFieldFormSectionComponent', () => {
 
     expect(component.toValueRequests()).toEqual([{ key: 'sprint', value: 3 }]);
   });
+
+  it('should reset stale target values after applying template then clone overrides', () => {
+    component.definitions = [
+      {
+        id: 1,
+        key: 'sprint',
+        label: 'Sprint',
+        type: 'INTEGER',
+        required: false,
+        enabled: true,
+        enumOptions: [],
+        statusRequired: [],
+      },
+      {
+        id: 2,
+        key: 'environment',
+        label: 'Ambiente',
+        type: 'ENUM',
+        required: false,
+        enabled: true,
+        enumOptions: [
+          { value: 'dev', label: 'Dev' },
+          { value: 'homolog', label: 'Homolog' },
+          { value: 'prod', label: 'Prod' },
+        ],
+        statusRequired: [],
+      },
+    ] as never;
+    component.templateDefaults = [
+      { key: 'sprint', value: 3 },
+      { key: 'environment', value: 'homolog' },
+    ] as never;
+    component.initialValues = [
+      { key: 'sprint', value: 8 },
+      { key: 'environment', value: 'prod' },
+    ] as never;
+    component.ngOnChanges({
+      definitions: {
+        currentValue: component.definitions,
+        previousValue: null,
+        firstChange: true,
+        isFirstChange: () => true,
+      },
+    });
+
+    expect(component.valuesForm.getRawValue()).toEqual({
+      sprint: 8,
+      environment: 'prod',
+    });
+
+    component.templateDefaults = [
+      { key: 'environment', value: 'homolog' },
+    ] as never;
+    component.initialValues = [];
+    component.ngOnChanges({
+      templateDefaults: {
+        currentValue: component.templateDefaults,
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+      initialValues: {
+        currentValue: component.initialValues,
+        previousValue: null,
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+
+    expect(component.valuesForm.getRawValue()).toEqual({
+      sprint: null,
+      environment: 'homolog',
+    });
+  });
 });
