@@ -42,6 +42,7 @@ import { versionResolver, versionsResolver } from './resolvers/versions-resolver
 import { phaseResolver, phasesResolver } from './resolvers/phases-resolver';
 import { workflowsResolver } from './resolvers/workflow-resolver';
 import { authGuard } from './services/auth.guard';
+import { projectManageGuard } from './services/project-manage.guard';
 import { publicReadGuard } from './services/public-read.guard';
 import { roleGuard } from './services/role.guard';
 
@@ -273,7 +274,7 @@ export const routes: Routes = [
       workflows: workflowsResolver,
       categories: categoriesResolver
     },
-    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])]
+    canActivate: [authGuard, projectManageGuard]
   },
   {
     path: 'projects/:projectId/allocation',
@@ -281,7 +282,7 @@ export const routes: Routes = [
     resolve: {
       project: projectResolver
     },
-    canActivate: [authGuard, roleGuard(['admin', 'project-manager'])]
+    canActivate: [authGuard, projectManageGuard]
   },
   {
     path: 'projects/:projectId/service-accounts',

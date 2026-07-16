@@ -1,7 +1,7 @@
 # Project dashboard
 
 **Feature version:** 3  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03); audit findings 2026-07-11
 
 ## Summary
@@ -136,7 +136,7 @@ Invalid → 400 with corrected message (fix “bashboard” typo).
 ### Dashboard hardening (audit fixes) — 2026-07-11
 
 **Version:** 3  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Harden Painel per accepted **FQ5–FQ8** / **AQ1–AQ3**: dual path parse, membership, UX states, Concluir + autosave, day bar chart, KPI label, facade, live edit, test gaps.
 
@@ -152,42 +152,44 @@ Invalid → 400 with corrected message (fix “bashboard” typo).
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | `fromString` accepts kebab + enum name; SPA charts load | **AQ1**, **B1** | ☐ |
-| FC2 | Non-members 403 on layout + pie/table/kpi | **AQ2**, **B2** | ☐ |
-| FC3 | Tests: both path forms, membership 403, basic aggregates | **B3** | ☐ |
-| FC4 | Loading / Sem dados / error+retry per **FQ6** | **FQ6** | ☐ |
-| FC5 | Autosave + **Concluir** + toast; live widgets in edit | **FQ5**, **U1** | ☐ |
-| FC6 | `tickets-by-day` rendered as **bar** | **FQ7** | ☐ |
-| FC7 | KPI title **Tickets por status** | **FQ8** | ☐ |
-| FC8 | TS `dashboard.service` facade; typos/retry cleaned | **AQ3**, **U4–U6** | ☐ |
-| FC9 | Wireframe match; domain-spec + feature-catalog + ARCHITECTURE | Docs | ☐ |
+| FC1 | `fromString` accepts kebab + enum name; SPA charts load | **AQ1**, **B1** | ☑ |
+| FC2 | Non-members 403 on layout + pie/table/kpi | **AQ2**, **B2** | ☑ |
+| FC3 | Tests: both path forms, membership 403, basic aggregates | **B3** | ☑ |
+| FC4 | Loading / Sem dados / error+retry per **FQ6** | **FQ6** | ☑ |
+| FC5 | Autosave + **Concluir** + toast; live widgets in edit | **FQ5**, **U1** | ☑ |
+| FC6 | `tickets-by-day` rendered as **bar** | **FQ7** | ☑ |
+| FC7 | KPI title **Tickets por status** | **FQ8** | ☑ |
+| FC8 | TS `dashboard.service` facade; typos/retry cleaned | **AQ3**, **U4–U6** | ☑ |
+| FC9 | Wireframe match; domain-spec + feature-catalog + ARCHITECTURE | Docs | ☑ |
 
 #### Tasks
 
-| ID | Deliverable |
-|----|-------------|
-| T1 | `DashboardType.fromString` dual accept + typo fix; endpoint tests for kebab **and** enum name |
-| T2 | `ProjectAccessService.requireView` in `DashboardService` (layout + pie/table/kpi); 403 tests | ☑ *(done via security-hardening SEC7 / T6, 2026-07-11)* |
-| T3 | Stronger backend tests: soft-delete exclusion or non-empty aggregate smoke |
-| T4 | Angular `dashboard.service.ts` facade; component uses it (**AQ3**) |
-| T5 | Widget states: loading / empty / error+retry (**FQ6**); remove fake pie + dead retry |
-| T6 | Autosave toast; **Concluir** label; live widgets in edit mode (**FQ5**, **U1**) |
-| T7 | `tickets-by-day` as bar chart (**FQ7**); KPI title **Tickets por status** (**FQ8**) |
-| T8 | Fix typos (`cdkDragclass`, naming); Angular specs for states / save UX |
-| T9 | Docs: domain-spec, feature-catalog, ARCHITECTURE §13 |
+| ID | Deliverable | Done |
+|----|-------------|------|
+| T1 | `DashboardType.fromString` dual accept + typo fix; endpoint tests for kebab **and** enum name | ☑ |
+| T2 | `ProjectAccessService.requireView` in `DashboardService` (layout + pie/table/kpi); 403 tests | ☑ *(SEC7 / T6, 2026-07-11)* |
+| T3 | Stronger backend tests: soft-delete exclusion or non-empty aggregate smoke | ☑ |
+| T4 | Angular `dashboard.service.ts` facade; component uses it (**AQ3**) | ☑ |
+| T5 | Widget states: loading / empty / error+retry (**FQ6**); remove fake pie + dead retry | ☑ |
+| T6 | Autosave toast; **Concluir** label; live widgets in edit mode (**FQ5**, **U1**) | ☑ |
+| T7 | `tickets-by-day` as bar chart (**FQ7**); KPI title **Tickets por status** (**FQ8**) | ☑ |
+| T8 | Fix typos (`cdkDragclass`, naming); Angular specs for states / save UX | ☑ |
+| T9 | Docs: domain-spec, feature-catalog, ARCHITECTURE §13 | ☑ |
 
 #### Test coverage
 
-| ID | Coverage |
-|----|----------|
-| TC1 | Pie/kpi/table with `TICKETS_BY_*` and kebab paths — with T1 |
-| TC2 | Non-member 403 on layout get/put and one widget — with T2 | ☑ *(via security-hardening SEC7)* |
-| TC3 | Aggregate or soft-delete smoke — with T3 |
-| TC4 | Angular: facade used; loading/empty/error; Concluir; bar day widget — with T4–T8 |
+| ID | Coverage | Done |
+|----|----------|------|
+| TC1 | Pie/kpi/table with `TICKETS_BY_*` and kebab paths — with T1 | ☑ |
+| TC2 | Non-member 403 on layout get/put and one widget — with T2 | ☑ *(SEC7)* |
+| TC3 | Aggregate or soft-delete smoke — with T3 | ☑ |
+| TC4 | Angular: facade used; loading/empty/error; Concluir; bar day widget — with T4–T8 | ☑ |
 
-**Development approval:** — (awaiting explicit task IDs)
+**Development approval:** approved 2026-07-16 — tasks: T1, T2, T3, T4, T5, T6, T7, T8, T9
 
-**Catalog note (2026-07-11):** [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md) found catalog Steps already described v3 UX. Catalog row was **reverted to live UI** (**Salvar layout** / **Editar layout**, **KPIs de Performance**, etc.) until this changelog ships. **FC9** includes restoring catalog to Concluir / Sem dados / KPI rename when T1–T9 complete.
+**Implementation notes (2026-07-16):** Dual `DashboardType.fromString`; access via `requireRead`/`requireView` (visibility); `DashboardAggregateSmokeTest`; Angular `dashboard.service.ts`; live edit + Concluir + toast; widget loading/empty/retry; day bar + KPI **Tickets por status**. `mvn verify` green; dashboard Angular specs 6/6.
+
+**Catalog note:** feature-catalog Painel row restored to v3 UX (Concluir / Sem dados / KPI rename).
 
 ### Initial implementation — baseline
 
@@ -205,7 +207,7 @@ Invalid → 400 with corrected message (fix “bashboard” typo).
 ### Server layout persistence and query optimization — 2026-07-03
 
 **Version:** 2  
-**Status:** done *(trust superseded by v3 until hardening ships)*
+**Status:** done
 
 **Development approval:** approved 2026-07-10 — tasks: T1–T6
 

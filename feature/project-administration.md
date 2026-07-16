@@ -1,7 +1,7 @@
 # Project administration
 
 **Feature version:** 3  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -140,7 +140,7 @@ Error message (suggested): `Project prefix cannot be changed while the project h
 ### Catalog compliance — admin update + manage guards — 2026-07-11
 
 **Version:** 3  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Fix admin-without-PM project update 403; align edit/allocation SPA reachability with backend `requireManage`. Source: [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md).
 
@@ -156,34 +156,34 @@ Error message (suggested): `Project prefix cannot be changed while the project h
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | `UpdateProjectEndpoint` allows ADMIN role into handler | FQ4, AQ4 | ☐ |
-| FC2 | Admin-without-PM can update when `requireManage` passes | FQ4 | ☐ |
-| FC3 | Non-owner PM still cannot update (403) | Regression | ☐ |
-| FC4 | Edit/allocation routes do not invite non-manage users into guaranteed-403 UX | FQ5, AQ5 | ☐ |
-| FC5 | Endpoint + Angular tests | Tests | ☐ |
-| FC6 | `feature-catalog.md` Edit project Steps updated | Docs | ☐ |
+| FC1 | `UpdateProjectEndpoint` allows ADMIN role into handler | FQ4, AQ4 | ☑ |
+| FC2 | Admin-without-PM can update when `requireManage` passes | FQ4 | ☑ |
+| FC3 | Non-owner PM still cannot update (403) | Regression | ☑ |
+| FC4 | Edit/allocation routes do not invite non-manage users into guaranteed-403 UX | FQ5, AQ5 | ☑ |
+| FC5 | Endpoint + Angular tests | Tests | ☑ |
+| FC6 | `feature-catalog.md` Edit project Steps updated | Docs | ☑ |
 
 #### Tasks
 
 | ID | Deliverable | Done |
 |----|-------------|------|
 | T1 | Add `ADMIN` to `@RolesAllowed` on `UpdateProjectEndpoint` (and siblings if needed) | ☑ |
-| T2 | `UpdateProjectEndpointTest` — `tech_lead`-style admin-without-PM can update; non-owner PM cannot | ☐ |
-| T3 | Align Angular edit + allocation `canActivate` / load with `requireManage` semantics | ☐ |
-| T4 | Angular specs for guard/redirect behaviour | ☐ |
-| T5 | Docs: feature-catalog Edit project + allocation notes | ☐ |
+| T2 | `UpdateProjectEndpointTest` — `tech_lead`-style admin-without-PM can update; non-owner PM cannot | ☑ |
+| T3 | Align Angular edit + allocation `canActivate` / load with `requireManage` semantics | ☑ |
+| T4 | Angular specs for guard/redirect behaviour | ☑ |
+| T5 | Docs: feature-catalog Edit project + allocation notes | ☑ |
 
 #### Test coverage
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | Admin without PROJECT_MANAGER role → update 201 when manage | T1, T2 | ☐ |
-| TC2 | Non-owner PM → update 403 | T2 | ☐ |
-| TC3 | Non-manage user blocked from edit/allocation route or CTA | T3, T4 | ☐ |
+| TC1 | Admin without PROJECT_MANAGER role → update 201 when manage | T1, T2 | ☑ |
+| TC2 | Non-owner PM → update 403 | T2 | ☑ |
+| TC3 | Non-manage user blocked from edit/allocation route or CTA | T3, T4 | ☑ |
 
-**Development approval:** — (awaiting explicit task IDs)
+**Development approval:** approved 2026-07-16 — tasks: T1, T2, T3, T4, T5
 
-### Initial implementation — baseline
+**Implementation notes (2026-07-16):** ADMIN already on update endpoint; added admin + non-owner PM tests; `projectManageGuard` on edit/allocation; catalog notes cleared.
 
 **Version:** 1  
 **Status:** done

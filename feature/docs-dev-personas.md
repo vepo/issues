@@ -1,7 +1,7 @@
 # Docs & dev personas sync
 
 **Feature version:** 1  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** 2026-07-11 (from [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md))
 
 ## Summary
@@ -39,7 +39,7 @@ N/A — docs and seed only (no new UI).
 ### Sync personas and orphan seed email — 2026-07-11
 
 **Version:** 1  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Align exploration docs with seed; fix orphan saved-query owner.
 
@@ -49,26 +49,28 @@ N/A — docs and seed only (no new UI).
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Catalog Dev personas = `dev-import.sql` emails/roles | FQ1, Review critical | ☑ *(docs applied 2026-07-11)* |
-| FC2 | README login table matches seed personas | Review critical | ☑ *(docs applied 2026-07-11)* |
-| FC3 | Saved-query seed references existing user email | Review critical | ☐ |
-| FC4 | Grep repo for stale `@issues.vepo.dev` persona docs | Docs | ☐ |
+| FC1 | Catalog Dev personas = `dev-import.sql` emails/roles | FQ1, Review critical | ☑ |
+| FC2 | README login table matches seed personas | Review critical | ☑ |
+| FC3 | Saved-query seed references existing user email | Review critical | ☑ |
+| FC4 | Grep repo for stale `@issues.vepo.dev` persona docs | Docs | ☑ |
 
 #### Tasks
 
 | ID | Deliverable | Done |
 |----|-------------|------|
 | T1 | Catalog + README persona sync | ☑ |
-| T2 | Fix `dev-import.sql` saved-query owner (`user@issues.vepo.dev` → existing `@issues.ui`) | ☐ |
-| T3 | Grep/fix remaining stale persona emails in docs/tests/Given if any | ☐ |
+| T2 | Fix `dev-import.sql` saved-query owner (`user@issues.vepo.dev` → existing `@issues.ui`) | ☑ |
+| T3 | Grep/fix remaining stale persona emails in docs/tests/Given if any | ☑ |
 
 #### Test coverage
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | Dev start loads seed without missing-user FK/no-op for saved query | T2 | ☐ |
+| TC1 | Dev start loads seed without missing-user FK/no-op for saved query | T2 | ☑ |
 
-**Development approval:** — (awaiting T2–T3; T1 already applied as docs-only)
+**Development approval:** approved 2026-07-16 — tasks: T1, T2, T3
+
+**Implementation notes (2026-07-16):** Saved query owner → `junior_dev@issues.ui`; sample CSV assignees updated; Given/`@issues.vepo.dev` kept for automated tests (not exploration personas).
 
 ## Implementation notes
 

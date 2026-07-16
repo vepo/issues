@@ -1,7 +1,7 @@
 # Workflow configuration
 
 **Feature version:** 3  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03); editable statuses 2026-07-11
 
 ## Summary
@@ -185,7 +185,7 @@ Project managers and admins define workflows: name, start status, status list, a
 ### Catalog compliance — Processos menu for admin — 2026-07-11
 
 **Version:** 3  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Administração → **Processos** is gated `project-manager` only while workflow routes allow admin. Align menu with catalog. Source: [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md).
 
@@ -195,25 +195,27 @@ Project managers and admins define workflows: name, start status, status list, a
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Admin-without-PM sees **Processos** in Administração | FQ9, catalog | ☐ |
-| FC2 | PM still sees **Processos** | Regression | ☐ |
-| FC3 | `feature-catalog.md` Workflow list drops interim note | Docs | ☐ |
+| FC1 | Admin-without-PM sees **Processos** in Administração | FQ9, catalog | ☑ |
+| FC2 | PM still sees **Processos** | Regression | ☑ |
+| FC3 | `feature-catalog.md` Workflow list drops interim note | Docs | ☑ |
 
 #### Tasks
 
 | ID | Deliverable | Done |
 |----|-------------|------|
-| T1 | Update shell menu `*role` (or equivalent) for Processos to admin \|\| project-manager | ☐ |
-| T2 | Spec or template test for admin visibility | ☐ |
-| T3 | Update feature-catalog Workflow list Steps | ☐ |
+| T1 | Update shell menu `*role` (or equivalent) for Processos to admin \|\| project-manager | ☑ |
+| T2 | Spec or template test for admin visibility | ☑ |
+| T3 | Update feature-catalog Workflow list Steps | ☑ |
 
 #### Test coverage
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | Admin without PM sees Processos link | T1, T2 | ☐ |
+| TC1 | Admin without PM sees Processos link | T1, T2 | ☑ |
 
-**Development approval:** — (awaiting explicit task IDs)
+**Development approval:** approved 2026-07-16 — tasks: T1, T2, T3
+
+**Implementation notes (2026-07-16):** Processos shown for anyone who can open Administração (`hasAdminMenu`); `app.spec.ts` covers admin and PM menu eligibility.
 
 ### Editable workflow statuses after create — 2026-07-11
 

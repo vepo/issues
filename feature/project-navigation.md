@@ -1,7 +1,7 @@
 # Project navigation (header)
 
 **Feature version:** 2  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** 2026-07-10
 
 ## Summary
@@ -100,7 +100,7 @@ Header layout otherwise unchanged (brand, ticket search, Novo, Importar, notific
 ### Catalog compliance — Conta Projetos for admin — 2026-07-11
 
 **Version:** 2  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Conta → **Projetos** is `project-manager` only; catalog and **FQ5** promise PM/admin. Admin-without-PM must reach `/projects` via Conta as well as header **Gerenciar projetos**. Source: [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md).
 
@@ -123,19 +123,21 @@ Header layout otherwise unchanged (brand, ticket search, Novo, Importar, notific
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Admin-without-PM sees Conta → Projetos | FQ6 | ☐ |
-| FC2 | PM still sees Conta → Projetos | Regression | ☐ |
-| FC3 | feature-catalog Project list Steps updated | Docs | ☐ |
+| FC1 | Admin-without-PM sees Conta → Projetos | FQ6 | ☑ |
+| FC2 | PM still sees Conta → Projetos | Regression | ☑ |
+| FC3 | feature-catalog Project list Steps updated | Docs | ☑ |
 
 #### Tasks
 
 | ID | Deliverable | Done |
 |----|-------------|------|
-| T1 | Conta **Projetos** `*role` includes admin | ☐ |
-| T2 | Spec for admin visibility | ☐ |
-| T3 | feature-catalog Project list note cleanup | ☐ |
+| T1 | Conta **Projetos** `*role` includes admin | ☑ |
+| T2 | Spec for admin visibility | ☑ |
+| T3 | feature-catalog Project list note cleanup | ☑ |
 
-**Development approval:** — (awaiting explicit task IDs)
+**Development approval:** approved 2026-07-16 — tasks: T1, T2, T3
+
+**Implementation notes (2026-07-16):** Conta **Projetos** gated by `hasAdminMenu()` (admin \|\| PM); catalog updated.
 
 ### Header Projetos menu for all members — 2026-07-10
 

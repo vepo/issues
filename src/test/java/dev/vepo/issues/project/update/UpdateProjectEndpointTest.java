@@ -101,6 +101,64 @@ class UpdateProjectEndpointTest {
     }
 
     @Test
+    @DisplayName("Admin without PROJECT_MANAGER role can update any project")
+    void shouldAllowAdminWithoutProjectManagerRoleToUpdateProject() {
+        var createdProject = createProject("Admin Update", "AU");
+        var adminHeader = Given.authenticatedAdmin();
+
+        given().header(adminHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body(updateBody("Admin Renamed", createdProject.prefix(), "Updated by admin."))
+               .post("/api/projects/" + createdProject.id())
+               .then()
+               .statusCode(201)
+               .body("name", is("Admin Renamed"))
+               .body("description", is("Updated by admin."));
+    }
+
+    @Test
+    @DisplayName("Non-owner project manager cannot update another manager's project")
+    void shouldForbidNonOwnerProjectManagerFromUpdatingProject() {
+        var createdProject = createProject("Owner Only", "OO");
+        var suffix = UUID.randomUUID().toString().substring(0, 6);
+        var email = "other-pm-" + suffix + "@issues.vepo.dev";
+        Given.transaction(() -> {
+            Given.inject(UserRepository.class)
+                 .save(new User("other-pm-" + suffix,
+                                "Other PM",
+                                email,
+                                Given.inject(PasswordEncoder.class).hashPassword("password"),
+                                Set.of(Role.PROJECT_MANAGER)));
+            return null;
+        });
+        var login = given().when()
+                           .contentType("application/json")
+                           .body("""
+                                 {
+                                     "email": "%s",
+                                     "password": "password"
+                                 }
+                                 """.formatted(email))
+                           .post("/api/auth/login")
+                           .then()
+                           .statusCode(200)
+                           .extract()
+                           .as(dev.vepo.issues.auth.LoginResponse.class);
+        var otherPmAuth = new Header("Authorization", "Bearer " + login.token());
+
+        given().header(otherPmAuth)
+               .accept(ContentType.JSON)
+               .when()
+               .contentType(ContentType.JSON)
+               .body(updateBody("Hijacked", createdProject.prefix(), "Should not update."))
+               .post("/api/projects/" + createdProject.id())
+               .then()
+               .statusCode(403);
+    }
+
+    @Test
     @DisplayName("Updating non-existent project should return 404")
     void updateNonExistentProjectShouldReturn404Test() {
         given().header(pmAuthenticatedHeader)

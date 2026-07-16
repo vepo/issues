@@ -1,7 +1,7 @@
 # User management
 
 **Feature version:** 3  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -71,7 +71,7 @@ Administrators list, create, and edit users: name, email, and combinable roles (
 ### Harden user admin SPA role guards — 2026-07-11
 
 **Version:** 3  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Add `roleGuard(['admin'])` on `/users`, `/users/new`, `/users/:userId` so non-admins cannot open admin UI by URL. Source: [feature-catalog-review](../reports/feature-catalog-review-1-11-07-2026-16-27-54.md) major finding.
 
@@ -86,30 +86,30 @@ Administrators list, create, and edit users: name, email, and combinable roles (
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | `/users*` routes require admin roleGuard | FQ4, catalog | ☐ |
-| FC2 | Non-admin redirected/blocked when opening `/users` by URL | Review finding | ☐ |
-| FC3 | Admin can still list/create/edit | Regression | ☐ |
-| FC4 | `feature-catalog.md` User rows drop interim menu-only note | Docs | ☐ |
-| FC5 | Angular route/guard test | Tests | ☐ |
+| FC1 | `/users*` routes require admin roleGuard | FQ4, catalog | ☑ |
+| FC2 | Non-admin redirected/blocked when opening `/users` by URL | Review finding | ☑ |
+| FC3 | Admin can still list/create/edit | Regression | ☑ |
+| FC4 | `feature-catalog.md` User rows drop interim menu-only note | Docs | ☑ |
+| FC5 | Angular route/guard test | Tests | ☑ |
 
 #### Tasks
 
 | ID | Deliverable | Done |
 |----|-------------|------|
 | T1 | Add `roleGuard(['admin'])` to `/users`, `/users/new`, `/users/:userId` in `app.routes.ts` | ☑ |
-| T2 | Spec or guard test: non-admin blocked; admin allowed | ☐ |
-| T3 | Update `feature-catalog.md` User list/create/edit Steps (remove interim note) | ☐ |
+| T2 | Spec or guard test: non-admin blocked; admin allowed | ☑ |
+| T3 | Update `feature-catalog.md` User list/create/edit Steps (remove interim note) | ☑ |
 
 #### Test coverage
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | Non-admin cannot activate `/users` routes | T1, T2 | ☐ |
-| TC2 | Admin can activate `/users` routes | T1, T2 | ☐ |
+| TC1 | Non-admin cannot activate `/users` routes | T1, T2 | ☑ |
+| TC2 | Admin can activate `/users` routes | T1, T2 | ☑ |
 
-**Development approval:** — (awaiting explicit task IDs)
+**Development approval:** approved 2026-07-16 — tasks: T1, T2, T3
 
-### Initial implementation — baseline
+**Implementation notes (2026-07-16):** `roleGuard(['admin'])` already on routes; added `role.guard.spec.ts`; catalog interim notes removed.
 
 **Version:** 1  
 **Status:** done

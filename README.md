@@ -91,7 +91,7 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 - **Burndown** — phase story-points remaining vs ideal line; peer of Kanban; chart requires phase start/end dates; warns when tickets lack points
 - **Dashboards** — project analytics widgets (pie, KPI, table) with per-user layout
 - **Project backlog** — ranked planning list (separate from Priority); infinite scroll; PM/admin drag-and-drop reorder; excludes done and deleted tickets
-- **Project dashboard** — charts (tickets by day, status, priority), recent tickets (top 20), performance KPIs; widget layout saved per user on the server
+- **Project dashboard** — charts (tickets by day as bar, status, priority), recent tickets (top 20), **Tickets por status** KPI; editable layout with autosave + **Concluir**; per-user layout on the server
 - **Global search** — simple term search and **query language** (ANTLR, plain text) across ticket fields, comments, and custom fields (`cf.<key>`)
 - **Saved queries** — name, share by link, optional home sections, clone for non-owners
 - **Ticket detail** — expanded view with unified **Atividade** feed (comments + history), assignee, and status actions; agent mutations show **Agente em nome de …**

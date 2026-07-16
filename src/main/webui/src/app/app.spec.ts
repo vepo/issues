@@ -28,8 +28,22 @@ describe('App', () => {
     authService.getEmail.and.returnValue(null);
     authService.hasRole.and.returnValue(false);
 
-    notificationService = jasmine.createSpyObj('NotificationService', ['connect', 'listen']);
+    notificationService = jasmine.createSpyObj('NotificationService', [
+      'connect',
+      'disconnect',
+      'listen',
+      'reconnected',
+      'unreadCount',
+      'list',
+      'markAllAsRead',
+      'markAsRead',
+    ]);
     notificationService.listen.and.returnValue(EMPTY);
+    notificationService.reconnected.and.returnValue(EMPTY);
+    notificationService.unreadCount.and.returnValue(of({ unread: 0 } as any));
+    notificationService.list.and.returnValue(of({ items: [], page: 0, size: 20, hasMore: false } as any));
+    notificationService.markAllAsRead.and.returnValue(of({ updated: 0, unread: 0 } as any));
+    notificationService.markAsRead.and.returnValue(of({ id: 1, read: true } as any));
 
     projectsService = jasmine.createSpyObj('ProjectsService', ['findAll']);
     projectsService.findAll.and.returnValue(of([]));
@@ -76,5 +90,23 @@ describe('App', () => {
     expect(compiled.querySelector('app-project-menu')).toBeTruthy();
     expect(compiled.querySelector('[aria-label="Menu do usuário"]')).toBeTruthy();
     expect(compiled.querySelector('[aria-label="Abrir menu"]')).toBeNull();
+  });
+
+  it('should expose Conta Projetos and Administração for admin without project-manager', () => {
+    authService.isLoggedIn.and.returnValue(true);
+    authService.getEmail.and.returnValue('tech_lead@issues.ui');
+    authService.hasRole.and.callFake((role: string) => role === 'admin');
+
+    const fixture = TestBed.createComponent(AppComponent);
+    expect(fixture.componentInstance.hasAdminMenu()).toBeTrue();
+  });
+
+  it('should expose Administração including Processos for project-manager', () => {
+    authService.isLoggedIn.and.returnValue(true);
+    authService.getEmail.and.returnValue('pm@issues.vepo.dev');
+    authService.hasRole.and.callFake((role: string) => role === 'project-manager');
+
+    const fixture = TestBed.createComponent(AppComponent);
+    expect(fixture.componentInstance.hasAdminMenu()).toBeTrue();
   });
 });

@@ -520,5 +520,5 @@ BEGIN
 
     INSERT INTO tb_saved_queries (slug, name, query_text, show_at_home, owner_id, created_at, updated_at)
     SELECT 'dev-open-tickets', 'Tickets abertos', 'status = "TODO"', true, id, NOW(), NOW()
-    FROM tb_users WHERE email = 'user@issues.vepo.dev';
+    FROM tb_users WHERE email = 'junior_dev@issues.ui';
 END $$;

@@ -129,6 +129,23 @@
             .table-container {
               height: 100%;
             }
+
+            .widget-loading,
+            .widget-empty,
+            .widget-error {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              justify-content: center;
+              gap: colors.$space-sm;
+              min-height: 8rem;
+              color: colors.$text-muted;
+            }
+
+            .widget-error p {
+              margin: 0;
+              color: colors.$text-primary;
+            }
           }
         }
       }

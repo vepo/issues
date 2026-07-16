@@ -12,173 +12,170 @@
         </button>
       }
       <button matButton="filled" (click)="toggleEdit()" class="btn">
-        <mat-icon [fontIcon]="isEditing ? 'save' : 'edit'" aria-hidden="true"></mat-icon>
-        <span>{{ isEditing ? 'Salvar layout' : 'Editar layout' }}</span>
+        <mat-icon [fontIcon]="isEditing ? 'check' : 'edit'" aria-hidden="true"></mat-icon>
+        <span>{{ isEditing ? 'Concluir' : 'Editar layout' }}</span>
       </button>
     </div>
   </header>
 
   <div class="dashboard-configurator page-panel">
-  <div class="dashboard-container">
-    @if (isEditing) {
-    <div class="widgets-panel">
-      <h3 i18n>Widgets disponíveis</h3>
-      <div 
-        cdkDropList
-        #availableList="cdkDropList"
-        [cdkDropListData]="availableWidgets"
-        [cdkDropListConnectedTo]="[dashboardList]"
-        class="widgets-list"
-        (cdkDropListDropped)="onDrop($event)">
-        @for (widget of availableWidgets; track widget.title) {
-        <div cdkDrag cdkDragclass="widget-item">
-          {{ widget.title }}
-        </div>
-        }
-      </div>
-    </div>
-
-    <!-- Dashboard area -->
-    <div class="dashboard-area">
-      <div 
-        cdkDropList
-        #dashboardList="cdkDropList"
-        [cdkDropListData]="pageLayout.widgets"
-        [cdkDropListConnectedTo]="[availableList]"
-        class="widgets-grid"
-        (cdkDropListDropped)="onDrop($event)">
-        
-        @for(widget of pageLayout.widgets; track widget.id) {
-        <div 
-          cdkDrag
-          [class]="'widget widget-' + widget.type"
-          [style.gridColumn]="'span ' + widget.cols"
-          [style.gridRow]="'span ' + widget.rows">
-          
-          <div class="widget-header">
-            <h4>{{ widget.title }}</h4>
-            <button type="button" (click)="removeWidget($index)" class="btn-remove" aria-label="Remover widget">
-              <mat-icon fontIcon="close" aria-hidden="true"></mat-icon>
-            </button>
-          </div>
-          
-          <div class="widget-content">
-            @if (widget.type === 'chart') {
-              <div class="chart-container">
-                <!-- Componente de gráfico será renderizado aqui -->
-                <p>Gráfico: {{ widget.chartType }}</p>
-              </div>
-            }
-
-            @if (widget.type === 'kpi') {
-            <div class="kpi-container">
-              <!-- KPIs serão renderizados aqui -->
-              <p>KPIs de Performance</p>
+    <div class="dashboard-container" [class.dashboard-container--editing]="isEditing">
+      <div class="widgets-panel" [hidden]="!isEditing">
+        <h3 i18n>Widgets disponíveis</h3>
+        <div
+          cdkDropList
+          #availableList="cdkDropList"
+          [cdkDropListData]="availableWidgets"
+          [cdkDropListConnectedTo]="[dashboardList]"
+          class="widgets-list"
+          (cdkDropListDropped)="onDrop($event)">
+          @for (widget of availableWidgets; track widget.id) {
+            <div cdkDrag class="widget-item">
+              {{ widget.title }}
             </div>
-            }
-
-            @if (widget.type === 'table') {
-            <div class="table-container">
-              <!-- Tabela será renderizada aqui -->
-              <p>Tabela de Tickets</p>
-            </div>
-            }
-          </div>
+          }
         </div>
-        }
       </div>
-    </div>
-  } @else {
-    <div class="dashboard-area">
-      @if (pageLayout.widgets.length === 0) {
-        <div class="empty-state" i18n>Nenhum widget — use Editar layout para adicionar indicadores.</div>
-      }
-      <div class="widgets-grid">
-        
-        @for(widget of pageLayout.widgets; track widget.id) {
-        <div [class]="'widget widget-' + widget.type" [style.gridColumn]="'span ' + widget.cols" [style.gridRow]="'span ' + widget.rows">
-          
-          <div class="widget-header">
-            <h4>{{ widget.title }}</h4>
-          </div>
-          
-          <div class="widget-content">
-            @if (widget.chartType === 'pie') {
-              <div class="chart-container">
-                @let chartData = loadPieData(widget) | async;
-                @if (chartData) {
-                  <canvas baseChart
-                          [data]="chartData"
-                          [type]="'pie'"
-                          [options]="pieChartOptions">
-                  </canvas>
-                } @else {
-                  <div class="widget-loading" i18n>Carregando gráfico...</div>
+
+      <div class="dashboard-area">
+        @if (pageLayout.widgets.length === 0) {
+          <div class="empty-state" i18n>Nenhum widget — use Editar layout para adicionar indicadores.</div>
+        }
+        <div
+          cdkDropList
+          #dashboardList="cdkDropList"
+          [cdkDropListData]="pageLayout.widgets"
+          [cdkDropListConnectedTo]="[availableList]"
+          [cdkDropListDisabled]="!isEditing"
+          class="widgets-grid"
+          (cdkDropListDropped)="onDrop($event)">
+          @for (widget of pageLayout.widgets; track widget.id; let widgetIndex = $index) {
+            <div
+              cdkDrag
+              [cdkDragDisabled]="!isEditing"
+              [class]="'widget widget-' + widget.type"
+              [style.gridColumn]="'span ' + widget.cols"
+              [style.gridRow]="'span ' + widget.rows">
+              <div class="widget-header">
+                <h4>{{ widget.title }}</h4>
+                @if (isEditing) {
+                  <button
+                    type="button"
+                    (click)="removeWidget(widgetIndex)"
+                    class="btn-remove"
+                    aria-label="Remover widget">
+                    <mat-icon fontIcon="close" aria-hidden="true"></mat-icon>
+                  </button>
                 }
               </div>
-            }
 
-            @if (widget.type === 'kpi') {
-            <div class="kpi-container">
-              <!-- KPIs serão renderizados aqui -->
-              @let kpiData = loadKpiData(widget) | async;
-              @if (kpiData) {
-                <div class="data-table data-table--layout-table">
-                  <div class="header">
-                    <div class="header-cell">Métrica</div>
-                    <div class="header-cell">Valor</div>
+              <div class="widget-content">
+                @if (widget.type === 'chart') {
+                  <div class="chart-container">
+                    @let chartState = loadChartData(widget) | async;
+                    @if (!chartState || chartState.kind === 'loading') {
+                      <div class="widget-loading" i18n>Carregando gráfico...</div>
+                    } @else if (chartState.kind === 'empty') {
+                      <div class="widget-empty" i18n>Sem dados</div>
+                    } @else if (chartState.kind === 'error') {
+                      <div class="widget-error">
+                        <p i18n>Não foi possível carregar o gráfico.</p>
+                        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="retryWidget(widget)" i18n>
+                          Tentar novamente
+                        </button>
+                      </div>
+                    } @else if (widget.chartType === 'bar') {
+                      <canvas
+                        baseChart
+                        [data]="chartState.data"
+                        [type]="'bar'"
+                        [options]="barChartOptions"></canvas>
+                    } @else {
+                      <canvas
+                        baseChart
+                        [data]="chartState.data"
+                        [type]="'pie'"
+                        [options]="pieChartOptions"></canvas>
+                    }
                   </div>
-                  <div class="body">
-                    <div class="row even">
-                      <div>Total</div>
-                      <div>{{ kpiData.total }}</div>
-                    </div>
-                    @for (item of kpiData.perStatus | keyvalue; track $index) {
-                      <div class="row {{ $even ? 'odd' : 'even' }}">
-                        <div>{{ item.key | normalize }}</div>
-                        <div>{{ item.value }}</div>
+                }
+
+                @if (widget.type === 'kpi') {
+                  <div class="kpi-container">
+                    @let kpiState = loadKpiData(widget) | async;
+                    @if (!kpiState || kpiState.kind === 'loading') {
+                      <div class="widget-loading" i18n>Carregando indicadores...</div>
+                    } @else if (kpiState.kind === 'empty') {
+                      <div class="widget-empty" i18n>Sem dados</div>
+                    } @else if (kpiState.kind === 'error') {
+                      <div class="widget-error">
+                        <p i18n>Não foi possível carregar os indicadores.</p>
+                        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="retryWidget(widget)" i18n>
+                          Tentar novamente
+                        </button>
+                      </div>
+                    } @else {
+                      <div class="data-table data-table--layout-table">
+                        <div class="header">
+                          <div class="header-cell">Métrica</div>
+                          <div class="header-cell">Valor</div>
+                        </div>
+                        <div class="body">
+                          <div class="row even">
+                            <div>Total</div>
+                            <div>{{ kpiState.data.total }}</div>
+                          </div>
+                          @for (item of kpiState.data.perStatus | keyvalue; track $index) {
+                            <div class="row {{ $even ? 'odd' : 'even' }}">
+                              <div>{{ item.key | normalize }}</div>
+                              <div>{{ item.value }}</div>
+                            </div>
+                          }
+                        </div>
                       </div>
                     }
                   </div>
-                </div>
-                } @else {
-                <div class="widget-loading" i18n>Carregando indicadores...</div>
-              }
-            </div>
-            }
+                }
 
-            @if (widget.type === 'table') {
-            <div class="table-container">
-              <!-- Tabela será renderizada aqui -->
-              @let tableData = loadTableData(widget) | async;
-                @if (tableData) {
-                  <div class="data-table data-table--layout-table">
-                    <div class="header">
-                      @for (column of tableData.columns; track $index) {
-                        <div class="header-cell">{{ column }}</div>
-                      }
-                    </div>
-                    <div class="body">
-                      @for (row of tableData.rows; track $index) {
-                        <div class="row {{ $even ? 'even' : 'odd' }}">
-                          @for (data of row.data; track $index) {
-                            <div>{{data}}</div>
+                @if (widget.type === 'table') {
+                  <div class="table-container">
+                    @let tableState = loadTableData(widget) | async;
+                    @if (!tableState || tableState.kind === 'loading') {
+                      <div class="widget-loading" i18n>Carregando tabela...</div>
+                    } @else if (tableState.kind === 'empty') {
+                      <div class="widget-empty" i18n>Sem dados</div>
+                    } @else if (tableState.kind === 'error') {
+                      <div class="widget-error">
+                        <p i18n>Não foi possível carregar a tabela.</p>
+                        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="retryWidget(widget)" i18n>
+                          Tentar novamente
+                        </button>
+                      </div>
+                    } @else {
+                      <div class="data-table data-table--layout-table">
+                        <div class="header">
+                          @for (column of tableState.data.columns; track $index) {
+                            <div class="header-cell">{{ column }}</div>
                           }
                         </div>
-                      }
-                    </div>
+                        <div class="body">
+                          @for (row of tableState.data.rows; track $index) {
+                            <div class="row {{ $even ? 'even' : 'odd' }}">
+                              @for (data of row.data; track $index) {
+                                <div>{{ data }}</div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
                   </div>
-                } @else {
-                  <div class="widget-loading" i18n>Carregando tabela...</div>
                 }
+              </div>
             </div>
-            }
-          </div>
+          }
         </div>
-        }
       </div>
     </div>
-  }
-  </div>
   </div>
 </div>

@@ -41,6 +41,18 @@ class LoadPieDashboardEndpointTest {
     }
 
     @Test
+    @DisplayName("Should accept enum-name path segment for pie dashboard")
+    void shouldLoadPieDashboardWithEnumNamePath() {
+        given().header(authenticatedHeader)
+               .accept(ContentType.JSON)
+               .when()
+               .get("/api/projects/" + project.id() + "/dashboard/pie/TICKETS_BY_STATUS")
+               .then()
+               .statusCode(200)
+               .body("datasets", notNullValue());
+    }
+
+    @Test
     void shouldRejectUnauthenticatedPieDashboard() {
         given().accept(ContentType.JSON)
                .when()
