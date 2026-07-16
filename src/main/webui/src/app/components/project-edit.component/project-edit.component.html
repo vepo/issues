@@ -125,6 +125,100 @@
       </mat-form-field>
     }
 
+    @if (editMode && projectId) {
+      <section class="form-section" [formGroup]="gitForm">
+        <h2 class="section-title" i18n>Repositório Git</h2>
+        <p class="form-hint" i18n>
+          Associe um repositório remoto para vincular commits que mencionem identificadores de tickets deste projeto.
+        </p>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>URL do repositório</mat-label>
+          <input matInput formControlName="remoteUrl" placeholder="https://github.com/org/repo" />
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Provedor</mat-label>
+          <mat-select formControlName="provider">
+            @for (option of gitProviders; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>Branch padrão</mat-label>
+          <input matInput formControlName="defaultBranch" placeholder="main" />
+        </mat-form-field>
+
+        <h3 class="section-title" i18n>Conectar commits</h3>
+        <ol class="form-hint git-setup-steps">
+          <li i18n>Cole a URL do repositório e salve o projeto.</li>
+          <li i18n>
+            Webhook (push): configure no forge com a URL abaixo e o segredo do webhook.
+          </li>
+          <li i18n>
+            API (CI / agente): envie commits com Bearer PAT (Conta → Tokens de API) ou token de
+            <a [href]="'/projects/' + projectId + '/service-accounts'">conta de serviço</a>
+            via <code>POST /api/projects/{{ projectId }}/git/commits</code>.
+          </li>
+        </ol>
+
+        <mat-form-field class="form-field" appearance="outline">
+          <mat-label i18n>URL do webhook</mat-label>
+          <input matInput [value]="webhookUrl" readonly />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="copyWebhookUrl()"
+            [disabled]="!webhookUrl"
+            i18n-aria-label
+            aria-label="Copiar URL do webhook">
+            <mat-icon fontIcon="content_copy" aria-hidden="true"></mat-icon>
+          </button>
+        </mat-form-field>
+
+        <div class="git-secret-row">
+          <mat-form-field class="form-field" appearance="outline">
+            <mat-label i18n>Segredo do webhook</mat-label>
+            @if (displayedWebhookSecret) {
+              <input matInput [value]="displayedWebhookSecret" readonly />
+            } @else {
+              <input matInput [value]="secretStatusLabel()" readonly />
+            }
+            @if (displayedWebhookSecret) {
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="copyWebhookSecret()"
+                i18n-aria-label
+                aria-label="Copiar segredo">
+                <mat-icon fontIcon="content_copy" aria-hidden="true"></mat-icon>
+              </button>
+            }
+            @if (!displayedWebhookSecret && hasGitSecret) {
+              <mat-hint i18n>Segredo configurado — use Regenerar para obter um novo valor.</mat-hint>
+            }
+            @if (displayedWebhookSecret) {
+              <mat-hint i18n>Copie agora — o segredo não será mostrado novamente.</mat-hint>
+            }
+          </mat-form-field>
+          <button
+            class="btn btn-secondary"
+            matButton="outlined"
+            type="button"
+            (click)="regenerateWebhookSecret()"
+            [disabled]="regeneratingSecret || !webhookUrl">
+            <span i18n>{{ regeneratingSecret ? 'Regenerando...' : 'Regenerar segredo' }}</span>
+          </button>
+          @if (displayedWebhookSecret) {
+            <button class="btn btn-secondary" matButton="outlined" type="button" (click)="dismissWebhookSecret()" i18n>
+              Ocultar segredo
+            </button>
+          }
+        </div>
+      </section>
+    }
+
     <div class="actions form-actions">
       <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()" i18n>Cancelar</button>
       <button class="btn" [disabled]="projectForm.invalid" matButton="filled" type="button" (click)="save()" i18n

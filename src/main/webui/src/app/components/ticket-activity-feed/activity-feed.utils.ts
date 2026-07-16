@@ -1,7 +1,19 @@
 import { CommentResponse } from '../../generated/model/commentResponse';
+import { LinkedCommitResponse } from '../../generated/model/linkedCommitResponse';
 import { TicketHistoryResponse } from '../../generated/model/ticketHistoryResponse';
 
-export type ActivityFilter = 'all' | 'comments' | 'changes';
+export type ActivityFilter = 'all' | 'comments' | 'changes' | 'commits';
+
+export function toActivityTimestamp(value: unknown): number {
+  if (typeof value === 'number') {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+}
 
 export type ActivityComment = {
   kind: 'comment';
@@ -22,7 +34,18 @@ export type ActivityChange = {
   newValue?: string;
 };
 
-export type ActivityItem = ActivityComment | ActivityChange;
+export type ActivityCommit = {
+  kind: 'commit';
+  id: number;
+  timestamp: number;
+  sha: string;
+  message: string;
+  authorName: string;
+  matchedUserName?: string;
+  commitUrl?: string;
+};
+
+export type ActivityItem = ActivityComment | ActivityChange | ActivityCommit;
 
 const FIELD_LABELS: Record<string, string> = {
   title: 'título',
@@ -42,11 +65,15 @@ export function formatActorLabel(name: string | undefined | null, viaAgent?: boo
   return displayName;
 }
 
-export function buildActivityFeed(history: ReadonlyArray<TicketHistoryResponse>, comments: ReadonlyArray<CommentResponse>): ActivityItem[] {
+export function buildActivityFeed(
+  history: ReadonlyArray<TicketHistoryResponse>,
+  comments: ReadonlyArray<CommentResponse>,
+  linkedCommits?: ReadonlyArray<LinkedCommitResponse>,
+): ActivityItem[] {
   const changes: ActivityChange[] = (history ?? []).map(entry => ({
     kind: 'change',
     id: entry.id ?? 0,
-    timestamp: entry.timestamp ?? 0,
+    timestamp: toActivityTimestamp(entry.timestamp),
     userName: formatActorLabel(entry.user?.name, entry.viaAgent),
     action: entry.action ?? '',
     field: entry.field,
@@ -57,12 +84,23 @@ export function buildActivityFeed(history: ReadonlyArray<TicketHistoryResponse>,
   const commentItems: ActivityComment[] = (comments ?? []).map(comment => ({
     kind: 'comment',
     id: comment.id ?? 0,
-    timestamp: comment.createdAt ?? 0,
+    timestamp: toActivityTimestamp(comment.createdAt),
     userName: formatActorLabel(comment.author?.name, comment.viaAgent),
     content: comment.content ?? '',
   }));
 
-  return [...changes, ...commentItems].sort((a, b) => {
+  const commitItems: ActivityCommit[] = (linkedCommits ?? []).map(commit => ({
+    kind: 'commit',
+    id: commit.id ?? 0,
+    timestamp: toActivityTimestamp(commit.committedAt ?? commit.createdAt),
+    sha: commit.sha ?? '',
+    message: commit.message ?? '',
+    authorName: commit.authorName ?? '',
+    matchedUserName: commit.matchedUserName,
+    commitUrl: commit.commitUrl,
+  }));
+
+  return [...changes, ...commentItems, ...commitItems].sort((a, b) => {
     if (b.timestamp !== a.timestamp) {
       return b.timestamp - a.timestamp;
     }
@@ -77,12 +115,18 @@ export function filterActivity(items: ActivityItem[], filter: ActivityFilter): A
   if (filter === 'changes') {
     return items.filter(item => item.kind === 'change');
   }
+  if (filter === 'commits') {
+    return items.filter(item => item.kind === 'commit');
+  }
   return items;
 }
 
 export function activityIcon(item: ActivityItem): string {
   if (item.kind === 'comment') {
     return 'chat';
+  }
+  if (item.kind === 'commit') {
+    return 'commit';
   }
   switch (item.action) {
     case 'CREATED':
@@ -105,9 +149,27 @@ export function activityIcon(item: ActivityItem): string {
   }
 }
 
+export function shortCommitSha(sha: string): string {
+  return sha.length > 7 ? sha.slice(0, 7) : sha;
+}
+
+export function commitAuthorLabel(item: ActivityCommit): string {
+  return item.matchedUserName?.trim() || item.authorName?.trim() || '—';
+}
+
+export function activityActorLabel(item: ActivityItem): string {
+  if (item.kind === 'commit') {
+    return commitAuthorLabel(item);
+  }
+  return item.userName;
+}
+
 export function activitySummary(item: ActivityItem): string {
   if (item.kind === 'comment') {
     return 'comentou';
+  }
+  if (item.kind === 'commit') {
+    return `vinculou commit ${shortCommitSha(item.sha)}`;
   }
   switch (item.action) {
     case 'CREATED':

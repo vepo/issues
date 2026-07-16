@@ -28,6 +28,24 @@ describe('ticket-view activity merge', () => {
     expect(feed[0].kind).toBe('comment');
     expect(filterActivity(feed, 'changes')).toHaveSize(1);
   });
+
+  it('should merge linked commits into history tab items', () => {
+    const history = [
+      { id: 1, action: 'CREATED', timestamp: 1000, user: { name: 'Alice' } },
+    ];
+    const linkedCommits = [
+      {
+        id: 5,
+        sha: 'abc123def456',
+        message: 'fix(auth): redirect',
+        authorName: 'Dev',
+        committedAt: '2026-07-11T15:00:00Z',
+        commitUrl: 'https://github.com/org/repo/commit/abc123',
+      },
+    ];
+    const feed = buildActivityFeed(history as never, [], linkedCommits);
+    expect(feed.some(item => item.kind === 'commit')).toBeTrue();
+  });
 });
 
 describe('TicketViewComponent links', () => {
@@ -226,6 +244,25 @@ describe('TicketViewComponent links', () => {
     expect(component.historyActionLabel('LINK_REMOVED')).toBe('Vínculo removido');
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Vínculo adicionado');
+  });
+
+  it('should render linked commits in history tab', () => {
+    component.ticket = {
+      ...epicTicket,
+      linkedCommits: [{
+        id: 99,
+        sha: 'abc123def456',
+        message: 'fix(auth): redirect (ISS-42)',
+        authorName: 'Dev User',
+        committedAt: '2026-07-12T10:00:00Z',
+        commitUrl: 'https://github.com/org/repo/commit/abc123',
+      }],
+    } as never;
+    fixture.detectChanges();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('abc123d');
+    expect(text).toContain('fix(auth): redirect (ISS-42)');
+    expect(text).toContain('Abrir');
   });
 
   it('should warn when moving epic to DONE with open children', () => {

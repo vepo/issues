@@ -15,6 +15,7 @@ import dev.vepo.issues.auth.apitoken.ApiTokenIdentityProvider;
 import dev.vepo.issues.categories.CategoryRepository;
 import dev.vepo.issues.customfield.CustomFieldService;
 import dev.vepo.issues.customfield.CustomFieldValueResponse;
+import dev.vepo.issues.git.GitCommitService;
 import dev.vepo.issues.infra.HtmlSanitizer;
 import dev.vepo.issues.notifications.NotificationEvent;
 import dev.vepo.issues.phase.Phase;
@@ -68,6 +69,7 @@ public class TicketService {
     private final BacklogService backlogService;
     private final SecurityIdentity securityIdentity;
     private final HtmlSanitizer htmlSanitizer;
+    private final GitCommitService gitCommitService;
 
     @Inject
     public TicketService(TicketRepository repository,
@@ -85,7 +87,8 @@ public class TicketService {
                          Provider<TicketLinkService> ticketLinkService,
                          BacklogService backlogService,
                          SecurityIdentity securityIdentity,
-                         HtmlSanitizer htmlSanitizer) {
+                         HtmlSanitizer htmlSanitizer,
+                         GitCommitService gitCommitService) {
         this.repository = repository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
@@ -102,6 +105,7 @@ public class TicketService {
         this.backlogService = backlogService;
         this.securityIdentity = securityIdentity;
         this.htmlSanitizer = htmlSanitizer;
+        this.gitCommitService = gitCommitService;
     }
 
     @Transactional
@@ -550,7 +554,8 @@ public class TicketService {
                                            history,
                                            loadCustomFields(ticket),
                                            linkService.listLinksForExpand(ticket, user),
-                                           linkService.childrenSummary(ticket.getId()));
+                                           linkService.childrenSummary(ticket.getId()),
+                                           gitCommitService.listForTicket(ticket.getId()));
     }
 
     private List<CustomFieldValueResponse> loadCustomFields(Ticket ticket) {

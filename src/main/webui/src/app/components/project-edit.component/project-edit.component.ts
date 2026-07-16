@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, switchMap, of } from 'rxjs';
 import { Category } from '../../services/category.service';
 import { CreateOrUpdateProjectRequest, Project, ProjectsService } from '../../services/projects.service';
 import { User, UsersService } from '../../services/users.service';
@@ -19,6 +19,9 @@ import { CustomField, CustomFieldService } from '../../services/custom-field.ser
 import { CustomFieldValueResponse } from '../../generated/model/customFieldValueResponse';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
 import { optionalPlainTextLengthValidator } from '../../core/plain-text-length';
+import { GitProvider, GitService } from '../../services/git.service';
+import { ToastService } from '../../services/toast.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-project-edit.component',
@@ -30,6 +33,7 @@ import { optionalPlainTextLengthValidator } from '../../core/plain-text-length';
     MatSelectModule,
     MatCheckboxModule,
     MatRadioModule,
+    MatIconModule,
     CustomFieldAdminComponent,
     CustomFieldFormSectionComponent,
     RichTextEditorComponent,
@@ -42,6 +46,8 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
   private readonly usersService = inject(UsersService);
   private readonly authService = inject(AuthService);
   private readonly customFieldService = inject(CustomFieldService);
+  private readonly gitService = inject(GitService);
+  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
   @ViewChild('templateCustomFields') templateCustomFields?: CustomFieldFormSectionComponent;
@@ -63,6 +69,16 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
     { value: 'INTERNAL' as const, label: 'Interno', help: 'qualquer usuário autenticado' },
     { value: 'PUBLIC' as const, label: 'Público', help: 'também visitante sem login' },
   ];
+  readonly gitProviders: { value: GitProvider; label: string }[] = [
+    { value: 'GITHUB', label: 'GitHub' },
+    { value: 'GITLAB', label: 'GitLab' },
+    { value: 'GITEA', label: 'Gitea' },
+    { value: 'OTHER', label: 'Outro' },
+  ];
+  webhookUrl = '';
+  hasGitSecret = false;
+  displayedWebhookSecret: string | null = null;
+  regeneratingSecret = false;
 
   projectForm = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -78,6 +94,12 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
     phaseTemplateObjective: new FormControl(''),
     phaseTemplateDeliverables: new FormControl(''),
     ownerId: new FormControl<number | null>(null),
+  });
+
+  gitForm = new FormGroup({
+    remoteUrl: new FormControl(''),
+    provider: new FormControl<GitProvider>('GITHUB', Validators.required),
+    defaultBranch: new FormControl(''),
   });
 
   ngOnInit(): void {
@@ -124,7 +146,25 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
         this.updateTemplateValidators(template?.enabled ?? false);
         this.templateCustomDefaults = template?.customFieldDefaults ?? [];
         this.loadInScopeFields(project.id);
+        this.loadGitAssociation(project.id);
       }
+    });
+  }
+
+  private loadGitAssociation(projectId: number): void {
+    this.gitService.get(projectId).subscribe(repo => {
+      if (!repo) {
+        this.webhookUrl = '';
+        this.hasGitSecret = false;
+        return;
+      }
+      this.gitForm.patchValue({
+        remoteUrl: repo.remoteUrl,
+        provider: repo.provider,
+        defaultBranch: repo.defaultBranch ?? '',
+      });
+      this.webhookUrl = repo.webhookUrl;
+      this.hasGitSecret = repo.hasSecret;
     });
   }
 
@@ -211,11 +251,89 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
 
     if (this.projectId) {
       this.projectsService.update(this.projectId, request)
+        .pipe(switchMap(() => this.persistGitAssociation(this.projectId!)))
         .subscribe(() => void this.router.navigate(['/', 'projects', this.projectId]));
     } else {
       this.projectsService.create(request)
         .subscribe(() => void this.router.navigate(['/', 'projects']));
     }
+  }
+
+  private persistGitAssociation(projectId: number) {
+    const { remoteUrl, provider, defaultBranch } = this.gitForm.getRawValue();
+    const trimmedUrl = remoteUrl?.trim();
+    if (!trimmedUrl || !provider) {
+      return of(undefined);
+    }
+    return this.gitService.put(projectId, {
+      remoteUrl: trimmedUrl,
+      provider,
+      defaultBranch: defaultBranch?.trim() || undefined,
+    }).pipe(switchMap(response => {
+      this.webhookUrl = response.webhookUrl;
+      this.hasGitSecret = response.hasSecret;
+      if (response.webhookSecret) {
+        this.displayedWebhookSecret = response.webhookSecret;
+        this.toastService.success('Repositório Git salvo. Copie o segredo do webhook agora.');
+      }
+      return of(undefined);
+    }));
+  }
+
+  regenerateWebhookSecret(): void {
+    if (!this.projectId || this.regeneratingSecret) {
+      return;
+    }
+    this.regeneratingSecret = true;
+    this.gitService.regenerateSecret(this.projectId).subscribe({
+      next: response => {
+        this.regeneratingSecret = false;
+        this.webhookUrl = response.webhookUrl;
+        this.hasGitSecret = response.hasSecret;
+        if (response.webhookSecret) {
+          this.displayedWebhookSecret = response.webhookSecret;
+          this.toastService.success('Segredo regenerado. Copie o novo valor agora.');
+        }
+      },
+      error: () => {
+        this.regeneratingSecret = false;
+        this.toastService.error('Não foi possível regenerar o segredo.');
+      },
+    });
+  }
+
+  copyWebhookUrl(): void {
+    if (!this.webhookUrl) {
+      return;
+    }
+    navigator.clipboard.writeText(this.webhookUrl).then(
+      () => this.toastService.success('URL copiada para a área de transferência.'),
+      () => this.toastService.error('Não foi possível copiar.'),
+    );
+  }
+
+  copyWebhookSecret(): void {
+    if (!this.displayedWebhookSecret) {
+      return;
+    }
+    navigator.clipboard.writeText(this.displayedWebhookSecret).then(
+      () => this.toastService.success('Segredo copiado para a área de transferência.'),
+      () => this.toastService.error('Não foi possível copiar.'),
+    );
+  }
+
+  dismissWebhookSecret(): void {
+    this.displayedWebhookSecret = null;
+  }
+
+  secretStatusLabel(): string {
+    if (this.displayedWebhookSecret) {
+      return this.displayedWebhookSecret;
+    }
+    if (this.hasGitSecret) {
+      return 'configurado';
+    }
+    return '—';
   }
 
   private updateTemplateValidators(enabled: boolean): void {

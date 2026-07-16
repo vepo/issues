@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import dev.vepo.issues.customfield.CustomFieldValueResponse;
+import dev.vepo.issues.git.LinkedCommitResponse;
 import dev.vepo.issues.ticket.history.TicketHistory;
 import dev.vepo.issues.ticket.link.ChildrenSummaryResponse;
 import dev.vepo.issues.ticket.link.TicketLinkResponse;
@@ -36,16 +37,17 @@ public record TicketExpandedResponse(long id,
                                      List<TicketHistoryResponse> history,
                                      List<CustomFieldValueResponse> customFields,
                                      List<TicketLinkResponse> links,
-                                     ChildrenSummaryResponse childrenSummary) {
+                                     ChildrenSummaryResponse childrenSummary,
+                                     List<LinkedCommitResponse> linkedCommits) {
 
     public static TicketExpandedResponse load(Ticket ticket, List<TicketHistory> history) {
-        return load(ticket, history, List.of(), List.of(), new ChildrenSummaryResponse(0, 0));
+        return load(ticket, history, List.of(), List.of(), new ChildrenSummaryResponse(0, 0), List.of());
     }
 
     public static TicketExpandedResponse load(Ticket ticket,
                                               List<TicketHistory> history,
                                               List<CustomFieldValueResponse> customFields) {
-        return load(ticket, history, customFields, List.of(), new ChildrenSummaryResponse(0, 0));
+        return load(ticket, history, customFields, List.of(), new ChildrenSummaryResponse(0, 0), List.of());
     }
 
     public static TicketExpandedResponse load(Ticket ticket,
@@ -53,6 +55,15 @@ public record TicketExpandedResponse(long id,
                                               List<CustomFieldValueResponse> customFields,
                                               List<TicketLinkResponse> links,
                                               ChildrenSummaryResponse childrenSummary) {
+        return load(ticket, history, customFields, links, childrenSummary, List.of());
+    }
+
+    public static TicketExpandedResponse load(Ticket ticket,
+                                              List<TicketHistory> history,
+                                              List<CustomFieldValueResponse> customFields,
+                                              List<TicketLinkResponse> links,
+                                              ChildrenSummaryResponse childrenSummary,
+                                              List<LinkedCommitResponse> linkedCommits) {
         return new TicketExpandedResponse(ticket.getId(),
                                           ticket.getIdentifier(),
                                           ticket.getTitle(),
@@ -85,7 +96,8 @@ public record TicketExpandedResponse(long id,
                                                  .toList(),
                                           customFields == null ? List.of() : List.copyOf(customFields),
                                           links == null ? List.of() : List.copyOf(links),
-                                          childrenSummary == null ? new ChildrenSummaryResponse(0, 0) : childrenSummary);
+                                          childrenSummary == null ? new ChildrenSummaryResponse(0, 0) : childrenSummary,
+                                          linkedCommits == null ? List.of() : List.copyOf(linkedCommits));
     }
 
 }

@@ -4,7 +4,9 @@ import { of } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CustomFieldService } from '../../services/custom-field.service';
+import { GitService } from '../../services/git.service';
 import { ProjectsService } from '../../services/projects.service';
+import { ToastService } from '../../services/toast.service';
 import { UsersService } from '../../services/users.service';
 import { ProjectEditComponent } from './project-edit.component';
 
@@ -12,9 +14,21 @@ describe('ProjectEditComponent', () => {
   let component: ProjectEditComponent;
   let fixture: ComponentFixture<ProjectEditComponent>;
   let projectsService: jasmine.SpyObj<ProjectsService>;
+  let gitService: jasmine.SpyObj<GitService>;
 
   async function setup(routeData: object): Promise<void> {
     projectsService = jasmine.createSpyObj('ProjectsService', ['create', 'update']);
+    gitService = jasmine.createSpyObj('GitService', ['get', 'put', 'regenerateSecret']);
+    gitService.get.and.returnValue(of(null));
+    gitService.put.and.returnValue(of({
+      projectId: 1,
+      remoteUrl: 'https://github.com/org/repo',
+      provider: 'GITHUB',
+      defaultBranch: 'main',
+      webhookUrl: 'https://issues.example/api/projects/1/git/webhook',
+      hasSecret: true,
+      webhookSecret: 'secret-once',
+    }));
     await TestBed.configureTestingModule({
       imports: [ProjectEditComponent],
       providers: [
@@ -23,6 +37,8 @@ describe('ProjectEditComponent', () => {
           useValue: { data: of(routeData) },
         },
         { provide: ProjectsService, useValue: projectsService },
+        { provide: GitService, useValue: gitService },
+        { provide: ToastService, useValue: { success: jasmine.createSpy('success'), error: jasmine.createSpy('error') } },
         { provide: AuthService, useValue: { hasRole: () => true, getAuthUserId: () => 1 } },
         { provide: UsersService, useValue: { search: () => of([]) } },
         {
@@ -101,6 +117,42 @@ describe('ProjectEditComponent', () => {
           priority: 'HIGH',
         }),
       }));
+    });
+
+    it('should show Repositório Git section in edit mode', () => {
+      const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+      expect(text).toContain('Repositório Git');
+      expect(fixture.debugElement.query(By.css('[formControlName=remoteUrl]'))).toBeTruthy();
+    });
+
+    it('should persist git association after project update when URL is set', () => {
+      projectsService.update.and.returnValue(of({
+        id: 1,
+        name: 'Test Project',
+        description: 'A test project',
+        prefix: 'TP',
+        securityLevel: 'INTERNAL', prefixLocked: false,
+        workflow: { id: 1, name: 'Default Workflow' },
+        owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
+        ticketTemplate: { enabled: false },
+        phaseTemplate: { deliverables: [] },
+      }));
+      component.gitForm.patchValue({
+        remoteUrl: 'https://github.com/org/repo',
+        provider: 'GITHUB',
+        defaultBranch: 'main',
+      });
+      component.save();
+
+      expect(gitService.put).toHaveBeenCalledWith(1, {
+        remoteUrl: 'https://github.com/org/repo',
+        provider: 'GITHUB',
+        defaultBranch: 'main',
+      });
+    });
+
+    it('should load git association on edit init', () => {
+      expect(gitService.get).toHaveBeenCalledWith(1);
     });
   });
 

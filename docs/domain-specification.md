@@ -128,7 +128,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | **Phase start status** | Optional status on a workflow; when a **phase** is **activated**, each assigned ticket moves here if a valid transition exists. | `Workflow.phaseStart`; UI **Status inicial da fase** |
 | **Finish status** | Workflow status marked as terminal with outcome **done** or **canceled**. | `WorkflowFinishStatus`, `tb_workflow_finish_statuses` |
 | **Finish outcome** | Classification of a finish status: `DONE` or `CANCELED`. | `FinishOutcome` enum |
-| **Git repository association** | One remote git repository linked to a **project** (URL, optional provider hint, optional default branch, webhook secret) for commit ingest and deep links. | Planned — `tb_project_git_repositories`; [feature/git-integration.md](../feature/git-integration.md) |
+| **Git repository association** | One remote git repository linked to a **project** (URL, optional provider hint, optional default branch, webhook secret) for commit ingest and deep links. | `tb_project_git_repositories`; [feature/git-integration.md](../feature/git-integration.md) |
 | **Ticket template** | Optional default field values for new tickets in a project: built-in fields (title, description, category, priority) and, when configured, **custom field** defaults for in-scope project/workflow fields. | Embedded / related on `Project`; `customFieldDefaults` — [feature/custom-fields.md](../feature/custom-fields.md) |
 | **Template enabled** | Project manager opted in; when true, at least one template field must be configured; only configured fields pre-fill the create form. | `Project.ticketTemplateEnabled`; UI checkbox **Usar template de ticket** |
 | **Phase template objective** | Default plain-text **objective** copied into each new phase for the project. | `Project.phaseTemplateObjective` |
@@ -197,8 +197,8 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | **Comment** | Text note attached to a ticket; may be marked **agent channel** (`via_agent`) when created via API token. | `Comment`, `tb_comments` |
 | **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`); may be marked **agent channel** (`via_agent`) when mutated via API token. | `TicketHistory`, `TicketHistoryService` |
 | **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`, `LINK_ADDED`, `LINK_REMOVED`. | `TicketHistoryAction` |
-| **Linked commit** | Immutable record that a git commit (SHA) mentioned a ticket identifier; shown on the **activity feed**. Author may match an Issues **user** by email or remain unmatched (name/email from SCM). | Planned — `tb_ticket_commits`; [feature/git-integration.md](../feature/git-integration.md) |
-| **Commit ingest** | Delivery of commits into Issues via forge **push webhook** (HMAC) and/or authenticated **inbound API** (PAT or project service account). | Planned — `POST …/git/webhook`, `POST …/git/commits` |
+| **Linked commit** | Immutable record that a git commit (SHA) mentioned a ticket identifier; shown on the **activity feed**. Author may match an Issues **user** by email or remain unmatched (name/email from SCM). | `tb_ticket_commits`; [feature/git-integration.md](../feature/git-integration.md) |
+| **Commit ingest** | Delivery of commits into Issues via forge **push webhook** (HMAC) and/or authenticated **inbound API** (PAT or project service account). | `POST …/git/webhook`, `POST …/git/commits` |
 | **Activity feed** | Unified chronological UI on ticket detail merging comments, history events, and **linked commits**. | Ticket detail **Atividade** / Histórico section |
 | **Subscriber** | User watching a ticket; receives notifications on changes. | `Ticket.subscribers`, M:N `tb_tickets_subscribers` |
 | **Subscribe** | Add a user to ticket subscribers. | `PUT /tickets/{id}/subscribe` |
@@ -337,7 +337,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 68. **Service account scope** — a service account belongs to exactly one project; tokens authorize **member-aligned** powers on that project only. Managed at `/projects/:projectId/service-accounts`. Prefix `iss_sat_`.
 69. **Bearer auth** — `/api` accepts JWT session tokens or API tokens (`iss_pat_` / `iss_sat_`) on the same `Authorization: Bearer` header; API-token callers have the full update powers of the principal (user or project-scoped SA).
 76. **Issues MCP deployment** — MCP is **external to Issues core**: a separate Quarkus project calling Issues HTTP APIs only (no shared persistence). The Issues repo may later become a **multi-module** reactor that includes MCP.
-77. **Git repository association** — at most one remote per project in current scope; configurable by project owner or admin only. (Planned — [git-integration.md](../feature/git-integration.md).)
+77. **Git repository association** — at most one remote per project in current scope; configurable by project owner or admin only.
 78. **Linked commit** — commits mentioning `{prefix}-{seq}` (subject or body) link to non-deleted tickets in the associated project; idempotent on `(ticket_id, sha)`; no subscriber notification and no auto-transition on link. (Planned.)
 79. **Commit ingest auth** — forge push webhook verified with per-project HMAC secret; inbound API uses Bearer personal API token or project service account. (Planned.)
 80. **Workflow status edit** — after create, statuses may be added, renamed (workflow-local detach/attach), or removed. Removing a status with tickets requires a replacement; remaps include soft-deleted tickets; orphan transitions and workflow CF status-required links to that status are dropped; remap writes history and does not notify.
@@ -380,7 +380,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | Service account | `project.serviceaccount.ServiceAccount`, `ServiceAccountService` |
 | Ticket context | `ticket.context.TicketContextService` |
 | Custom field | `customfield.CustomField`, `customfield.CustomFieldService` |
-| Git repository association / linked commit | Planned — `git.*` ([feature/git-integration.md](../feature/git-integration.md)) |
+| Git repository association / linked commit | Shipped — `git.*` ([feature/git-integration.md](../feature/git-integration.md)) |
 | Issues MCP | External — [`issues-mcp/`](../issues-mcp/) (not a core package) |
 
 ---

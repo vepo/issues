@@ -5,7 +5,10 @@ import {
   ActivityItem,
   activityIcon,
   activitySummary,
+  activityActorLabel,
+  commitAuthorLabel,
   hasValueChange,
+  shortCommitSha,
   trackActivityItem,
 } from './activity-feed.utils';
 
@@ -19,8 +22,11 @@ export class TicketActivityFeedComponent {
 
   protected readonly activityIcon = activityIcon;
   protected readonly activitySummary = activitySummary;
+  protected readonly activityActorLabel = activityActorLabel;
   protected readonly hasValueChange = hasValueChange;
   protected readonly trackActivityItem = trackActivityItem;
+  protected readonly shortCommitSha = shortCommitSha;
+  protected readonly commitAuthorLabel = commitAuthorLabel;
 
   protected expandedIds = new Set<string>();
 

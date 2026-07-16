@@ -1,7 +1,7 @@
 # Git integration
 
 **Feature version:** 1  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** 2026-07-11
 
 ## Summary
@@ -243,7 +243,7 @@ Product, scope, UX, and domain decisions. Status: `open` | `answered` | `not val
 ### Git repository association and commit history — 2026-07-11
 
 **Version:** 1  
-**Status:** tasks-ready  
+**Status:** done  
 **Change name:** Project git association + linked commits on activity  
 
 **Description:** Allow a project to associate one git repository and record commits that reference ticket identifiers as linked commits on the ticket activity feed, via forge webhook and authenticated inbound API.
@@ -262,50 +262,57 @@ Product, scope, UX, and domain decisions. Status: `open` | `answered` | `not val
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Project owner/admin can associate one git remote (URL, provider, optional branch) | S1, FQ3, FQ8, Wireframe | ☐ |
-| FC2 | Commits enter via forge webhook **and** authenticated inbound API | S2, FQ1 | ☐ |
-| FC3 | Subject+body `{prefix}-{seq}` links to non-deleted tickets in that project (multi-id OK) | S3, FQ7, D1 | ☐ |
-| FC4 | Same `(ticket_id, sha)` is not duplicated on retry | S4 | ☐ |
-| FC5 | Activity feed shows linked commit (SHA, message, author, timestamp, link when available) | S5, Wireframe, FQ4 | ☐ |
-| FC6 | Project edit UI matches Wireframe (webhook + API setup, copy/regenerate secret) | S6, Wireframe | ☐ |
-| FC7 | Matched user when email matches; else author from payload with null matched user | FQ5 | ☐ |
-| FC8 | No subscriber notification on commit link | FQ6 | ☐ |
-| FC9 | No auto-transition from commit/merge | FQ9, D2 | ☐ |
-| FC10 | Webhook HMAC secret; API ingest PAT/SA | FQ10, AQ3 | ☐ |
-| FC11 | Package `dev.vepo.issues.git`; schema tables per Architecture | AQ1, AQ2, Architecture | ☐ |
-| FC12 | `domain-specification.md` — git context + terms | Docs | ☐ |
-| FC13 | `feature-catalog.md` — project edit git + ticket activity commit row | Docs | ☐ |
-| FC14 | README Features — git / commit linking bullet | Docs | ☐ |
+| FC1 | Project owner/admin can associate one git remote (URL, provider, optional branch) | S1, FQ3, FQ8, Wireframe | ☑ |
+| FC2 | Commits enter via forge webhook **and** authenticated inbound API | S2, FQ1 | ☑ |
+| FC3 | Subject+body `{prefix}-{seq}` links to non-deleted tickets in that project (multi-id OK) | S3, FQ7, D1 | ☑ |
+| FC4 | Same `(ticket_id, sha)` is not duplicated on retry | S4 | ☑ |
+| FC5 | Activity feed shows linked commit (SHA, message, author, timestamp, link when available) | S5, Wireframe, FQ4 | ☑ |
+| FC6 | Project edit UI matches Wireframe (webhook + API setup, copy/regenerate secret) | S6, Wireframe | ☑ |
+| FC7 | Matched user when email matches; else author from payload with null matched user | FQ5 | ☑ |
+| FC8 | No subscriber notification on commit link | FQ6 | ☑ |
+| FC9 | No auto-transition from commit/merge | FQ9, D2 | ☑ |
+| FC10 | Webhook HMAC secret; API ingest PAT/SA | FQ10, AQ3 | ☑ |
+| FC11 | Package `dev.vepo.issues.git`; schema tables per Architecture | AQ1, AQ2, Architecture | ☑ |
+| FC12 | `domain-specification.md` — git context + terms | Docs | ☑ |
+| FC13 | `feature-catalog.md` — project edit git + ticket activity commit row | Docs | ☑ |
+| FC14 | README Features — git / commit linking bullet | Docs | ☑ |
 | FC15 | All FQs/AQs answered or not valid | FQ/AQ tables | ☑ |
 
 #### Tasks
 
 | ID | Deliverable | Done |
 |----|-------------|------|
-| T1 | Flyway baseline: `tb_project_git_repositories`, `tb_ticket_commits` (+ unique `(ticket_id, sha)`); JPA entities + repositories | ☐ |
-| T2 | `ProjectGitRepositoryService` + `GET/PUT …/git` + `POST …/git/regenerate-secret`; secret hashing; owner/admin auth | ☐ |
-| T3 | Identifier parse util + `GitCommitService` link algorithm (match email, idempotency, soft-delete skip, deep-link) | ☐ |
-| T4 | `POST …/git/webhook` (HMAC verify, normalize payload) + endpoint tests | ☐ |
-| T5 | `POST …/git/commits` (PAT/SA Bearer) + endpoint tests; graceful if agentic not yet shipped (document dependency) | ☐ |
-| T6 | Expose linked commits on ticket get/expanded (or list endpoint); activity feed merge on Angular | ☐ |
-| T7 | Angular project edit **Repositório Git** (wireframe: URL, provider, branch, webhook URL, copy/regenerate, API help) + specs | ☐ |
-| T8 | Angular ticket activity commit row (icon, SHA, message, author, link) + specs | ☐ |
-| T9 | `dev-import.sql` sample git association (+ optional linked commits) | ☐ |
-| T10 | Docs: domain-spec (if needed at ship), feature-catalog, README, ARCHITECTURE §13; ArchUnit `git` package rule if added | ☐ |
+| T1 | Flyway baseline: `tb_project_git_repositories`, `tb_ticket_commits` (+ unique `(ticket_id, sha)`); JPA entities + repositories | ☑ |
+| T2 | `ProjectGitRepositoryService` + `GET/PUT …/git` + `POST …/git/regenerate-secret`; secret hashing; owner/admin auth | ☑ |
+| T3 | Identifier parse util + `GitCommitService` link algorithm (match email, idempotency, soft-delete skip, deep-link) | ☑ |
+| T4 | `POST …/git/webhook` (HMAC verify, normalize payload) + endpoint tests | ☑ |
+| T5 | `POST …/git/commits` (PAT/SA Bearer) + endpoint tests; graceful if agentic not yet shipped (document dependency) | ☑ |
+| T6 | Expose linked commits on ticket get/expanded (or list endpoint); activity feed merge on Angular | ☑ |
+| T7 | Angular project edit **Repositório Git** (wireframe: URL, provider, branch, webhook URL, copy/regenerate, API help) + specs | ☑ |
+| T8 | Angular ticket activity commit row (icon, SHA, message, author, link) + specs | ☑ |
+| T9 | `dev-import.sql` sample git association (+ optional linked commits) | ☑ |
+| T10 | Docs: domain-spec (if needed at ship), feature-catalog, README, ARCHITECTURE §13; ArchUnit `git` package rule if added | ☑ |
 
 #### Test coverage
 
 | ID | Covers | Tasks | Done |
 |----|--------|-------|------|
-| TC1 | Association CRUD + regenerate secret + auth | T2 | ☐ |
-| TC2 | Parse subject+body; multi-ticket; soft-deleted skipped; case-insensitive prefix | T3 | ☐ |
-| TC3 | Webhook HMAC accept/reject; idempotent re-delivery | T4 | ☐ |
-| TC4 | Inbound API auth + ingest + idempotency | T5 | ☐ |
-| TC5 | Ticket response includes linked commits | T6 | ☐ |
-| TC6 | Angular project edit git section | T7 | ☐ |
-| TC7 | Angular activity commit row / feed merge | T6, T8 | ☐ |
-| TC8 | Doc review checklist | T10 | ☐ |
+| TC1 | Association CRUD + regenerate secret + auth | T2 | ☑ |
+| TC2 | Parse subject+body; multi-ticket; soft-deleted skipped; case-insensitive prefix | T3 | ☑ |
+| TC3 | Webhook HMAC accept/reject; idempotent re-delivery | T4 | ☑ |
+| TC4 | Inbound API auth + ingest + idempotency | T5 | ☑ |
+| TC5 | Ticket response includes linked commits | T6 | ☑ |
+| TC6 | Angular project edit git section | T7 | ☑ |
+| TC7 | Angular activity commit row / feed merge | T6, T8 | ☑ |
+| TC8 | Doc review checklist | T10 | ☑ |
 
-**Development approval:** pending — approve task IDs (e.g. “Approve T1–T10”) to start phase 5.
+**Development approval:** approved 2026-07-16 — tasks: T1, T2, T3, T4, T5, T6, T7, T8, T9, T10
 
-**Implementation notes:** (fill after done)
+**Implementation notes (2026-07-16):**
+
+- Package `dev.vepo.issues.git`; tables `tb_project_git_repositories` + `tb_ticket_commits`
+- APIs: GET/PUT `/git`, regenerate-secret, webhook (HMAC via InputStream), ingest commits
+- `TicketExpandedResponse.linkedCommits`; Angular project edit Repositório Git; history tab commits
+- Seed sample association + ISS-003 commit
+- Webhook secret stored recoverable (plaintext pre-prod) for HMAC
+- `mvn verify` + Angular specs green

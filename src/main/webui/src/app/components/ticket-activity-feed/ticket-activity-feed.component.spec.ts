@@ -46,4 +46,24 @@ describe('TicketActivityFeedComponent', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('.empty-state')).toBeTruthy();
   });
+
+  it('should render commit rows', () => {
+    const commitItems: ActivityItem[] = [
+      {
+        kind: 'commit',
+        id: 3,
+        timestamp: 3000,
+        sha: 'abc123def456',
+        message: 'fix login',
+        authorName: 'Alice',
+        commitUrl: 'https://example.com/commit/abc123',
+      },
+    ];
+    fixture.componentRef.setInput('items', commitItems);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('abc123d');
+    expect(element.textContent).toContain('fix login');
+    expect(element.querySelector('a[href="https://example.com/commit/abc123"]')).toBeTruthy();
+  });
 });

@@ -92,6 +92,7 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 - **Dashboards** — project analytics widgets (pie, KPI, table) with per-user layout
 - **Project backlog** — ranked planning list (separate from Priority); infinite scroll; PM/admin drag-and-drop reorder; excludes done and deleted tickets
 - **Project dashboard** — charts (tickets by day as bar, status, priority), recent tickets (top 20), **Tickets por status** KPI; editable layout with autosave + **Concluir**; per-user layout on the server
+- **Git integration** — one repository per project; forge push webhook (HMAC) and inbound commit API (PAT/SA); commits mentioning ticket ids appear on ticket history
 - **Global search** — simple term search and **query language** (ANTLR, plain text) across ticket fields, comments, and custom fields (`cf.<key>`)
 - **Saved queries** — name, share by link, optional home sections, clone for non-owners
 - **Ticket detail** — expanded view with unified **Atividade** feed (comments + history), assignee, and status actions; agent mutations show **Agente em nome de …**

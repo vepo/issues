@@ -521,4 +521,18 @@ BEGIN
     INSERT INTO tb_saved_queries (slug, name, query_text, show_at_home, owner_id, created_at, updated_at)
     SELECT 'dev-open-tickets', 'Tickets abertos', 'status = "TODO"', true, id, NOW(), NOW()
     FROM tb_users WHERE email = 'junior_dev@issues.ui';
+
+    INSERT INTO tb_project_git_repositories (project_id, remote_url, provider, default_branch, webhook_secret, created_at, updated_at)
+    VALUES (proj_issues_id, 'https://github.com/vepo/issues', 'GITHUB', 'main', 'dev-webhook-secret-not-for-prod', NOW(), NOW());
+
+    INSERT INTO tb_ticket_commits (ticket_id, project_id, sha, message, author_name, author_email, matched_user_id, committed_at, commit_url, created_at)
+    SELECT t.id, proj_issues_id, 'a1b2c3d4e5f67890',
+           'fix(auth): redirect after login (ISS-003)',
+           'Junior Developer', 'junior_dev@issues.ui', junior.id,
+           NOW() - INTERVAL '2 days',
+           'https://github.com/vepo/issues/commit/a1b2c3d4e5f67890',
+           NOW() - INTERVAL '2 days'
+    FROM tb_tickets t
+    CROSS JOIN tb_users junior
+    WHERE t.identifier = 'ISS-003' AND junior.email = 'junior_dev@issues.ui';
 END $$;

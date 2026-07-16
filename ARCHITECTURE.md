@@ -304,7 +304,7 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Project visibility (Private / Internal / Public) | Done — [project-visibility.md](feature/project-visibility.md) v1; `securityLevel` + `ProjectAccessService.canRead`; `@PermitAll` Public reads; SEC1 |
 | Project dashboard (Painel) hardening | Done — [project-dashboard.md](feature/project-dashboard.md) v3; dual `DashboardType` parse; `requireRead`/`requireView`; Concluir + Sem dados; day bar; KPI label |
 | Catalog compliance (SPA guards / menus) | Done — user `roleGuard`; `projectManageGuard`; admin project update; Conta Projetos + Processos for admin; seed saved-query owner |
-| Git integration (repo association + linked commits) | Tasks-ready — [git-integration.md](feature/git-integration.md) v1; `git` package; webhook + inbound API; await task approval T1–T10 |
+| Git integration (repo association + linked commits) | Done — [git-integration.md](feature/git-integration.md) v1; `git` package; webhook + inbound API; activity linked commits |
 | CSV import chunked upload | Tasks-ready — [ticket-import.md](feature/ticket-import.md) v2; init/part/complete; 5 MB / 1 MB / 500 rows; await approval T1–T7 |
 
 ## 14. OpenAPI → TypeScript codegen

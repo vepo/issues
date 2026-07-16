@@ -33,7 +33,14 @@ import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.co
 import { CustomFieldFormSectionComponent } from '../custom-fields/custom-field-form-section.component';
 import { plainTextLengthValidator } from '../../core/plain-text-length';
 import { TICKET_TYPE_OPTIONS } from '../ticket-form/ticket-form.component';
-import { formatActorLabel } from '../ticket-activity-feed/activity-feed.utils';
+import {
+  ActivityItem,
+  buildActivityFeed,
+  commitAuthorLabel,
+  formatActorLabel,
+  shortCommitSha,
+  trackActivityItem,
+} from '../ticket-activity-feed/activity-feed.utils';
 
 export interface LinkGroup {
   label: string;
@@ -587,6 +594,18 @@ export class TicketViewComponent implements OnInit {
   setActiveTab(tab: 'history' | 'comments'): void {
     this.activeTab = tab;
   }
+
+  historyTabItems(): ActivityItem[] {
+    if (!this.ticket) {
+      return [];
+    }
+    return buildActivityFeed(this.ticket.history ?? [], [], this.ticket.linkedCommits ?? [])
+      .filter(item => item.kind !== 'comment');
+  }
+
+  protected readonly trackActivityItem = trackActivityItem;
+  protected readonly commitAuthorLabel = commitAuthorLabel;
+  protected readonly shortCommitSha = shortCommitSha;
 }
 
 @Component({

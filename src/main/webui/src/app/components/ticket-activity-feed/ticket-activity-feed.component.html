@@ -7,13 +7,21 @@
         </div>
         <div class="activity-item__body">
           <header class="activity-item__header">
-            <span class="activity-item__actor">{{ item.userName }}</span>
+            <span class="activity-item__actor">{{ activityActorLabel(item) }}</span>
             <span class="activity-item__summary">{{ activitySummary(item) }}</span>
             <time class="activity-item__date">{{ item.timestamp | date: 'medium' }}</time>
           </header>
 
           @if (item.kind === 'comment') {
             <div class="activity-item__comment" [innerHTML]="item.content"></div>
+          } @else if (item.kind === 'commit') {
+            <div class="activity-item__commit">
+              <span class="commit-sha">{{ shortCommitSha(item.sha) }}</span>
+              <span>{{ item.message }}</span>
+              @if (item.commitUrl) {
+                <a [href]="item.commitUrl" target="_blank" rel="noopener noreferrer" i18n>Abrir</a>
+              }
+            </div>
           } @else if (hasValueChange(item)) {
             <div class="activity-item__change">
               @if (item.oldValue) {

@@ -361,7 +361,7 @@
     </nav>
 
     @if (activeTab === 'history') {
-      @if (ticket.history && ticket.history.length > 0) {
+      @if (historyTabItems().length > 0) {
         <div class="data-table data-table--layout-table">
           <div class="header">
             <div class="header-cell" i18n>Data</div>
@@ -369,21 +369,42 @@
             <div class="header-cell" i18n>Alteração</div>
           </div>
           <div class="body">
-            @for (entry of ticket.history; track entry.timestamp) {
-              <div class="row {{ $even ? 'even' : 'odd' }}">
-                <div>{{ entry.timestamp | date: 'medium' }}</div>
-                <div>{{ actorLabel(entry.user?.name, entry.viaAgent) }}</div>
-                <div>
-                  @if (entry.field) {
-                    {{ historyActionLabel(entry.action) }} — {{ entry.field }}: {{ entry.oldValue || '—' }} → {{ entry.newValue || '—' }}
-                  } @else {
-                    {{ historyActionLabel(entry.action) }}
-                    @if (entry.newValue) {
-                      — {{ entry.newValue }}
+            @for (item of historyTabItems(); track trackActivityItem(item); let even = $even) {
+              @if (item.kind === 'change') {
+                <div class="row {{ even ? 'even' : 'odd' }}">
+                  <div>{{ item.timestamp | date: 'medium' }}</div>
+                  <div>{{ item.userName }}</div>
+                  <div>
+                    @if (item.field) {
+                      {{ historyActionLabel(item.action) }} — {{ item.field }}: {{ item.oldValue || '—' }} → {{ item.newValue || '—' }}
+                    } @else {
+                      {{ historyActionLabel(item.action) }}
+                      @if (item.newValue) {
+                        — {{ item.newValue }}
+                      }
                     }
-                  }
+                  </div>
                 </div>
-              </div>
+              } @else if (item.kind === 'commit') {
+                <div class="row {{ even ? 'even' : 'odd' }}">
+                  <div>{{ item.timestamp | date: 'medium' }}</div>
+                  <div>{{ commitAuthorLabel(item) }}</div>
+                  <div class="commit-history-cell">
+                    <span class="commit-sha">{{ shortCommitSha(item.sha) }}</span>
+                    <span>{{ item.message }}</span>
+                    @if (item.commitUrl) {
+                      <a
+                        class="commit-open-link"
+                        [href]="item.commitUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        i18n>
+                        Abrir
+                      </a>
+                    }
+                  </div>
+                </div>
+              }
             }
           </div>
         </div>
