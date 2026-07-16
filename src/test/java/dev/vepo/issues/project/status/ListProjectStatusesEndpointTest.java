@@ -37,7 +37,7 @@ class ListProjectStatusesEndpointTest {
                .accept(ContentType.JSON)
                .get("/api/projects/1/status")
                .then()
-               .statusCode(401);
+               .statusCode(403);
     }
 
     @Test

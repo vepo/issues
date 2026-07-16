@@ -6,9 +6,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import dev.vepo.issues.project.ProjectPaths;
 import dev.vepo.issues.ticket.backlog.BacklogPageResponse;
 import dev.vepo.issues.ticket.backlog.BacklogService;
-import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
@@ -37,7 +36,7 @@ public class ListProjectBacklogEndpoint {
     @GET
     @Path("{projectId}/backlog")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
+    @PermitAll
     @Operation(operationId = "listProjectBacklog", summary = "List project backlog page")
     public BacklogPageResponse list(@PathParam("projectId") long projectId,
                                     @QueryParam("page") @DefaultValue("0") int page,

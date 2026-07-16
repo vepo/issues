@@ -36,7 +36,7 @@ class FindProjectWorkflowEndpointTest {
                .accept(ContentType.JSON)
                .get("/api/projects/1/workflow")
                .then()
-               .statusCode(401);
+               .statusCode(403);
     }
 
     @Test

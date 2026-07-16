@@ -77,7 +77,8 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 - **Service accounts** — project-scoped machine identities and tokens for agents/CI (`/projects/:id/service-accounts`); member-aligned powers on that project
 - **Project allocation** — dedicated page to add/remove members; removal blocked while member has open assigned tickets
 - **Project hub** — member landing page with links to Kanban, Burndown, Backlog, and dashboard (replaces project grid on home)
-- **Header Projetos** — labeled menu for all authenticated users listing viewable projects; each item opens that project’s Kanban; PM/admin also **Gerenciar projetos**
+- **Header Projetos** — labeled menu for all authenticated users listing readable projects (membership plus Internal/Public; Private only for members/admin); each item opens that project’s Kanban; PM/admin also **Gerenciar projetos**
+- **Project security level** — Private / Internal / Public read visibility on create/edit (**Nível de segurança**); default Internal; Public allows anonymous read of tickets, Kanban, and related project surfaces
 - **Workflow builder** — create and edit workflows with statuses (add/rename/remove on edit, with ticket remap), transitions, optional per-status **WIP limits**, and **workflow custom fields** (incl. status-required) (`/workflows` UI + API)
 - **Categories admin** — list, create, edit, and delete ticket categories (`/categories`, admin); delete blocked while tickets or project templates reference the category
 - **User management** — admin CRUD and soft-delete (blocked while assignee on open tickets); public self-registration (`/login/register`) with strong password policy

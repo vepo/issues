@@ -5,10 +5,9 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import dev.vepo.issues.project.ProjectPaths;
 import dev.vepo.issues.project.ProjectService;
-import dev.vepo.issues.user.Role;
 import dev.vepo.issues.workflow.WorkflowResponse;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -37,9 +36,15 @@ public class FindProjectWorkflowEndpoint {
 
     @GET
     @Path("{projectId}/workflow")
-    @RolesAllowed({ Role.PROJECT_MANAGER_ROLE, Role.ADMIN_ROLE, Role.USER_ROLE })
+    @PermitAll
     @Operation(operationId = "findProjectWorkflow", summary = "Get project workflow")
     public WorkflowResponse findWorkflow(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) {
-        return projectService.findWorkflow(projectId, securityContext.getUserPrincipal().getName());
+        return projectService.findWorkflow(projectId, optionalUsername(securityContext));
     }
+
+    private static java.util.Optional<String> optionalUsername(SecurityContext securityContext) {
+        var principal = securityContext.getUserPrincipal();
+        return principal == null ? java.util.Optional.empty() : java.util.Optional.of(principal.getName());
+    }
+
 }

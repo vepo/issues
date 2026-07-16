@@ -5,9 +5,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import dev.vepo.issues.ticket.TicketPaths;
 import dev.vepo.issues.ticket.TicketService;
-import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -33,9 +32,15 @@ public class FindExpandedTicketByIdentifierEndpoint {
 
     @GET
     @Path("/{id:[0-9A-Z\\-]+}/expanded")
-    @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
+    @PermitAll
     @Operation(operationId = "findExpandedTicketByIdentifier", summary = "Find expanded ticket by identifier")
     public TicketExpandedResponse findExpandedByIdentifier(@PathParam("id") String id, @Context SecurityContext securityContext) {
-        return ticketService.findExpandedByIdentifier(id, securityContext.getUserPrincipal().getName());
+        return ticketService.findExpandedByIdentifier(id, optionalUsername(securityContext));
     }
+
+    private static java.util.Optional<String> optionalUsername(SecurityContext securityContext) {
+        var principal = securityContext.getUserPrincipal();
+        return principal == null ? java.util.Optional.empty() : java.util.Optional.of(principal.getName());
+    }
+
 }

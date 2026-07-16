@@ -57,7 +57,15 @@ public class ProjectService {
     @Transactional
     public List<ProjectResponse> listAll(String username) {
         var user = accessService.requireUser(username);
-        return accessService.listProjectsForUser(user)
+        return accessService.listReadableProjects(user)
+                            .stream()
+                            .map(this::toResponse)
+                            .toList();
+    }
+
+    @Transactional
+    public List<ProjectResponse> listPublic() {
+        return accessService.listPublicProjects()
                             .stream()
                             .map(this::toResponse)
                             .toList();
@@ -75,6 +83,7 @@ public class ProjectService {
                                   htmlSanitizer.sanitize(request.description()),
                                   requireWorkflow(request.workflowId()),
                                   owner);
+        project.setSecurityLevel(request.securityLevel() == null ? SecurityLevel.INTERNAL : request.securityLevel());
         applyTicketTemplate(project, request.ticketTemplate());
         applyPhaseTemplate(project, request.phaseTemplate());
         repository.save(project);
@@ -103,6 +112,9 @@ public class ProjectService {
         project.setPrefix(request.prefix());
         project.setDescription(htmlSanitizer.sanitize(request.description()));
         project.setWorkflow(newWorkflow);
+        if (request.securityLevel() != null) {
+            project.setSecurityLevel(request.securityLevel());
+        }
         applyTicketTemplate(project, request.ticketTemplate());
         applyPhaseTemplate(project, request.phaseTemplate());
         applyOwnerTransfer(project, request.ownerId(), user);
@@ -115,7 +127,12 @@ public class ProjectService {
     }
 
     public ProjectResponse findById(long projectId, String username) {
-        accessService.requireView(projectId, username);
+        accessService.requireRead(projectId, username);
+        return toResponse(accessService.requireProject(projectId));
+    }
+
+    public ProjectResponse findById(long projectId, java.util.Optional<String> username) {
+        accessService.requireRead(projectId, username);
         return toResponse(accessService.requireProject(projectId));
     }
 
@@ -127,12 +144,27 @@ public class ProjectService {
     }
 
     public WorkflowResponse findWorkflow(long projectId, String username) {
-        accessService.requireView(projectId, username);
+        accessService.requireRead(projectId, username);
+        return WorkflowResponse.load(accessService.requireProject(projectId).getWorkflow());
+    }
+
+    public WorkflowResponse findWorkflow(long projectId, java.util.Optional<String> username) {
+        accessService.requireRead(projectId, username);
         return WorkflowResponse.load(accessService.requireProject(projectId).getWorkflow());
     }
 
     public List<ProjectStatusResponse> listStatuses(long projectId, String username) {
-        accessService.requireView(projectId, username);
+        accessService.requireRead(projectId, username);
+        var project = accessService.requireProject(projectId);
+        return project.getWorkflow()
+                      .getStatuses()
+                      .stream()
+                      .map(status -> ProjectStatusResponse.load(status, project.getWorkflow()))
+                      .toList();
+    }
+
+    public List<ProjectStatusResponse> listStatuses(long projectId, java.util.Optional<String> username) {
+        accessService.requireRead(projectId, username);
         var project = accessService.requireProject(projectId);
         return project.getWorkflow()
                       .getStatuses()

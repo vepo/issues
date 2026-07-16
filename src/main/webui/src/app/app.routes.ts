@@ -42,6 +42,7 @@ import { versionResolver, versionsResolver } from './resolvers/versions-resolver
 import { phaseResolver, phasesResolver } from './resolvers/phases-resolver';
 import { workflowsResolver } from './resolvers/workflow-resolver';
 import { authGuard } from './services/auth.guard';
+import { publicReadGuard } from './services/public-read.guard';
 import { roleGuard } from './services/role.guard';
 
 export const routes: Routes = [
@@ -62,7 +63,7 @@ export const routes: Routes = [
       statuses: statusResolver,
       tickets: ticketsResolver
     },
-    canActivate: [authGuard],
+    canActivate: [publicReadGuard],
   },
   {
     path: 'project/:projectId/burndown',
@@ -70,7 +71,7 @@ export const routes: Routes = [
     resolve: {
       project: projectResolver,
     },
-    canActivate: [authGuard],
+    canActivate: [publicReadGuard],
   },
   {
     path: 'project/:projectId/backlog',
@@ -78,7 +79,7 @@ export const routes: Routes = [
     resolve: {
       project: projectResolver
     },
-    canActivate: [authGuard],
+    canActivate: [publicReadGuard],
   },
   {
     path: 'project/:projectId/dashboard',
@@ -88,7 +89,7 @@ export const routes: Routes = [
       statuses: statusResolver,
       tickets: ticketsResolver
     },
-    canActivate: [authGuard],
+    canActivate: [publicReadGuard],
   },
   {
     path: 'project/:projectId/versions',
@@ -97,7 +98,7 @@ export const routes: Routes = [
       project: projectResolver,
       versions: versionsResolver
     },
-    canActivate: [authGuard],
+    canActivate: [publicReadGuard],
   },
   {
     path: 'project/:projectId/versions/new',
@@ -114,7 +115,7 @@ export const routes: Routes = [
       project: projectResolver,
       version: versionResolver
     },
-    canActivate: [authGuard],
+    canActivate: [publicReadGuard],
   },
   {
     path: 'project/:projectId/phases',
@@ -123,7 +124,7 @@ export const routes: Routes = [
       project: projectResolver,
       phases: phasesResolver
     },
-    canActivate: [authGuard],
+    canActivate: [publicReadGuard],
   },
   {
     path: 'project/:projectId/phases/new',
@@ -140,7 +141,7 @@ export const routes: Routes = [
       project: projectResolver,
       phase: phaseResolver
     },
-    canActivate: [authGuard],
+    canActivate: [publicReadGuard],
   },
   {
     path: 'search',
@@ -216,7 +217,7 @@ export const routes: Routes = [
     resolve: {
       ticket: ticketResolver
     },
-    canActivate: [authGuard],
+    canActivate: [publicReadGuard],
   },
   {
     path: 'users',
@@ -262,7 +263,7 @@ export const routes: Routes = [
     resolve: {
       project: projectResolver
     },
-    canActivate: [authGuard]
+    canActivate: [publicReadGuard]
   },
   {
     path: 'projects/:projectId/edit',

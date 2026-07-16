@@ -106,35 +106,59 @@ public class TicketService {
 
     @Transactional
     public List<TicketResponse> listAll(String status) {
-        if (Objects.nonNull(status) && IS_NUMBER.test(status)) {
-            return repository.findByStatusId(Long.parseLong(status))
-                             .map(this::toResponse)
-                             .toList();
-        } else if (Objects.nonNull(status) && !status.isBlank()) {
-            return repository.findByStatusName(status)
-                             .map(this::toResponse)
-                             .toList();
+        return listAll(status, null);
+    }
+
+    @Transactional
+    public List<TicketResponse> listAll(String status, String username) {
+        var stream = listAllStream(status);
+        if (username != null) {
+            var readable = projectAccessService.readableProjectIds(projectAccessService.requireUser(username));
+            stream = stream.filter(ticket -> readable.contains(ticket.getProject().getId()));
         }
-        return repository.findAll()
-                         .map(this::toResponse)
-                         .toList();
+        return stream.map(this::toResponse).toList();
+    }
+
+    private java.util.stream.Stream<Ticket> listAllStream(String status) {
+        if (Objects.nonNull(status) && IS_NUMBER.test(status)) {
+            return repository.findByStatusId(Long.parseLong(status));
+        } else if (Objects.nonNull(status) && !status.isBlank()) {
+            return repository.findByStatusName(status);
+        }
+        return repository.findAll();
     }
 
     @Transactional
     public List<TicketResponse> search(String term, long statusId) {
-        return repository.search(Optional.ofNullable(term)
-                                         .filter(Predicate.not(String::isBlank))
-                                         .map(String::trim)
-                                         .map(s -> s.split("\\s+"))
-                                         .orElseGet(() -> new String[] {}),
-                                 statusId)
+        return search(term, statusId, null);
+    }
+
+    @Transactional
+    public List<TicketResponse> search(String term, long statusId, String username) {
+        var stream = repository.search(Optional.ofNullable(term)
+                                               .filter(Predicate.not(String::isBlank))
+                                               .map(String::trim)
+                                               .map(s -> s.split("\\s+"))
+                                               .orElseGet(() -> new String[] {}),
+                                       statusId);
+        if (username != null) {
+            var readable = projectAccessService.readableProjectIds(projectAccessService.requireUser(username));
+            stream = stream.filter(ticket -> readable.contains(ticket.getProject().getId()));
+        }
+        return stream.map(this::toResponse).toList();
+    }
+
+    @Transactional
+    public List<TicketResponse> findByProjectId(long projectId, String username) {
+        projectAccessService.requireRead(projectId, username);
+        return repository.findByProjectId(projectId)
                          .map(this::toResponse)
                          .toList();
     }
 
     @Transactional
-    public List<TicketResponse> findByProjectId(long projectId, String username) {
-        projectAccessService.requireView(projectId, username);
+    public List<TicketResponse> findByProjectId(long projectId, java.util.Optional<String> username) {
+        projectAccessService.requireRead(projectId, username);
         return repository.findByProjectId(projectId)
                          .map(this::toResponse)
                          .toList();
@@ -146,21 +170,51 @@ public class TicketService {
     }
 
     @Transactional
+    public TicketResponse findById(long id, java.util.Optional<String> username) {
+        var ticket = requireTicket(id);
+        projectAccessService.requireRead(ticket.getProject().getId(), username);
+        return toResponse(ticket);
+    }
+
+    @Transactional
     public TicketExpandedResponse findExpandedById(long id, String username) {
         var ticket = requireTicketForView(id, username);
+        projectAccessService.requireRead(ticket.getProject().getId(), username);
         var user = requireUserByUsername(username);
         return toExpandedResponse(ticket, loadHistory(id), user);
     }
 
     @Transactional
+    public TicketExpandedResponse findExpandedById(long id, java.util.Optional<String> username) {
+        if (username.isPresent()) {
+            return findExpandedById(id, username.get());
+        }
+        var ticket = requireTicket(id);
+        projectAccessService.requireRead(ticket.getProject().getId(), username);
+        return toExpandedResponse(ticket, loadHistory(id), null);
+    }
+
+    @Transactional
     public TicketExpandedResponse findExpandedByIdentifier(String identifier, String username) {
         var ticket = requireTicketByIdentifierForView(identifier, username);
+        projectAccessService.requireRead(ticket.getProject().getId(), username);
         var user = requireUserByUsername(username);
         return toExpandedResponse(ticket, loadHistory(ticket.getId()), user);
     }
 
     @Transactional
+    public TicketExpandedResponse findExpandedByIdentifier(String identifier, java.util.Optional<String> username) {
+        if (username.isPresent()) {
+            return findExpandedByIdentifier(identifier, username.get());
+        }
+        var ticket = requireTicketByIdentifier(identifier);
+        projectAccessService.requireRead(ticket.getProject().getId(), username);
+        return toExpandedResponse(ticket, loadHistory(ticket.getId()), null);
+    }
+
+    @Transactional
     public TicketResponse create(CreateTicketRequest request, String authorUsername) {
+        projectAccessService.requireView(request.projectId(), authorUsername);
         var project = projectRepository.findById(request.projectId())
                                        .orElseThrow(() -> projectNotFound(request.projectId()));
         var author = requireUserByUsername(authorUsername);
@@ -334,6 +388,12 @@ public class TicketService {
     }
 
     public List<CommentResponse> listComments(long id) {
+        return listComments(id, java.util.Optional.empty());
+    }
+
+    public List<CommentResponse> listComments(long id, java.util.Optional<String> username) {
+        var ticket = requireTicket(id);
+        projectAccessService.requireRead(ticket.getProject().getId(), username);
         return repository.findCommentsByTicketId(id)
                          .map(CommentResponse::load)
                          .toList();
@@ -411,6 +471,12 @@ public class TicketService {
     }
 
     public List<TicketHistoryResponse> getHistory(long id) {
+        return getHistory(id, java.util.Optional.empty());
+    }
+
+    public List<TicketHistoryResponse> getHistory(long id, java.util.Optional<String> username) {
+        var ticket = requireTicket(id);
+        projectAccessService.requireRead(ticket.getProject().getId(), username);
         return repository.findHistoryByTicketId(id)
                          .map(TicketHistoryResponse::load)
                          .toList();

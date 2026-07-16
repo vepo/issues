@@ -35,7 +35,7 @@ public class ListTicketsEndpoint {
     @GET
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "listTickets", summary = "List tickets")
-    public List<TicketResponse> listAll(@QueryParam("status") String status) {
-        return ticketService.listAll(status);
+    public List<TicketResponse> listAll(@QueryParam("status") String status, @Context SecurityContext securityContext) {
+        return ticketService.listAll(status, securityContext.getUserPrincipal().getName());
     }
 }

@@ -8,9 +8,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import dev.vepo.issues.phase.PhasePaths;
 import dev.vepo.issues.phase.PhaseResponse;
 import dev.vepo.issues.phase.PhaseService;
-import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -38,10 +37,16 @@ public class ListPhasesEndpoint {
     }
 
     @GET
-    @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
+    @PermitAll
     @Operation(operationId = "listPhases", summary = "List project phases")
     public List<PhaseResponse> list(@PathParam("projectId") long projectId,
                                     @Context SecurityContext securityContext) {
-        return phaseService.listByProject(projectId, securityContext.getUserPrincipal().getName());
+        return phaseService.listByProject(projectId, optionalUsername(securityContext).orElse(null));
     }
+
+    private static java.util.Optional<String> optionalUsername(SecurityContext securityContext) {
+        var principal = securityContext.getUserPrincipal();
+        return principal == null ? java.util.Optional.empty() : java.util.Optional.of(principal.getName());
+    }
+
 }

@@ -46,7 +46,7 @@ class LoadPieDashboardEndpointTest {
                .when()
                .get("/api/projects/" + project.id() + "/dashboard/pie/tickets-by-status")
                .then()
-               .statusCode(401);
+               .statusCode(403);
     }
 
     @Test
@@ -59,7 +59,8 @@ class LoadPieDashboardEndpointTest {
                                               "name": "Foreign Pie %s",
                                               "description": "No membership for user",
                                               "prefix": "FP%s",
-                                              "workflowId": %d
+                                              "workflowId": %d,
+                                              "securityLevel": "PRIVATE"
                                           }
                                           """.formatted(UUID.randomUUID(),
                                                         UUID.randomUUID().toString().substring(0, 4).toUpperCase(),

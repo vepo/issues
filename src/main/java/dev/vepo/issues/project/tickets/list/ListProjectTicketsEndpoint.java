@@ -8,9 +8,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import dev.vepo.issues.project.ProjectPaths;
 import dev.vepo.issues.ticket.TicketResponse;
 import dev.vepo.issues.ticket.TicketService;
-import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -37,10 +36,16 @@ public class ListProjectTicketsEndpoint {
 
     @GET
     @Path("{projectId}/tickets")
-    @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
+    @PermitAll
     @Operation(operationId = "listProjectTickets", summary = "List tickets by project")
     public List<TicketResponse> findByProjectId(@PathParam("projectId") long projectId,
                                                 @Context SecurityContext securityContext) {
-        return ticketService.findByProjectId(projectId, securityContext.getUserPrincipal().getName());
+        return ticketService.findByProjectId(projectId, optionalUsername(securityContext));
     }
+
+    private static java.util.Optional<String> optionalUsername(SecurityContext securityContext) {
+        var principal = securityContext.getUserPrincipal();
+        return principal == null ? java.util.Optional.empty() : java.util.Optional.of(principal.getName());
+    }
+
 }

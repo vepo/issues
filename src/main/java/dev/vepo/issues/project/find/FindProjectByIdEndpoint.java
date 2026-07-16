@@ -1,14 +1,15 @@
 package dev.vepo.issues.project.find;
 
+import java.util.Optional;
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import dev.vepo.issues.project.ProjectPaths;
 import dev.vepo.issues.project.ProjectResponse;
 import dev.vepo.issues.project.ProjectService;
-import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -37,9 +38,14 @@ public class FindProjectByIdEndpoint {
 
     @GET
     @Path("{projectId}")
-    @RolesAllowed({ Role.PROJECT_MANAGER_ROLE, Role.ADMIN_ROLE, Role.USER_ROLE })
+    @PermitAll
     @Operation(operationId = "findProjectById", summary = "Find project by ID")
     public ProjectResponse findById(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) {
-        return projectService.findById(projectId, securityContext.getUserPrincipal().getName());
+        return projectService.findById(projectId, optionalUsername(securityContext));
+    }
+
+    private static Optional<String> optionalUsername(SecurityContext securityContext) {
+        var principal = securityContext.getUserPrincipal();
+        return principal == null ? Optional.empty() : Optional.of(principal.getName());
     }
 }

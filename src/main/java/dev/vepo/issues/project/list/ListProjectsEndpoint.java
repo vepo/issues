@@ -8,9 +8,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import dev.vepo.issues.project.ProjectPaths;
 import dev.vepo.issues.project.ProjectResponse;
 import dev.vepo.issues.project.ProjectService;
-import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -37,9 +36,13 @@ public class ListProjectsEndpoint {
     }
 
     @GET
-    @RolesAllowed({ Role.PROJECT_MANAGER_ROLE, Role.ADMIN_ROLE, Role.USER_ROLE })
-    @Operation(operationId = "listProjects", summary = "List all projects")
+    @PermitAll
+    @Operation(operationId = "listProjects", summary = "List projects visible to the caller")
     public List<ProjectResponse> listAll(@Context SecurityContext securityContext) {
-        return projectService.listAll(securityContext.getUserPrincipal().getName());
+        var principal = securityContext.getUserPrincipal();
+        if (principal == null) {
+            return projectService.listPublic();
+        }
+        return projectService.listAll(principal.getName());
     }
 }

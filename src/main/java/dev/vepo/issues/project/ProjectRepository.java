@@ -71,4 +71,16 @@ public class ProjectRepository {
                  .getResultStream()
                  .findFirst();
     }
+
+    public Stream<Project> findBySecurityLevels(List<SecurityLevel> levels) {
+        return em.createQuery("FROM Project p WHERE p.securityLevel IN :levels ORDER BY p.name", Project.class)
+                 .setParameter("levels", levels)
+                 .getResultStream();
+    }
+
+    public List<Long> findIdsBySecurityLevels(List<SecurityLevel> levels) {
+        return em.createQuery("SELECT p.id FROM Project p WHERE p.securityLevel IN :levels", Long.class)
+                 .setParameter("levels", levels)
+                 .getResultList();
+    }
 }

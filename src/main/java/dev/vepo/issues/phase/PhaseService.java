@@ -55,7 +55,7 @@ public class PhaseService {
     }
 
     public List<PhaseResponse> listByProject(long projectId, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         requireProject(projectId);
         return phaseRepository.findByProjectId(projectId)
                               .map(PhaseResponse::load)
@@ -63,12 +63,12 @@ public class PhaseService {
     }
 
     public PhaseResponse findById(long projectId, long phaseId, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         return PhaseResponse.load(requirePhase(projectId, phaseId));
     }
 
     public PhaseResponse findActive(long projectId, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         requireProject(projectId);
         return phaseRepository.findActiveByProjectId(projectId)
                               .map(PhaseResponse::load)

@@ -48,6 +48,6 @@ class ListProjectTicketsEndpointTest {
                .when()
                .get("/api/projects/" + project.id() + "/tickets")
                .then()
-               .statusCode(401);
+               .statusCode(403);
     }
 }

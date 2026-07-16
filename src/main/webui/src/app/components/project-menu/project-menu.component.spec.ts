@@ -22,7 +22,7 @@ describe('ProjectMenuComponent', () => {
       owner: { id: 1, name: 'PM', email: 'pm@issues.vepo.dev' },
       ticketTemplate: { enabled: false },
       phaseTemplate: { deliverables: [] },
-      prefixLocked: false,
+      securityLevel: 'INTERNAL', prefixLocked: false,
     } as Project
   ];
 

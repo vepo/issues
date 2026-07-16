@@ -37,7 +37,8 @@ public class SearchTicketsEndpoint {
     @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
     @Operation(operationId = "searchTickets", summary = "Search tickets")
     public List<TicketResponse> search(@QueryParam("term") String term,
-                                       @QueryParam("statusId") @DefaultValue("-1") long statusId) {
-        return ticketService.search(term, statusId);
+                                       @QueryParam("statusId") @DefaultValue("-1") long statusId,
+                                       @Context SecurityContext securityContext) {
+        return ticketService.search(term, statusId, securityContext.getUserPrincipal().getName());
     }
 }

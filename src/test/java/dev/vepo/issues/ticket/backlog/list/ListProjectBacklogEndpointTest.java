@@ -160,6 +160,7 @@ class ListProjectBacklogEndpointTest {
                                             "name": "Other Project %s",
                                             "description": "No membership for user",
                                             "prefix": "OB%s",
+                                            "securityLevel": "PRIVATE",
                                             "workflowId": %d
                                         }
                                         """.formatted(UUID.randomUUID(),

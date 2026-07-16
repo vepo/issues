@@ -31,13 +31,30 @@ class FindProjectByIdEndpointTest {
     }
 
     @Test
-    @DisplayName("Non-authenticated user should not be able to get project by ID")
-    void nonAuthenticatedUserShouldNotGetProjectByIdTest() {
+    @DisplayName("Anonymous user cannot read Internal project by ID")
+    void anonymousUserShouldNotGetInternalProjectByIdTest() {
+        var createdProject = given().header(pmAuthenticatedHeader)
+                                    .accept(ContentType.JSON)
+                                    .when()
+                                    .contentType(ContentType.JSON)
+                                    .body("""
+                                          {
+                                              "name": "Anon Deny Internal",
+                                              "description": "Anonymous cannot read internal.",
+                                              "prefix": "ADI",
+                                              "workflowId": %d
+                                          }""".formatted(workflow.id()))
+                                    .post("/api/projects")
+                                    .then()
+                                    .statusCode(201)
+                                    .extract()
+                                    .as(ProjectResponse.class);
+
         given().when()
                .accept(ContentType.JSON)
-               .get("/api/projects/1")
+               .get("/api/projects/" + createdProject.id())
                .then()
-               .statusCode(401);
+               .statusCode(403);
     }
 
     @Test
@@ -68,16 +85,8 @@ class FindProjectByIdEndpointTest {
                .then()
                .statusCode(200)
                .body("id", is((int) createdProject.id()))
-               .body("name", is("Test Project For Get"));
-
-        given().header(userAuthenticatedHeader)
-               .accept(ContentType.JSON)
-               .when()
-               .get("/api/projects/" + createdProject.id())
-               .then()
-               .statusCode(403);
-
-        dev.vepo.issues.Given.addProjectMember(createdProject.id(), "user@issues.vepo.dev");
+               .body("name", is("Test Project For Get"))
+               .body("securityLevel", is("INTERNAL"));
 
         given().header(userAuthenticatedHeader)
                .accept(ContentType.JSON)

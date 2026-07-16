@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -28,6 +29,7 @@ import { optionalPlainTextLengthValidator } from '../../core/plain-text-length';
     MatButtonModule,
     MatSelectModule,
     MatCheckboxModule,
+    MatRadioModule,
     CustomFieldAdminComponent,
     CustomFieldFormSectionComponent,
     RichTextEditorComponent,
@@ -56,12 +58,18 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
   inScopeFields: CustomField[] = [];
   templateCustomDefaults: CustomFieldValueResponse[] = [];
   readonly priorities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
+  readonly securityLevels = [
+    { value: 'PRIVATE' as const, label: 'Privado', help: 'só membros do projeto' },
+    { value: 'INTERNAL' as const, label: 'Interno', help: 'qualquer usuário autenticado' },
+    { value: 'PUBLIC' as const, label: 'Público', help: 'também visitante sem login' },
+  ];
 
   projectForm = new FormGroup({
     name: new FormControl('', Validators.required),
     description: new FormControl('', Validators.required),
     prefix: new FormControl('', [Validators.required, Validators.minLength(2), Validators.maxLength(10)]),
     workflow: new FormControl(-1, [Validators.required, Validators.min(1)]),
+    securityLevel: new FormControl<'PRIVATE' | 'INTERNAL' | 'PUBLIC'>('INTERNAL', Validators.required),
     templateEnabled: new FormControl(false),
     templateTitle: new FormControl(''),
     templateDescription: new FormControl(''),
@@ -98,6 +106,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
           description: project.description ?? '',
           prefix: project.prefix,
           workflow: project.workflow?.id ?? -1,
+          securityLevel: (project as Project & { securityLevel?: 'PRIVATE' | 'INTERNAL' | 'PUBLIC' }).securityLevel ?? 'INTERNAL',
           ownerId: owner?.id ?? null,
           templateEnabled: template?.enabled ?? false,
           templateTitle: template?.title ?? '',
@@ -153,6 +162,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
       description,
       prefix,
       workflow,
+      securityLevel,
       templateEnabled,
       templateTitle,
       templateDescription,
@@ -163,7 +173,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
       ownerId,
     } = this.projectForm.getRawValue();
 
-    if (!name || !description || !prefix || workflow == null || workflow < 1) {
+    if (!name || !description || !prefix || workflow == null || workflow < 1 || !securityLevel) {
       return;
     }
 
@@ -181,6 +191,7 @@ export class ProjectEditComponent implements OnInit, OnDestroy {
       description,
       prefix,
       workflowId: workflow,
+      securityLevel,
       ticketTemplate: templateEnabled
         ? {
             enabled: true,

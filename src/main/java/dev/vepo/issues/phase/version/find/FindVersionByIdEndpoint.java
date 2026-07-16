@@ -6,9 +6,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import dev.vepo.issues.phase.VersionPaths;
 import dev.vepo.issues.phase.VersionResponse;
 import dev.vepo.issues.phase.VersionService;
-import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -37,11 +36,17 @@ public class FindVersionByIdEndpoint {
 
     @GET
     @Path("{versionId}")
-    @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
+    @PermitAll
     @Operation(operationId = "findVersionById", summary = "Find project version by ID")
     public VersionResponse findById(@PathParam("projectId") long projectId,
                                     @PathParam("versionId") long versionId,
                                     @Context SecurityContext securityContext) {
-        return versionService.findById(projectId, versionId, securityContext.getUserPrincipal().getName());
+        return versionService.findById(projectId, versionId, optionalUsername(securityContext).orElse(null));
     }
+
+    private static java.util.Optional<String> optionalUsername(SecurityContext securityContext) {
+        var principal = securityContext.getUserPrincipal();
+        return principal == null ? java.util.Optional.empty() : java.util.Optional.of(principal.getName());
+    }
+
 }

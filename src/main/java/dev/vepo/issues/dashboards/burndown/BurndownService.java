@@ -2,6 +2,7 @@ package dev.vepo.issues.dashboards.burndown;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -32,7 +33,7 @@ public class BurndownService {
     }
 
     public BurndownResponse load(long projectId, long phaseId, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         var phase = phaseService.requirePhase(projectId, phaseId);
         var tickets = ticketRepository.findByPhaseId(phaseId).toList();
         var warnings = buildWarnings(tickets);

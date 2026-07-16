@@ -301,6 +301,7 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Ticket links, epics & subtasks | Done — [ticket-links.md](feature/ticket-links.md) v1; `TicketType`; `tb_ticket_links`; cross-project; Epic hierarchy; Angular Vínculos/Subtarefas |
 | Project ticket backlog (ranked list + reorder) | Done — [ticket-backlog.md](feature/ticket-backlog.md) v1; `backlog_rank`; `GET/POST …/backlog`; Angular infinite scroll + drag |
 | Burndown (story points, Kanban-peer page) | Done — [burndown.md](feature/burndown.md) v1; `story_points`/`canceled_at`; `GET …/burndown`; Angular `/project/:id/burndown` |
+| Project visibility (Private / Internal / Public) | Done — [project-visibility.md](feature/project-visibility.md) v1; `securityLevel` + `ProjectAccessService.canRead`; `@PermitAll` Public reads; SEC1 |
 | Project dashboard (Painel) hardening | Tasks-ready — [project-dashboard.md](feature/project-dashboard.md) v3; dual `DashboardType` parse; `requireView`; UX FQ5–8; await approval T1–T9 |
 | Git integration (repo association + linked commits) | Tasks-ready — [git-integration.md](feature/git-integration.md) v1; `git` package; webhook + inbound API; await task approval T1–T10 |
 | CSV import chunked upload | Tasks-ready — [ticket-import.md](feature/ticket-import.md) v2; init/part/complete; 5 MB / 1 MB / 500 rows; await approval T1–T7 |

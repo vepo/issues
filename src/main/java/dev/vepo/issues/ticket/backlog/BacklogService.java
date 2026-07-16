@@ -1,5 +1,6 @@
 package dev.vepo.issues.ticket.backlog;
 
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -38,7 +39,7 @@ public class BacklogService {
 
     @Transactional
     public BacklogPageResponse list(long projectId, int page, int size, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         var safePage = Math.max(page, 0);
         var safeSize = size < 1 || size > MAX_PAGE_SIZE ? DEFAULT_PAGE_SIZE : size;
         var total = ticketRepository.countBacklog(projectId);

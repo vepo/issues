@@ -45,6 +45,7 @@ CREATE TABLE tb_projects (
     prefix      VARCHAR(15) NOT NULL,
     workflow_id BIGINT NOT NULL,
     owner_id    BIGINT NOT NULL,
+    security_level VARCHAR(16) NOT NULL DEFAULT 'INTERNAL',
     ticket_template_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     ticket_template_title VARCHAR(255),
     ticket_template_description TEXT,
@@ -54,7 +55,8 @@ CREATE TABLE tb_projects (
 
     CONSTRAINT tb_project_UK UNIQUE (name),
     CONSTRAINT tb_project_workflow_FK FOREIGN KEY (workflow_id) REFERENCES tb_workflows,
-    CONSTRAINT tb_project_owner_FK FOREIGN KEY (owner_id) REFERENCES tb_users
+    CONSTRAINT tb_project_owner_FK FOREIGN KEY (owner_id) REFERENCES tb_users,
+    CONSTRAINT tb_projects_security_level_CK CHECK (security_level IN ('PRIVATE', 'INTERNAL', 'PUBLIC'))
 );
 
 CREATE TABLE tb_project_members (

@@ -49,7 +49,7 @@ class GetDashboardLayoutEndpointTest {
                .when()
                .get("/api/projects/" + project.id() + "/dashboard/layout")
                .then()
-               .statusCode(401);
+               .statusCode(403);
     }
 
     @Test
@@ -73,7 +73,8 @@ class GetDashboardLayoutEndpointTest {
                                 "name": "Foreign Dashboard %s",
                                 "description": "No membership for user",
                                 "prefix": "FD%s",
-                                "workflowId": %d
+                                "workflowId": %d,
+                                "securityLevel": "PRIVATE"
                             }
                             """.formatted(UUID.randomUUID(),
                                           UUID.randomUUID().toString().substring(0, 4).toUpperCase(),

@@ -40,13 +40,13 @@ class ListProjectsEndpointTest {
     }
 
     @Test
-    @DisplayName("Non authenticated user should not be able to list projects")
-    void nonAuthenticatedUserShouldNotListProjectsTest() {
+    @DisplayName("Anonymous user may list Public projects only")
+    void anonymousUserMayListPublicProjectsTest() {
         given().when()
                .accept(ContentType.JSON)
                .get("/api/projects")
                .then()
-               .statusCode(401);
+               .statusCode(200);
     }
 
     @Test
@@ -62,36 +62,48 @@ class ListProjectsEndpointTest {
     }
 
     @Test
-    @DisplayName("Project listing is viewable scope: members see memberships; non-members do not")
-    void projectListingRespectsViewableMembershipScope() {
+    @DisplayName("Project listing includes Internal projects for non-members; Private requires membership")
+    void projectListingRespectsSecurityLevelScope() {
         var suffix = UUID.randomUUID().toString().substring(0, 6);
-        var projectName = "Scoped Project " + suffix;
-        var createdProject = given().header(pmAuthenticatedHeader)
-                                    .accept(ContentType.JSON)
-                                    .when()
-                                    .contentType(ContentType.JSON)
-                                    .body("""
-                                          {
-                                              "name": "%s",
-                                              "description": "This is a test project.",
-                                              "prefix": "SP%s",
-                                              "workflowId": %d
-                                          }""".formatted(projectName, suffix.substring(0, 2), workflow.id()))
-                                    .post("/api/projects")
-                                    .then()
-                                    .statusCode(201)
-                                    .extract()
-                                    .jsonPath();
+        var internalName = "Internal Scoped " + suffix;
+        var privateName = "Private Scoped " + suffix;
+        var internalId = given().header(pmAuthenticatedHeader)
+                                .accept(ContentType.JSON)
+                                .when()
+                                .contentType(ContentType.JSON)
+                                .body("""
+                                      {
+                                          "name": "%s",
+                                          "description": "Internal discoverable.",
+                                          "prefix": "IS%s",
+                                          "workflowId": %d,
+                                          "securityLevel": "INTERNAL"
+                                      }""".formatted(internalName, suffix.substring(0, 2), workflow.id()))
+                                .post("/api/projects")
+                                .then()
+                                .statusCode(201)
+                                .extract()
+                                .jsonPath()
+                                .getLong("id");
 
-        var projectId = createdProject.getLong("id");
-
-        given().header(pmAuthenticatedHeader)
-               .accept(ContentType.JSON)
-               .when()
-               .get("/api/projects")
-               .then()
-               .statusCode(200)
-               .body("find { it.id == %d }.name".formatted(projectId), is(projectName));
+        var privateId = given().header(pmAuthenticatedHeader)
+                               .accept(ContentType.JSON)
+                               .when()
+                               .contentType(ContentType.JSON)
+                               .body("""
+                                     {
+                                         "name": "%s",
+                                         "description": "Private members only.",
+                                         "prefix": "PS%s",
+                                         "workflowId": %d,
+                                         "securityLevel": "PRIVATE"
+                                     }""".formatted(privateName, suffix.substring(2, 4), workflow.id()))
+                               .post("/api/projects")
+                               .then()
+                               .statusCode(201)
+                               .extract()
+                               .jsonPath()
+                               .getLong("id");
 
         given().header(userAuthenticatedHeader)
                .accept(ContentType.JSON)
@@ -99,9 +111,10 @@ class ListProjectsEndpointTest {
                .get("/api/projects")
                .then()
                .statusCode(200)
-               .body("find { it.id == %d }".formatted(projectId), nullValue());
+               .body("find { it.id == %d }.name".formatted(internalId), is(internalName))
+               .body("find { it.id == %d }".formatted(privateId), nullValue());
 
-        Given.addProjectMember(projectId, "user@issues.vepo.dev");
+        Given.addProjectMember(privateId, "user@issues.vepo.dev");
 
         given().header(userAuthenticatedHeader)
                .accept(ContentType.JSON)
@@ -109,7 +122,7 @@ class ListProjectsEndpointTest {
                .get("/api/projects")
                .then()
                .statusCode(200)
-               .body("find { it.id == %d }.name".formatted(projectId), is(projectName));
+               .body("find { it.id == %d }.name".formatted(privateId), is(privateName));
     }
 
     @Test

@@ -108,7 +108,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
 | **Project** | Bounded scope for tickets: name, prefix, required description, assigned workflow, and **project security level**. | `Project`, `tb_projects` |
-| **Project security level** | Per-project **read** visibility for tickets and related surfaces (tickets, Kanban, versions, hub, phases, backlog, burndown, dashboard, filtered search). Levels: **Private**, **Internal**, **Public**. **Writes** always require membership (or manage); never anonymous. Default: **Internal**. UI: **Nível de segurança**. | Planned — [feature/project-visibility.md](../feature/project-visibility.md); remediates ticket IDOR (SEC1) |
+| **Project security level** | Per-project **read** visibility for tickets and related surfaces (tickets, Kanban, versions, hub, phases, backlog, burndown, dashboard, filtered search). Levels: **Private**, **Internal**, **Public**. **Writes** always require membership (or manage); never anonymous. Default: **Internal**. UI: **Nível de segurança**. API/field: `securityLevel`. Persist: VARCHAR + Java `SecurityLevel`. | Shipped — [feature/project-visibility.md](../feature/project-visibility.md); remediates ticket IDOR (SEC1) |
 | **Private** (security level) | Only **project members** and **admin** may read gated surfaces. | `PRIVATE` / UI **Privado** |
 | **Internal** (security level) | Any **authenticated** user may read; non-members cannot write. | `INTERNAL` / UI **Interno** — default |
 | **Public** (security level) | **Anonymous** and authenticated users may read gated surfaces (no anonymous global search/home in v1). | `PUBLIC` / UI **Público** |

@@ -4,9 +4,8 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import dev.vepo.issues.project.ProjectPaths;
-import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -34,7 +33,7 @@ public class LoadBurndownEndpoint {
     @GET
     @Path("{projectId}/burndown")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
+    @PermitAll
     @Operation(operationId = "loadProjectBurndown", summary = "Load phase burndown series for a project")
     public BurndownResponse load(@PathParam("projectId") long projectId,
                                  @QueryParam("phaseId") long phaseId,

@@ -41,6 +41,6 @@ class LoadKpiDashboardEndpointTest {
                .when()
                .get("/api/projects/" + project.id() + "/dashboard/kpi/performance-kpi")
                .then()
-               .statusCode(401);
+               .statusCode(403);
     }
 }

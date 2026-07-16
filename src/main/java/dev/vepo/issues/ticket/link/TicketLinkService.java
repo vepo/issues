@@ -50,7 +50,7 @@ public class TicketLinkService {
     public List<TicketLinkResponse> listLinks(long ticketId, String username) {
         var user = projectAccessService.requireUser(username);
         var ticket = requireActiveTicket(ticketId);
-        requireView(user, ticket);
+        requireReadAccess(user, ticket);
         return listLinksForTicket(ticket, user);
     }
 
@@ -150,7 +150,7 @@ public class TicketLinkService {
             if (other.isDeleted()) {
                 return;
             }
-            if (!projectAccessService.canViewProject(user, other.getProject())) {
+            if (!projectAccessService.canRead(java.util.Optional.ofNullable(user), other.getProject())) {
                 return;
             }
             responses.add(TicketLinkResponse.fromOther(link, other, outbound));
@@ -210,6 +210,12 @@ public class TicketLinkService {
     private Ticket requireActiveTicket(long ticketId) {
         return ticketRepository.findById(ticketId)
                                .orElseThrow(() -> new NotFoundException("Ticket does not found! ticketId=%d".formatted(ticketId)));
+    }
+
+    private void requireReadAccess(User user, Ticket ticket) {
+        if (!projectAccessService.canRead(java.util.Optional.of(user), ticket.getProject())) {
+            throw new ForbiddenException("Access denied to project %d".formatted(ticket.getProject().getId()));
+        }
     }
 
     private void requireView(User user, Ticket ticket) {

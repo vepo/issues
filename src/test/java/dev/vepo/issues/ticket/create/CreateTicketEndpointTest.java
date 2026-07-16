@@ -164,7 +164,7 @@ class CreateTicketEndpointTest {
                .post("/api/tickets")
                .then()
                .statusCode(404)
-               .body("message", equalTo("Project does not found! projectId=9999"));
+               .body("message", equalTo("Project with ID 9999 does not exist"));
     }
 
     @Test

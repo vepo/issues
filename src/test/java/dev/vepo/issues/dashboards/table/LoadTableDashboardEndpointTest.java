@@ -77,7 +77,7 @@ class LoadTableDashboardEndpointTest {
                .when()
                .get("/api/projects/" + project.id() + "/dashboard/table/recent-tickets")
                .then()
-               .statusCode(401);
+               .statusCode(403);
     }
 
     private static ProjectResponse createIsolatedProject() {

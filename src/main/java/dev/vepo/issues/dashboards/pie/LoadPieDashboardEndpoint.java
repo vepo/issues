@@ -7,9 +7,8 @@ import dev.vepo.issues.dashboards.DashboardPaths;
 import dev.vepo.issues.dashboards.DashboardService;
 import dev.vepo.issues.dashboards.DashboardType;
 import dev.vepo.issues.dashboards.PieChartDataResponse;
-import dev.vepo.issues.user.Role;
 import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -38,11 +37,17 @@ public class LoadPieDashboardEndpoint {
 
     @GET
     @Path("pie/{dashboardType}")
-    @RolesAllowed({ Role.USER_ROLE, Role.ADMIN_ROLE, Role.PROJECT_MANAGER_ROLE })
+    @PermitAll
     @Operation(operationId = "loadPieDashboard", summary = "Load pie chart dashboard data")
     public PieChartDataResponse loadPieData(@PathParam("projectId") Long projectId,
                                             @PathParam("dashboardType") DashboardType type,
                                             @Context SecurityContext securityContext) {
-        return dashboardService.loadPieData(projectId, type, securityContext.getUserPrincipal().getName());
+        return dashboardService.loadPieData(projectId, type, optionalUsername(securityContext).orElse(null));
     }
+
+    private static java.util.Optional<String> optionalUsername(SecurityContext securityContext) {
+        var principal = securityContext.getUserPrincipal();
+        return principal == null ? java.util.Optional.empty() : java.util.Optional.of(principal.getName());
+    }
+
 }

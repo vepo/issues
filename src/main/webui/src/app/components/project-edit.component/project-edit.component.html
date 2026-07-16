@@ -42,6 +42,18 @@
     </div>
 
     <section class="form-section">
+      <h2 class="section-title" i18n>Nível de segurança</h2>
+      <mat-radio-group formControlName="securityLevel" class="security-level-group" aria-label="Nível de segurança">
+        @for (level of securityLevels; track level.value) {
+          <mat-radio-button [value]="level.value" class="security-level-option">
+            <span class="security-level-label">{{ level.label }}</span>
+            <span class="security-level-help"> — {{ level.help }}</span>
+          </mat-radio-button>
+        }
+      </mat-radio-group>
+    </section>
+
+    <section class="form-section">
       <mat-checkbox formControlName="templateEnabled" i18n>Usar template de ticket</mat-checkbox>
 
       @if (projectForm.value.templateEnabled) {

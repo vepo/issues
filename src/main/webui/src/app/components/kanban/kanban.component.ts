@@ -40,7 +40,7 @@ export class KanbanComponent implements OnInit {
   private readonly membersService = inject(ProjectMembersService);
 
   statuses: ProjectStatus[] = [];
-  project: Project = { id: -1, name: '', prefix: '', description: '', workflow: { id: -1, name: '' }, owner: { id: -1, name: '', email: '' }, ticketTemplate: { enabled: false }, phaseTemplate: { deliverables: [] }, prefixLocked: false };
+  project: Project = { id: -1, name: '', prefix: '', description: '', workflow: { id: -1, name: '' }, owner: { id: -1, name: '', email: '' }, ticketTemplate: { enabled: false }, phaseTemplate: { deliverables: [] }, securityLevel: 'INTERNAL', prefixLocked: false };
   tickets: Ticket[] = [];
   workflow?: ProjectWorkflow;
   phases: Phase[] = [];

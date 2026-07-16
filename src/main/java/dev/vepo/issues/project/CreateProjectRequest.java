@@ -9,5 +9,6 @@ public record CreateProjectRequest(@NotBlank(message = "Project prefix cannot be
                                    @NotBlank(message = "Project description cannot be empty") String description,
                                    @NotNull(message = "Workflow ID must be provided") Long workflowId,
                                    Long ownerId,
+                                   SecurityLevel securityLevel,
                                    TicketTemplateRequest ticketTemplate,
                                    PhaseTemplateRequest phaseTemplate) {}

@@ -372,7 +372,8 @@ class VersionEndpointTest {
                                               "name": "Foreign Version %s",
                                               "description": "No membership for user",
                                               "prefix": "VR%s",
-                                              "workflowId": %d
+                                              "securityLevel": "PRIVATE",
+                                            "workflowId": %d
                                           }
                                           """.formatted(UUID.randomUUID(),
                                                         UUID.randomUUID().toString().substring(0, 4).toUpperCase(),

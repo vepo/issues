@@ -3,6 +3,7 @@ package dev.vepo.issues.dashboards;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,7 +58,7 @@ public class DashboardService {
     }
 
     public DashboardLayoutResponse getLayout(long projectId, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         requireProject(projectId);
         var user = requireUser(username);
         return layoutRepository.findByUserIdAndProjectId(user.getId(), projectId)
@@ -81,7 +82,7 @@ public class DashboardService {
     }
 
     public PieChartDataResponse loadPieData(long projectId, DashboardType type, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         requireProject(projectId);
         return switch (type) {
             case TICKETS_BY_PRIORITY -> pieFromTuples(projectId, dashboardRepository.countTicketsByPriority(projectId));
@@ -92,7 +93,7 @@ public class DashboardService {
     }
 
     public TableDataResponse loadTableData(long projectId, DashboardType type, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         requireProject(projectId);
         return switch (type) {
             case RECENT_TICKETS -> recentTickets(projectId);
@@ -101,7 +102,7 @@ public class DashboardService {
     }
 
     public KpiDataResponse loadKpiData(long projectId, DashboardType type, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         requireProject(projectId);
         return switch (type) {
             case PERFORMANCE_KPI -> performanceKpi(projectId);

@@ -1,5 +1,6 @@
 package dev.vepo.issues.phase;
 
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -41,7 +42,7 @@ public class VersionService {
     }
 
     public List<VersionResponse> listByProject(long projectId, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         requireProject(projectId);
         return versionRepository.findByProjectId(projectId)
                                 .map(VersionResponse::load)
@@ -49,7 +50,7 @@ public class VersionService {
     }
 
     public VersionResponse findById(long projectId, long versionId, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         return VersionResponse.load(requireVersion(projectId, versionId));
     }
 
@@ -80,7 +81,7 @@ public class VersionService {
     }
 
     public VersionChangelogResponse changelog(long projectId, long versionId, String username) {
-        projectAccessService.requireView(projectId, username);
+        projectAccessService.requireRead(projectId, Optional.ofNullable(username));
         var version = requireVersion(projectId, versionId);
         var targetTickets = ticketRepository.findForVersionChangelog(projectId, versionId, ChangelogAssociation.TARGET)
                                             .map(ticket -> toEntry(ticket, EnumSet.of(ChangelogAssociation.TARGET)))

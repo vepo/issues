@@ -45,6 +45,10 @@ public class Project {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "security_level", nullable = false, length = 16)
+    private SecurityLevel securityLevel = SecurityLevel.INTERNAL;
+
     @Column(name = "ticket_template_enabled", nullable = false)
     private boolean ticketTemplateEnabled;
 
@@ -76,6 +80,7 @@ public class Project {
         this.description = description;
         this.workflow = workflow;
         this.owner = owner;
+        this.securityLevel = SecurityLevel.INTERNAL;
         this.ticketTemplateEnabled = false;
     }
 
@@ -125,6 +130,14 @@ public class Project {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public SecurityLevel getSecurityLevel() {
+        return securityLevel;
+    }
+
+    public void setSecurityLevel(SecurityLevel securityLevel) {
+        this.securityLevel = securityLevel == null ? SecurityLevel.INTERNAL : securityLevel;
     }
 
     public boolean isTicketTemplateEnabled() {
