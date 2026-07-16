@@ -37,7 +37,7 @@
             }
           }
           @if (isUploading) {
-            <p i18n>Enviando arquivo…</p>
+            <p i18n>Enviando {{ uploadPartsSent }}/{{ uploadPartCount }} partes…</p>
           }
           @if (uploadError) {
             <p class="error">{{ uploadError }}</p>

@@ -23,6 +23,7 @@ public class CsvImportParser {
 
     public static final int MAX_ROWS = 500;
     public static final int MAX_FILE_BYTES = 5 * 1024 * 1024;
+    public static final int MAX_CHUNK_BYTES = 1024 * 1024;
 
     public ParsedCsv parse(InputStream inputStream) {
         try {

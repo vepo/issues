@@ -82,6 +82,15 @@ public class TicketImport {
     @Column(nullable = false)
     private boolean truncated;
 
+    @Column(name = "expected_bytes")
+    private Long expectedBytes;
+
+    @Column(name = "received_bytes", nullable = false)
+    private long receivedBytes;
+
+    @Column(name = "chunk_count", nullable = false)
+    private int chunkCount;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -221,6 +230,30 @@ public class TicketImport {
 
     public void setTruncated(boolean truncated) {
         this.truncated = truncated;
+    }
+
+    public Long getExpectedBytes() {
+        return expectedBytes;
+    }
+
+    public void setExpectedBytes(Long expectedBytes) {
+        this.expectedBytes = expectedBytes;
+    }
+
+    public long getReceivedBytes() {
+        return receivedBytes;
+    }
+
+    public void setReceivedBytes(long receivedBytes) {
+        this.receivedBytes = receivedBytes;
+    }
+
+    public int getChunkCount() {
+        return chunkCount;
+    }
+
+    public void setChunkCount(int chunkCount) {
+        this.chunkCount = chunkCount;
     }
 
     public LocalDateTime getCreatedAt() {

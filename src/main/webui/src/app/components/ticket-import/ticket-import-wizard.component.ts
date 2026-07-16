@@ -74,6 +74,8 @@ export class TicketImportWizardComponent implements OnInit {
   sampleRows: Record<string, string>[] = [];
   uploadError = '';
   isUploading = false;
+  uploadPartsSent = 0;
+  uploadPartCount = 0;
   previewRows: ImportRowValidation[] = [];
   validCount = 0;
   invalidCount = 0;
@@ -253,11 +255,21 @@ export class TicketImportWizardComponent implements OnInit {
       this.uploadResult = null;
       return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      this.uploadError = 'O arquivo excede o limite de 5 MB';
+      this.uploadResult = null;
+      return;
+    }
 
     this.fileName = file.name;
     this.uploadError = '';
     this.isUploading = true;
-    this.ticketImportService.upload(this.projectId, file).subscribe({
+    this.uploadPartsSent = 0;
+    this.uploadPartCount = Math.max(1, Math.ceil(file.size / (1024 * 1024)));
+    this.ticketImportService.upload(this.projectId, file, progress => {
+      this.uploadPartsSent = progress.partsSent;
+      this.uploadPartCount = progress.partCount;
+    }).subscribe({
       next: result => {
         this.uploadResult = result;
         this.projectScoped = result.projectScoped ?? this.projectScoped;
@@ -268,8 +280,11 @@ export class TicketImportWizardComponent implements OnInit {
         this.guessColumnMapping(this.headers);
         this.isUploading = false;
       },
-      error: () => {
-        this.uploadError = 'Não foi possível enviar o arquivo CSV';
+      error: (err: unknown) => {
+        const message = err instanceof Error && err.message === 'FILE_TOO_LARGE'
+          ? 'O arquivo excede o limite de 5 MB'
+          : 'Não foi possível enviar o arquivo CSV';
+        this.uploadError = message;
         this.uploadResult = null;
         this.isUploading = false;
       },

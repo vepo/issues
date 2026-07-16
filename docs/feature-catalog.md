@@ -31,8 +31,8 @@ UI feature index for Issues. Update when routes, menu items, or primary user flo
 | Shared saved query | `/search/q/:slug` | authenticated | Copy link; owner **Editar**; others **Clonar** |
 | Create ticket | `/tickets/new` | authenticated | Header → Novo → select project → fill form (**Tipo** Épico/História/Tarefa, rich-text **Descrição** + **Campos personalizados** from in-scope defs; Text CF rich text) → optional **fase** → create |
 | Create ticket (project) | `/project/:projectId/tickets/new` | authenticated | Kanban → Novo ticket → form pre-filled from template (built-ins + custom field defaults; rich-text Description / Text CF; **Tipo**) → optional **fase** → create |
-| Import tickets (CSV, project) | `/project/:projectId/tickets/import` | authenticated | Kanban → Importar CSV → upload file → map built-in columns and **custom field keys** → preview (correct invalid rows in place) → import valid rows (partial; no sibling rollback) |
-| Import tickets (CSV, global) | `/tickets/import` | authenticated | Header **Importar** or user menu → Importar CSV → upload file → map project + built-in columns and **custom field keys** (row invalid if project lacks that key) → preview (correct invalid rows) → import valid rows |
+| Import tickets (CSV, project) | `/project/:projectId/tickets/import` | authenticated | Kanban → Importar CSV → **chunked upload** (progress N/M parts; max 5 MB / 1 MB / 500 rows) → map built-in columns and **custom field keys** → preview (correct invalid rows in place) → import valid rows (partial; no sibling rollback) |
+| Import tickets (CSV, global) | `/tickets/import` | authenticated | Header **Importar** or user menu → Importar CSV → **chunked upload** → map project + built-in columns and **custom field keys** (row invalid if project lacks that key) → preview (correct invalid rows) → import valid rows |
 | User list | `/users` | admin | Administração → **Usuários** → list; Editar or Excluir (blocked when assignee on open tickets); SPA `roleGuard(['admin'])` |
 | Create user | `/users/new` | admin | Users → Novo usuário → fill form → save |
 | Edit user | `/users/:userId` | admin | Users → select user → edit → save |

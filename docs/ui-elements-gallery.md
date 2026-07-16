@@ -547,7 +547,7 @@ Wrapped in `.page` with standard `.page-header`. Inner `.page-panel` contains `.
 | `baseChart` (ng2-charts) | Dashboard pie charts |
 
 | `MatStepper` | `ticket-import-wizard` | Linear wizard: upload → column mapping → preview → results |
-| Hidden file input | `ticket-import-wizard` | `.btn` label wrapping `<input type="file" accept=".csv">`; streams file to `POST .../import/upload` |
+| Hidden file input | `ticket-import-wizard` | `.btn` label wrapping `<input type="file" accept=".csv">`; chunked upload via init/part/complete; shows `N/M partes` progress |
 
 ---
 

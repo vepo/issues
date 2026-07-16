@@ -1,7 +1,7 @@
 # Ticket import (CSV)
 
 **Feature version:** 2  
-**Status:** tasks-ready  
+**Status:** done  
 **Requested:** retrospective baseline (documented 2026-07-03); open questions answered 2026-07-11
 
 ## Summary
@@ -112,7 +112,7 @@ Legacy single `POST …/upload` may remain as thin wrapper that init+one-part+co
 ### Chunked CSV upload — 2026-07-11
 
 **Version:** 2  
-**Status:** tasks-ready
+**Status:** done
 
 **Description:** Replace single-shot primary upload with **init / part / complete** chunked upload (**FQ1**, **AQ1**); enforce **5 MB** / **1 MB** / **500** rows (**FQ3**); keep **FQ2** row-correction + partial execute.
 
@@ -128,38 +128,40 @@ Legacy single `POST …/upload` may remain as thin wrapper that init+one-part+co
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Init / part / complete APIs per **Architecture** (**AQ1**) | Architecture, **AQ1** | ☐ |
-| FC2 | Enforce 5 MB total, 1 MB chunk, 500 rows (**FQ3**) | **FQ3** | ☐ |
-| FC3 | Wizard upload shows chunk progress; rejects oversize | Wireframe, **FQ1** | ☐ |
-| FC4 | Row correction + partial execute unchanged (**FQ2**) | **FQ2**, Wireframe | ☐ |
-| FC5 | Schema staging in `V1.0.0`; domain-spec + feature-catalog + ARCHITECTURE updated | Impact / Docs | ☐ |
-| FC6 | Legacy single upload still works via wrapper or documented removal | Architecture | ☐ |
+| FC1 | Init / part / complete APIs per **Architecture** (**AQ1**) | Architecture, **AQ1** | ☑ |
+| FC2 | Enforce 5 MB total, 1 MB chunk, 500 rows (**FQ3**) | **FQ3** | ☑ |
+| FC3 | Wizard upload shows chunk progress; rejects oversize | Wireframe, **FQ1** | ☑ |
+| FC4 | Row correction + partial execute unchanged (**FQ2**) | **FQ2**, Wireframe | ☑ |
+| FC5 | Schema staging in `V1.0.0`; domain-spec + feature-catalog + ARCHITECTURE updated | Impact / Docs | ☑ |
+| FC6 | Legacy single upload still works via wrapper or documented removal | Architecture | ☑ |
 
 #### Tasks
 
-| ID | Deliverable |
-|----|-------------|
-| T1 | Schema: staging fields and/or `tb_ticket_import_chunks` in `V1.0.0`; entity/repository support |
-| T2 | `TicketImportService` init / accept part / complete (concat + existing parse); enforce **FQ3** limits |
-| T3 | Project-scoped endpoints: init, upload part, complete (`*Endpoint` per op) |
-| T4 | Global-scoped endpoints: same three operations |
-| T5 | Legacy `POST …/upload` wrapper (init + single part + complete) or remove + regenerate clients |
-| T6 | Angular wizard: slice file, call chunk APIs, progress UI per wireframe |
-| T7 | Docs: domain-spec limits, feature-catalog, ARCHITECTURE §13 |
+| ID | Deliverable | Done |
+|----|-------------|------|
+| T1 | Schema: staging fields and/or `tb_ticket_import_chunks` in `V1.0.0`; entity/repository support | ☑ |
+| T2 | `TicketImportService` init / accept part / complete (concat + existing parse); enforce **FQ3** limits | ☑ |
+| T3 | Project-scoped endpoints: init, upload part, complete (`*Endpoint` per op) | ☑ |
+| T4 | Global-scoped endpoints: same three operations | ☑ |
+| T5 | Legacy `POST …/upload` wrapper (init + single part + complete) or remove + regenerate clients | ☑ |
+| T6 | Angular wizard: slice file, call chunk APIs, progress UI per wireframe | ☑ |
+| T7 | Docs: domain-spec limits, feature-catalog, ARCHITECTURE §13 | ☑ |
 
 #### Test coverage
 
-| ID | Coverage |
-|----|----------|
-| TC1 | Init rejects totalBytes > 5 MB; part rejects > 1 MB (**FQ3**) — with T2/T3 |
-| TC2 | Complete with all parts → parse + headers like today — with T2/T3 |
-| TC3 | Missing part / wrong import state → 400 — with T2/T3 |
-| TC4 | Global chunk upload happy path — with T4 |
-| TC5 | Legacy wrapper (if kept) still imports small CSV — with T5 |
-| TC6 | Angular: chunked upload progress / oversize handling — with T6 |
-| TC7 | Regression: correct row + execute partial still green — with T2 |
+| ID | Coverage | Done |
+|----|----------|------|
+| TC1 | Init rejects totalBytes > 5 MB; part rejects > 1 MB (**FQ3**) — with T2/T3 | ☑ |
+| TC2 | Complete with all parts → parse + headers like today — with T2/T3 | ☑ |
+| TC3 | Missing part / wrong import state → 400 — with T2/T3 | ☑ |
+| TC4 | Global chunk upload happy path — with T4 | ☑ |
+| TC5 | Legacy wrapper (if kept) still imports small CSV — with T5 | ☑ |
+| TC6 | Angular: chunked upload progress / oversize handling — with T6 | ☑ |
+| TC7 | Regression: correct row + execute partial still green — with T2 | ☑ |
 
-**Development approval:** — (awaiting explicit task IDs)
+**Development approval:** approved 2026-07-16 — tasks: T1, T2, T3, T4, T5, T6, T7
+
+**Implementation notes:** Staging on `tb_ticket_imports` (`expected_bytes`, `received_bytes`, `chunk_count`) + `tb_ticket_import_chunks`; status `UPLOADING` → `UPLOADED` after complete. Legacy `POST …/upload` wraps init+one-part+complete. Angular wizard slices ≤1 MB and shows `N/M partes`.
 
 ### Initial implementation — baseline
 

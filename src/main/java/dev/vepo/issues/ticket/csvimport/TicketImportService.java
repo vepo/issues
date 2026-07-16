@@ -1,5 +1,7 @@
 package dev.vepo.issues.ticket.csvimport;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -38,6 +40,7 @@ public class TicketImportService {
 
     private final TicketImportRepository importRepository;
     private final TicketImportRowRepository importRowRepository;
+    private final TicketImportChunkRepository chunkRepository;
     private final ProjectRepository projectRepository;
     private final ProjectAccessService projectAccessService;
     private final CategoryRepository categoryRepository;
@@ -51,6 +54,7 @@ public class TicketImportService {
     @Inject
     public TicketImportService(TicketImportRepository importRepository,
                                TicketImportRowRepository importRowRepository,
+                               TicketImportChunkRepository chunkRepository,
                                ProjectRepository projectRepository,
                                ProjectAccessService projectAccessService,
                                CategoryRepository categoryRepository,
@@ -62,6 +66,7 @@ public class TicketImportService {
                                CustomFieldService customFieldService) {
         this.importRepository = importRepository;
         this.importRowRepository = importRowRepository;
+        this.chunkRepository = chunkRepository;
         this.projectRepository = projectRepository;
         this.projectAccessService = projectAccessService;
         this.categoryRepository = categoryRepository;
@@ -74,12 +79,17 @@ public class TicketImportService {
     }
 
     @Transactional
-    public TicketImportUploadResponse upload(Long projectId, String fileName, InputStream content, String username) {
+    public InitTicketImportUploadResponse initUpload(Long projectId, InitTicketImportUploadRequest request, String username) {
         var author = userRepository.findByUsername(username)
                                    .orElseThrow(() -> new NotFoundException("User does not found! username=%s".formatted(username)));
-        var parsed = csvImportParser.parse(content);
-        if (parsed.rows().isEmpty()) {
-            throw new BadRequestException("CSV file has no data rows");
+        if (request.totalBytes() > CsvImportParser.MAX_FILE_BYTES) {
+            throw new BadRequestException("CSV file exceeds maximum size of 5 MB");
+        }
+        if (request.chunkCount() < 1) {
+            throw new BadRequestException("chunkCount must be at least 1");
+        }
+        if ((long) request.chunkCount() * CsvImportParser.MAX_CHUNK_BYTES < request.totalBytes()) {
+            throw new BadRequestException("chunkCount too small for declared file size");
         }
 
         var ticketImport = new TicketImport();
@@ -88,7 +98,114 @@ public class TicketImportService {
             ticketImport.setProject(requireProject(projectId));
         }
         ticketImport.setAuthor(author);
-        ticketImport.setFileName(fileName);
+        ticketImport.setFileName(request.fileName().trim());
+        ticketImport.setHeadersJson("[]");
+        ticketImport.setStatus(TicketImportStatus.UPLOADING);
+        ticketImport.setRowCount(0);
+        ticketImport.setTruncated(false);
+        ticketImport.setExpectedBytes(request.totalBytes());
+        ticketImport.setReceivedBytes(0);
+        ticketImport.setChunkCount(request.chunkCount());
+        importRepository.save(ticketImport);
+        return new InitTicketImportUploadResponse(ticketImport.getId());
+    }
+
+    @Transactional
+    public void acceptPart(Long projectId, long importId, int partIndex, InputStream content, String username) {
+        var ticketImport = requireImport(projectId, importId, username);
+        if (ticketImport.getStatus() != TicketImportStatus.UPLOADING) {
+            throw new BadRequestException("Import is not accepting upload parts");
+        }
+        if (partIndex < 0 || partIndex >= ticketImport.getChunkCount()) {
+            throw new BadRequestException("Invalid part index");
+        }
+        if (chunkRepository.findByImportIdAndPartIndex(importId, partIndex).isPresent()) {
+            throw new BadRequestException("Part already uploaded");
+        }
+        byte[] bytes;
+        try {
+            bytes = content.readAllBytes();
+        } catch (IOException ex) {
+            throw new BadRequestException("Unable to read upload part");
+        }
+        if (bytes.length == 0) {
+            throw new BadRequestException("Upload part is empty");
+        }
+        if (bytes.length > CsvImportParser.MAX_CHUNK_BYTES) {
+            throw new BadRequestException("Upload part exceeds maximum size of 1 MB");
+        }
+        if (ticketImport.getReceivedBytes() + bytes.length > ticketImport.getExpectedBytes()) {
+            throw new BadRequestException("Upload exceeds declared total size");
+        }
+
+        var chunk = new TicketImportChunk();
+        chunk.setImportId(importId);
+        chunk.setPartIndex(partIndex);
+        chunk.setContent(bytes);
+        chunk.setByteLength(bytes.length);
+        chunkRepository.save(chunk);
+
+        ticketImport.setReceivedBytes(ticketImport.getReceivedBytes() + bytes.length);
+        importRepository.merge(ticketImport);
+    }
+
+    @Transactional
+    public TicketImportUploadResponse completeUpload(Long projectId, long importId, String username) {
+        var ticketImport = requireImport(projectId, importId, username);
+        if (ticketImport.getStatus() != TicketImportStatus.UPLOADING) {
+            throw new BadRequestException("Import is not ready to complete upload");
+        }
+        var chunks = chunkRepository.findByImportIdOrderByPartIndex(importId);
+        if (chunks.size() != ticketImport.getChunkCount()) {
+            throw new BadRequestException("Missing upload parts");
+        }
+        for (var i = 0; i < ticketImport.getChunkCount(); i++) {
+            if (chunks.get(i).getPartIndex() != i) {
+                throw new BadRequestException("Missing upload parts");
+            }
+        }
+        if (ticketImport.getReceivedBytes() != ticketImport.getExpectedBytes()) {
+            throw new BadRequestException("Uploaded bytes do not match declared total size");
+        }
+
+        var assembled = new byte[(int) ticketImport.getReceivedBytes()];
+        var offset = 0;
+        for (var chunk : chunks) {
+            System.arraycopy(chunk.getContent(), 0, assembled, offset, chunk.getByteLength());
+            offset += chunk.getByteLength();
+        }
+        chunkRepository.deleteByImportId(importId);
+
+        return finalizeParsedUpload(ticketImport, new ByteArrayInputStream(assembled));
+    }
+
+    @Transactional
+    public TicketImportUploadResponse upload(Long projectId, String fileName, InputStream content, String username) {
+        byte[] bytes;
+        try {
+            bytes = content.readAllBytes();
+        } catch (IOException ex) {
+            throw new BadRequestException("Unable to read CSV file");
+        }
+        if (bytes.length == 0) {
+            throw new BadRequestException("CSV file is empty");
+        }
+        if (bytes.length > CsvImportParser.MAX_FILE_BYTES) {
+            throw new BadRequestException("CSV file exceeds maximum size of 5 MB");
+        }
+        var init = initUpload(projectId,
+                              new InitTicketImportUploadRequest(fileName, (long) bytes.length, 1),
+                              username);
+        acceptPart(projectId, init.importId(), 0, new ByteArrayInputStream(bytes), username);
+        return completeUpload(projectId, init.importId(), username);
+    }
+
+    private TicketImportUploadResponse finalizeParsedUpload(TicketImport ticketImport, InputStream content) {
+        var parsed = csvImportParser.parse(content);
+        if (parsed.rows().isEmpty()) {
+            throw new BadRequestException("CSV file has no data rows");
+        }
+
         ticketImport.setHeadersJson(importJson.writeHeaders(parsed.headers()));
         ticketImport.setStatus(TicketImportStatus.UPLOADED);
         ticketImport.setRowCount(parsed.rows().size());
@@ -101,7 +218,7 @@ public class TicketImportService {
             ticketImport.addRow(row);
         }
 
-        importRepository.save(ticketImport);
+        importRepository.merge(ticketImport);
 
         var sampleRows = parsed.rows()
                                .stream()

@@ -24,7 +24,10 @@ describe('TicketImportWizardComponent', () => {
         {
           provide: TicketImportService,
           useValue: {
-            upload: jasmine.createSpy('upload').and.returnValue(of({ id: 1, headers: ['Title'], rowCount: 1, truncated: false, sampleRows: [], projectScoped: true })),
+            upload: jasmine.createSpy('upload').and.callFake((_projectId: number | null, _file: File, onProgress?: (p: { partsSent: number; partCount: number }) => void) => {
+              onProgress?.({ partsSent: 1, partCount: 1 });
+              return of({ id: 1, headers: ['Title'], rowCount: 1, truncated: false, sampleRows: [], projectScoped: true });
+            }),
             applyMapping: jasmine.createSpy('applyMapping').and.returnValue(of(void 0)),
             preview: jasmine.createSpy('preview').and.returnValue(of({ rows: [], validCount: 0, invalidCount: 0 })),
             correctRow: jasmine.createSpy('correctRow').and.returnValue(of({ rowId: 1, rowNumber: 2, valid: true, errors: [] })),
