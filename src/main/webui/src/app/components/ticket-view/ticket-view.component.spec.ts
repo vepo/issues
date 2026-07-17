@@ -423,4 +423,50 @@ describe('TicketViewComponent links', () => {
     expect(ticketService.search).toHaveBeenCalledWith('Candidate ticket', -1);
     expect(component.linkSearchResults.length).toBe(1);
   }));
+
+  it('should filter project members when typing @ in the comment editor', () => {
+    component.setActiveTab('comments');
+    fixture.detectChanges();
+    component.projectMembersForMention = [
+      { id: 1, username: 'ana-silva', name: 'Ana Silva', email: 'ana@issues.vepo.dev' },
+      { id: 2, username: 'andre-souza', name: 'André Souza', email: 'andre@issues.vepo.dev' },
+      { id: 3, username: 'bruno-costa', name: 'Bruno Costa', email: 'bruno@issues.vepo.dev' },
+    ];
+    spyOn(component.commentEditor!, 'getPlainText').and.returnValue('Great work @an');
+
+    component.onCommentChange('Great work @an');
+
+    expect(component.mentionQuery).toBe('an');
+    expect(component.mentionCandidates.map(m => m.username)).toEqual(['ana-silva', 'andre-souza']);
+  });
+
+  it('should insert a plain-text mention and close the autocomplete on selection', () => {
+    component.setActiveTab('comments');
+    fixture.detectChanges();
+    component.projectMembersForMention = [
+      { id: 1, username: 'ana-silva', name: 'Ana Silva', email: 'ana@issues.vepo.dev' },
+    ];
+    spyOn(component.commentEditor!, 'getPlainText').and.returnValue('Great work @an');
+    component.onCommentChange('Great work @an');
+
+    component.selectMention(component.projectMembersForMention[0]);
+
+    expect(component.newComment).toBe('Great work @ana-silva ');
+    expect(component.mentionQuery).toBeNull();
+    expect(component.mentionCandidates).toEqual([]);
+  });
+
+  it('should close the autocomplete when there is no trailing @ token', () => {
+    component.setActiveTab('comments');
+    fixture.detectChanges();
+    component.projectMembersForMention = [
+      { id: 1, username: 'ana-silva', name: 'Ana Silva', email: 'ana@issues.vepo.dev' },
+    ];
+    spyOn(component.commentEditor!, 'getPlainText').and.returnValue('No mention here');
+
+    component.onCommentChange('No mention here');
+
+    expect(component.mentionQuery).toBeNull();
+    expect(component.mentionCandidates).toEqual([]);
+  });
 });

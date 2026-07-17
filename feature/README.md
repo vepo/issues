@@ -166,7 +166,7 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 |------------|------|-----------------|--------|
 | Authentication (login, password recovery) | `feature/authentication.md` | 3 | done |
 | Account settings | `feature/account-settings.md` | 1 | done |
-| Ticket management (detail, comments, history, subscribe, clone) | `feature/ticket-management.md` | 4 | done |
+| Ticket management (detail, comments, history, subscribe, clone, mentions) | `feature/ticket-management.md` | 5 | in-progress |
 | Ticket search (query language, saved queries) | `feature/ticket-search.md` | 2 | done |
 | Ticket export (CSV / JSON simple, advanced, and saved-query results) | `feature/ticket-export.md` | 1 | done |
 | Create ticket | `feature/create-ticket.md` | 1 | done |

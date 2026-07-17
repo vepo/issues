@@ -2318,6 +2318,34 @@ form.edit {
   }
 }
 
+.mention-autocomplete {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: colors.$surface-card;
+  border: 1px solid colors.$border-subtle;
+  border-radius: colors.$radius-none;
+  max-height: 12rem;
+  overflow-y: auto;
+
+  .mention-candidate {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: colors.$space-sm colors.$space-md;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: colors.$text-primary;
+    font-size: 0.9rem;
+
+    &:hover,
+    &:focus {
+      background: colors.$surface-muted;
+    }
+  }
+}
+
 .ticket-actions {
   display: flex;
   flex-wrap: wrap;

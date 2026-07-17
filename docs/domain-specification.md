@@ -197,6 +197,7 @@ Methodology-neutral planning terms. Product-owned phase and version copy follows
 | **Story points** | Optional non-negative integer estimate of ticket size/effort; null means unset (burndown warns and treats as 0 until set). | `Ticket.storyPoints` |
 | **Due date** | Optional user-planned deadline for the ticket; distinct from finish date. | `Ticket.dueDate`; UI **Data de vencimento** |
 | **Comment** | Text note attached to a ticket; may be marked **agent channel** (`via_agent`) when created via API token. | `Comment`, `tb_comments` |
+| **Mention** | Tagging another **project member** with `@username` inside a comment; notifies that user directly, independent of ticket subscription. Renders as plain text. | `MentionParser`; [feature/ticket-management.md](../feature/ticket-management.md) v5 |
 | **Ticket history** | Immutable structured audit log of non-comment actions on a ticket (`action`, `field`, `oldValue`, `newValue`); may be marked **agent channel** (`via_agent`) when mutated via API token. | `TicketHistory`, `TicketHistoryService` |
 | **Ticket history action** | Typed event: `CREATED`, `FIELD_CHANGED`, `STATUS_CHANGED`, `ASSIGNEE_CHANGED`, `SUBSCRIBED`, `UNSUBSCRIBED`, `DELETED`, `RESTORED`, `LINK_ADDED`, `LINK_REMOVED`, `ATTACHMENT_ADDED`, `ATTACHMENT_REMOVED`. | `TicketHistoryAction` |
 | **Attachment** | A file bound to one **Ticket**: original filename, content type, size, storage key (filesystem path), uploaded-by, uploaded-at. Complements **Comments** (text); not CSV import batches or linked commits. | `Attachment`, `tb_ticket_attachments`; UI **Anexos** |
@@ -354,6 +355,7 @@ Methodology-neutral planning terms. Product-owned phase and version copy follows
 78. **Linked commit** — commits mentioning `{prefix}-{seq}` (subject or body) link to non-deleted tickets in the associated project; idempotent on `(ticket_id, sha)`; no subscriber notification and no auto-transition on link. (Planned.)
 79. **Commit ingest auth** — forge push webhook verified with per-project HMAC secret; inbound API uses Bearer personal API token or project service account. (Planned.)
 80. **Workflow status edit** — after create, statuses may be added, renamed (workflow-local detach/attach), or removed. Removing a status with tickets requires a replacement; remaps include soft-deleted tickets; orphan transitions and workflow CF status-required links to that status are dropped; remap writes history and does not notify.
+81. **Comment @mentions** — eligible mention targets are the ticket's **project members** only. The server parses `@username` tokens from the raw comment text (before HTML sanitization) and matches them exactly against the ticket's current project members; non-matching tokens are silently ignored. Mentioning notifies the mentioned user in-app/SSE even if they are not a ticket subscriber; it never adds or removes ticket subscribers and never sends email. The comment author is never notified of mentioning themselves. Rendered as plain `@username` text (no chip/link). ([feature/ticket-management.md](../feature/ticket-management.md) v5.)
 
 ---
 

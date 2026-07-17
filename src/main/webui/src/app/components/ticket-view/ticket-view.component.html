@@ -488,11 +488,23 @@
         <div class="comment-form">
           <h3>{{ 'migration.ticket-view.d53bd5937fa9' | transloco }}</h3>
           <app-rich-text-editor
+            #commentEditor
             [value]="newComment"
             [disabled]="submittingComment"
             placeholder="Digite seu comentário..."
             (valueChange)="onCommentChange($event)">
           </app-rich-text-editor>
+          @if (mentionCandidates.length > 0) {
+            <ul class="mention-autocomplete" data-testid="mention-autocomplete">
+              @for (candidate of mentionCandidates; track candidate.id) {
+                <li>
+                  <button type="button" class="mention-candidate" (click)="selectMention(candidate)">
+                    &#64;{{ candidate.username }}
+                  </button>
+                </li>
+              }
+            </ul>
+          }
           <div class="form-actions">
             <button
               class="btn"

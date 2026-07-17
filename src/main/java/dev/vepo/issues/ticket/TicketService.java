@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import dev.vepo.issues.customfield.CustomFieldValueResponse;
 import dev.vepo.issues.git.GitCommitService;
 import dev.vepo.issues.infra.HtmlSanitizer;
 import dev.vepo.issues.notifications.NotificationEvent;
+import dev.vepo.issues.notifications.NotificationService;
 import dev.vepo.issues.phase.Phase;
 import dev.vepo.issues.phase.PhaseService;
 import dev.vepo.issues.phase.Version;
@@ -28,6 +30,7 @@ import dev.vepo.issues.project.ProjectRepository;
 import dev.vepo.issues.ticket.comments.Comment;
 import dev.vepo.issues.ticket.comments.CommentRequest;
 import dev.vepo.issues.ticket.comments.CommentResponse;
+import dev.vepo.issues.ticket.comments.MentionParser;
 import dev.vepo.issues.ticket.history.TicketHistory;
 import dev.vepo.issues.ticket.history.TicketHistoryService;
 import dev.vepo.issues.ticket.backlog.BacklogService;
@@ -65,6 +68,7 @@ public class TicketService {
     private final ProjectAccessService projectAccessService;
     private final CustomFieldService customFieldService;
     private final Event<NotificationEvent> notificationEmitter;
+    private final NotificationService notificationService;
     private final Provider<TicketLinkService> ticketLinkService;
     private final BacklogService backlogService;
     private final SecurityIdentity securityIdentity;
@@ -84,6 +88,7 @@ public class TicketService {
                          ProjectAccessService projectAccessService,
                          CustomFieldService customFieldService,
                          Event<NotificationEvent> notificationEmitter,
+                         NotificationService notificationService,
                          Provider<TicketLinkService> ticketLinkService,
                          BacklogService backlogService,
                          SecurityIdentity securityIdentity,
@@ -101,6 +106,7 @@ public class TicketService {
         this.projectAccessService = projectAccessService;
         this.customFieldService = customFieldService;
         this.notificationEmitter = notificationEmitter;
+        this.notificationService = notificationService;
         this.ticketLinkService = ticketLinkService;
         this.backlogService = backlogService;
         this.securityIdentity = securityIdentity;
@@ -407,9 +413,30 @@ public class TicketService {
     public CommentResponse addComment(long id, CommentRequest request, String username) {
         var ticket = requireTicket(id);
         var user = requireUserByUsername(username);
-        var comment = new Comment(ticket, user, htmlSanitizer.sanitize(request.content()));
+        var content = htmlSanitizer.sanitize(request.content());
+        var comment = new Comment(ticket, user, content);
         comment.setViaAgent(Boolean.TRUE.equals(securityIdentity.getAttribute(ApiTokenIdentityProvider.VIA_AGENT_ATTRIBUTE)));
-        return CommentResponse.load(repository.saveComment(comment));
+        var savedComment = repository.saveComment(comment);
+        notifyMentionedMembers(ticket, user, request.content());
+        return CommentResponse.load(savedComment);
+    }
+
+    private void notifyMentionedMembers(Ticket ticket, User author, String rawContent) {
+        var mentionedUsernames = MentionParser.extractUsernames(rawContent);
+        if (mentionedUsernames.isEmpty()) {
+            return;
+        }
+        var mentionedMembers = memberRepository.findMembersByProjectId(ticket.getProject().getId())
+                                               .stream()
+                                               .filter(member -> mentionedUsernames.contains(member.getUsername()))
+                                               .collect(Collectors.toSet());
+        if (!mentionedMembers.isEmpty()) {
+            notificationService.notifyMentions(ticket,
+                                               author,
+                                               mentionedMembers,
+                                               "%s mencionou você em um comentário no ticket %s".formatted(author.getName(),
+                                                                                                           ticket.getIdentifier()));
+        }
     }
 
     @Transactional

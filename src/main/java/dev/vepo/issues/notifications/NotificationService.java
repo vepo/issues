@@ -1,18 +1,50 @@
 package dev.vepo.issues.notifications;
 
+import java.util.Set;
+
+import dev.vepo.issues.ticket.Ticket;
+import dev.vepo.issues.user.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.sse.Sse;
 
 @ApplicationScoped
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final NotificationChannelRegistry channelRegistry;
+    private final Sse sse;
 
     @Inject
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(NotificationRepository notificationRepository,
+                               NotificationChannelRegistry channelRegistry,
+                               Sse sse) {
         this.notificationRepository = notificationRepository;
+        this.channelRegistry = channelRegistry;
+        this.sse = sse;
+    }
+
+    @Transactional
+    public void notifyMentions(Ticket ticket, User author, Set<User> mentionedUsers, String content) {
+        mentionedUsers.stream()
+                      .filter(mentioned -> !mentioned.getId().equals(author.getId()))
+                      .forEach(mentioned -> {
+                          var notification = notificationRepository.save(new Notification("comment-mention", mentioned, ticket, content));
+                          channelRegistry.computeIfPresent(mentioned.getUsername(), (username, sink) -> {
+                              if (!sink.isClosed()) {
+                                  sink.send(sse.newEventBuilder()
+                                               .id("ticket-change")
+                                               .mediaType(MediaType.APPLICATION_JSON_TYPE)
+                                               .data(UserNotificationEvent.load(notification))
+                                               .build());
+                                  return sink;
+                              }
+                              return null;
+                          });
+                      });
     }
 
     public NotificationPageResponse list(String username, int page, int size) {

@@ -108,7 +108,7 @@ describe('KanbanComponent', () => {
     mockPhaseService = jasmine.createSpyObj('PhaseService', ['list']);
     mockMembersService = jasmine.createSpyObj('ProjectMembersService', ['listMembers']);
     mockPhaseService.list.and.returnValue(of([]));
-    mockMembersService.listMembers.and.returnValue(of([{ id: 1, name: 'Alice', email: 'alice@issues.vepo.dev' }]));
+    mockMembersService.listMembers.and.returnValue(of([{ id: 1, username: 'alice', name: 'Alice', email: 'alice@issues.vepo.dev' }]));
     mockActivatedRoute = {
       data: of({
         statuses: mockStatuses,
@@ -241,7 +241,7 @@ describe('KanbanComponent', () => {
 
     it('should group by assignee including unassigned', () => {
       component.swimlaneMode = 'assignee';
-      component.members = [{ id: 1, name: 'Alice', email: 'alice@issues.vepo.dev' }];
+      component.members = [{ id: 1, username: 'alice', name: 'Alice', email: 'alice@issues.vepo.dev' }];
       component.tickets = [
         { ...mockTickets[0], assignee: 1 },
         { ...mockTickets[1], assignee: null, status: 1 }

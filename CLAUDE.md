@@ -51,6 +51,29 @@ Run the smallest test scope that covers your change while iterating; run `mvn ve
 - **Canonical docs:** `ARCHITECTURE.md` (packages §5, naming §11, feature workflow §12), `docs/domain-specification.md` (ubiquitous language, invariants), `docs/feature-catalog.md` (UI routes), `docs/backlog.md` (ordered product backlog).
 - **Logging:** SLF4J only — never `System.out`.
 
-## Rules and subagents
+## Rules, subagents, and skills
 
-`.cursor/rules/*.mdc` are the authoritative, file-scoped source of truth (always-on "four pillars": `issues-model.mdc`, `issues-testing.mdc`, `issues-quality.mdc`, `issues-platform.mdc`, plus glob-scoped rules for Java, Angular, JPA, HTTP contracts, tests, etc. — see the table in `AGENTS.md`). They were authored for Cursor's subagent/command UI (`.cursor/agents/*.md`, `.cursor/commands/*.md`), which Claude Code doesn't invoke natively — but the workflows they describe (TDD red/green/refactor cycle, docs-sync, API-compliance review) are still the expected way to work; follow them manually or via the `Agent` tool as needed.
+`.cursor/rules/*.mdc` are the authoritative, file-scoped source of truth (always-on "four pillars": `issues-model.mdc`, `issues-testing.mdc`, `issues-quality.mdc`, `issues-platform.mdc`, plus glob-scoped rules for Java, Angular, JPA, HTTP contracts, tests, etc. — see the table in `AGENTS.md`).
+
+Cursor's subagents and commands have native Claude Code equivalents mirrored from them — use these instead of reading the `.cursor/` originals:
+
+| Cursor original | Claude Code equivalent | Use for |
+|---|---|---|
+| `.cursor/agents/tdd-red.md` | `Agent` subagent `tdd-red` | Phase 5 Red — failing test only |
+| `.cursor/agents/tdd-green.md` | `Agent` subagent `tdd-green` | Phase 5 Green — minimal code to pass |
+| `.cursor/agents/tdd-refactor.md` | `Agent` subagent `tdd-refactor` | Phase 5 Refactor — cleanup, tests stay green |
+| `.cursor/agents/domain-model.md` | `Agent` subagent `domain-model` | Before coding — domain-spec and vocabulary |
+| `.cursor/agents/api-compliance.md` | `Agent` subagent `api-compliance` | Before merge — REST contract and ArchUnit review |
+| `.cursor/agents/docs-sync.md` | `Agent` subagent `docs-sync` | After API/behaviour change — sync architecture/catalog docs |
+| `.cursor/agents/product-owner.md` | `Agent` subagent `product-owner` | Catalog/feature compliance gaps, backlog suggestions |
+| `.cursor/agents/security-audit.md` | `Agent` subagent `security-audit` | Security findings report + teach-fix tasks |
+| `.cursor/commands/fix_tests.md` | `/fix-tests` skill | Loop until failing Maven tests pass |
+| `.cursor/commands/fix_sonar_issues.md` | `/fix-sonar-issues` skill | Local static-analysis fixes |
+| `.cursor/commands/increase_coverage.md` | `/increase-coverage` skill | Raise JaCoCo coverage |
+| `.cursor/commands/review_code_structure.md` | `/review-code-structure` skill | Structural audit (read-only) |
+| `.cursor/commands/review_feature_catalog.md` | `/review-feature-catalog` skill | Full feature-catalog audit (read-only) |
+| `.cursor/commands/review_security.md` | `/review-security` skill | Full security audit (read-only) |
+
+The `/fix-*` and `/increase-coverage` skills iterate and edit code — they are user-invoked only (`disable-model-invocation: true`), never trigger them proactively.
+
+A `PostToolUse` hook (`.claude/settings.json`) auto-runs `eslint --fix` on edited `src/main/webui/**/*.ts` files (skips `generated/`) — no equivalent exists for Java, since `formatter-maven-plugin` already reformats on every `mvn compile`/`test`/`verify`.

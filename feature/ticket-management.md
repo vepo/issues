@@ -1,12 +1,12 @@
 # Ticket management
 
-**Feature version:** 4  
-**Status:** done
+**Feature version:** 5  
+**Status:** in-progress
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
 
-Core ticket lifecycle: view and edit ticket fields (including optional **due date**), assign users, move status per workflow rules, soft-delete (admin/PM), add comments, audit history, subscribe/unsubscribe observers, unified activity feed, and creation of a distinct ticket from selected values of an existing ticket (**Clone ticket**, v4 planned).
+Core ticket lifecycle: view and edit ticket fields (including optional **due date**), assign users, move status per workflow rules, soft-delete (admin/PM), add comments, audit history, subscribe/unsubscribe observers, unified activity feed, creation of a distinct ticket from selected values of an existing ticket (**Clone ticket**, v4), and tagging other users in comments to notify them directly (**Comment @mentions**, v5 planned).
 
 ## Wireframe
 
@@ -15,7 +15,7 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 | Field | Value |
 |-------|-------|
 | **Source** | ASCII below |
-| **Last updated** | 2026-07-16 (Clone ticket FQ10–FQ17 / AQ18–AQ24 accepted) |
+| **Last updated** | 2026-07-17 (Comment @mentions feature analysis started) |
 
 ### Screen: `/ticket/:ticketIdentifier`
 
@@ -60,23 +60,49 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 └────────────────────────────────────────────────────────┘
 ```
 
+### Screen: `/ticket/:ticketIdentifier` — Comment @mentions (v5 draft)
+
+| Region | Elements | Notes |
+|--------|----------|-------|
+| Comment editor | Typing `@` inside `app-rich-text-editor` opens an inline autocomplete of candidate users | Candidates = current **project members** (**FQ18**) |
+| Autocomplete list | Filter as typed; keyboard (↑/↓/Enter) or mouse selection inserts `@username` as plain text | No auto-subscribe on selection (**FQ19**) |
+| Comment content | Mention renders as plain `@username` text — no chip, link, or highlight | **FQ21** |
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Comentários                                            │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ Great work @an                                    │   │
+│  │            ┌───────────────────┐                  │   │
+│  │            │ @ana.silva        │  ← autocomplete   │   │
+│  │            │ @andre.souza      │                  │   │
+│  │            └───────────────────┘                  │   │
+│  └──────────────────────────────────────────────────┘   │
+│                                     [ Comentar ]         │
+└────────────────────────────────────────────────────────┘
+```
+
 ## Impact
 
 | Area | Effect |
 |------|--------|
-| Bounded contexts | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business`, `customfield`; reactions in `notifications`, `mailer` |
-| Packages / files | Existing ticket operations plus planned `ticket.cloneprefill`; `CustomFieldService`; `ticket-view`; `create-ticket`; `ticket-form` |
-| API | Existing ticket API plus planned clone-prefill read operation; creation remains `POST /tickets` |
-| UI | `/ticket/:ticketIdentifier` **Clonar ticket** → `/tickets/new` with target project selector and server-provided prefill |
-| Schema / seed | `tb_tickets`, `tb_comments`, `tb_ticket_history`, `tb_tickets_subscribers`; sample tickets in `dev-import.sql` |
-| Tests | Existing ticket tests plus planned clone-prefill endpoint, create-ticket component, ticket-form, custom-field mapping, and ticket-view action specs |
-| Docs | domain-spec (Ticket, Comment, History, Subscriber, Activity feed), feature-catalog (Ticket detail), README § Tickets & workflow |
+| Bounded contexts | `ticket`, `ticket.comments`, `ticket.history`, `ticket.business`, `customfield`; reactions in `notifications`, `mailer`; mention candidate lookup via `project` membership |
+| Packages / files | Existing ticket operations plus planned `ticket.cloneprefill`; `CustomFieldService`; `ticket-view`; `create-ticket`; `ticket-form`; planned comment mention parsing/notification wiring (`Comment`/`CommentRequest`, `NotificationEvent`/`NotificationEventListener`); reuse `ListProjectMembersEndpoint` for autocomplete |
+| API | Existing ticket API plus planned clone-prefill read operation; creation remains `POST /tickets`; comment creation (`POST /tickets/{id}/comments`) is unchanged — mentions are parsed server-side from `content` (**AQ25**) |
+| UI | `/ticket/:ticketIdentifier` **Clonar ticket** → `/tickets/new` with target project selector and server-provided prefill; comment editor gains `@` autocomplete; [notifications](notifications.md) dropdown gains a mention entry type |
+| Schema / seed | `tb_tickets`, `tb_comments`, `tb_ticket_history`, `tb_tickets_subscribers`; sample tickets in `dev-import.sql`; no schema change for mentions — reuses `tb_notifications` with new `type` (**AQ26**) |
+| Tests | Existing ticket tests plus planned clone-prefill endpoint, create-ticket component, ticket-form, custom-field mapping, and ticket-view action specs; planned comment mention parsing/notification tests, autocomplete Angular specs |
+| Docs | domain-spec (Ticket, Comment, History, Subscriber, Activity feed, planned **Mention**), feature-catalog (Ticket detail), README § Tickets & workflow |
 
 ### Risks
 
 - Restore must re-include ticket in search/lists without breaking identifier uniqueness or history continuity.
 - Clone must create a new identity and lifecycle without copying collaboration, audit, files, or relationships.
 - Copied project-scoped values may be invalid if cross-project cloning is allowed.
+- The existing ticket-change notification fan-out (`NotificationEventListener`) only reaches **ticket subscribers**; a mentioned user may not be subscribed and needs a separate delivery path (confirmed by **FQ19** — mentioning never subscribes).
+- Autocomplete candidates must respect project membership/visibility — must not leak users outside the ticket's project (resolved by **FQ18** — reuse existing project-membership scope).
+- Server-side `@username` parsing must not misfire inside emails/URLs embedded in comment text, and must match usernames **exactly** (no partial/substring matches) against the ticket's current project members.
+- Comment author must never generate a self-notification if they mention themselves.
 
 ### Feature questions
 
@@ -109,6 +135,15 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 | FQ15 | Copy in-scope custom-field values? | answered | Yes; map and validate against current target project/workflow scope |
 | FQ16 | May admin/PM clone a soft-deleted ticket? | answered | No; active source tickets only |
 | FQ17 | Record provenance linking clone to source? | answered | No dedicated provenance, link, or clone-specific history in v1; retain ordinary create history behavior |
+
+### Feature questions (Comment @mentions — v5)
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| FQ18 | Who is eligible to be `@mentioned` on a ticket's comment — any project member, or only current subscribers/assignee? | answered | **Any project member** — autocomplete candidates reuse existing project membership (`ListProjectMembersEndpoint`) |
+| FQ19 | Does mentioning a user auto-subscribe them to the ticket, or is it a one-off notification with no lasting subscription? | answered | **No** — one-off notification only; mentioning never changes the ticket's subscriber list |
+| FQ20 | Should a mention also send an email (like the existing ticket-change email), or stay in-app/SSE only? | answered | **In-app / SSE only** — no email in v1 |
+| FQ21 | How should a mention render in the comment thread — plain `@username` text, or a distinct clickable/highlighted mention style? | answered | **Plain `@username` text** — no special styling or click target in v1 |
 
 ## Changelog
 
@@ -391,3 +426,80 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 **Development approval:** approved 2026-07-16 — tasks: T1, T2, T3, T4, T5, T6, T7, T8
 
 **Implementation notes:** Added writable-project and target-aware clone-prefill APIs; target-compatible custom-field mapping with omission warnings; active-ticket clone navigation; clone-aware global create flow with target template precedence and complete default resets. Existing ticket creation remains the only write path and produces a fresh ticket without provenance. `mvn verify`, Angular build, and full Angular tests passed on 2026-07-16.
+
+### Comment @mentions — 2026-07-17
+
+**Version:** 5  
+**Status:** in-progress
+
+**Description:** Let comment authors tag other users with `@` in the rich-text comment editor; tagged users are notified directly, even when not already subscribed to the ticket.
+
+**Impact on other features:**
+
+| Feature / area | Impact |
+|----------------|--------|
+| [notifications](notifications.md) | New mention notification type; delivery path outside the existing subscriber-only fan-out (**FQ18–FQ19**) |
+| Project administration | Autocomplete candidates drawn from existing project membership |
+| Rich-text editor | Comment editor (`app-rich-text-editor`) gains an inline `@` autocomplete/mention affordance |
+
+#### Feature checklist (phase 1 draft — refine after FQ18–FQ21 answers)
+
+| ID | Criterion | Source | Done |
+|----|-----------|--------|------|
+| FC1 | Typing `@` in the comment editor offers a candidate list matching **Wireframe** | Wireframe | ☐ |
+| FC2 | Mentioning a project member notifies them in-app/SSE even when not a ticket subscriber, without changing the subscriber list | FQ18–FQ19 | ☐ |
+| FC3 | No email is sent for mentions in v1 | FQ20 | ☐ |
+| FC4 | Mention renders as plain `@username` text in the posted comment | FQ21 | ☐ |
+| FC5 | `domain-specification.md` defines **Mention** term and invariant | Impact / Docs | ☐ |
+| FC6 | `feature-catalog.md` — ticket detail comment step mentions @mentions | Impact / Docs | ☐ |
+| FC7 | README § Tickets & workflow mentions @mentions | Impact / Docs | ☐ |
+
+#### Tasks
+
+| ID | Task | Done |
+|----|------|------|
+| T1 | `TicketService.addComment` — parse `@username` tokens from the raw comment content (before HTML sanitization), resolve against the ticket's current project members, exclude the comment author, call `NotificationService.notifyMentions` | ☑ |
+| T2 | `NotificationService.notifyMentions` — create one `Notification` (`type="comment-mention"`) per resolved mentioned user synchronously and push SSE via `NotificationChannelRegistry` | ☑ |
+| T3 | `AddCommentEndpointTest` — mention notifies a non-subscriber project member; self-mention produces no notification; non-member/typo tokens and mid-word `@` (e.g. inside an email) are ignored | ☑ |
+| T4 | `MentionParserTest` (unit) — extraction, dedup, punctuation boundary, email exclusion, blank/null | ☑ |
+| T5 | `ticket-view` comment form — on `@` keystroke, filter the ticket's project members and insert `@username` as plain text on selection; added `username` to `ProjectMemberResponse` (was missing, required for the autocomplete) and regenerated the Angular API client | ☑ |
+| T6 | `ticket-view.component.spec.ts` — autocomplete filters project members on `@`; selecting a candidate inserts plain-text mention; no trailing `@` closes the autocomplete | ☑ |
+| T7 | Flip domain-spec invariant **81** from Planned to implemented; add @mentions to `feature-catalog.md` ticket-detail comment step and README § Tickets & workflow | ☐ |
+| T8 | Run `mvn verify` + `npm run build` + Angular tests; recheck **Feature checklist** FC1–FC7 before `done` | ☐ |
+
+#### Test coverage
+
+| ID | Test | Covers | Done |
+|----|------|--------|------|
+| TC1 | `AddCommentEndpointTest` — mentioned project member (not a ticket subscriber) receives a notification | T1, T3 | ☑ |
+| TC2 | `AddCommentEndpointTest` — self-mention produces no notification | T1, T3 | ☑ |
+| TC3 | `AddCommentEndpointTest` — non-member/typo `@token` and mid-word `@` (email-like text) are not treated as mentions | T1, T3 | ☑ |
+| TC4 | `MentionParserTest` — extraction correctness (single/multiple/dedup/punctuation/email-exclusion/blank) | T2, T4 | ☑ |
+| TC5 | `ticket-view.component.spec.ts` — typing `@` filters the project member list | T5, T6 | ☑ |
+| TC6 | `ticket-view.component.spec.ts` — selecting a candidate inserts plain-text `@username` into the editor value | T5, T6 | ☑ |
+
+**Development approval:** approved 2026-07-17 — tasks: T1, T2, T3, T4, T5, T6, T7, T8
+
+**Implementation notes:** (in progress — TDD starting on T1.)
+
+## Architecture — Comment @mentions v5
+
+**Scope:** changelog entry **Comment @mentions — v5** only. Other Architecture sections above remain scoped to their own changelog entries.
+
+| Area | Design |
+|------|--------|
+| Bounded contexts | **Ticket management** owns mention detection and comment persistence; **Notifications** owns delivery; candidate lookup reuses **Project administration** membership. No new cross-context repository access |
+| Packages / layers | `ticket.comments.add.AddCommentEndpoint` → `TicketService.addComment` (extended) parses `@username` tokens out of the persisted `Comment.content` via a new `ticket.comments.MentionParser` utility, resolves them against `ProjectMemberRepository` for the ticket's project, then calls `NotificationService` synchronously to notify each resolved mentioned user |
+| API | `POST /tickets/{id}/comments` — **`CommentRequest` unchanged** (**AQ25**); mentions are derived server-side from `content`. `CommentResponse` unchanged. No new endpoint; the comment-editor autocomplete reuses existing `GET /projects/{id}/members`, extended with `username` on `ProjectMemberResponse` (was missing — needed so the client can insert the exact token the server matches on) |
+| Mention parsing | `MentionParser` regex over the **raw request content** (`CommentRequest.content`, before `HtmlSanitizer.sanitize` — the sanitizer HTML-entity-encodes `@` to `&#64;`, so parsing must happen first) matching `@` at a word boundary (`(?<!\w)@`, so it does not fire mid-token inside emails or URLs) followed by username characters `[A-Za-z0-9_-]+`; each candidate token is matched **exactly** against the ticket's current project member usernames — non-matching tokens (typos, non-members, partial words) are silently ignored, not errors |
+| Schema / persistence | **No new table.** Reuse `tb_notifications` with a new `type = "comment-mention"` value (**AQ26**); `content` holds a short localized summary, `reffer` = the ticket. No column added to `tb_comments` |
+| Cross-context integration | `TicketService.addComment` calls a new `NotificationService.notifyMentions(ticket, author, mentionedUsers, content)` **synchronously in the same transaction** (not the async `NotificationEvent`/`NotificationEventListener` CDI path used for ticket-move) — mention delivery is a direct, targeted call to specific users rather than a subscriber broadcast, and keeping it synchronous keeps it deterministically testable (`AddCommentEndpointTest` can assert the notification exists immediately after the `201`, no `Awaitility`/polling needed, matching how the rest of this test suite avoids asserting on `fireAsync` timing). `NotificationService` gains `NotificationChannelRegistry` and `Sse` (already CDI-injectable, same as `NotificationEventListener`) to push the SSE event inline |
+| Frontend integration | `ticket-view` comment form: on `@` keystroke, filter the project's member list (fetched via `ProjectService.listMembers`) and insert `@username` as plain text on selection — purely a typing aid. No `mentionedUserIds` is submitted; the server is the sole source of truth for who got mentioned. No `app-rich-text-editor` plugin change — mention text is ordinary text, not a custom node |
+| Tests | `AddCommentEndpointTest` — mention notifies non-project-subscriber member, self-mention produces no notification, `@nonmember` / `@typo` tokens are ignored, mid-word `@` (e.g. inside an email) is not treated as a mention; `NotificationServiceTest` or listener-level test for `comment-mention` fan-out; Angular `ticket-view.component.spec.ts` — autocomplete filters members and inserts plain-text mention |
+
+### Architecture questions (Comment @mentions — v5)
+
+| # | Question | Status | Answer |
+|---|----------|--------|--------|
+| AQ25 | Should the client submit resolved `mentionedUserIds` with the comment, or should the server parse `@username` tokens out of the comment text after the fact? | answered | **Server parses** `@username` tokens from `Comment.content` after persist; `CommentRequest` stays unchanged |
+| AQ26 | Should mention notifications reuse `tb_notifications` with a new `type` value, or get a dedicated table/entity? | answered | **Reuse `tb_notifications`** with a new `type = "comment-mention"` value; no schema change |

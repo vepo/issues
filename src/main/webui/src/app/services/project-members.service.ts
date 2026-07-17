@@ -5,6 +5,7 @@ import { Ticket } from './ticket.service';
 
 export interface ProjectMember {
   id: number;
+  username: string;
   name: string;
   email: string;
 }

@@ -13,7 +13,7 @@ describe('ProjectAllocationComponent', () => {
 
   beforeEach(async () => {
     membersService = jasmine.createSpyObj('ProjectMembersService', ['listMembers', 'addMember', 'removeMember', 'listOpenAssignedTickets']);
-    membersService.listMembers.and.returnValue(of([{ id: 1, name: 'User', email: 'user@issues.vepo.dev' }]));
+    membersService.listMembers.and.returnValue(of([{ id: 1, username: 'user', name: 'User', email: 'user@issues.vepo.dev' }]));
 
     await TestBed.configureTestingModule({
       imports: [createTranslocoTestingModule(), ProjectAllocationComponent],

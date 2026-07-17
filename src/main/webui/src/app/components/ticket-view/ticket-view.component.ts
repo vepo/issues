@@ -10,7 +10,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
-import { ProjectMembersService } from '../../services/project-members.service';
+import { ProjectMember, ProjectMembersService } from '../../services/project-members.service';
 import { ProjectsService } from '../../services/projects.service';
 import { Category, CategoryService } from '../../services/category.service';
 import { ProjectStatus, StatusService } from '../../services/status.service';
@@ -85,6 +85,7 @@ export class TicketViewComponent implements OnInit {
   private readonly transloco = inject(TranslocoService);
 
   @ViewChild(CustomFieldFormSectionComponent) customFieldsSection?: CustomFieldFormSectionComponent;
+  @ViewChild('commentEditor') commentEditor?: RichTextEditorComponent;
 
   ticket?: TicketExpanded;
   comments: Comment[] = [];
@@ -96,6 +97,9 @@ export class TicketViewComponent implements OnInit {
   activeTab: 'history' | 'comments' = 'history';
   loadingComments = false;
   submittingComment = false;
+  projectMembersForMention: ProjectMember[] = [];
+  mentionQuery: string | null = null;
+  mentionCandidates: ProjectMember[] = [];
   isEditing = false;
   isSaving = false;
   categories: Category[] = [];
@@ -171,6 +175,7 @@ export class TicketViewComponent implements OnInit {
       return;
     }
     this.membersService.listMembers(this.ticket.project.id).subscribe(members => {
+      this.projectMembersForMention = members;
       this.users = members.map(member => ({
         id: member.id,
         name: member.name,
@@ -376,6 +381,7 @@ export class TicketViewComponent implements OnInit {
         this.comments.unshift(comment);
         this.newComment = '';
         this.submittingComment = false;
+        this.closeMentionAutocomplete();
         this.reloadTicket();
       },
       error: () => {
@@ -386,6 +392,35 @@ export class TicketViewComponent implements OnInit {
 
   onCommentChange(content: string): void {
     this.newComment = content;
+    this.detectMentionQuery();
+  }
+
+  private static readonly MENTION_QUERY_PATTERN = /(^|\s)@([A-Za-z0-9_-]*)$/;
+
+  detectMentionQuery(): void {
+    const plainText = this.commentEditor?.getPlainText() ?? this.newComment;
+    const match = TicketViewComponent.MENTION_QUERY_PATTERN.exec(plainText);
+    if (!match) {
+      this.closeMentionAutocomplete();
+      return;
+    }
+    this.mentionQuery = match[2];
+    const query = this.mentionQuery.toLowerCase();
+    this.mentionCandidates = this.projectMembersForMention.filter(member =>
+      member.username.toLowerCase().startsWith(query)
+    );
+  }
+
+  selectMention(member: ProjectMember): void {
+    const plainText = this.commentEditor?.getPlainText() ?? this.newComment;
+    const updated = plainText.replace(TicketViewComponent.MENTION_QUERY_PATTERN, `$1@${member.username} `);
+    this.newComment = updated;
+    this.closeMentionAutocomplete();
+  }
+
+  closeMentionAutocomplete(): void {
+    this.mentionQuery = null;
+    this.mentionCandidates = [];
   }
 
   isSubscribed(): boolean {

@@ -65,7 +65,7 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 - **Versions** — SemVer labels per project; ticket **planned** and **shipped** version fields; grouped **version changelog** (excludes canceled tickets)
 - **Phases** — time-boxed planning periods with objective and deliverables; **activate** / **complete** lifecycle; optional ticket phase assignment; **project phase template** copied into new phases
 - **Categories** — classify tickets with name and color
-- **Comments** — discussion thread on each ticket (rich-text editor)
+- **Comments** — discussion thread on each ticket (rich-text editor); type `@` to mention a project member and notify them directly, even if they aren't a ticket subscriber
 - **Attachments** — upload, list, download, and delete files on a ticket (max 10 MB each; images, PDF, Office, zip, etc.)
 - **Rich text** — shared editor for ticket Description, Text custom fields, project description, and ticket template description
 - **Ticket history** — structured audit log (create, field changes, assign, move, subscribe, delete, link add/remove, attachment add/remove) merged with comments in the **Atividade** feed
