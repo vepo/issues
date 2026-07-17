@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ProjectMembersService } from '../../services/project-members.service';
@@ -33,6 +33,7 @@ import { NormalizePipe } from '../pipes/normalize.pipe';
 import { RichTextEditorComponent } from '../rich-text-editor/rich-text-editor.component';
 import { CustomFieldFormSectionComponent } from '../custom-fields/custom-field-form-section.component';
 import { plainTextLengthValidator } from '../../core/plain-text-length';
+import { RuntimeDatePipe } from '../../core/runtime-locale.pipes';
 import { PEER_LINK_TYPE_OPTIONS, TICKET_TYPE_OPTIONS, ticketTypeLabel as systemTicketTypeLabel } from '../../core/system-labels';
 import {
   ActivityItem,
@@ -52,7 +53,7 @@ export interface LinkGroup {
   selector: 'app-ticket-view',
   templateUrl: './ticket-view.component.html',
   imports: [
-    DatePipe,
+    RuntimeDatePipe,
     NormalizePipe,
     FormsModule,
     ReactiveFormsModule,
@@ -65,6 +66,7 @@ export interface LinkGroup {
     MatSelectModule,
     MatIconModule,
     CustomFieldFormSectionComponent,
+    TranslocoPipe,
   ]
 })
 export class TicketViewComponent implements OnInit {
@@ -80,6 +82,7 @@ export class TicketViewComponent implements OnInit {
   private readonly phaseService = inject(PhaseService);
   private readonly dialog = inject(MatDialog);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   @ViewChild(CustomFieldFormSectionComponent) customFieldsSection?: CustomFieldFormSectionComponent;
 
@@ -267,13 +270,6 @@ export class TicketViewComponent implements OnInit {
     );
   }
 
-  childrenProgressLabel(): string {
-    const summary = this.ticket?.childrenSummary;
-    const done = summary?.done ?? 0;
-    const total = summary?.total ?? 0;
-    return `${done}/${total} concluídas`;
-  }
-
   onLinkSearchInput(term: string): void {
     this.linkSearchTerm = term;
     this.selectedLinkTarget = null;
@@ -432,7 +428,7 @@ export class TicketViewComponent implements OnInit {
   historyActionLabel(action: string | undefined | null): string {
     switch (action) {
       case 'LINK_ADDED':
-        return 'Vínculo adicionado';
+        return this.transloco.translate('ticket.linkAdded');
       case 'LINK_REMOVED':
         return 'Vínculo removido';
       case 'CREATED':
@@ -452,9 +448,9 @@ export class TicketViewComponent implements OnInit {
       case 'RESTORED':
         return 'Restaurado';
       case 'ATTACHMENT_ADDED':
-        return $localize`:@@history.attachmentAdded:Anexo adicionado`;
+        return this.translateOrFallback('ticket.attachmentAdded', 'Anexo adicionado');
       case 'ATTACHMENT_REMOVED':
-        return $localize`:@@history.attachmentRemoved:Anexo removido`;
+        return this.translateOrFallback('ticket.attachmentRemoved', 'Anexo removido');
       default:
         return action || '';
     }
@@ -653,7 +649,8 @@ export class TicketViewComponent implements OnInit {
       },
       error: err => {
         this.uploadingAttachment = false;
-        this.attachmentError = err?.error?.message || $localize`:@@attachment.uploadFailed:Falha ao anexar o arquivo.`;
+        this.attachmentError = err?.error?.message
+          || this.translateOrFallback('ticket.attachmentUploadFailed', 'Falha ao anexar o arquivo.');
       },
     });
   }
@@ -707,17 +704,22 @@ export class TicketViewComponent implements OnInit {
   protected readonly trackActivityItem = trackActivityItem;
   protected readonly commitAuthorLabel = commitAuthorLabel;
   protected readonly shortCommitSha = shortCommitSha;
+
+  private translateOrFallback(key: string, fallback: string): string {
+    const translated = this.transloco.translate(key);
+    return translated === key ? fallback : translated;
+  }
 }
 
 @Component({
   selector: 'app-ticket-delete-dialog',
-  imports: [MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
+  imports: [TranslocoPipe, MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
   template: `
-    <h2 mat-dialog-title i18n>Excluir ticket</h2>
-    <mat-dialog-content i18n>Deseja excluir este ticket? Esta ação não pode ser desfeita.</mat-dialog-content>
+    <h2 mat-dialog-title>{{ 'migration.ticket-view.142b3977d1af' | transloco }}</h2>
+    <mat-dialog-content>{{ 'migration.ticket-view.58ce8fab0a96' | transloco }}</mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
-      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true" i18n>Excluir</button>
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close>{{ 'ticket.form.cancel' | transloco }}</button>
+      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true">{{ 'migration.ticket-view.1e7ebe7e1a52' | transloco }}</button>
     </mat-dialog-actions>
   `
 })
@@ -725,15 +727,15 @@ export class TicketDeleteDialogComponent {}
 
 @Component({
   selector: 'app-attachment-delete-dialog',
-  imports: [MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
+  imports: [TranslocoPipe, MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
   template: `
-    <h2 mat-dialog-title i18n>Excluir anexo</h2>
+    <h2 mat-dialog-title>{{ 'migration.ticket-view.96e8e7aa6fd1' | transloco }}</h2>
     <mat-dialog-content>
-      <p i18n>Deseja excluir o anexo {{ data.filename }}?</p>
+      <p>{{ 'migration.ticket-view.25f597ee8387' | transloco: { value0: data.filename } }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
-      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true" i18n>Excluir</button>
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close>{{ 'ticket.form.cancel' | transloco }}</button>
+      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true">{{ 'migration.ticket-view.1e7ebe7e1a52' | transloco }}</button>
     </mat-dialog-actions>
   `
 })
@@ -743,18 +745,17 @@ export class AttachmentDeleteDialogComponent {
 
 @Component({
   selector: 'app-epic-done-warning-dialog',
-  imports: [MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
+  imports: [TranslocoPipe, MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
   template: `
-    <h2 mat-dialog-title i18n>Épico com subtarefas abertas</h2>
+    <h2 mat-dialog-title>{{ 'migration.ticket-view.6bac666c65a0' | transloco }}</h2>
     <mat-dialog-content>
-      <p i18n>
-        Este épico ainda tem {{ data.done }}/{{ data.total }} subtarefas concluídas.
-        Deseja movê-lo para um status de conclusão mesmo assim?
+      <p>
+        {{ 'migration.ticket-view.46956e12a0c2' | transloco: { value0: data.done, value1: data.total } }}
       </p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
-      <button class="btn" matButton="filled" [mat-dialog-close]="true" i18n>Mover mesmo assim</button>
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close>{{ 'ticket.form.cancel' | transloco }}</button>
+      <button class="btn" matButton="filled" [mat-dialog-close]="true">{{ 'migration.ticket-view.0ac071c612d2' | transloco }}</button>
     </mat-dialog-actions>
   `
 })
@@ -765,6 +766,7 @@ export class EpicDoneWarningDialogComponent {
 @Component({
   selector: 'app-create-child-ticket-dialog',
   imports: [
+    TranslocoPipe,
     MatDialogModule,
     MatDialogTitle,
     MatDialogContent,
@@ -777,23 +779,23 @@ export class EpicDoneWarningDialogComponent {
     RichTextEditorComponent,
   ],
   template: `
-    <h2 mat-dialog-title i18n>Nova subtarefa</h2>
+    <h2 mat-dialog-title>{{ 'migration.ticket-view.775219745c8e' | transloco }}</h2>
     <mat-dialog-content>
-      <p class="text-muted" i18n>Será criada no mesmo projeto do épico {{ data.epicIdentifier }}.</p>
+      <p class="text-muted">{{ 'migration.ticket-view.95a4c15547e8' | transloco: { value0: data.epicIdentifier } }}</p>
       <form [formGroup]="form" class="edit">
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Título</mat-label>
+          <mat-label>{{ 'migration.ticket-view.2a93281113dc' | transloco }}</mat-label>
           <input matInput formControlName="title" required />
         </mat-form-field>
         <div class="form-field form-field--rich-text">
-          <label class="form-label" i18n>Descrição (opcional)</label>
+          <label class="form-label">{{ 'migration.ticket-view.a7096cdd6b10' | transloco }}</label>
           <app-rich-text-editor formControlName="description" placeholder="Descrição opcional..."></app-rich-text-editor>
         </div>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
-      <button class="btn" matButton="filled" [disabled]="form.invalid" [mat-dialog-close]="form.value" i18n>Criar</button>
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close>{{ 'ticket.form.cancel' | transloco }}</button>
+      <button class="btn" matButton="filled" [disabled]="form.invalid" [mat-dialog-close]="form.value">{{ 'ticket.create.createAction' | transloco }}</button>
     </mat-dialog-actions>
   `
 })

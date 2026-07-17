@@ -1,6 +1,6 @@
 <div class="page project-hub">
   <nav class="breadcrumb" aria-label="Navegação">
-    <a routerLink="/" i18n>Início</a>
+    <a routerLink="/">{{ 'home.title' | transloco }}</a>
     <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
     <span class="breadcrumb__current">{{ project?.name }}</span>
   </nav>
@@ -13,40 +13,40 @@
     <div class="page-header__actions">
       <a class="btn" matButton="filled" [routerLink]="['/project', project?.id, 'kanban']">
         <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
-        <span i18n>Kanban</span>
+        <span>{{ 'migration.project-hub.452a1424e7b2' | transloco }}</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'burndown']">
         <mat-icon fontIcon="trending_down" aria-hidden="true"></mat-icon>
-        <span i18n>Burndown</span>
+        <span>{{ 'migration.project-hub.2bb3b6832a3d' | transloco }}</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'backlog']">
         <mat-icon fontIcon="reorder" aria-hidden="true"></mat-icon>
-        <span i18n>Backlog</span>
+        <span>{{ 'migration.project-hub.6d7144612310' | transloco }}</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'dashboard']">
         <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
-        <span i18n>Painel</span>
+        <span>{{ 'migration.project-hub.cbcfbe411367' | transloco }}</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'versions']">
         <mat-icon fontIcon="new_releases" aria-hidden="true"></mat-icon>
-        <span i18n>Versões</span>
+        <span>{{ 'planning.versions' | transloco }}</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'phases']">
         <mat-icon fontIcon="timeline" aria-hidden="true"></mat-icon>
-        <span i18n>Fases</span>
+        <span>{{ 'planning.phases' | transloco }}</span>
       </a>
       @if (canManage()) {
         <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', project?.id, 'edit']">
           <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
-          <span i18n>Editar</span>
+          <span>{{ 'migration.project-hub.3a28287feb12' | transloco }}</span>
         </a>
         <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', project?.id, 'allocation']">
           <mat-icon fontIcon="group" aria-hidden="true"></mat-icon>
-          <span i18n>Alocação</span>
+          <span>{{ 'migration.project-hub.501d5eae4bcc' | transloco }}</span>
         </a>
         <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', project?.id, 'service-accounts']">
           <mat-icon fontIcon="smart_toy" aria-hidden="true"></mat-icon>
-          <span i18n>Contas de serviço</span>
+          <span>{{ 'serviceAccount.title' | transloco }}</span>
         </a>
       }
     </div>
@@ -55,15 +55,15 @@
   <div class="project-hub__planning">
     <section class="project-hub__section">
       <div class="project-hub__section-header">
-        <h2 class="project-hub__section-title" i18n>Fases</h2>
+        <h2 class="project-hub__section-title">{{ 'planning.phases' | transloco }}</h2>
         <div class="project-hub__section-actions">
           <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'phases']">
-            <span i18n>Ver todas</span>
+            <span>{{ 'migration.project-hub.cadbd9a040bb' | transloco }}</span>
           </a>
           @if (canManage()) {
             <a class="btn" matButton="filled" [routerLink]="['/project', project?.id, 'phases', 'new']">
               <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-              <span i18n>Nova fase</span>
+              <span>{{ 'migration.project-hub.f42189c65b75' | transloco }}</span>
             </a>
           }
         </div>
@@ -71,9 +71,9 @@
       <div class="page-panel page-panel--flush">
         <div class="data-table data-table--layout-table">
           <div class="header">
-            <div class="header-cell" i18n>Nome</div>
-            <div class="header-cell" i18n>Status</div>
-            <div class="header-cell header-cell--actions" i18n>Ações</div>
+            <div class="header-cell">{{ 'account.name' | transloco }}</div>
+            <div class="header-cell">{{ 'common.status' | transloco }}</div>
+            <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
           </div>
           <div class="body">
             @for (phase of phases; track phase.id) {
@@ -85,14 +85,14 @@
                 <div class="cell-actions">
                   <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'phases', phase.id]">
                     <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
-                    <span i18n>Detalhes</span>
+                    <span>{{ 'planning.details' | transloco }}</span>
                   </a>
                 </div>
               </div>
             }
           </div>
           @if (phases.length === 0) {
-            <div class="data-table--empty" i18n>Nenhuma fase cadastrada.</div>
+            <div class="data-table--empty">{{ 'migration.project-hub.950a2d5e3d32' | transloco }}</div>
           }
         </div>
       </div>
@@ -100,15 +100,15 @@
 
     <section class="project-hub__section">
       <div class="project-hub__section-header">
-        <h2 class="project-hub__section-title" i18n>Versões</h2>
+        <h2 class="project-hub__section-title">{{ 'planning.versions' | transloco }}</h2>
         <div class="project-hub__section-actions">
           <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'versions']">
-            <span i18n>Ver todas</span>
+            <span>{{ 'migration.project-hub.cadbd9a040bb' | transloco }}</span>
           </a>
           @if (canManage()) {
             <a class="btn" matButton="filled" [routerLink]="['/project', project?.id, 'versions', 'new']">
               <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-              <span i18n>Nova versão</span>
+              <span>{{ 'migration.project-hub.421c46055b0f' | transloco }}</span>
             </a>
           }
         </div>
@@ -116,9 +116,9 @@
       <div class="page-panel page-panel--flush">
         <div class="data-table data-table--layout-table">
           <div class="header">
-            <div class="header-cell" i18n>Rótulo</div>
-            <div class="header-cell" i18n>Descrição</div>
-            <div class="header-cell header-cell--actions" i18n>Ações</div>
+            <div class="header-cell">{{ 'customField.label' | transloco }}</div>
+            <div class="header-cell">{{ 'ticket.form.description' | transloco }}</div>
+            <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
           </div>
           <div class="body">
             @for (version of versions; track version.id) {
@@ -128,14 +128,14 @@
                 <div class="cell-actions">
                   <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'versions', version.id]">
                     <mat-icon fontIcon="article" aria-hidden="true"></mat-icon>
-                    <span i18n>Registro de alterações</span>
+                    <span>{{ 'migration.project-hub.449eed4055ae' | transloco }}</span>
                   </a>
                 </div>
               </div>
             }
           </div>
           @if (versions.length === 0) {
-            <div class="data-table--empty" i18n>Nenhuma versão cadastrada.</div>
+            <div class="data-table--empty">{{ 'migration.project-hub.7b17e64c9446' | transloco }}</div>
           }
         </div>
       </div>

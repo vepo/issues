@@ -1,13 +1,13 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Projetos</h1>
-      <p class="page-subtitle" i18n>Abra um projeto para Kanban, fases, versões e alocação de membros</p>
+      <h1 class="page-title">{{ 'project.list.title' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'migration.projects-view.3167461206d7' | transloco }}</p>
     </div>
     <div class="page-header__actions">
       <button class="btn" matButton="filled" [routerLink]="['/', 'projects', 'new']">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-        <span i18n>Novo projeto</span>
+        <span>{{ 'project.list.create' | transloco }}</span>
       </button>
     </div>
   </header>
@@ -16,10 +16,10 @@
     <div class="data-table data-table--layout-table data-table--cols-projects-list">
       <div class="header">
         <div class="header-cell">ID</div>
-        <div class="header-cell left-aligned" i18n>Nome</div>
-        <div class="header-cell left-aligned" i18n>Descrição</div>
-        <div class="header-cell left-aligned" i18n>Prefixo</div>
-        <div class="header-cell header-cell--actions" i18n>Ações</div>
+        <div class="header-cell left-aligned">{{ 'account.name' | transloco }}</div>
+        <div class="header-cell left-aligned">{{ 'ticket.form.description' | transloco }}</div>
+        <div class="header-cell left-aligned">{{ 'account.tokens.prefix' | transloco }}</div>
+        <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
       </div>
       <div class="body">
         @for (entry of projects; track entry.id) {
@@ -33,26 +33,26 @@
             <div class="cell-actions">
               <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', entry.id]">
                 <mat-icon fontIcon="open_in_new" aria-hidden="true"></mat-icon>
-                <span i18n>Abrir</span>
+                <span>{{ 'search.saved.open' | transloco }}</span>
               </a>
               <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', entry.id, 'phases']">
                 <mat-icon fontIcon="timeline" aria-hidden="true"></mat-icon>
-                <span i18n>Fases</span>
+                <span>{{ 'planning.phases' | transloco }}</span>
               </a>
               <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', entry.id, 'versions']">
                 <mat-icon fontIcon="new_releases" aria-hidden="true"></mat-icon>
-                <span i18n>Versões</span>
+                <span>{{ 'planning.versions' | transloco }}</span>
               </a>
               <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/projects', entry.id, 'edit']">
                 <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
-                <span i18n>Editar</span>
+                <span>{{ 'migration.projects-view.54da36a94958' | transloco }}</span>
               </a>
             </div>
           </div>
         }
       </div>
       @if (projects.length === 0) {
-        <div class="data-table--empty" i18n>Nenhum projeto cadastrado.</div>
+        <div class="data-table--empty">{{ 'migration.projects-view.efa109072392' | transloco }}</div>
       }
     </div>
   </section>

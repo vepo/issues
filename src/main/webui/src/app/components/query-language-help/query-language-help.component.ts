@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { QUERY_LANGUAGE_EXAMPLES, QUERY_LANGUAGE_FIELDS } from './query-language-reference';
@@ -5,7 +6,7 @@ import { QUERY_LANGUAGE_EXAMPLES, QUERY_LANGUAGE_FIELDS } from './query-language
 @Component({
   selector: 'app-query-language-help',
   standalone: true,
-  imports: [CommonModule],
+  imports: [TranslocoPipe, CommonModule],
   templateUrl: './query-language-help.component.html',
   styleUrl: './query-language-help.component.scss'
 })

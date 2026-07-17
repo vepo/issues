@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CustomFieldService } from '../../services/custom-field.service';
 import { GitService } from '../../services/git.service';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 import { ProjectsService } from '../../services/projects.service';
 import { ToastService } from '../../services/toast.service';
 import { UsersService } from '../../services/users.service';
@@ -30,7 +31,19 @@ describe('ProjectEditComponent', () => {
       webhookSecret: 'secret-once',
     }));
     await TestBed.configureTestingModule({
-      imports: [ProjectEditComponent],
+      imports: [
+        ProjectEditComponent,
+        createTranslocoTestingModule(
+          {
+            common: { save: 'Salvar' },
+            project: { git: { copySecretAria: 'Copiar segredo', copyWebhookUrlAria: 'Copiar URL do webhook' } },
+          },
+          {
+            common: { save: 'Save' },
+            project: { git: { copySecretAria: 'Copy secret', copyWebhookUrlAria: 'Copy webhook URL' } },
+          },
+        ),
+      ],
       providers: [
         {
           provide: ActivatedRoute,

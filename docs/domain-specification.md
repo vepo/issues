@@ -83,9 +83,9 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 |------|---------|--------------|
 | **Issues** | The product (change/ticket management). | UI title, email templates |
 | **User** | Registered account with name, email, optional local password, roles, **auth provider**, and optional **locale preference**. | `User`, `tb_users` |
-| **UI locale** | Language for product chrome, **system labels**, and formatting: `pt` or `en`. Source templates are Portuguese (`pt`). | Angular i18n; [feature/i18n.md](../feature/i18n.md) |
+| **UI locale** | Active language for product chrome, **system labels**, dates, numbers, and Material labels: `pt` or `en`. It changes immediately without changing the current canonical URL. | Transloco runtime catalogs; [feature/i18n.md](../feature/i18n.md) |
 | **Locale preference** | User’s stored **UI locale** on the server; edited on account settings. Unauthenticated visits use browser `Accept-Language`. | `User.uiLocale` / `tb_users.ui_locale`; `GET /auth/me`, `POST /auth/profile` |
-| **System label** | Product-owned display string for fixed enums and UI copy (e.g. Priority, Phase status). Distinct from admin-authored names (workflow statuses, custom fields). | Shared `$localize` catalog (planned) |
+| **System label** | Product-owned display string for fixed enums and UI copy (e.g. Priority, Phase status). Distinct from admin-authored names (workflow statuses, custom fields). | Shared translation catalog |
 | **Auth provider** | Deployment-wide credential source: **LOCAL**, **LDAP**, or **ENDPOINT** (selected via `AUTH_PROVIDER`). | `AuthProvider`, `auth.provider` |
 | **Role** | Platform capability assigned to a user (multi-role). | `Role` enum |
 | **User** (role) | Default role; create and work on tickets. | `Role.USER` — label: "User" |
@@ -151,7 +151,7 @@ Terms below are the **only** approved names for aggregates, entities, states, ac
 
 ### Phases & versions
 
-Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); Portuguese remains the Angular source locale.
+Methodology-neutral planning terms. Product-owned phase and version copy follows the active **UI locale** (`pt` / `en`); user-authored names and descriptions do not.
 
 | Term | Meaning | Code / notes |
 |------|---------|--------------|
@@ -214,6 +214,9 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 | **Link type** | Fixed kind: `BLOCKS`, `RELATES_TO`, `DUPLICATES`, `DERIVED_FROM`, `REMAINING_WORK_OF`, `CHILD_OF`. | `TicketLinkType` |
 | **Child ticket** / **Subtask** | Ticket linked to an **Epic** via `CHILD_OF` (source=child, target=Epic). | UI **Subtarefas** |
 | **CSV import** | Bulk creation of tickets from a CSV file. May be **project-scoped** (fixed project) or **global** (project resolved per row from a mapped column). | Chunked upload: `POST …/import/upload/init`, `PUT …/upload/parts/{n}`, `POST …/upload/complete` (legacy `POST …/upload` wrapper); UI at `/project/:projectId/tickets/import` or `/tickets/import` |
+| **Ticket export** | Authenticated, visibility-safe download of all tickets matching a simple search, advanced query, or saved query. Produces a stable CSV or JSON reporting document; it is not a database backup or an import round-trip guarantee. | `POST /api/tickets/export`; [feature/ticket-export.md](../feature/ticket-export.md) |
+| **Export source** | The server-side result definition re-executed for an export: simple-search criteria, advanced query text, or saved-query slug. Browser-rendered rows are never trusted as the source. | `SIMPLE_SEARCH`, `ADVANCED_QUERY`, `SAVED_QUERY` |
+| **Export document** | Locale-neutral, deterministic JSON or RFC 4180 CSV containing stable ticket reporting fields and typed custom fields. Explicit query ordering is preserved; otherwise tickets sort by identifier. | JSON schema version `1`; CSV sorted `custom.<key>` columns |
 | **Column mapping** | User-defined association between CSV header names and ticket fields (title, description, category, priority, assignee, status, optionally project, and **custom fields** by **key** when in scope). | `ColumnMapping` / `customFieldColumns`; import wizard step 2 |
 | **Import row** | One CSV data row after column mapping, validated and stored before ticket creation. | `TicketImportRow`, `tb_ticket_import_rows` |
 | **Ticket import batch** | Server-side persisted CSV upload with parsed rows awaiting mapping and execution. | `TicketImport`, `tb_ticket_imports` |
@@ -302,6 +305,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 31. **Saved query ownership** — each saved query has exactly one **owner**; only the owner may update or delete. Non-owners must **clone** another user's query before editing.
 32. **Show at home** — optional per saved query (`show_at_home`); when enabled, the owner's query appears as a home section (one section per flagged query; snapshot per visit).
 33. **Query language** — plain text query is parsed server-side with **ANTLR**; invalid syntax returns a validation error; soft-deleted tickets are excluded; global scope with optional project filter. Built-in fields include `points` / `storypoints` for story points.
+33a. **Ticket export** — only authenticated users may export. The server re-executes the selected search source and includes only non-deleted tickets in projects readable by the caller. CSV and JSON use stable locale-neutral values, preserve explicit query ordering (otherwise identifier ascending), flatten rich text, and retain typed custom fields; comments, history, links, subscribers, commits, and attachment metadata are excluded. Synchronous export rejects more than **10,000** matches rather than returning a partial document.
 34. **Search indexing** — PostgreSQL **`tsvector` + GIN** indexes on ticket and comment text columns (`search_vector`).
 35. **Due date** — optional user-planned deadline on a ticket (`due_date`); independent of workflow **finish date** (`finished_at`).
 36. **Project prefix immutability** — once a project has at least one ticket (including soft-deleted), its **prefix** cannot change.
@@ -315,7 +319,7 @@ Methodology-neutral planning terms. UI chrome uses **UI locale** (`pt` / `en`); 
 75. **Backlog pagination** — backlog list is paginated (default page size 20); UI uses infinite scroll.
 39. **User removal** — a user cannot be deleted while they are **assignee** on tickets whose status is not workflow **start**, **done**, or **canceled** finish status.
 40. **Self-registration** — new users may register via a public registration flow (default role `user`).
-41. **Account profile** — authenticated users may update their own name, email, and **locale preference** (`pt` \| `en`) on account settings. **Locale preference** is seeded from the browser / active SPA locale on **register** and on **first provisioning** (LDAP/ENDPOINT user create); users may change it later in account settings. API errors and emails are not localized with the UI locale in v1. User-authored content (ticket fields, custom field labels, workflow status names, etc.) is not auto-translated.
+41. **Account profile** — authenticated users may update their own name, email, and **locale preference** (`pt` \| `en`) on account settings. **Locale preference** is seeded from the browser-selected locale on **register** and on **first provisioning** (LDAP/ENDPOINT user create); users may change it later in account settings without changing the screen URL. API errors and emails are not localized with the UI locale in v1. User-authored content (ticket fields, custom field labels, workflow status names, etc.) is not auto-translated.
 42. **Notifications pagination** — notification list uses **infinite scroll** with paginated API; SSE client **auto-reconnects** after network drop.
 63. **Unread badge** — header badge shows the server **unread count** for the current user (not only loaded list pages); display as `99+` when unread > 99; hidden when 0.
 64. **Mark all as read** — marks every unread notification for the authenticated user only; after success the client reloads the first list page and unread count.

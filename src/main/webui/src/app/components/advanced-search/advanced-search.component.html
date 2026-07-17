@@ -1,30 +1,28 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Busca avançada</h1>
-      <p class="page-subtitle" i18n>Consulta em linguagem de busca do Issues (texto simples)</p>
+      <h1 class="page-title">{{ 'migration.advanced-search.9d63af146006' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'migration.advanced-search.8b36822d05e4' | transloco }}</p>
     </div>
     <div class="page-header__actions">
-      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/queries" i18n>Minhas consultas</a>
-      <a class="btn btn-secondary" matButton="outlined" routerLink="/search" i18n>Busca simples</a>
+      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/queries">{{ 'search.saved.title' | transloco }}</a>
+      <a class="btn btn-secondary" matButton="outlined" routerLink="/search">{{ 'migration.advanced-search.6756561d655d' | transloco }}</a>
     </div>
   </header>
 
   <app-context-hint
     hintId="advanced-search"
-    i18n-message
-    message="Use a linguagem de consulta ou abra a ajuda abaixo para ver campos e operadores." />
+    [message]="'advancedSearch.hint' | transloco" />
 
   <section class="page-panel form-stack">
-    <label for="advanced-search-query" i18n>Consulta</label>
+    <label for="advanced-search-query">{{ 'search.saved.query' | transloco }}</label>
     <app-query-language-help />
     <textarea
       id="advanced-search-query"
       class="form-control"
       rows="6"
       [(ngModel)]="queryText"
-      i18n-placeholder
-      placeholder='project = "Issues" AND status = "To Do"'
+      [placeholder]="'advancedSearch.queryPlaceholder' | transloco"
     ></textarea>
     <div class="form-actions">
       <button
@@ -33,9 +31,8 @@
         matButton="filled"
         (click)="runSearch()"
         [disabled]="loading || !queryText.trim()"
-        i18n
       >
-        Executar
+        {{ 'advancedSearch.run' | transloco }}
       </button>
       <button
         type="button"
@@ -43,32 +40,49 @@
         matButton="outlined"
         (click)="saveQuery()"
         [disabled]="!queryText.trim()"
-        i18n
       >
-        Salvar consulta
+        {{ 'advancedSearch.saveQuery' | transloco }}
       </button>
+      @if (lastSubmittedQuery) {
+        <button
+          type="button"
+          class="btn btn-secondary"
+          matButton="outlined"
+          [matMenuTriggerFor]="exportMenu"
+          [disabled]="exportState.loading"
+        >
+          {{ 'ticketExport.action' | transloco }}
+        </button>
+        <mat-menu #exportMenu="matMenu" class="menu-panel">
+          <button mat-menu-item type="button" (click)="exportTickets('CSV')">CSV</button>
+          <button mat-menu-item type="button" (click)="exportTickets('JSON')">JSON</button>
+        </mat-menu>
+      }
     </div>
     @if (error) {
       <p class="error">{{ error }}</p>
     }
+    @if (exportState.errorKey) {
+      <p class="error" role="alert">{{ exportState.errorKey | transloco }}</p>
+    }
   </section>
 
   @if (loading) {
-    <div class="empty-state" i18n>Executando consulta…</div>
+    <div class="empty-state">{{ 'migration.advanced-search.fd5f7f4a8c06' | transloco }}</div>
   } @else if (!searched) {
-    <div class="empty-state" i18n>Informe uma consulta e clique em Executar.</div>
+    <div class="empty-state">{{ 'migration.advanced-search.c0d8f48a53f5' | transloco }}</div>
   } @else if (tickets.length === 0) {
-    <div class="empty-state" i18n>Nenhum ticket encontrado.</div>
+    <div class="empty-state">{{ 'migration.advanced-search.c9b8a86bf9ea' | transloco }}</div>
   } @else {
     <div class="advanced-search__results">
       <section class="advanced-search__section">
-        <h2 class="advanced-search__section-title" i18n>Resultados ({{ tickets.length }})</h2>
+        <h2 class="advanced-search__section-title">{{ 'migration.advanced-search.da8f0b756cf9' | transloco: { value0: tickets.length } }}</h2>
         <div class="page-panel page-panel--flush advanced-search__list-panel">
           <div class="data-table data-table--layout-table data-table--cols-search-results">
             <div class="header">
-              <div class="header-cell" i18n>ID</div>
-              <div class="header-cell" i18n>Título</div>
-              <div class="header-cell" i18n>Prioridade</div>
+              <div class="header-cell">{{ 'common.id' | transloco }}</div>
+              <div class="header-cell">{{ 'migration.advanced-search.90a1139233cf' | transloco }}</div>
+              <div class="header-cell">{{ 'migration.advanced-search.1b5a077b7489' | transloco }}</div>
             </div>
             <div class="body">
               @for (ticket of tickets; track ticket.id) {
@@ -92,7 +106,7 @@
       </section>
 
       <section class="advanced-search__section">
-        <h2 class="advanced-search__section-title" i18n>Descrição</h2>
+        <h2 class="advanced-search__section-title">{{ 'ticket.form.description' | transloco }}</h2>
         <div class="page-panel advanced-search__detail-panel">
           @if (selectedTicket) {
             <header class="advanced-search__detail-header">
@@ -107,7 +121,7 @@
               {{ selectedTicket.description || '—' }}
             </p>
           } @else {
-            <div class="data-table--empty" i18n>Selecione um ticket na lista.</div>
+            <div class="data-table--empty">{{ 'migration.advanced-search.a0ce14b021b3' | transloco }}</div>
           }
         </div>
       </section>

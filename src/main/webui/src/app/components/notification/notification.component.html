@@ -2,7 +2,7 @@
   matIconButton
   class="btn-icon-header"
   [matMenuTriggerFor]="notifications"
-  aria-label="Notificações">
+  [attr.aria-label]="'notification.title' | transloco">
   <mat-icon fontIcon="notifications" aria-hidden="true"></mat-icon>
   @let badge = badgeLabel();
   @if (badge) {
@@ -11,21 +11,20 @@
 </button>
 <mat-menu #notifications="matMenu" class="menu-panel notifications">
   <div class="notifications-header" (click)="$event.stopPropagation()">
-    <span class="notifications-title" i18n>Notificações</span>
+    <span class="notifications-title">{{ 'notification.title' | transloco }}</span>
     @if (unread > 0) {
       <button
         type="button"
         class="notifications-mark-all"
         [disabled]="markingAll"
-        (click)="markAllAsRead($event)"
-        i18n>
-        Marcar todas como lidas
+        (click)="markAllAsRead($event)">
+        {{ 'notification.markAllRead' | transloco }}
       </button>
     }
   </div>
   <div class="notifications-scroll" (scroll)="onScroll($event)" (click)="$event.stopPropagation()">
     @if (events.length === 0 && !loading) {
-      <div class="menu-empty" i18n>Nenhuma notificação</div>
+      <div class="menu-empty">{{ 'notification.empty' | transloco }}</div>
     }
     @for (event of events; track event.id) {
       <button mat-menu-item (click)="navigate(event)">
@@ -45,14 +44,14 @@
           <div class="notification-item">
             <div>&nbsp;</div>
             <div class="notification-date">
-              {{ event.timestamp | date: 'dd/MM/yyyy HH:mm' }}
+              {{ event.timestamp | runtimeDate: 'dd/MM/yyyy HH:mm' }}
             </div>
           </div>
         </div>
       </button>
     }
     @if (loading) {
-      <div class="menu-empty" i18n>Carregando...</div>
+      <div class="menu-empty">{{ 'common.loading' | transloco }}</div>
     }
   </div>
 </mat-menu>

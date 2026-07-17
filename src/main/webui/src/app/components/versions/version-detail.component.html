@@ -1,10 +1,10 @@
 <div class="page">
   <nav class="breadcrumb" aria-label="Navegação">
-    <a routerLink="/" i18n>Início</a>
+    <a routerLink="/">{{ 'home.title' | transloco }}</a>
     <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
     <a [routerLink]="['/project', project?.id, 'kanban']">{{ project?.name }}</a>
     <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
-    <a [routerLink]="['/project', project?.id, 'versions']" i18n>Versões</a>
+    <a [routerLink]="['/project', project?.id, 'versions']">{{ 'planning.versions' | transloco }}</a>
     <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
     <span class="breadcrumb__current">{{ createMode ? 'Nova versão' : version?.label }}</span>
   </nav>
@@ -13,12 +13,12 @@
     <div>
       <h1 class="page-title">
         @if (createMode) {
-          <ng-container i18n>Nova versão</ng-container>
+          <ng-container>{{ 'migration.version-detail.24ce72c75d58' | transloco }}</ng-container>
         } @else {
           {{ version?.label }}
         }
       </h1>
-      <p class="page-subtitle" i18n>Rótulo SemVer (ex.: 1.0.0) e registro de alterações da release</p>
+      <p class="page-subtitle">{{ 'migration.version-detail.044bcd245c96' | transloco }}</p>
     </div>
   </header>
 
@@ -26,16 +26,16 @@
     <section class="page-panel">
       <form [formGroup]="form" (ngSubmit)="save()">
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Rótulo SemVer</mat-label>
+          <mat-label>{{ 'migration.version-detail.00a784a439d9' | transloco }}</mat-label>
           <input matInput formControlName="label" required placeholder="1.0.0" />
         </mat-form-field>
         <mat-form-field class="form-field form-field--textarea" appearance="outline">
-          <mat-label i18n>Descrição</mat-label>
+          <mat-label>{{ 'ticket.form.description' | transloco }}</mat-label>
           <textarea matInput formControlName="description" rows="3"></textarea>
         </mat-form-field>
         <div class="form-actions">
           <button class="btn" matButton="filled" type="submit" [disabled]="form.invalid || isSaving">
-            <span i18n>{{ isSaving ? 'Salvando...' : (createMode ? 'Criar versão' : 'Salvar') }}</span>
+            <span>{{ 'migration.version-detail.d8408fa6d2e6' | transloco: { value0: isSaving ? 'Salvando...' : (createMode ? 'Criar versão' : 'Salvar') } }}</span>
           </button>
         </div>
       </form>
@@ -43,7 +43,7 @@
   } @else if (version) {
     <section class="page-panel">
       <dl class="detail-list">
-        <dt i18n>Descrição</dt>
+        <dt>{{ 'ticket.form.description' | transloco }}</dt>
         <dd>{{ version.description || '—' }}</dd>
       </dl>
     </section>
@@ -51,19 +51,19 @@
 
   @if (!createMode && changelog) {
     <section class="page-panel">
-      <h2 class="section-title" i18n>Registro de alterações</h2>
+      <h2 class="section-title">{{ 'migration.version-detail.885da70f4baf' | transloco }}</h2>
       @for (section of changelog.sections; track section.name) {
         <div class="changelog-section">
           <h3>{{ section.name }}</h3>
           @if (section.tickets.length === 0) {
-            <p class="text-muted" i18n>Nenhum ticket nesta seção.</p>
+            <p class="text-muted">{{ 'migration.version-detail.6478dd02e03c' | transloco }}</p>
           } @else {
             <div class="data-table data-table--layout-table">
               <div class="header">
-                <div class="header-cell left-aligned" i18n>Ticket</div>
-                <div class="header-cell left-aligned" i18n>Título</div>
-                <div class="header-cell left-aligned" i18n>Status</div>
-                <div class="header-cell left-aligned" i18n>Conclusão</div>
+                <div class="header-cell left-aligned">{{ 'migration.version-detail.a6e33cfe8163' | transloco }}</div>
+                <div class="header-cell left-aligned">{{ 'migration.version-detail.4f85467562bd' | transloco }}</div>
+                <div class="header-cell left-aligned">{{ 'common.status' | transloco }}</div>
+                <div class="header-cell left-aligned">{{ 'migration.version-detail.739f633ba3eb' | transloco }}</div>
               </div>
               <div class="body">
                 @for (entry of section.tickets; track entry.ticketId) {
@@ -75,7 +75,7 @@
                     <div class="left-aligned">{{ entry.statusName }}</div>
                     <div class="left-aligned">
                       @if (entry.finishedAt) {
-                        {{ entry.finishedAt | date: 'short' }}
+                        {{ entry.finishedAt | runtimeDate: 'short' }}
                       } @else {
                         —
                       }

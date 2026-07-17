@@ -1,4 +1,5 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, DragDropModule } from '@angular/cdk/drag-drop';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,7 +31,7 @@ const PRIORITY_ORDER = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
 @Component({
   selector: 'app-kanban',
   templateUrl: './kanban.component.html',
-  imports: [CommonModule, DragDropModule, RouterLink, NormalizePipe, MatButtonModule, MatIconModule, MatFormFieldModule, MatSelectModule, ContextHintComponent],
+  imports: [TranslocoPipe, CommonModule, DragDropModule, RouterLink, NormalizePipe, MatButtonModule, MatIconModule, MatFormFieldModule, MatSelectModule, ContextHintComponent],
   standalone: true
 })
 export class KanbanComponent implements OnInit {

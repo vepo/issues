@@ -14,6 +14,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EMPTY, of } from 'rxjs';
 import { UsersService } from '../../services/users.service';
 import { UsersEditComponent } from './users-edit.component';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 // Helper function to find checkbox by label text
 async function findCheckboxByLabel(checkboxes: MatCheckboxHarness[], labelText: string): Promise<MatCheckboxHarness> {
@@ -64,7 +65,11 @@ describe('UsersEditComponent', () => {
         MatCheckboxModule,
         MatButtonModule,
         RouterLink,
-        UsersEditComponent
+        UsersEditComponent,
+        createTranslocoTestingModule(
+          { common: { save: 'Salvar' }, user: { roles: { projectManager: 'Gerente de projetos' } } },
+          { common: { save: 'Save' }, user: { roles: { projectManager: 'Project manager' } } },
+        ),
       ],
       providers: [
         { provide: UsersService, useValue: mockUsersService },

@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,18 +12,20 @@ import { Project } from '../../services/projects.service';
 import { Phase, PhaseService } from '../../services/phase.service';
 import { Version, VersionService } from '../../services/version.service';
 import { phaseStatusLabel } from '../../core/system-labels';
+import { RuntimeDatePipe } from '../../core/runtime-locale.pipes';
 
 @Component({
   selector: 'app-phase-detail',
   imports: [
-    DatePipe,
+    TranslocoPipe,
+    RuntimeDatePipe,
     RouterLink,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
   ],
   templateUrl: './phase-detail.component.html'
 })

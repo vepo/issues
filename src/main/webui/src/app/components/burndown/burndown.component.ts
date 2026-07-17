@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { Burndown, BurndownService } from '../../services/burndown.service';
@@ -24,6 +25,7 @@ const DATES_INCOMPLETE_TOOLTIP = 'Defina data de início e fim na fase para habi
     MatIconModule,
     MatSelectModule,
     MatTooltipModule,
+    TranslocoPipe,
     BaseChartDirective,
   ],
   templateUrl: './burndown.component.html',

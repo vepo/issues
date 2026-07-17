@@ -29,25 +29,25 @@ Ordered ideas for Issues that are **not yet** in active development (or are queu
 
 | Order | Status | Idea | Why / notes | Suggested slug | Feature doc |
 |------:|--------|------|-------------|----------------|-------------|
-| 1 | idea | **CSV / JSON export** of tickets | Symmetric to import; reporting | `ticket-export` | — |
-| 2 | idea | **@mentions in comments** + notify mentioned users | Collaboration; ties to notifications | `ticket-mentions` | — |
-| 3 | idea | **Due-date reminders** (email and/or in-app) | Due date exists; no nudge yet | `due-date-reminders` | — |
-| 4 | idea | **Bulk ticket operations** (assign, move, set fields) | Power-user / triage | `bulk-ticket-ops` | — |
-| 5 | idea | **Custom fields on Kanban cards** | Deferred from CF v1 (**FQ20**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
-| 6 | idea | **Enum multi-select** custom fields | Deferred from CF v1 (**FQ11**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
-| 7 | idea | **Notify / email on custom field change** | Deferred from CF v1 (**FQ17**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
-| 8 | idea | **Board / dashboard filters by custom fields** | After dashboard hardening | `kanban-board` / `project-dashboard` | — |
-| 9 | idea | **Dashboard widgets** — WIP, throughput, assignee, due-date, points | Suggested in [project-dashboard.md](../feature/project-dashboard.md) audit; after v3 | `project-dashboard` | [project-dashboard.md](../feature/project-dashboard.md) |
-| 10 | idea | **Webhooks** (ticket created/moved/updated) | External integrations; confirmed **separate** from agentic v1 (**FQ7**) | `webhooks` | — |
-| 11 | idea | **Project archive** (hide from menus, read-only) | Soft end-of-life without delete | `project-administration` | — |
-| 12 | idea | **Time estimate / spent** on tickets | Hours spent etc.; story points shipped with burndown | `time-tracking` | — |
-| 13 | idea | **Saved Kanban view preferences** (swimlane, phase filter) | Swimlane not persisted today | `kanban-board` | — |
-| 14 | idea | **Admin audit log** (config changes) | Complement ticket history | `audit-log` | — |
-| 15 | idea | **Recurring tickets** | Ops / checklist cadence | `recurring-tickets` | — |
-| 16 | idea | **SLA / age policies** (warn when stuck in status) | Ops maturity | `sla-policies` | — |
+| — | done | **CSV / JSON export** of tickets | Shipped 2026-07-17 — visibility-safe simple/advanced/saved-query downloads with custom fields | `ticket-export` | [ticket-export.md](../feature/ticket-export.md) |
+| 1 | idea | **@mentions in comments** + notify mentioned users | Collaboration; ties to notifications | `ticket-mentions` | — |
+| 2 | idea | **Due-date reminders** (email and/or in-app) | Due date exists; no nudge yet | `due-date-reminders` | — |
+| 3 | idea | **Bulk ticket operations** (assign, move, set fields) | Power-user / triage | `bulk-ticket-ops` | — |
+| 4 | idea | **Custom fields on Kanban cards** | Deferred from CF v1 (**FQ20**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
+| 5 | idea | **Enum multi-select** custom fields | Deferred from CF v1 (**FQ11**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
+| 6 | idea | **Notify / email on custom field change** | Deferred from CF v1 (**FQ17**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
+| 7 | idea | **Board / dashboard filters by custom fields** | After dashboard hardening | `kanban-board` / `project-dashboard` | — |
+| 8 | idea | **Dashboard widgets** — WIP, throughput, assignee, due-date, points | Suggested in [project-dashboard.md](../feature/project-dashboard.md) audit; after v3 | `project-dashboard` | [project-dashboard.md](../feature/project-dashboard.md) |
+| 9 | idea | **Webhooks** (ticket created/moved/updated) | External integrations; confirmed **separate** from agentic v1 (**FQ7**) | `webhooks` | — |
+| 10 | idea | **Project archive** (hide from menus, read-only) | Soft end-of-life without delete | `project-administration` | — |
+| 11 | idea | **Time estimate / spent** on tickets | Hours spent etc.; story points shipped with burndown | `time-tracking` | — |
+| 12 | idea | **Saved Kanban view preferences** (swimlane, phase filter) | Swimlane not persisted today | `kanban-board` | — |
+| 13 | idea | **Admin audit log** (config changes) | Complement ticket history | `audit-log` | — |
+| 14 | idea | **Recurring tickets** | Ops / checklist cadence | `recurring-tickets` | — |
+| 15 | idea | **SLA / age policies** (warn when stuck in status) | Ops maturity | `sla-policies` | — |
 | — | done | **Clone ticket** | Shipped 2026-07-16 — writable cross-project targets, target-aware prefill, omission warnings | `ticket-management` | [ticket-management.md](../feature/ticket-management.md) v4 |
 | — | done | **Ticket attachments** (upload files on ticket) | Shipped 2026-07-16 — [ticket-attachments.md](../feature/ticket-attachments.md) v1 | `ticket-attachments` | [ticket-attachments.md](../feature/ticket-attachments.md) |
-| — | done | **UI i18n** (EN + keep PT-BR) | Shipped 2026-07-16 — [i18n.md](../feature/i18n.md) v1 | `i18n` | [i18n.md](../feature/i18n.md) |
+| — | done | **UI i18n** (EN + keep PT-BR) | v2 shipped 2026-07-17 — runtime catalogs, immediate same-URL switching, canonical routes, and reactive formatting | `i18n` | [i18n.md](../feature/i18n.md) |
 | — | done | **CSV import chunked upload** | Shipped 2026-07-16 — [ticket-import.md](../feature/ticket-import.md) v2 | `ticket-import` | [ticket-import.md](../feature/ticket-import.md) |
 | — | done | **Git integration** — project repo + commits on ticket history | Shipped 2026-07-16 — [git-integration.md](../feature/git-integration.md) v1 | `git-integration` | [git-integration.md](../feature/git-integration.md) |
 | — | done | **Catalog compliance fixes** — SPA guards, admin project update, shell menus | Shipped 2026-07-16 — multi-feature | `catalog-compliance` | (multi) |
@@ -67,8 +67,8 @@ Ordered ideas for Issues that are **not yet** in active development (or are queu
 
 ## Suggested next picks
 
-1. **CSV export** — next product polish.
-2. **@mentions** or **due-date reminders** — collaboration / nudge.
+1. **@mentions** — collaboration and notification follow-through.
+2. **Due-date reminders** — lightweight planning nudge.
 
 ## Changelog (backlog maintenance)
 
@@ -119,3 +119,12 @@ Ordered ideas for Issues that are **not yet** in active development (or are queu
 | 2026-07-16 | **Clone ticket** → `promoted`; extended [ticket-management.md](../feature/ticket-management.md) v4; FQ10–FQ17 open; renumbered active ranks |
 | 2026-07-16 | Clone ticket FQ10–FQ17 and AQ18–AQ24 accepted; tasks T1–T8 → `tasks-ready` |
 | 2026-07-16 | Clone ticket v4 → `done`; final backend and Angular gates green |
+| 2026-07-16 | UI i18n v2 locale-root recursion fix → `tasks-ready`; tasks T1–T3 |
+| 2026-07-16 | UI i18n v2 scope changed by FQ12: remove locale-prefixed URLs and redirects; prior tasks/approval superseded; FQ13 open |
+| 2026-07-16 | UI i18n FQ13 answered: switch visible copy immediately without reload; AQ6 opened for reactive runtime catalog |
+| 2026-07-16 | UI i18n AQ6 answered: Transloco runtime catalog; replacement tasks T5–T12 → `tasks-ready` |
+| 2026-07-16 | UI i18n v2 implementation documented: 617-key PT/EN parity, one Angular build, and 259 Angular tests green; T12 remains open for final Maven verify, dev smoke, and lints |
+| 2026-07-17 | UI i18n v2 → `done`; `mvn verify`, frontend build/tests, lints, and isolated dev smoke green |
+| 2026-07-17 | Ticket export → `promoted`; [ticket-export.md](../feature/ticket-export.md) v1 analysis/architecture/tasks T1–T10 ready; active ranks renumbered |
+| 2026-07-17 | Ticket export v1 → `done`; backend/frontend/full gates and dev smoke green |
+| 2026-07-17 | Ticket export T1–T9 implementation and documentation evidenced; remains `promoted` / in progress pending T10 final gates and dev smoke |

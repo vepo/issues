@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject } from 'rxjs';
 import { provideRouter } from '@angular/router';
+import { TranslocoTestingModule } from '@jsverse/transloco';
 import { NotificationComponent } from './notification.component';
 import { NotificationService, UserNotification } from '../../services/notification.service';
 
@@ -52,7 +53,13 @@ describe('NotificationComponent', () => {
     notificationService.markAllAsRead.and.returnValue(of({ updated: 3, unread: 0 }));
 
     await TestBed.configureTestingModule({
-      imports: [NotificationComponent],
+      imports: [
+        NotificationComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { pt: {} },
+          translocoConfig: { availableLangs: ['pt'], defaultLang: 'pt' },
+        }),
+      ],
       providers: [
         provideRouter([]),
         { provide: NotificationService, useValue: notificationService },

@@ -8,7 +8,7 @@
         <span class="status-badge">{{ ticketTypeLabel(ticket.ticketType) }}</span>
         <span class="status-badge">{{ ticket.status | normalize }}</span>
         @if (isDeleted()) {
-          <span class="status-badge status-badge--muted" i18n>excluído</span>
+          <span class="status-badge status-badge--muted">{{ 'migration.ticket-view.fd927aef8c33' | transloco }}</span>
         }
       </p>
     </div>
@@ -16,36 +16,36 @@
       @if (!isDeleted()) {
         <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cloneTicket()">
           <mat-icon fontIcon="content_copy" aria-hidden="true"></mat-icon>
-          <span i18n>Clonar ticket</span>
+          <span>{{ 'ticket.clone' | transloco }}</span>
         </button>
         <button class="btn btn-secondary" matButton="outlined" type="button" (click)="toggleEdit()">
           <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
-          <span i18n>{{ isEditing ? 'Cancelar edição' : 'Editar' }}</span>
+          <span>{{ 'migration.ticket-view.dc14a768d50b' | transloco: { value0: isEditing ? 'Cancelar edição' : 'Editar' } }}</span>
         </button>
         <button class="btn" matButton="filled" (click)="toggle()">
           @if (isSubscribed()) {
             <ng-container>
               <mat-icon fontIcon="notifications_off" aria-hidden="true"></mat-icon>
-              <span i18n>Deixar de observar</span>
+              <span>{{ 'migration.ticket-view.9a47585a807c' | transloco }}</span>
             </ng-container>
           } @else {
             <ng-container>
               <mat-icon fontIcon="notifications_active" aria-hidden="true"></mat-icon>
-              <span i18n>Observar</span>
+              <span>{{ 'migration.ticket-view.8cae2a06a556' | transloco }}</span>
             </ng-container>
           }
         </button>
         @if (canDelete()) {
           <button class="btn btn-cancel" matButton="filled" type="button" (click)="confirmDelete()">
             <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
-            <span i18n>Excluir</span>
+            <span>{{ 'migration.ticket-view.1e7ebe7e1a52' | transloco }}</span>
           </button>
         }
       }
       @if (canRestore()) {
         <button class="btn" matButton="filled" type="button" (click)="confirmRestore()">
           <mat-icon fontIcon="restore" aria-hidden="true"></mat-icon>
-          <span i18n>Restaurar</span>
+          <span>{{ 'migration.ticket-view.9624ffb885b5' | transloco }}</span>
         </button>
       }
     </div>
@@ -55,15 +55,15 @@
     @if (isEditing) {
       <form class="edit" [formGroup]="editForm" (ngSubmit)="saveTicket()">
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Título</mat-label>
+          <mat-label>{{ 'migration.ticket-view.2a93281113dc' | transloco }}</mat-label>
           <input matInput formControlName="title" required />
         </mat-form-field>
         <div class="form-field form-field--rich-text">
-          <label class="form-label" i18n>Descrição</label>
+          <label class="form-label">{{ 'ticket.form.description' | transloco }}</label>
           <app-rich-text-editor formControlName="description" placeholder="Insira a descrição do ticket..."></app-rich-text-editor>
         </div>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Tipo</mat-label>
+          <mat-label>{{ 'migration.ticket-view.4563bbe1f005' | transloco }}</mat-label>
           <mat-select formControlName="ticketType" required>
             @for (type of ticketTypes; track type.value) {
               <mat-option [value]="type.value">{{ type.label }}</mat-option>
@@ -71,7 +71,7 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Categoria</mat-label>
+          <mat-label>{{ 'ticket.form.category' | transloco }}</mat-label>
           <mat-select formControlName="categoryId" required>
             @for (category of categories; track category.id) {
               <mat-option [value]="category.id">
@@ -84,7 +84,7 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Prioridade</mat-label>
+          <mat-label>{{ 'migration.ticket-view.c21ad086d3ac' | transloco }}</mat-label>
           <mat-select formControlName="priority" required>
             @for (priority of priorities; track priority) {
               <mat-option [value]="priority">{{ priority }}</mat-option>
@@ -92,35 +92,35 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Data de vencimento</mat-label>
+          <mat-label>{{ 'ticket.form.dueDate' | transloco }}</mat-label>
           <input matInput type="date" formControlName="dueDate" />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Story points</mat-label>
+          <mat-label>{{ 'ticket.form.storyPoints' | transloco }}</mat-label>
           <input matInput type="number" min="0" formControlName="storyPoints" />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Fase</mat-label>
+          <mat-label>{{ 'ticket.form.phase' | transloco }}</mat-label>
           <mat-select formControlName="phaseId">
-            <mat-option [value]="null" i18n>Nenhuma</mat-option>
+            <mat-option [value]="null">{{ 'migration.ticket-view.a2115ee8a7b6' | transloco }}</mat-option>
             @for (phase of assignablePhases; track phase.id) {
               <mat-option [value]="phase.id">{{ phase.name }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Versão planejada</mat-label>
+          <mat-label>{{ 'migration.ticket-view.1aa21f7a7474' | transloco }}</mat-label>
           <mat-select formControlName="targetVersionId">
-            <mat-option [value]="null" i18n>Nenhuma</mat-option>
+            <mat-option [value]="null">{{ 'migration.ticket-view.a2115ee8a7b6' | transloco }}</mat-option>
             @for (version of projectVersions; track version.id) {
               <mat-option [value]="version.id">{{ version.label }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Versão entregue</mat-label>
+          <mat-label>{{ 'migration.ticket-view.fb9428573d92' | transloco }}</mat-label>
           <mat-select formControlName="observedVersionId">
-            <mat-option [value]="null" i18n>Nenhuma</mat-option>
+            <mat-option [value]="null">{{ 'migration.ticket-view.a2115ee8a7b6' | transloco }}</mat-option>
             @for (version of projectVersions; track version.id) {
               <mat-option [value]="version.id">{{ version.label }}</mat-option>
             }
@@ -131,60 +131,60 @@
           [initialValues]="ticket.customFields ?? []" />
         <div class="form-actions">
           <button class="btn" matButton="filled" type="submit" [disabled]="editForm.invalid || isSaving">
-            <span i18n>{{ isSaving ? 'Salvando...' : 'Salvar' }}</span>
+            <span>{{ 'migration.ticket-view.dc14a768d50b' | transloco: { value0: isSaving ? 'Salvando...' : 'Salvar' } }}</span>
           </button>
         </div>
       </form>
     } @else {
       <dl class="detail-list">
-        <dt i18n>Projeto</dt>
+        <dt>{{ 'migration.ticket-view.f7417412e825' | transloco }}</dt>
         <dd>{{ ticket.project.name }}</dd>
-        <dt i18n>Tipo</dt>
+        <dt>{{ 'migration.ticket-view.4563bbe1f005' | transloco }}</dt>
         <dd>
           <span class="status-badge">{{ ticketTypeLabel(ticket.ticketType) }}</span>
         </dd>
-        <dt i18n>Categoria</dt>
+        <dt>{{ 'ticket.form.category' | transloco }}</dt>
         <dd>
           <span class="category-badge" [style.border-left-color]="ticket.categoryColor">
             <span class="category-badge__dot" [style.background-color]="ticket.categoryColor"></span>
             {{ ticket.category }}
           </span>
         </dd>
-        <dt i18n>Prioridade</dt>
+        <dt>{{ 'migration.ticket-view.c21ad086d3ac' | transloco }}</dt>
         <dd>{{ ticket.priority }}</dd>
-        <dt i18n>Story points</dt>
+        <dt>{{ 'ticket.form.storyPoints' | transloco }}</dt>
         <dd>{{ ticket.storyPoints ?? '—' }}</dd>
-        <dt i18n>Autor</dt>
+        <dt>{{ 'migration.ticket-view.6f1b4ba1e960' | transloco }}</dt>
         <dd>{{ ticket.author?.name || '—' }}</dd>
-        <dt i18n>Responsável</dt>
+        <dt>{{ 'migration.ticket-view.b70e791a26ba' | transloco }}</dt>
         <dd>{{ ticket.assignee?.name || '—' }}</dd>
-        <dt i18n>Status</dt>
+        <dt>{{ 'common.status' | transloco }}</dt>
         <dd>{{ ticket.status | normalize }}</dd>
         @if (ticket.dueDate) {
-          <dt i18n>Data de vencimento</dt>
+          <dt>{{ 'ticket.form.dueDate' | transloco }}</dt>
           <dd>{{ ticket.dueDate }}</dd>
         }
         @if (ticket.finishedAt) {
-          <dt i18n>Data de conclusão</dt>
-          <dd>{{ ticket.finishedAt | date: 'short' }}</dd>
+          <dt>{{ 'migration.ticket-view.2c4d7e1226d0' | transloco }}</dt>
+          <dd>{{ ticket.finishedAt | runtimeDate: 'short' }}</dd>
         }
         @if (ticket.phaseName) {
-          <dt i18n>Fase</dt>
+          <dt>{{ 'ticket.form.phase' | transloco }}</dt>
           <dd>{{ ticket.phaseName }}</dd>
         }
         @if (ticket.targetVersionLabel) {
-          <dt i18n>Versão planejada</dt>
+          <dt>{{ 'migration.ticket-view.1aa21f7a7474' | transloco }}</dt>
           <dd>{{ ticket.targetVersionLabel }}</dd>
         }
         @if (ticket.observedVersionLabel) {
-          <dt i18n>Versão entregue</dt>
+          <dt>{{ 'migration.ticket-view.fb9428573d92' | transloco }}</dt>
           <dd>{{ ticket.observedVersionLabel }}</dd>
         }
         @for (field of ticket.customFields ?? []; track field.key) {
           <dt>
             <code>{{ field.key }}</code>
             @if (field.orphan) {
-              <span class="text-muted" i18n> (fora do escopo)</span>
+              <span class="text-muted"> {{ 'migration.ticket-view.0c739d555dc2' | transloco }}</span>
             }
           </dt>
           @if (field.type === 'TEXT') {
@@ -193,7 +193,7 @@
             <dd>{{ formatCustomFieldValue(field.value) }}</dd>
           }
         }
-        <dt i18n>Subscritos</dt>
+        <dt>{{ 'migration.ticket-view.6e3e3ae868cf' | transloco }}</dt>
         <dd>
           @if (ticket.subscribers.length > 0) {
             <span class="labels">
@@ -202,10 +202,10 @@
               }
             </span>
           } @else {
-            <span class="text-muted" i18n>Nenhum</span>
+            <span class="text-muted">{{ 'migration.ticket-view.a7e3d9283281' | transloco }}</span>
           }
         </dd>
-        <dt i18n>Descrição</dt>
+        <dt>{{ 'ticket.form.description' | transloco }}</dt>
         <dd class="rich-text-display" [innerHTML]="ticket.description"></dd>
       </dl>
     }
@@ -214,20 +214,20 @@
     <div class="ticket-actions">
       <div class="ticket-actions__group">
         <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
-          <mat-label i18n>Responsável</mat-label>
+          <mat-label>{{ 'migration.ticket-view.b70e791a26ba' | transloco }}</mat-label>
           <mat-select [(ngModel)]="selectedAssigneeId" name="assignee">
-            <mat-option [value]="null" i18n>Não atribuído</mat-option>
+            <mat-option [value]="null">{{ 'migration.ticket-view.8851f3caadf8' | transloco }}</mat-option>
             @for (user of users; track user.id) {
               <mat-option [value]="user.id">{{ user.name }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
-        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="saveAssignee()" i18n>Atualizar responsável</button>
+        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="saveAssignee()">{{ 'migration.ticket-view.b761c5236280' | transloco }}</button>
       </div>
 
       <div class="ticket-actions__group">
         <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
-          <mat-label i18n>Mover para</mat-label>
+          <mat-label>{{ 'migration.ticket-view.3d2ed0790382' | transloco }}</mat-label>
           <mat-select [(ngModel)]="selectedStatusId" name="status">
             <mat-option [value]="currentStatusId()">{{ ticket.status | normalize }} (atual)</mat-option>
             @for (status of allowedTargetStatuses(); track status.id) {
@@ -235,14 +235,14 @@
             }
           </mat-select>
         </mat-form-field>
-        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="moveTicket()" i18n>Mover ticket</button>
+        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="moveTicket()">{{ 'migration.ticket-view.488860068990' | transloco }}</button>
       </div>
     </div>
     }
 
     @if (!isDeleted()) {
     <section class="ticket-links" aria-labelledby="vinculos-heading">
-      <h2 id="vinculos-heading" class="section-title" i18n>Vínculos</h2>
+      <h2 id="vinculos-heading" class="section-title">{{ 'migration.ticket-view.1214faf81fac' | transloco }}</h2>
       @if (groupedLinks().length > 0) {
         @for (group of groupedLinks(); track group.label) {
           <div class="ticket-link-group">
@@ -259,10 +259,9 @@
                     matButton="outlined"
                     type="button"
                     (click)="removeLink(link)"
-                    i18n-aria-label
-                    aria-label="Remover vínculo">
+                    [attr.aria-label]="'ticket.link.removeAria' | transloco">
                     <mat-icon fontIcon="close" aria-hidden="true"></mat-icon>
-                    <span class="visually-hidden" i18n>Remover</span>
+                    <span class="visually-hidden">{{ 'migration.ticket-view.014b126306d2' | transloco }}</span>
                   </button>
                 </li>
               }
@@ -270,12 +269,12 @@
           </div>
         }
       } @else {
-        <div class="empty-state" i18n>Nenhum vínculo neste ticket.</div>
+        <div class="empty-state">{{ 'migration.ticket-view.f015e4f60cde' | transloco }}</div>
       }
 
       <div class="ticket-link-add">
         <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
-          <mat-label i18n>Tipo</mat-label>
+          <mat-label>{{ 'migration.ticket-view.4563bbe1f005' | transloco }}</mat-label>
           <mat-select [(ngModel)]="newLinkType" name="linkType">
             @for (type of peerLinkTypes; track type.value) {
               <mat-option [value]="type.value">{{ type.label }}</mat-option>
@@ -283,7 +282,7 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field form-field--grow" appearance="outline" subscriptSizing="dynamic">
-          <mat-label i18n>Buscar ticket…</mat-label>
+          <mat-label>{{ 'migration.ticket-view.8705b002a9d6' | transloco }}</mat-label>
           <input
             matInput
             [ngModel]="linkSearchTerm"
@@ -296,9 +295,8 @@
           matButton="filled"
           type="button"
           [disabled]="!selectedLinkTarget || linking"
-          (click)="createLink()"
-          i18n>
-          Vincular
+          (click)="createLink()">
+          {{ 'migration.ticket-view.7309dec35596' | transloco }}
         </button>
       </div>
       @if (linkSearchResults.length > 0) {
@@ -318,8 +316,13 @@
     @if (isEpic()) {
     <section class="ticket-subtasks" aria-labelledby="subtarefas-heading">
       <div class="ticket-subtasks__header">
-        <h2 id="subtarefas-heading" class="section-title" i18n>Subtarefas</h2>
-        <span class="text-muted">{{ childrenProgressLabel() }}</span>
+        <h2 id="subtarefas-heading" class="section-title">{{ 'migration.ticket-view.76017252c21b' | transloco }}</h2>
+        <span class="text-muted">
+          {{ 'ticket.childrenCompleted' | transloco: {
+            done: ticket.childrenSummary?.done ?? 0,
+            total: ticket.childrenSummary?.total ?? 0
+          } }}
+        </span>
       </div>
       @if (childLinks().length > 0) {
         <ul class="ticket-link-list">
@@ -332,11 +335,11 @@
           }
         </ul>
       } @else {
-        <div class="empty-state" i18n>Nenhuma subtarefa neste épico.</div>
+        <div class="empty-state">{{ 'migration.ticket-view.b039bb0fb934' | transloco }}</div>
       }
       <div class="form-actions">
-        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="openCreateChildDialog()" i18n>
-          Nova subtarefa
+        <button class="btn btn-secondary" matButton="outlined" type="button" (click)="openCreateChildDialog()">
+          {{ 'migration.ticket-view.775219745c8e' | transloco }}
         </button>
       </div>
     </section>
@@ -344,37 +347,36 @@
     }
 
     <section class="ticket-attachments" aria-labelledby="anexos-heading">
-      <h2 id="anexos-heading" class="section-title" i18n>Anexos</h2>
+      <h2 id="anexos-heading" class="section-title">{{ 'ticket.attachments' | transloco }}</h2>
       @if (attachments.length > 0) {
         <ul class="ticket-link-list">
           @for (attachment of attachments; track attachment.id) {
             <li class="ticket-link-row">
               <span class="ticket-attachment__name">{{ attachment.originalFilename }}</span>
               <span class="text-muted">{{ formatAttachmentSize(attachment.sizeBytes) }}</span>
-              <span class="text-muted">{{ attachment.uploadedBy?.name }} · {{ attachment.uploadedAt | date: 'mediumDate' }}</span>
+              <span class="text-muted">{{ attachment.uploadedBy?.name }} · {{ attachment.uploadedAt | runtimeDate: 'mediumDate' }}</span>
               <button
                 class="btn btn-secondary"
                 matButton="outlined"
                 type="button"
                 (click)="downloadAttachment(attachment)"
-                i18n>
-                Baixar
+                >
+                {{ 'ticket.download' | transloco }}
               </button>
               @if (!isDeleted()) {
                 <button
                   class="btn btn-cancel"
                   matButton="filled"
                   type="button"
-                  (click)="confirmDeleteAttachment(attachment)"
-                  i18n>
-                  Excluir
+                  (click)="confirmDeleteAttachment(attachment)">
+                  {{ 'migration.ticket-view.1e7ebe7e1a52' | transloco }}
                 </button>
               }
             </li>
           }
         </ul>
       } @else {
-        <div class="empty-state" i18n>Nenhum anexo neste ticket.</div>
+        <div class="empty-state">{{ 'migration.ticket-view.558877a8957a' | transloco }}</div>
       }
       @if (!isDeleted()) {
         <div class="ticket-attachment-upload">
@@ -389,9 +391,8 @@
             matButton="outlined"
             type="button"
             (click)="attachmentFileInput.click()"
-            [disabled]="uploadingAttachment"
-            i18n>
-            Escolher arquivo
+            [disabled]="uploadingAttachment">
+            {{ 'migration.ticket-view.aef9072b0d7d' | transloco }}
           </button>
           @if (selectedAttachmentFile) {
             <span class="text-muted">{{ selectedAttachmentFile.name }}</span>
@@ -401,9 +402,8 @@
             matButton="filled"
             type="button"
             [disabled]="!selectedAttachmentFile || uploadingAttachment"
-            (click)="uploadAttachment()"
-            i18n>
-            Anexar
+            (click)="uploadAttachment()">
+            {{ 'migration.ticket-view.a3b819630732' | transloco }}
           </button>
         </div>
         @if (attachmentError) {
@@ -417,18 +417,16 @@
         type="button"
         class="tab-button"
         [class.tab-button--active]="activeTab === 'history'"
-        (click)="setActiveTab('history')"
-        i18n>
-        Histórico
+        (click)="setActiveTab('history')">
+        {{ 'migration.ticket-view.c60f5a0833fe' | transloco }}
       </button>
       @if (!isDeleted()) {
       <button
         type="button"
         class="tab-button"
         [class.tab-button--active]="activeTab === 'comments'"
-        (click)="setActiveTab('comments')"
-        i18n>
-        Comentários
+        (click)="setActiveTab('comments')">
+        {{ 'migration.ticket-view.0134bfa176b9' | transloco }}
       </button>
       }
     </nav>
@@ -437,15 +435,15 @@
       @if (historyTabItems().length > 0) {
         <div class="data-table data-table--layout-table">
           <div class="header">
-            <div class="header-cell" i18n>Data</div>
-            <div class="header-cell" i18n>Usuário</div>
-            <div class="header-cell" i18n>Alteração</div>
+            <div class="header-cell">{{ 'migration.ticket-view.6ce6d3b90e3f' | transloco }}</div>
+            <div class="header-cell">{{ 'migration.ticket-view.0cbfe4004122' | transloco }}</div>
+            <div class="header-cell">{{ 'migration.ticket-view.e2271ae811c7' | transloco }}</div>
           </div>
           <div class="body">
             @for (item of historyTabItems(); track trackActivityItem(item); let even = $even) {
               @if (item.kind === 'change') {
                 <div class="row {{ even ? 'even' : 'odd' }}">
-                  <div>{{ item.timestamp | date: 'medium' }}</div>
+                  <div>{{ item.timestamp | runtimeDate: 'medium' }}</div>
                   <div>{{ item.userName }}</div>
                   <div>
                     @if (item.field) {
@@ -460,7 +458,7 @@
                 </div>
               } @else if (item.kind === 'commit') {
                 <div class="row {{ even ? 'even' : 'odd' }}">
-                  <div>{{ item.timestamp | date: 'medium' }}</div>
+                  <div>{{ item.timestamp | runtimeDate: 'medium' }}</div>
                   <div>{{ commitAuthorLabel(item) }}</div>
                   <div class="commit-history-cell">
                     <span class="commit-sha">{{ shortCommitSha(item.sha) }}</span>
@@ -470,9 +468,8 @@
                         class="commit-open-link"
                         [href]="item.commitUrl"
                         target="_blank"
-                        rel="noopener noreferrer"
-                        i18n>
-                        Abrir
+                        rel="noopener noreferrer">
+                        {{ 'search.saved.open' | transloco }}
                       </a>
                     }
                   </div>
@@ -482,14 +479,14 @@
           </div>
         </div>
       } @else {
-        <div class="empty-state" i18n>Nenhuma atividade registrada para este ticket.</div>
+        <div class="empty-state">{{ 'ticket.activity.empty' | transloco }}</div>
       }
     }
 
     @if (activeTab === 'comments' && !isDeleted()) {
       <div class="comments-section">
         <div class="comment-form">
-          <h3 i18n>Adicionar comentário</h3>
+          <h3>{{ 'migration.ticket-view.d53bd5937fa9' | transloco }}</h3>
           <app-rich-text-editor
             [value]="newComment"
             [disabled]="submittingComment"
@@ -503,30 +500,30 @@
               (click)="addComment()"
               [disabled]="!newComment.trim() || submittingComment">
               @if (submittingComment) {
-                <span i18n>Enviando...</span>
+                <span>{{ 'common.sending' | transloco }}</span>
               } @else {
-                <span i18n>Publicar comentário</span>
+                <span>{{ 'migration.ticket-view.c90843b2fc4d' | transloco }}</span>
               }
             </button>
           </div>
         </div>
 
         <div class="comments-list">
-          <h3 i18n>Comentários ({{ comments.length }})</h3>
+          <h3>{{ 'migration.ticket-view.055f44b4a7bf' | transloco: { value0: comments.length } }}</h3>
           @if (loadingComments) {
-            <div class="loading" i18n>Carregando comentários...</div>
+            <div class="loading">{{ 'migration.ticket-view.fc8c22bbb864' | transloco }}</div>
           } @else if (comments.length > 0) {
             @for (comment of comments; track comment.id) {
               <div class="comment">
                 <div class="comment-header">
                   <span class="comment-author">{{ actorLabel(comment.author.name, comment.viaAgent) }}</span>
-                  <span class="comment-date">{{ comment.createdAt | date: 'medium' }}</span>
+                  <span class="comment-date">{{ comment.createdAt | runtimeDate: 'medium' }}</span>
                 </div>
                 <div class="comment-content" [innerHTML]="comment.content"></div>
               </div>
             }
           } @else {
-            <div class="empty-state" i18n>Nenhum comentário ainda. Seja o primeiro a comentar.</div>
+            <div class="empty-state">{{ 'migration.ticket-view.8026730e897b' | transloco }}</div>
           }
         </div>
       </div>

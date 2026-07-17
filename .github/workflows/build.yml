@@ -44,9 +44,9 @@ jobs:
       - name: Generate API client
         working-directory: src/main/webui
         run: npm run generate:api
-      - name: Dual-locale Angular production build
+      - name: Angular production build
         working-directory: src/main/webui
-        run: npm run build && npm run build:check-i18n
+        run: npm run build
       - name: Run Angular tests
         working-directory: src/main/webui
         run: ng test --no-watch --code-coverage --browsers=ChromeHeadless

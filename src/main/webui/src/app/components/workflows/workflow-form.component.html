@@ -1,11 +1,11 @@
 <form class="workflow-form" [formGroup]="workflowForm" (ngSubmit)="submit()">
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Nome</mat-label>
+    <mat-label>{{ 'account.name' | transloco }}</mat-label>
     <input matInput formControlName="name" required />
   </mat-form-field>
 
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Status inicial</mat-label>
+    <mat-label>{{ 'workflow.initialStatus' | transloco }}</mat-label>
     <mat-select formControlName="start" required>
       @for (name of statusNames(); track name) {
         <mat-option [value]="name">{{ name }}</mat-option>
@@ -14,9 +14,9 @@
   </mat-form-field>
 
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Status inicial da fase</mat-label>
+    <mat-label>{{ 'migration.workflow-form.6f95609e70b0' | transloco }}</mat-label>
     <mat-select formControlName="phaseStart">
-      <mat-option [value]="null" i18n>Nenhum</mat-option>
+      <mat-option [value]="null">{{ 'migration.workflow-form.5aa88cbba401' | transloco }}</mat-option>
       @for (name of statusNames(); track name) {
         <mat-option [value]="name">{{ name }}</mat-option>
       }
@@ -25,30 +25,30 @@
 
   <section class="workflow-form__section">
     <div class="workflow-form__section-header">
-      <h3 i18n>Status</h3>
+      <h3>{{ 'common.status' | transloco }}</h3>
       <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addStatus()" [disabled]="!!pendingRemoval">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-        <span i18n>Adicionar status</span>
+        <span>{{ 'workflow.addStatus' | transloco }}</span>
       </button>
     </div>
     <div class="inline-table">
       <div class="inline-table__header">
-        <div class="inline-table__col" i18n>Nome do status</div>
-        <div class="inline-table__col" i18n>WIP</div>
-        <div class="inline-table__col inline-table__col--action" i18n>Ações</div>
+        <div class="inline-table__col">{{ 'migration.workflow-form.e4d113b4d6a9' | transloco }}</div>
+        <div class="inline-table__col">{{ 'migration.workflow-form.55b7f9e6fac6' | transloco }}</div>
+        <div class="inline-table__col inline-table__col--action">{{ 'common.actions' | transloco }}</div>
       </div>
       <div class="inline-table__body">
         @for (statusControl of statuses.controls; track $index) {
           <div class="inline-table__row">
             <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
-                <mat-label i18n>Status {{ $index + 1 }}</mat-label>
+                <mat-label>{{ 'migration.workflow-form.c0e971140be9' | transloco: { value0: $index + 1 } }}</mat-label>
                 <input matInput [formControl]="$any(statusControl)" required [readonly]="!!pendingRemoval" />
               </mat-form-field>
             </div>
             <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
-                <mat-label i18n>Limite WIP</mat-label>
+                <mat-label>{{ 'migration.workflow-form.dad79563d75a' | transloco }}</mat-label>
                 <input matInput type="number" min="1" [formControl]="wipControlAt($index)" [readonly]="!!pendingRemoval" />
               </mat-form-field>
             </div>
@@ -60,8 +60,7 @@
                   type="button"
                   (click)="removeStatus($index)"
                   [disabled]="!!pendingRemoval"
-                  i18n-aria-label
-                  aria-label="Excluir status">
+                  [attr.aria-label]="'workflow.deleteStatusAria' | transloco">
                   <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
                 </button>
               }
@@ -73,10 +72,10 @@
 
     @if (pendingRemoval) {
       <div class="workflow-form__remap" role="dialog" aria-labelledby="remap-title">
-        <h4 id="remap-title" i18n>Remover “{{ pendingRemoval.name }}”</h4>
-        <p i18n>Se houver tickets neste status, escolha para onde movê-los:</p>
+        <h4 id="remap-title">{{ 'migration.workflow-form.4961a3572dde' | transloco: { value0: pendingRemoval.name } }}</h4>
+        <p>{{ 'migration.workflow-form.969bf8d9db10' | transloco }}</p>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Mover tickets para</mat-label>
+          <mat-label>{{ 'migration.workflow-form.098819c644e4' | transloco }}</mat-label>
           <mat-select
             [value]="pendingRemoval.replacement"
             (selectionChange)="pendingRemoval!.replacement = $event.value"
@@ -87,15 +86,14 @@
           </mat-select>
         </mat-form-field>
         <div class="form-actions">
-          <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancelPendingRemoval()" i18n>Cancelar</button>
+          <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancelPendingRemoval()">{{ 'ticket.form.cancel' | transloco }}</button>
           <button
             class="btn"
             matButton="filled"
             type="button"
             (click)="confirmPendingRemoval()"
-            [disabled]="!pendingRemoval.replacement"
-            i18n>
-            Confirmar
+            [disabled]="!pendingRemoval.replacement">
+            {{ 'migration.workflow-form.48bb9458aff2' | transloco }}
           </button>
         </div>
       </div>
@@ -104,24 +102,24 @@
 
   <section class="workflow-form__section">
     <div class="workflow-form__section-header">
-      <h3 i18n>Transições</h3>
+      <h3>{{ 'migration.workflow-form.8f262a2fdefe' | transloco }}</h3>
       <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addTransition()">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-        <span i18n>Adicionar transição</span>
+        <span>{{ 'migration.workflow-form.7a08afbd892c' | transloco }}</span>
       </button>
     </div>
     <div class="inline-table">
       <div class="inline-table__header">
-        <div class="inline-table__col" i18n>De</div>
-        <div class="inline-table__col" i18n>Para</div>
-        <div class="inline-table__col inline-table__col--action" i18n>Ações</div>
+        <div class="inline-table__col">{{ 'workflow.fromAria' | transloco }}</div>
+        <div class="inline-table__col">{{ 'workflow.toAria' | transloco }}</div>
+        <div class="inline-table__col inline-table__col--action">{{ 'common.actions' | transloco }}</div>
       </div>
       <div class="inline-table__body">
         @for (transition of transitions.controls; track $index) {
           <div class="inline-table__row" [formGroup]="$any(transition)">
             <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
-                <mat-select formControlName="from" required i18n-aria-label aria-label="De">
+                <mat-select formControlName="from" required [attr.aria-label]="'workflow.fromAria' | transloco">
                   @for (name of statusNames(); track name) {
                     <mat-option [value]="name">{{ name }}</mat-option>
                   }
@@ -130,7 +128,7 @@
             </div>
             <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
-                <mat-select formControlName="to" required i18n-aria-label aria-label="Para">
+                <mat-select formControlName="to" required [attr.aria-label]="'workflow.toAria' | transloco">
                   @for (name of statusNames(); track name) {
                     <mat-option [value]="name">{{ name }}</mat-option>
                   }
@@ -138,7 +136,7 @@
               </mat-form-field>
             </div>
             <div class="inline-table__col inline-table__col--action">
-              <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeTransition($index)" i18n-aria-label aria-label="Excluir transição">
+              <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeTransition($index)" [attr.aria-label]="'workflow.deleteTransitionAria' | transloco">
                 <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
               </button>
             </div>
@@ -150,24 +148,24 @@
 
   <section class="workflow-form__section">
     <div class="workflow-form__section-header">
-      <h3 i18n>Status de conclusão</h3>
+      <h3>{{ 'workflow.finishStatusAria' | transloco }}</h3>
       <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addFinishStatus()">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-        <span i18n>Adicionar status de conclusão</span>
+        <span>{{ 'workflow.addFinishStatus' | transloco }}</span>
       </button>
     </div>
     <div class="inline-table">
       <div class="inline-table__header">
-        <div class="inline-table__col" i18n>Status</div>
-        <div class="inline-table__col" i18n>Resultado</div>
-        <div class="inline-table__col inline-table__col--action" i18n>Ações</div>
+        <div class="inline-table__col">{{ 'common.status' | transloco }}</div>
+        <div class="inline-table__col">{{ 'workflow.outcomeAria' | transloco }}</div>
+        <div class="inline-table__col inline-table__col--action">{{ 'common.actions' | transloco }}</div>
       </div>
       <div class="inline-table__body">
         @for (finishStatus of finishStatuses.controls; track $index) {
           <div class="inline-table__row" [formGroup]="$any(finishStatus)">
             <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
-                <mat-select formControlName="status" required i18n-aria-label aria-label="Status de conclusão">
+                <mat-select formControlName="status" required [attr.aria-label]="'workflow.finishStatusAria' | transloco">
                   @for (name of statusNames(); track name) {
                     <mat-option [value]="name">{{ name }}</mat-option>
                   }
@@ -176,7 +174,7 @@
             </div>
             <div class="inline-table__col">
               <mat-form-field class="form-field form-field--table" appearance="outline" subscriptSizing="dynamic">
-                <mat-select formControlName="outcome" required i18n-aria-label aria-label="Resultado">
+                <mat-select formControlName="outcome" required [attr.aria-label]="'workflow.outcomeAria' | transloco">
                   @for (outcome of finishOutcomes; track outcome) {
                     <mat-option [value]="outcome">{{ outcome === 'DONE' ? 'Concluído' : 'Cancelado' }}</mat-option>
                   }
@@ -184,7 +182,7 @@
               </mat-form-field>
             </div>
             <div class="inline-table__col inline-table__col--action">
-              <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeFinishStatus($index)" i18n-aria-label aria-label="Excluir status de conclusão">
+              <button class="btn btn-secondary btn-icon-only" matButton="outlined" type="button" (click)="removeFinishStatus($index)" [attr.aria-label]="'workflow.deleteFinishStatusAria' | transloco">
                 <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
               </button>
             </div>
@@ -201,9 +199,9 @@
     sectionTitle="Campos personalizados (processo)" />
 
   <div class="actions form-actions">
-    <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancelled.emit()" i18n>Cancelar</button>
+    <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancelled.emit()">{{ 'ticket.form.cancel' | transloco }}</button>
     <button class="btn" matButton="filled" type="submit" [disabled]="workflowForm.invalid || isSaving || !!pendingRemoval">
-      <span i18n>{{ isSaving ? 'Salvando...' : 'Salvar' }}</span>
+      <span>{{ 'migration.workflow-form.977f4677eca2' | transloco: { value0: isSaving ? 'Salvando...' : 'Salvar' } }}</span>
     </button>
   </div>
 </form>

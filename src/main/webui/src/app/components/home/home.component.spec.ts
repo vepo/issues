@@ -4,6 +4,7 @@ import { HomeService } from '../../services/home.service';
 import { Ticket } from '../../services/ticket.service';
 import { of } from 'rxjs';
 import { provideRouter } from '@angular/router';
+import { TranslocoTestingModule } from '@jsverse/transloco';
 
 describe('HomeComponent', () => {
   let fixture: ComponentFixture<HomeComponent>;
@@ -37,7 +38,13 @@ describe('HomeComponent', () => {
     ]));
 
     await TestBed.configureTestingModule({
-      imports: [HomeComponent],
+      imports: [
+        HomeComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { pt: {} },
+          translocoConfig: { availableLangs: ['pt'], defaultLang: 'pt' },
+        }),
+      ],
       providers: [
         provideRouter([]),
         { provide: HomeService, useValue: homeService }

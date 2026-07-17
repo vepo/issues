@@ -1,20 +1,19 @@
 <details class="query-language-help">
-  <summary class="query-language-help__toggle" i18n>Ajuda da linguagem de consulta</summary>
+  <summary class="query-language-help__toggle">{{ 'migration.query-language-help.dab275e45adc' | transloco }}</summary>
 
   <div class="query-language-help__body">
-    <p class="query-language-help__intro text-muted" i18n>
-      Sintaxe inspirada em JQL, exclusiva do Issues. Combine cláusulas com <code>AND</code> e <code>OR</code>,
-      agrupe com parênteses e use aspas duplas para textos. Opcionalmente termine com
-      <code>ORDER BY campo ASC</code> ou <code>DESC</code>.
+    <p class="query-language-help__intro text-muted">
+      {{ 'migration.query-language-help.14bfd80179df' | transloco }} <code>{{ 'migration.query-language-help.a21cbed406a8' | transloco }}</code> {{ 'migration.query-language-help.a6e10846e6b3' | transloco }} <code>{{ 'migration.query-language-help.78056fc1bb5b' | transloco }}</code>{{ 'migration.query-language-help.7829bf962880' | transloco }}
+      <code>{{ 'migration.query-language-help.942260f2655e' | transloco }}</code> {{ 'migration.query-language-help.20c40611b935' | transloco }} <code>{{ 'migration.query-language-help.7d2962676204' | transloco }}</code>{{ 'migration.query-language-help.e971d8ea0ad3' | transloco }}
     </p>
 
-    <h3 class="query-language-help__heading" i18n>Campos</h3>
+    <h3 class="query-language-help__heading">{{ 'migration.query-language-help.4073971137bd' | transloco }}</h3>
     <div class="page-panel page-panel--flush query-language-help__table-panel">
       <div class="data-table data-table--layout-table data-table--cols-query-help">
         <div class="header">
-          <div class="header-cell" i18n>Campo</div>
-          <div class="header-cell" i18n>Operadores</div>
-          <div class="header-cell" i18n>Descrição</div>
+          <div class="header-cell">{{ 'migration.query-language-help.d439b337787d' | transloco }}</div>
+          <div class="header-cell">{{ 'migration.query-language-help.9e1cc13fcc9f' | transloco }}</div>
+          <div class="header-cell">{{ 'ticket.form.description' | transloco }}</div>
         </div>
         <div class="body">
           @for (field of fields; track field.name) {
@@ -28,23 +27,23 @@
       </div>
     </div>
 
-    <h3 class="query-language-help__heading" i18n>Operadores e funções</h3>
+    <h3 class="query-language-help__heading">{{ 'migration.query-language-help.11da51d2641a' | transloco }}</h3>
     <ul class="query-language-help__list">
-      <li i18n><code>=</code> e <code>!=</code> — igualdade (texto sem diferenciar maiúsculas)</li>
-      <li i18n><code>~</code> — contém (busca parcial)</li>
-      <li i18n><code>IN ( "A", "B" )</code> e <code>NOT IN</code> — apenas para <code>project</code></li>
-      <li i18n><code>IS EMPTY</code> / <code>IS NOT EMPTY</code> — campos opcionais (ver tabela)</li>
-      <li i18n><code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code> — datas em formato ISO-8601</li>
-      <li i18n><code>me()</code> e <code>currentUser()</code> — usuário autenticado em <code>assignee</code> ou <code>author</code></li>
+      <li><code>{{ 'migration.query-language-help.4806be14d591' | transloco }}</code> {{ 'migration.query-language-help.a6e10846e6b3' | transloco }} <code>{{ 'migration.query-language-help.3ff05c6d438b' | transloco }}</code> {{ 'migration.query-language-help.53c9e6ed1eca' | transloco }}</li>
+      <li><code>{{ 'migration.query-language-help.5f4a6f1695cd' | transloco }}</code> {{ 'migration.query-language-help.0bc917227d99' | transloco }}</li>
+      <li><code>{{ 'migration.query-language-help.ef62aef014e9' | transloco }}</code> {{ 'migration.query-language-help.a6e10846e6b3' | transloco }} <code>{{ 'migration.query-language-help.a5bba1ab7f50' | transloco }}</code> {{ 'migration.query-language-help.db22e3681bf1' | transloco }} <code>{{ 'migration.query-language-help.d69f2354fc44' | transloco }}</code></li>
+      <li><code>{{ 'migration.query-language-help.1d0059dd2b6f' | transloco }}</code> {{ 'migration.query-language-help.28157280d36b' | transloco }} <code>{{ 'migration.query-language-help.88c873a126c8' | transloco }}</code> {{ 'migration.query-language-help.adf5f50c2908' | transloco }}</li>
+      <li><code>{{ 'migration.query-language-help.286db9aeea35' | transloco }}</code>{{ 'migration.query-language-help.a10e905d254c' | transloco }} <code>{{ 'migration.query-language-help.9d293c7e1b74' | transloco }}</code>{{ 'migration.query-language-help.a10e905d254c' | transloco }} <code>{{ 'migration.query-language-help.63c4555f6575' | transloco }}</code>{{ 'migration.query-language-help.a10e905d254c' | transloco }} <code>{{ 'migration.query-language-help.0bb6ca3d51c3' | transloco }}</code> {{ 'migration.query-language-help.743fcb41fd14' | transloco }}</li>
+      <li><code>{{ 'migration.query-language-help.c4c52787205b' | transloco }}</code> {{ 'migration.query-language-help.a6e10846e6b3' | transloco }} <code>{{ 'migration.query-language-help.61a535845068' | transloco }}</code> {{ 'migration.query-language-help.58aa06d9d961' | transloco }} <code>{{ 'migration.query-language-help.6a81ac087648' | transloco }}</code> {{ 'migration.query-language-help.20c40611b935' | transloco }} <code>{{ 'migration.query-language-help.5468f240f2ed' | transloco }}</code></li>
     </ul>
 
-    <h3 class="query-language-help__heading" i18n>Ordenação</h3>
-    <p class="query-language-help__note text-muted" i18n>
-      <code>ORDER BY</code> aceita: <code>created</code>, <code>updated</code>, <code>finished</code>,
-      <code>title</code>, <code>identifier</code>, <code>priority</code>.
+    <h3 class="query-language-help__heading">{{ 'migration.query-language-help.146ab198207d' | transloco }}</h3>
+    <p class="query-language-help__note text-muted">
+      <code>{{ 'migration.query-language-help.f6d509c1e467' | transloco }}</code> {{ 'migration.query-language-help.1234b6ae74da' | transloco }} <code>{{ 'migration.query-language-help.a697535101e6' | transloco }}</code>{{ 'migration.query-language-help.a10e905d254c' | transloco }} <code>{{ 'migration.query-language-help.138d3bf29e36' | transloco }}</code>{{ 'migration.query-language-help.a10e905d254c' | transloco }} <code>{{ 'migration.query-language-help.878cd1e13342' | transloco }}</code>{{ 'migration.query-language-help.a10e905d254c' | transloco }}
+      <code>{{ 'migration.query-language-help.3966093ebde3' | transloco }}</code>{{ 'migration.query-language-help.a10e905d254c' | transloco }} <code>{{ 'migration.query-language-help.c40270d93a03' | transloco }}</code>{{ 'migration.query-language-help.a10e905d254c' | transloco }} <code>{{ 'migration.query-language-help.5f3f3da1042e' | transloco }}</code>{{ 'migration.query-language-help.e971d8ea0ad3' | transloco }}
     </p>
 
-    <h3 class="query-language-help__heading" i18n>Exemplos</h3>
+    <h3 class="query-language-help__heading">{{ 'migration.query-language-help.3b3e7a2fc4ec' | transloco }}</h3>
     <div class="query-language-help__examples">
       @for (example of examples; track example.query) {
         <div class="query-language-help__example">

@@ -3,17 +3,34 @@
     <header class="page-header">
       <div>
         <h1 class="page-title">{{ savedQuery.name }}</h1>
-        <p class="page-subtitle" i18n>por {{ savedQuery.ownerName }}</p>
+        <p class="page-subtitle">{{ 'migration.saved-query-view.b8754db054e0' | transloco: { value0: savedQuery.ownerName } }}</p>
       </div>
       <div class="page-header__actions">
-        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="copyLink()" i18n>Copiar link</button>
+        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="copyLink()">{{ 'migration.saved-query-view.f689b74581f2' | transloco }}</button>
         @if (isOwner) {
-          <a class="btn" matButton="filled" [routerLink]="['/search/queries', savedQuery.id, 'edit']" i18n>Editar</a>
+          <a class="btn" matButton="filled" [routerLink]="['/search/queries', savedQuery.id, 'edit']">{{ 'migration.saved-query-view.5a39f4557fe1' | transloco }}</a>
         } @else {
-          <button type="button" class="btn" matButton="filled" (click)="cloneQuery()" i18n>Clonar</button>
+          <button type="button" class="btn" matButton="filled" (click)="cloneQuery()">{{ 'migration.saved-query-view.7ea379a0d1af' | transloco }}</button>
         }
+        <button
+          type="button"
+          class="btn btn-secondary"
+          matButton="outlined"
+          [matMenuTriggerFor]="exportMenu"
+          [disabled]="exportState.loading"
+        >
+          {{ 'ticketExport.action' | transloco }}
+        </button>
+        <mat-menu #exportMenu="matMenu" class="menu-panel">
+          <button mat-menu-item type="button" (click)="exportTickets('CSV')">CSV</button>
+          <button mat-menu-item type="button" (click)="exportTickets('JSON')">JSON</button>
+        </mat-menu>
       </div>
     </header>
+
+    @if (exportState.errorKey) {
+      <p class="error" role="alert">{{ exportState.errorKey | transloco }}</p>
+    }
 
     <section class="page-panel">
       <pre class="query-preview">{{ savedQuery.query }}</pre>
@@ -28,7 +45,7 @@
       }
     </div>
     @if (tickets.length === 0) {
-      <div class="empty-state" i18n>Nenhum ticket encontrado.</div>
+      <div class="empty-state">{{ 'migration.saved-query-view.dc854abdde8a' | transloco }}</div>
     }
   </div>
 }

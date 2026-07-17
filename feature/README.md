@@ -157,7 +157,7 @@ Verifiable **product and scope** criteria — not implementation steps. Build fr
 
 Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answering feature or architecture questions alone does **not** satisfy this line.
 
-**Implementation notes:** (fill after done — key files, tests run)
+**Implementation notes:** (update during implementation — key files, completed evidence, and finish checks still pending)
 ```
 
 ## Feature index (baseline)
@@ -168,6 +168,7 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 | Account settings | `feature/account-settings.md` | 1 | done |
 | Ticket management (detail, comments, history, subscribe, clone) | `feature/ticket-management.md` | 4 | done |
 | Ticket search (query language, saved queries) | `feature/ticket-search.md` | 2 | done |
+| Ticket export (CSV / JSON simple, advanced, and saved-query results) | `feature/ticket-export.md` | 1 | done |
 | Create ticket | `feature/create-ticket.md` | 1 | done |
 | Import tickets (CSV) | `feature/ticket-import.md` | 1 | done |
 | Kanban board | `feature/kanban-board.md` | 1 | done |
@@ -181,6 +182,7 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 | Email delivery | `feature/email-delivery.md` | 1 | done |
 | Phase and version management | `feature/phase-management.md` | 4 | planned |
 | UI design system (class consistency) | `feature/ui-design-system.md` | 1 | done |
+| UI internationalization (English and Portuguese) | `feature/i18n.md` | 2 | done |
 | Home screen (personal work hub) | `feature/home-screen.md` | 1 | tasks-ready |
 | Project navigation (header Projetos) | `feature/project-navigation.md` | 1 | done |
 | Custom fields (project/workflow definitions, ticket values) | `feature/custom-fields.md` | 1 | done |

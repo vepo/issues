@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { CustomFieldService } from '../../services/custom-field.service';
 import { CustomFieldFormSectionComponent } from './custom-field-form-section.component';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('CustomFieldFormSectionComponent', () => {
   let fixture: ComponentFixture<CustomFieldFormSectionComponent>;
@@ -9,7 +10,7 @@ describe('CustomFieldFormSectionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CustomFieldFormSectionComponent],
+      imports: [createTranslocoTestingModule(), CustomFieldFormSectionComponent],
       providers: [
         {
           provide: CustomFieldService,

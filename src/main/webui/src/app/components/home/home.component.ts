@@ -1,17 +1,19 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { forkJoin } from 'rxjs';
 import { HomeActivity, HomeService, HomeTicket } from '../../services/home.service';
 import { HomeSavedQuerySection } from '../../services/saved-query.service';
+import { RuntimeDatePipe } from '../../core/runtime-locale.pipes';
 import { ContextHintComponent } from '../context-hint/context-hint.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
-  imports: [CommonModule, RouterModule, DatePipe, MatIconModule, ContextHintComponent],
+  imports: [CommonModule, RouterModule, RuntimeDatePipe, MatIconModule, ContextHintComponent, TranslocoPipe],
   standalone: true
 })
 export class HomeComponent implements OnInit {

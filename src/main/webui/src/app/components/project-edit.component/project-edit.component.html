@@ -2,47 +2,47 @@
   @if (editMode) {
     <header class="page-header">
       <div>
-        <h1 class="page-title" i18n>Editar projeto</h1>
-        <p class="page-subtitle" i18n>Atualize nome, processo, prefixo e template de ticket</p>
+        <h1 class="page-title">{{ 'migration.project-edit.7b1020e9ca87' | transloco }}</h1>
+        <p class="page-subtitle">{{ 'migration.project-edit.84f7087e0a09' | transloco }}</p>
       </div>
     </header>
   } @else {
     <header class="page-header">
       <div>
-        <h1 class="page-title" i18n>Novo projeto</h1>
-        <p class="page-subtitle" i18n>Configure um novo projeto de tickets</p>
+        <h1 class="page-title">{{ 'project.list.create' | transloco }}</h1>
+        <p class="page-subtitle">{{ 'migration.project-edit.5219ac38f024' | transloco }}</p>
       </div>
     </header>
   }
 
   <form class="edit page-panel" [formGroup]="projectForm">
     <mat-form-field class="form-field" appearance="outline">
-      <mat-label i18n>Nome</mat-label>
+      <mat-label>{{ 'account.name' | transloco }}</mat-label>
       <input matInput formControlName="name" required />
     </mat-form-field>
     <mat-form-field class="form-field" appearance="outline">
-      <mat-label i18n>Processo</mat-label>
+      <mat-label>{{ 'migration.project-edit.1e3569fcd55d' | transloco }}</mat-label>
       <mat-select formControlName="workflow">
-        <mat-option [value]="-1" disabled i18n>Selecione um processo...</mat-option>
+        <mat-option [value]="-1" disabled>{{ 'migration.project-edit.0c4fa0a0e8e7' | transloco }}</mat-option>
         @for (workflow of workflows; track workflow.id) {
           <mat-option [value]="workflow.id">{{ workflow.name }}</mat-option>
         }
       </mat-select>
     </mat-form-field>
     <mat-form-field class="form-field" appearance="outline">
-      <mat-label i18n>Prefixo</mat-label>
+      <mat-label>{{ 'account.tokens.prefix' | transloco }}</mat-label>
       <input matInput formControlName="prefix" required />
       @if (prefixLocked) {
-        <mat-hint i18n>O prefixo não pode ser alterado após a criação de tickets</mat-hint>
+        <mat-hint>{{ 'migration.project-edit.9122dcf1b947' | transloco }}</mat-hint>
       }
     </mat-form-field>
     <div class="form-field form-field--rich-text">
-      <label class="form-label" i18n>Descrição</label>
+      <label class="form-label">{{ 'ticket.form.description' | transloco }}</label>
       <app-rich-text-editor formControlName="description" placeholder="Descrição do projeto..."></app-rich-text-editor>
     </div>
 
     <section class="form-section">
-      <h2 class="section-title" i18n>Nível de segurança</h2>
+      <h2 class="section-title">{{ 'migration.project-edit.a06d8eb12fdf' | transloco }}</h2>
       <mat-radio-group formControlName="securityLevel" class="security-level-group" aria-label="Nível de segurança">
         @for (level of securityLevels; track level.value) {
           <mat-radio-button [value]="level.value" class="security-level-option">
@@ -54,30 +54,30 @@
     </section>
 
     <section class="form-section">
-      <mat-checkbox formControlName="templateEnabled" i18n>Usar template de ticket</mat-checkbox>
+      <mat-checkbox formControlName="templateEnabled">{{ 'migration.project-edit.8fe6774edb37' | transloco }}</mat-checkbox>
 
       @if (projectForm.value.templateEnabled) {
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Título do template</mat-label>
+          <mat-label>{{ 'migration.project-edit.a6f7715fcabc' | transloco }}</mat-label>
           <input matInput formControlName="templateTitle" />
         </mat-form-field>
         <div class="form-field form-field--rich-text">
-          <label class="form-label" i18n>Descrição do template</label>
+          <label class="form-label">{{ 'migration.project-edit.0d77c63e82f7' | transloco }}</label>
           <app-rich-text-editor formControlName="templateDescription" placeholder="Descrição padrão do ticket..."></app-rich-text-editor>
         </div>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Categoria do template</mat-label>
+          <mat-label>{{ 'migration.project-edit.939601191ce0' | transloco }}</mat-label>
           <mat-select formControlName="templateCategoryId">
-            <mat-option [value]="-1" disabled i18n>Selecione uma categoria...</mat-option>
+            <mat-option [value]="-1" disabled>{{ 'migration.project-edit.3b8d98b695e2' | transloco }}</mat-option>
             @for (category of categories; track category.id) {
               <mat-option [value]="category.id">{{ category.name }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Prioridade do template</mat-label>
+          <mat-label>{{ 'migration.project-edit.7951bddd6a20' | transloco }}</mat-label>
           <mat-select formControlName="templatePriority">
-            <mat-option [value]="null" i18n>Nenhuma</mat-option>
+            <mat-option [value]="null">{{ 'migration.project-edit.d5a6c5b6a0ef' | transloco }}</mat-option>
             @for (priority of priorities; track priority) {
               <mat-option [value]="priority">{{ priority }}</mat-option>
             }
@@ -85,7 +85,7 @@
         </mat-form-field>
 
         @if (editMode && inScopeFields.length > 0) {
-          <h3 class="section-title" i18n>Template — campos personalizados</h3>
+          <h3 class="section-title">{{ 'migration.project-edit.2ac1849248eb' | transloco }}</h3>
           <app-custom-field-form-section
             #templateCustomFields
             [definitions]="inScopeFields"
@@ -102,21 +102,21 @@
     }
 
     <section class="form-section">
-      <h2 class="section-title" i18n>Template de fase</h2>
-      <p class="form-hint" i18n>Objetivo e entregáveis copiados para cada nova fase (editáveis por fase).</p>
+      <h2 class="section-title">{{ 'migration.project-edit.d505046f6122' | transloco }}</h2>
+      <p class="form-hint">{{ 'migration.project-edit.22dfc03edf6f' | transloco }}</p>
       <mat-form-field class="form-field form-field--textarea" appearance="outline">
-        <mat-label i18n>Objetivo padrão</mat-label>
+        <mat-label>{{ 'migration.project-edit.cf4947148da6' | transloco }}</mat-label>
         <textarea matInput formControlName="phaseTemplateObjective" rows="3"></textarea>
       </mat-form-field>
       <mat-form-field class="form-field form-field--textarea" appearance="outline">
-        <mat-label i18n>Entregáveis padrão</mat-label>
+        <mat-label>{{ 'migration.project-edit.ddfb37d56efc' | transloco }}</mat-label>
         <textarea matInput formControlName="phaseTemplateDeliverables" rows="4" placeholder="Um entregável por linha"></textarea>
       </mat-form-field>
     </section>
 
     @if (editMode && showOwnerPicker) {
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Responsável do projeto</mat-label>
+        <mat-label>{{ 'migration.project-edit.274ac5ba44b4' | transloco }}</mat-label>
         <mat-select formControlName="ownerId">
           @for (manager of projectManagers; track manager.id) {
             <mat-option [value]="manager.id">{{ manager.name }} ({{ manager.email }})</mat-option>
@@ -127,16 +127,16 @@
 
     @if (editMode && projectId) {
       <section class="form-section" [formGroup]="gitForm">
-        <h2 class="section-title" i18n>Repositório Git</h2>
-        <p class="form-hint" i18n>
-          Associe um repositório remoto para vincular commits que mencionem identificadores de tickets deste projeto.
+        <h2 class="section-title">{{ 'migration.project-edit.9fc3568b0202' | transloco }}</h2>
+        <p class="form-hint">
+          {{ 'migration.project-edit.529756a187e0' | transloco }}
         </p>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>URL do repositório</mat-label>
+          <mat-label>{{ 'migration.project-edit.6b3a4cf3a2fb' | transloco }}</mat-label>
           <input matInput formControlName="remoteUrl" placeholder="https://github.com/org/repo" />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Provedor</mat-label>
+          <mat-label>{{ 'migration.project-edit.b0d5e13e9b29' | transloco }}</mat-label>
           <mat-select formControlName="provider">
             @for (option of gitProviders; track option.value) {
               <mat-option [value]="option.value">{{ option.label }}</mat-option>
@@ -144,25 +144,25 @@
           </mat-select>
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Branch padrão</mat-label>
+          <mat-label>{{ 'migration.project-edit.166440a0897f' | transloco }}</mat-label>
           <input matInput formControlName="defaultBranch" placeholder="main" />
         </mat-form-field>
 
-        <h3 class="section-title" i18n>Conectar commits</h3>
+        <h3 class="section-title">{{ 'migration.project-edit.914a57dd7281' | transloco }}</h3>
         <ol class="form-hint git-setup-steps">
-          <li i18n>Cole a URL do repositório e salve o projeto.</li>
-          <li i18n>
-            Webhook (push): configure no forge com a URL abaixo e o segredo do webhook.
+          <li>{{ 'migration.project-edit.cc9703ecf51e' | transloco }}</li>
+          <li>
+            {{ 'migration.project-edit.b0be97603f3b' | transloco }}
           </li>
-          <li i18n>
-            API (CI / agente): envie commits com Bearer PAT (Conta → Tokens de API) ou token de
-            <a [href]="'/projects/' + projectId + '/service-accounts'">conta de serviço</a>
-            via <code>POST /api/projects/{{ projectId }}/git/commits</code>.
+          <li>
+            {{ 'migration.project-edit.2f412492df4f' | transloco }}
+            <a [href]="'/projects/' + projectId + '/service-accounts'">{{ 'migration.project-edit.034f8effda05' | transloco }}</a>
+            {{ 'migration.project-edit.7ecfbad31418' | transloco }} <code>{{ 'migration.project-edit.3a2b98116f63' | transloco: { value0: projectId } }}</code>{{ 'migration.project-edit.41e48e683d6c' | transloco }}
           </li>
         </ol>
 
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>URL do webhook</mat-label>
+          <mat-label>{{ 'migration.project-edit.a209a153411b' | transloco }}</mat-label>
           <input matInput [value]="webhookUrl" readonly />
           <button
             mat-icon-button
@@ -170,15 +170,14 @@
             type="button"
             (click)="copyWebhookUrl()"
             [disabled]="!webhookUrl"
-            i18n-aria-label
-            aria-label="Copiar URL do webhook">
+            [attr.aria-label]="'project.git.copyWebhookUrlAria' | transloco">
             <mat-icon fontIcon="content_copy" aria-hidden="true"></mat-icon>
           </button>
         </mat-form-field>
 
         <div class="git-secret-row">
           <mat-form-field class="form-field" appearance="outline">
-            <mat-label i18n>Segredo do webhook</mat-label>
+            <mat-label>{{ 'migration.project-edit.b730434a4273' | transloco }}</mat-label>
             @if (displayedWebhookSecret) {
               <input matInput [value]="displayedWebhookSecret" readonly />
             } @else {
@@ -190,16 +189,15 @@
                 matSuffix
                 type="button"
                 (click)="copyWebhookSecret()"
-                i18n-aria-label
-                aria-label="Copiar segredo">
+                [attr.aria-label]="'project.git.copySecretAria' | transloco">
                 <mat-icon fontIcon="content_copy" aria-hidden="true"></mat-icon>
               </button>
             }
             @if (!displayedWebhookSecret && hasGitSecret) {
-              <mat-hint i18n>Segredo configurado — use Regenerar para obter um novo valor.</mat-hint>
+              <mat-hint>{{ 'migration.project-edit.4be96b6d102b' | transloco }}</mat-hint>
             }
             @if (displayedWebhookSecret) {
-              <mat-hint i18n>Copie agora — o segredo não será mostrado novamente.</mat-hint>
+              <mat-hint>{{ 'migration.project-edit.7036af8afe9a' | transloco }}</mat-hint>
             }
           </mat-form-field>
           <button
@@ -208,11 +206,11 @@
             type="button"
             (click)="regenerateWebhookSecret()"
             [disabled]="regeneratingSecret || !webhookUrl">
-            <span i18n>{{ regeneratingSecret ? 'Regenerando...' : 'Regenerar segredo' }}</span>
+            <span>{{ 'migration.project-edit.b08f3c2976e7' | transloco: { value0: regeneratingSecret ? 'Regenerando...' : 'Regenerar segredo' } }}</span>
           </button>
           @if (displayedWebhookSecret) {
-            <button class="btn btn-secondary" matButton="outlined" type="button" (click)="dismissWebhookSecret()" i18n>
-              Ocultar segredo
+            <button class="btn btn-secondary" matButton="outlined" type="button" (click)="dismissWebhookSecret()">
+              {{ 'migration.project-edit.a74e3ff2add0' | transloco }}
             </button>
           }
         </div>
@@ -220,10 +218,10 @@
     }
 
     <div class="actions form-actions">
-      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()" i18n>Cancelar</button>
-      <button class="btn" [disabled]="projectForm.invalid" matButton="filled" type="button" (click)="save()" i18n
-        >Salvar</button
-      >
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()">{{ 'ticket.form.cancel' | transloco }}</button>
+      <button class="btn" [disabled]="projectForm.invalid" matButton="filled" type="button" (click)="save()">
+        {{ 'common.save' | transloco }}
+      </button>
     </div>
   </form>
 </div>

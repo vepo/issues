@@ -2,16 +2,16 @@
   <div class="auth-card">
     <div class="auth-card__header">
       <mat-icon fontIcon="login" aria-hidden="true"></mat-icon>
-      <h1 i18n>Entrar</h1>
-      <p i18n>Sistema de gerenciamento de tickets</p>
+      <h1>{{ 'auth.login.title' | transloco }}</h1>
+      <p>{{ 'auth.login.subtitle' | transloco }}</p>
     </div>
     <form class="auth-card__body" (ngSubmit)="login()">
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>E-mail</mat-label>
+        <mat-label>{{ 'auth.email' | transloco }}</mat-label>
         <input matInput [(ngModel)]="email" name="email" required autocomplete="email" />
       </mat-form-field>
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Senha</mat-label>
+        <mat-label>{{ 'auth.password' | transloco }}</mat-label>
         <input
           matInput
           name="password"
@@ -20,7 +20,7 @@
           required
           autocomplete="current-password"
         />
-        <button type="button" mat-icon-button matSuffix (click)="clickEvent($event)" aria-label="Mostrar senha">
+        <button type="button" mat-icon-button matSuffix (click)="clickEvent($event)" [attr.aria-label]="'auth.showPassword' | transloco">
           <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
       </mat-form-field>
@@ -30,14 +30,14 @@
       <div class="form-actions">
         <button class="btn" matButton="filled" type="submit">
           <mat-icon fontIcon="login" aria-hidden="true"></mat-icon>
-          <span i18n>Entrar</span>
+          <span>{{ 'auth.login.title' | transloco }}</span>
         </button>
         @if (passwordRecovery) {
           <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="'/login/register'">
-            <span i18n>Criar conta</span>
+            <span>{{ 'auth.register.title' | transloco }}</span>
           </button>
           <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="'/login/reset-password'">
-            <span i18n>Recuperar senha</span>
+            <span>{{ 'auth.reset.requestTitle' | transloco }}</span>
           </button>
         }
       </div>

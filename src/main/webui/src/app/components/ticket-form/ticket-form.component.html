@@ -1,47 +1,47 @@
 <form [formGroup]="ticketForm" class="edit">
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Projeto</mat-label>
+    <mat-label>{{ labels.project }}</mat-label>
     <mat-select formControlName="projectId">
-      <mat-option [value]="-1" disabled i18n>Selecione um projeto...</mat-option>
+      <mat-option [value]="-1" disabled>{{ 'migration.ticket-form.118cd0664a0d' | transloco }}</mat-option>
       @for (proj of projects; track proj.id) {
         <mat-option [value]="proj.id">{{ proj.name }}</mat-option>
       }
     </mat-select>
     @if (projectId && projectId.touched && projectId.invalid && projectId.hasError('min')) {
-      <mat-error i18n>Um projeto deve ser selecionado!</mat-error>
+      <mat-error>{{ 'migration.ticket-form.bd2d4cfbac71' | transloco }}</mat-error>
     }
   </mat-form-field>
 
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Título</mat-label>
+    <mat-label>{{ labels.title }}</mat-label>
     <input matInput placeholder="Insira o título do ticket..." formControlName="title" />
     @if (title && title.touched && title.invalid && title.hasError('required')) {
-      <mat-error i18n>Título é um campo obrigatório!</mat-error>
+      <mat-error>{{ 'migration.ticket-form.efa651a0a084' | transloco }}</mat-error>
     }
     @if (title && title.touched && title.invalid && title.hasError('minlength')) {
-      <mat-error i18n>Título deve ter ao menos 5 caracteres!</mat-error>
+      <mat-error>{{ 'migration.ticket-form.e4719b52e548' | transloco }}</mat-error>
     }
     @if (title && title.touched && title.invalid && title.hasError('maxlength')) {
-      <mat-error i18n>Título deve ter no máximo 255 caracteres!</mat-error>
+      <mat-error>{{ 'migration.ticket-form.7203d70dc993' | transloco }}</mat-error>
     }
   </mat-form-field>
 
   <div class="form-field form-field--rich-text">
-    <label class="form-label" i18n>Descrição</label>
+    <label class="form-label">Descrição</label>
     <app-rich-text-editor formControlName="description" placeholder="Insira a descrição do ticket..."></app-rich-text-editor>
     @if (description && description.touched && description.invalid && description.hasError('required')) {
-      <div class="form-error" i18n>Descrição é um campo obrigatório!</div>
+      <div class="form-error">{{ 'migration.ticket-form.a28ad47bbd3c' | transloco }}</div>
     }
     @if (description && description.touched && description.invalid && description.hasError('plainTextMinLength')) {
-      <div class="form-error" i18n>Descrição deve ter ao menos 5 caracteres!</div>
+      <div class="form-error">{{ 'migration.ticket-form.44e5eea24501' | transloco }}</div>
     }
     @if (description && description.touched && description.invalid && description.hasError('plainTextMaxLength')) {
-      <div class="form-error" i18n>Descrição deve ter no máximo 1200 caracteres!</div>
+      <div class="form-error">{{ 'migration.ticket-form.77b56abd84b5' | transloco }}</div>
     }
   </div>
 
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Tipo</mat-label>
+    <mat-label>Tipo</mat-label>
     <mat-select formControlName="ticketType" required>
       @for (type of ticketTypes; track type.value) {
         <mat-option [value]="type.value">{{ type.label }}</mat-option>
@@ -50,7 +50,7 @@
   </mat-form-field>
 
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Prioridade</mat-label>
+    <mat-label>Prioridade</mat-label>
     <mat-select formControlName="priority" required>
       @for (priority of priorities; track priority) {
         <mat-option [value]="priority">{{ priority }}</mat-option>
@@ -59,27 +59,27 @@
   </mat-form-field>
 
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Data de vencimento</mat-label>
+    <mat-label>Data de vencimento</mat-label>
     <input matInput type="date" formControlName="dueDate" />
   </mat-form-field>
 
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Categoria</mat-label>
+    <mat-label>Categoria</mat-label>
     <mat-select formControlName="categoryId" required>
-      <mat-option [value]="-1" disabled i18n>Selecione uma categoria...</mat-option>
+      <mat-option [value]="-1" disabled>{{ 'migration.ticket-form.f9fcd596e196' | transloco }}</mat-option>
       @for (cat of categories; track cat.id) {
         <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
       }
     </mat-select>
     @if (categoryId && categoryId.touched && categoryId.invalid && categoryId.hasError('min')) {
-      <mat-error i18n>Uma categoria deve ser selecionada!</mat-error>
+      <mat-error>{{ 'migration.ticket-form.d55258a39684' | transloco }}</mat-error>
     }
   </mat-form-field>
 
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Fase</mat-label>
+    <mat-label>Fase</mat-label>
     <mat-select formControlName="phaseId">
-      <mat-option [value]="null" i18n>Nenhuma</mat-option>
+      <mat-option [value]="null">{{ 'migration.ticket-form.aee959d93569' | transloco }}</mat-option>
       @for (phase of assignablePhases; track phase.id) {
         <mat-option [value]="phase.id">{{ phase.name }}</mat-option>
       }
@@ -87,7 +87,7 @@
   </mat-form-field>
 
   <mat-form-field class="form-field" appearance="outline">
-    <mat-label i18n>Story points</mat-label>
+    <mat-label>Story points</mat-label>
     <input matInput type="number" min="0" formControlName="storyPoints" />
   </mat-form-field>
 
@@ -96,9 +96,9 @@
     [templateDefaults]="customFieldDefaults" />
 
   <div class="actions form-actions">
-    <button matButton="outlined" class="btn btn-secondary" type="button" (click)="cancel()" i18n>Cancelar</button>
-    <button matButton="filled" class="btn" type="button" [disabled]="ticketForm.invalid || isSaving" (click)="submit()" i18n>
-      Criar
+    <button matButton="outlined" class="btn btn-secondary" type="button" (click)="cancel()">Cancelar</button>
+    <button matButton="filled" class="btn" type="button" [disabled]="ticketForm.invalid || isSaving" (click)="submit()">
+      {{ labels.create }}
     </button>
   </div>
 </form>

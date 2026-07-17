@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -16,7 +17,7 @@ export interface CategoryDialogData {
 
 @Component({
   selector: 'app-categories-view',
-  imports: [MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [TranslocoPipe, MatButtonModule, MatIconModule, MatDialogModule],
   templateUrl: './categories-view.component.html'
 })
 export class CategoriesViewComponent implements OnInit {
@@ -76,13 +77,13 @@ export class CategoriesViewComponent implements OnInit {
 
 @Component({
   selector: 'app-category-delete-dialog',
-  imports: [MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
+  imports: [TranslocoPipe, MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButtonModule],
   template: `
-    <h2 mat-dialog-title i18n>Excluir categoria?</h2>
-    <mat-dialog-content i18n>Esta ação não pode ser desfeita.</mat-dialog-content>
+    <h2 mat-dialog-title>{{ 'migration.categories-view.3700490d54e7' | transloco }}</h2>
+    <mat-dialog-content>{{ 'migration.categories-view.94af6b997800' | transloco }}</mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
-      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true" i18n>Excluir</button>
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close>{{ 'ticket.form.cancel' | transloco }}</button>
+      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true">{{ 'migration.categories-view.c5c29943b0ff' | transloco }}</button>
     </mat-dialog-actions>
   `
 })
@@ -100,20 +101,21 @@ export class CategoryDeleteDialogComponent {}
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    TranslocoPipe,
   ],
   template: `
     <h2 mat-dialog-title>{{ isEdit ? 'Editar categoria' : 'Nova categoria' }}</h2>
     <form [formGroup]="form" (ngSubmit)="save()">
       <mat-dialog-content>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Nome</mat-label>
+          <mat-label>{{ 'account.name' | transloco }}</mat-label>
           <input matInput formControlName="name" required />
         </mat-form-field>
         <div class="color-picker-field">
-          <span class="color-picker-field__label" i18n>Cor</span>
+          <span class="color-picker-field__label">{{ 'migration.categories-view.e9a143507b78' | transloco }}</span>
           <div class="color-picker-field__row">
-            <label class="color-picker-trigger" i18n-title title="Clique para abrir o seletor de cores">
+            <label class="color-picker-trigger" [title]="'category.colorPickerTitle' | transloco">
               <input
                 type="color"
                 class="color-picker-trigger__input"
@@ -123,19 +125,19 @@ export class CategoryDeleteDialogComponent {}
               <span class="color-picker-trigger__surface">
                 <span class="color-picker-trigger__swatch" [style.background-color]="colorValue"></span>
                 <mat-icon fontIcon="palette" aria-hidden="true"></mat-icon>
-                <span class="color-picker-trigger__text" i18n>Escolher cor</span>
+                <span class="color-picker-trigger__text">{{ 'migration.categories-view.26b1cf66489d' | transloco }}</span>
               </span>
             </label>
             <mat-form-field class="form-field form-field--compact color-picker-field__hex" appearance="outline">
-              <mat-label i18n>Código hex</mat-label>
+              <mat-label>{{ 'migration.categories-view.78aca488f6aa' | transloco }}</mat-label>
               <input matInput formControlName="color" required (input)="onHexInput($event)" />
             </mat-form-field>
           </div>
         </div>
       </mat-dialog-content>
       <mat-dialog-actions align="end">
-        <button class="btn btn-secondary" matButton="outlined" type="button" mat-dialog-close i18n>Cancelar</button>
-        <button class="btn" matButton="filled" type="submit" [disabled]="form.invalid || saving" i18n>Salvar</button>
+        <button class="btn btn-secondary" matButton="outlined" type="button" mat-dialog-close>{{ 'ticket.form.cancel' | transloco }}</button>
+        <button class="btn" matButton="filled" type="submit" [disabled]="form.invalid || saving">{{ 'common.save' | transloco }}</button>
       </mat-dialog-actions>
     </form>
   `

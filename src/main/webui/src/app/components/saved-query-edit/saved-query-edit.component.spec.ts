@@ -3,6 +3,7 @@ import { provideRouter, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { SavedQueryService } from '../../services/saved-query.service';
 import { SavedQueryEditComponent } from './saved-query-edit.component';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('SavedQueryEditComponent', () => {
   let fixture: ComponentFixture<SavedQueryEditComponent>;
@@ -24,7 +25,7 @@ describe('SavedQueryEditComponent', () => {
     }));
 
     await TestBed.configureTestingModule({
-      imports: [SavedQueryEditComponent],
+      imports: [createTranslocoTestingModule(), SavedQueryEditComponent],
       providers: [
         provideRouter([]),
         {

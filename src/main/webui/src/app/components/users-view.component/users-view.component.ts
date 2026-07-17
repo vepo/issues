@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatButton } from '@angular/material/button';
@@ -12,7 +13,7 @@ import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-users-view.component',
-  imports: [MatIcon, MatButton, MatFormFieldModule, MatInputModule, FormsModule, RouterLink, MatDialogModule],
+  imports: [TranslocoPipe, MatIcon, MatButton, MatFormFieldModule, MatInputModule, FormsModule, RouterLink, MatDialogModule],
   templateUrl: './users-view.component.html'
 })
 export class UsersViewComponent implements OnInit {
@@ -71,13 +72,13 @@ export class UsersViewComponent implements OnInit {
 
 @Component({
   selector: 'app-user-delete-dialog',
-  imports: [MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButton],
+  imports: [TranslocoPipe, MatDialogModule, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButton],
   template: `
-    <h2 mat-dialog-title i18n>Excluir usuário?</h2>
-    <mat-dialog-content i18n>Esta ação não pode ser desfeita.</mat-dialog-content>
+    <h2 mat-dialog-title>{{ 'migration.users-view.616cab4e3272' | transloco }}</h2>
+    <mat-dialog-content>{{ 'migration.users-view.9159ddec7271' | transloco }}</mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close i18n>Cancelar</button>
-      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true" i18n>Excluir</button>
+      <button class="btn btn-secondary" matButton="outlined" mat-dialog-close>{{ 'ticket.form.cancel' | transloco }}</button>
+      <button class="btn btn-cancel" matButton="filled" [mat-dialog-close]="true">{{ 'migration.users-view.4a793149f0b1' | transloco }}</button>
     </mat-dialog-actions>
   `
 })

@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,9 +33,16 @@ export interface TicketFormDefaults {
   customFieldDefaults?: CustomFieldValueResponse[];
 }
 
+export interface TicketFormLabels {
+  project: string;
+  title: string;
+  create: string;
+}
+
 @Component({
   selector: 'app-ticket-form',
   imports: [
+    TranslocoPipe,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -56,6 +64,11 @@ export class TicketFormComponent implements OnInit {
   @Input() lockProject = false;
   @Input() isSaving = false;
   @Input() customFieldDefaults: CustomFieldValueResponse[] | null = null;
+  @Input() labels: TicketFormLabels = {
+    project: 'Projeto',
+    title: 'Título',
+    create: 'Criar',
+  };
 
   @Output() submitted = new EventEmitter<CreateTicketRequest>();
   @Output() cancelled = new EventEmitter<void>();

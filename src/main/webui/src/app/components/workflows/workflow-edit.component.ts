@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UpdateWorkflowRequest, Workflow, WorkflowService } from '../../services/workflow.service';
@@ -5,18 +6,18 @@ import { WorkflowFormComponent, WorkflowFormValue } from './workflow-form.compon
 
 @Component({
   selector: 'app-workflow-edit',
-  imports: [WorkflowFormComponent],
+  imports: [TranslocoPipe, WorkflowFormComponent],
   template: `
     <div class="page">
       <header class="page-header">
         <div>
-          <h1 class="page-title" i18n>Editar processo</h1>
-          <p class="page-subtitle" i18n>Altere nome, status, transições e remapeie tickets se necessário</p>
+          <h1 class="page-title">{{ 'migration.workflow-edit.a8f4c39c35f3' | transloco }}</h1>
+          <p class="page-subtitle">{{ 'migration.workflow-edit.87e4b6a5adfa' | transloco }}</p>
         </div>
       </header>
       <section class="edit page-panel">
         @if (loading) {
-          <div class="loading" i18n>Carregando processo...</div>
+          <div class="loading">{{ 'migration.workflow-edit.b5aabad5bf28' | transloco }}</div>
         } @else if (error) {
           <div class="error" role="alert">{{ error }}</div>
         } @else if (workflow) {

@@ -1,17 +1,21 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Project, ProjectsService } from '../../services/projects.service';
 import { Status, StatusService } from '../../services/status.service';
+import { TicketExportFormat, TicketExportService } from '../../services/ticket-export.service';
 import { Ticket, TicketService } from '../../services/ticket.service';
 import { NormalizePipe } from '../pipes/normalize.pipe';
+import { TicketExportState } from '../ticket-export-state';
 
 @Component({
   selector: 'app-search-tickets',
   templateUrl: './search-tickets.component.html',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatButtonModule, NormalizePipe]
+  imports: [TranslocoPipe, CommonModule, RouterLink, MatButtonModule, MatMenuModule, NormalizePipe]
 })
 export class SearchTicketsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -19,12 +23,14 @@ export class SearchTicketsComponent implements OnInit {
   private readonly ticketService = inject(TicketService);
   private readonly statusService = inject(StatusService);
   private readonly projectService = inject(ProjectsService);
+  private readonly ticketExportService = inject(TicketExportService);
 
   tickets: Ticket[] = [];
   statuses: Status[] = [];
   projects: Project[] = [];
   term = '';
   statusId = -1;
+  readonly exportState = new TicketExportState();
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -69,5 +75,11 @@ export class SearchTicketsComponent implements OnInit {
 
   searchTickets() {
     this.ticketService.search(this.term, this.statusId).subscribe(tickets => (this.tickets = tickets));
+  }
+
+  exportTickets(format: TicketExportFormat): void {
+    this.exportState.download(() =>
+      this.ticketExportService.download({ source: 'simple', term: this.term, statusId: this.statusId }, format)
+    );
   }
 }

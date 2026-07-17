@@ -5,6 +5,8 @@ import { of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { PhaseService } from '../../services/phase.service';
 import { VersionService } from '../../services/version.service';
+import { TranslocoService } from '@jsverse/transloco';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('ProjectHubComponent', () => {
   let fixture: ComponentFixture<ProjectHubComponent>;
@@ -22,7 +24,13 @@ describe('ProjectHubComponent', () => {
     ]));
 
     await TestBed.configureTestingModule({
-      imports: [ProjectHubComponent],
+      imports: [
+        ProjectHubComponent,
+        createTranslocoTestingModule(
+          { planning: { phases: 'Fases', versions: 'Versões', details: 'Detalhes' } },
+          { planning: { phases: 'Phases', versions: 'Versions', details: 'Details' } },
+        ),
+      ],
       providers: [
         {
           provide: ActivatedRoute,
@@ -62,5 +70,20 @@ describe('ProjectHubComponent', () => {
     expect(versionService.list).toHaveBeenCalledWith(1);
     expect(fixture.componentInstance.phases.length).toBe(1);
     expect(fixture.componentInstance.versions.length).toBe(1);
+  });
+
+  it('should rerender phase and version labels immediately when locale changes from Portuguese to English', async () => {
+    expect(fixture.nativeElement.textContent).toContain('Fases');
+    expect(fixture.nativeElement.textContent).toContain('Versões');
+    expect(fixture.nativeElement.textContent).toContain('Detalhes');
+
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Phases');
+    expect(fixture.nativeElement.textContent).toContain('Versions');
+    expect(fixture.nativeElement.textContent).toContain('Details');
+    expect(fixture.nativeElement.textContent).not.toContain('Versões');
   });
 });

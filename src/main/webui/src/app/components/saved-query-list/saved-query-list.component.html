@@ -1,27 +1,27 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Minhas consultas</h1>
+      <h1 class="page-title">{{ 'search.saved.title' | transloco }}</h1>
     </div>
     <div class="page-header__actions">
-      <a class="btn" matButton="filled" routerLink="/search/queries/new" i18n>Nova consulta</a>
+      <a class="btn" matButton="filled" routerLink="/search/queries/new">{{ 'search.saved.create' | transloco }}</a>
     </div>
   </header>
 
   @if (queries.length === 0) {
     <div class="empty-state">
-      <span i18n>Nenhuma consulta salva.</span>
-      <a routerLink="/search/advanced" i18n>Busca avançada</a>
+      <span>{{ 'migration.saved-query-list.016a44056721' | transloco }}</span>
+      <a routerLink="/search/advanced">{{ 'migration.saved-query-list.ba98504dfd8a' | transloco }}</a>
     </div>
   } @else {
     <section class="page-panel page-panel--flush">
       <div class="data-table data-table--layout-table">
         <div class="header">
-          <div class="header-cell" i18n>Nome</div>
-          <div class="header-cell" i18n>Consulta</div>
-          <div class="header-cell" i18n>Home</div>
-          <div class="header-cell" i18n>Atualizado</div>
-          <div class="header-cell header-cell--actions" i18n>Ações</div>
+          <div class="header-cell">{{ 'account.name' | transloco }}</div>
+          <div class="header-cell">{{ 'search.saved.query' | transloco }}</div>
+          <div class="header-cell">{{ 'migration.saved-query-list.91ff42c361e1' | transloco }}</div>
+          <div class="header-cell">{{ 'common.updated' | transloco }}</div>
+          <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
         </div>
         <div class="body">
           @for (query of queries; track query.id) {
@@ -29,11 +29,11 @@
               <div>{{ query.name }}</div>
               <div class="query-preview">{{ query.query }}</div>
               <div>{{ query.showAtHome ? 'Sim' : 'Não' }}</div>
-              <div>{{ query.updatedAt | date: 'short' }}</div>
+              <div>{{ query.updatedAt | runtimeDate: 'short' }}</div>
               <div class="cell-actions">
-                <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/search/q', query.slug]" i18n>Abrir</a>
-                <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/search/queries', query.id, 'edit']" i18n>Editar</a>
-                <button type="button" class="btn btn-cancel" matButton="filled" (click)="deleteQuery(query)" i18n>Excluir</button>
+                <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/search/q', query.slug]">{{ 'search.saved.open' | transloco }}</a>
+                <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/search/queries', query.id, 'edit']">{{ 'migration.saved-query-list.9dff2b5be791' | transloco }}</a>
+                <button type="button" class="btn btn-cancel" matButton="filled" (click)="deleteQuery(query)">{{ 'migration.saved-query-list.bcecd98ff730' | transloco }}</button>
               </div>
             </div>
           }

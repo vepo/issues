@@ -1,13 +1,13 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Processos</h1>
-      <p class="page-subtitle" i18n>Fluxos de status e transições para projetos</p>
+      <h1 class="page-title">{{ 'shell.workflows' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'migration.workflows-view.3c2bf3f97d15' | transloco }}</p>
     </div>
     <div class="page-header__actions">
       <button class="btn" matButton="filled" [routerLink]="['/', 'workflows', 'new']">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-        <span i18n>Novo processo</span>
+        <span>{{ 'migration.workflows-view.33950c9d6b1f' | transloco }}</span>
       </button>
     </div>
   </header>
@@ -16,10 +16,10 @@
     <div class="data-table data-table--layout-table">
       <div class="header">
         <div class="header-cell">ID</div>
-        <div class="header-cell left-aligned" i18n>Nome</div>
-        <div class="header-cell left-aligned" i18n>Status</div>
-        <div class="header-cell left-aligned" i18n>Início</div>
-        <div class="header-cell header-cell--actions" i18n>Ações</div>
+        <div class="header-cell left-aligned">{{ 'account.name' | transloco }}</div>
+        <div class="header-cell left-aligned">{{ 'common.status' | transloco }}</div>
+        <div class="header-cell left-aligned">{{ 'home.title' | transloco }}</div>
+        <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
       </div>
       <div class="body">
         @for (entry of workflows; track entry.id) {
@@ -31,14 +31,14 @@
             <div class="cell-actions">
               <button class="btn btn-secondary" matButton="outlined" type="button" [routerLink]="['/workflows', entry.id]">
                 <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
-                <span i18n>Editar</span>
+                <span>{{ 'migration.workflows-view.d90f88d814f1' | transloco }}</span>
               </button>
             </div>
           </div>
         }
       </div>
       @if (workflows.length === 0) {
-        <div class="data-table--empty" i18n>Nenhum processo cadastrado.</div>
+        <div class="data-table--empty">{{ 'migration.workflows-view.043c81694070' | transloco }}</div>
       }
     </div>
   </section>

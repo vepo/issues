@@ -1,22 +1,22 @@
 <div class="page">
   <nav class="breadcrumb" aria-label="Navegação">
-    <a routerLink="/" i18n>Início</a>
+    <a routerLink="/">{{ 'home.title' | transloco }}</a>
     <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
     <a [routerLink]="['/projects', project?.id]">{{ project?.name }}</a>
     <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
-    <span class="breadcrumb__current" i18n>Versões</span>
+    <span class="breadcrumb__current">{{ 'planning.versions' | transloco }}</span>
   </nav>
 
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Versões</h1>
-      <p class="page-subtitle" i18n>Planejamento de releases SemVer do projeto</p>
+      <h1 class="page-title">{{ 'planning.versions' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'migration.versions-view.b7166e7c78b5' | transloco }}</p>
     </div>
     @if (canManage()) {
       <div class="page-header__actions">
         <a class="btn" matButton="filled" [routerLink]="['/project', project?.id, 'versions', 'new']">
           <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-          <span i18n>Nova versão</span>
+          <span>{{ 'migration.versions-view.a497b46b61a0' | transloco }}</span>
         </a>
       </div>
     }
@@ -25,9 +25,9 @@
   <section class="page-panel page-panel--flush">
     <div class="data-table data-table--layout-table">
       <div class="header">
-        <div class="header-cell left-aligned" i18n>Rótulo</div>
-        <div class="header-cell left-aligned" i18n>Descrição</div>
-        <div class="header-cell header-cell--actions" i18n>Ações</div>
+        <div class="header-cell left-aligned">{{ 'customField.label' | transloco }}</div>
+        <div class="header-cell left-aligned">{{ 'ticket.form.description' | transloco }}</div>
+        <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
       </div>
       <div class="body">
         @for (version of versions; track version.id) {
@@ -37,14 +37,14 @@
             <div class="cell-actions">
               <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'versions', version.id]">
                 <mat-icon fontIcon="article" aria-hidden="true"></mat-icon>
-                <span i18n>Registro de alterações</span>
+                <span>{{ 'migration.versions-view.dd464d613c92' | transloco }}</span>
               </a>
             </div>
           </div>
         }
       </div>
       @if (versions.length === 0) {
-        <div class="data-table--empty" i18n>Nenhuma versão cadastrada.</div>
+        <div class="data-table--empty">{{ 'migration.versions-view.468951a8e387' | transloco }}</div>
       }
     </div>
   </section>

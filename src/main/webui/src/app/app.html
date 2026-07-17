@@ -1,7 +1,7 @@
 <header class="main-header">
   <div class="shell-inner">
     <a routerLink="/" class="brand" routerLinkActive="brand-active" [routerLinkActiveOptions]="{ exact: true }"
-      aria-label="Issues — página inicial">
+      [attr.aria-label]="'shell.homeAria' | transloco">
       <mat-icon fontIcon="confirmation_number" aria-hidden="true"></mat-icon>
       <span class="brand-name">Issues</span>
     </a>
@@ -14,18 +14,17 @@
           type="search"
           [(ngModel)]="searchTerm"
           name="searchTerm"
-          i18n-placeholder
-          placeholder="Buscar tickets..."
+          [placeholder]="'shell.searchPlaceholder' | transloco"
         />
       </form>
 
       <a class="btn btn-compact" matButton="filled" routerLink="/tickets/new">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-        <span i18n>Novo</span>
+        <span>{{ 'shell.newTicket' | transloco }}</span>
       </a>
       <a class="btn btn-compact btn-header" matButton="outlined" routerLink="/tickets/import">
         <mat-icon fontIcon="upload_file" aria-hidden="true"></mat-icon>
-        <span i18n>Importar</span>
+        <span>{{ 'shell.import' | transloco }}</span>
       </a>
     }
 
@@ -39,7 +38,7 @@
           matIconButton
           class="btn-icon-header"
           [matMenuTriggerFor]="userMenu"
-          aria-label="Menu do usuário">
+          [attr.aria-label]="'shell.userMenuAria' | transloco">
           <mat-icon fontIcon="person" aria-hidden="true"></mat-icon>
         </button>
         <mat-menu #userMenu="matMenu" class="menu-panel">
@@ -48,42 +47,42 @@
           }
           <button mat-menu-item [routerLink]="'/account/settings'">
             <mat-icon matMenuItemIcon fontIcon="person"></mat-icon>
-            <span i18n>Conta</span>
+            <span>{{ 'shell.account' | transloco }}</span>
           </button>
           <button mat-menu-item [routerLink]="'/tickets/import'">
             <mat-icon matMenuItemIcon fontIcon="upload_file"></mat-icon>
-            <span i18n>Importar CSV</span>
+            <span>{{ 'shell.importCsv' | transloco }}</span>
           </button>
           @if (hasAdminMenu()) {
             <button mat-menu-item [routerLink]="'/projects'">
               <mat-icon matMenuItemIcon fontIcon="work"></mat-icon>
-              <span i18n>Projetos</span>
+              <span>{{ 'shell.projects' | transloco }}</span>
             </button>
             <button mat-menu-item [matMenuTriggerFor]="adminMenu">
               <mat-icon matMenuItemIcon fontIcon="admin_panel_settings"></mat-icon>
-              <span i18n>Administração</span>
+              <span>{{ 'shell.administration' | transloco }}</span>
             </button>
           }
           <div class="divider"></div>
           <button mat-menu-item (click)="logout()">
             <mat-icon matMenuItemIcon fontIcon="logout"></mat-icon>
-            <span i18n>Sair</span>
+            <span>{{ 'shell.logout' | transloco }}</span>
           </button>
         </mat-menu>
         <mat-menu #adminMenu="matMenu" class="menu-panel">
           <ng-container *role="'admin'">
             <button mat-menu-item [routerLink]="'/users'">
               <mat-icon matMenuItemIcon fontIcon="group"></mat-icon>
-              <span i18n>Usuários</span>
+              <span>{{ 'shell.users' | transloco }}</span>
             </button>
             <button mat-menu-item [routerLink]="'/categories'">
               <mat-icon matMenuItemIcon fontIcon="category"></mat-icon>
-              <span i18n>Categorias</span>
+              <span>{{ 'shell.categories' | transloco }}</span>
             </button>
           </ng-container>
           <button mat-menu-item [routerLink]="'/workflows'">
             <mat-icon matMenuItemIcon fontIcon="handyman"></mat-icon>
-            <span i18n>Processos</span>
+            <span>{{ 'shell.workflows' | transloco }}</span>
           </button>
         </mat-menu>
       </div>
@@ -91,7 +90,7 @@
       <div class="header-actions">
         <button class="btn-header" matButton="outlined" [routerLink]="'/login'">
           <mat-icon aria-hidden="true" fontIcon="login"></mat-icon>
-          <span i18n>Acessar</span>
+          <span>{{ 'shell.login' | transloco }}</span>
         </button>
       </div>
     }
@@ -105,7 +104,7 @@
 </main>
 <footer class="main-footer">
   <div class="shell-inner">
-    <span class="main-footer__copy" i18n>© 2026 Issues. Todos os direitos reservados.</span>
-    <a class="main-footer__link" href="/openapi" target="_blank" rel="noopener noreferrer" i18n>Documentação da API</a>
+    <span class="main-footer__copy">{{ 'shell.copyright' | transloco }}</span>
+    <a class="main-footer__link" href="/openapi" target="_blank" rel="noopener noreferrer">{{ 'shell.apiDocumentation' | transloco }}</a>
   </div>
 </footer>

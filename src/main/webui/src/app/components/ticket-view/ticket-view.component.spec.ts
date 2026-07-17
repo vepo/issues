@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { TranslocoService } from '@jsverse/transloco';
 import { of } from 'rxjs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TicketViewComponent } from './ticket-view.component';
@@ -14,6 +15,7 @@ import { VersionService } from '../../services/version.service';
 import { PhaseService } from '../../services/phase.service';
 import { CustomFieldService } from '../../services/custom-field.service';
 import { buildActivityFeed, filterActivity } from '../ticket-activity-feed/activity-feed.utils';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('ticket-view activity merge', () => {
   it('should keep newest comment before older history when building feed', () => {
@@ -190,7 +192,30 @@ describe('TicketViewComponent links', () => {
     authService.hasRole.and.returnValue(false);
 
     await TestBed.configureTestingModule({
-      imports: [TicketViewComponent, NoopAnimationsModule],
+      imports: [
+        createTranslocoTestingModule(
+          {
+            ticket: {
+              clone: 'Clonar ticket',
+              attachments: 'Anexos',
+              download: 'Baixar',
+              linkAdded: 'Vínculo adicionado',
+              childrenCompleted: '{{done}}/{{total}} concluídas',
+            },
+          },
+          {
+            ticket: {
+              clone: 'Clone ticket',
+              attachments: 'Attachments',
+              download: 'Download',
+              linkAdded: 'Link added',
+              childrenCompleted: '{{done}}/{{total}} completed',
+            },
+          },
+        ),
+        TicketViewComponent,
+        NoopAnimationsModule,
+      ],
       providers: [
         { provide: TicketService, useValue: ticketService },
         { provide: AuthService, useValue: authService },
@@ -312,6 +337,38 @@ describe('TicketViewComponent links', () => {
     component.selectedAttachmentFile = file;
     component.uploadAttachment();
     expect(ticketService.uploadAttachment).toHaveBeenCalledWith(42, file);
+  });
+
+  it('should rerender ticket, activity, attachment, and child-count copy while preserving authored content', async () => {
+    component.attachments = [{
+      id: 7,
+      originalFilename: 'release-notes-pt.pdf',
+      contentType: 'application/pdf',
+      sizeBytes: 2048,
+      uploadedBy: { id: 1, name: 'Admin', username: 'admin', email: 'admin@issues.vepo.dev' },
+      uploadedAt: Date.now(),
+    } as never];
+    fixture.detectChanges();
+
+    const transloco = TestBed.inject(TranslocoService);
+    expect(fixture.nativeElement.textContent).toContain('Clonar ticket');
+    expect(fixture.nativeElement.textContent).toContain('Anexos');
+    expect(fixture.nativeElement.textContent).toContain('1/2 concluídas');
+
+    transloco.setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Clone ticket');
+    expect(text).toContain('Attachments');
+    expect(text).toContain('Download');
+    expect(text).toContain('Link added');
+    expect(text).toContain('1/2 completed');
+    expect(text).toContain('Implement ticket links');
+    expect(text).toContain('Configuração da Build Integrada');
+    expect(text).toContain('release-notes-pt.pdf');
+    expect(text).not.toContain('Clonar ticket');
   });
 
   it('should download and confirm delete attachment', () => {

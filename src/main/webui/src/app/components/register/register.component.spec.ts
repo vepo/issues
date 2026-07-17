@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of, throwError } from 'rxjs';
 import { RegisterComponent } from './register.component';
 import { AuthService } from '../../services/auth.service';
@@ -15,7 +16,13 @@ describe('RegisterComponent', () => {
     router = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
-      imports: [RegisterComponent],
+      imports: [
+        RegisterComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { pt: {} },
+          translocoConfig: { availableLangs: ['pt'], defaultLang: 'pt' },
+        }),
+      ],
       providers: [
         { provide: AuthService, useValue: auth },
         { provide: Router, useValue: router },

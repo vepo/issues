@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +12,7 @@ import { phaseStatusLabel } from '../../core/system-labels';
 
 @Component({
   selector: 'app-project-hub',
-  imports: [RouterLink, MatButtonModule, MatIconModule],
+  imports: [TranslocoPipe, RouterLink, MatButtonModule, MatIconModule],
   templateUrl: './project-hub.component.html',
   styleUrl: './project-hub.component.scss'
 })

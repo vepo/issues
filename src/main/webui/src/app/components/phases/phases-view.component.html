@@ -1,22 +1,22 @@
 <div class="page">
   <nav class="breadcrumb" aria-label="Navegação">
-    <a routerLink="/" i18n>Início</a>
+    <a routerLink="/">{{ 'home.title' | transloco }}</a>
     <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
     <a [routerLink]="['/projects', project?.id]">{{ project?.name }}</a>
     <mat-icon fontIcon="chevron_right" aria-hidden="true"></mat-icon>
-    <span class="breadcrumb__current" i18n>Fases</span>
+    <span class="breadcrumb__current">{{ 'planning.phases' | transloco }}</span>
   </nav>
 
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Fases</h1>
-      <p class="page-subtitle" i18n>Planejamento por período com objetivo e entregáveis</p>
+      <h1 class="page-title">{{ 'planning.phases' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'migration.phases-view.a321ea453f6c' | transloco }}</p>
     </div>
     @if (canManage()) {
       <div class="page-header__actions">
         <a class="btn" matButton="filled" [routerLink]="['/project', project?.id, 'phases', 'new']">
           <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-          <span i18n>Nova fase</span>
+          <span>{{ 'migration.phases-view.41182d8967da' | transloco }}</span>
         </a>
       </div>
     }
@@ -25,10 +25,10 @@
   <section class="page-panel page-panel--flush">
     <div class="data-table data-table--layout-table">
       <div class="header">
-        <div class="header-cell left-aligned" i18n>Nome</div>
-        <div class="header-cell left-aligned" i18n>Status</div>
-        <div class="header-cell left-aligned" i18n>Versão entregável</div>
-        <div class="header-cell header-cell--actions" i18n>Ações</div>
+        <div class="header-cell left-aligned">{{ 'account.name' | transloco }}</div>
+        <div class="header-cell left-aligned">{{ 'common.status' | transloco }}</div>
+        <div class="header-cell left-aligned">{{ 'migration.phases-view.83368bc6c36d' | transloco }}</div>
+        <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
       </div>
       <div class="body">
         @for (phase of phases; track phase.id) {
@@ -41,14 +41,14 @@
             <div class="cell-actions">
               <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project?.id, 'phases', phase.id]">
                 <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
-                <span i18n>Detalhes</span>
+                <span>{{ 'planning.details' | transloco }}</span>
               </a>
             </div>
           </div>
         }
       </div>
       @if (phases.length === 0) {
-        <div class="data-table--empty" i18n>Nenhuma fase cadastrada.</div>
+        <div class="data-table--empty">{{ 'migration.phases-view.4a9214314cad' | transloco }}</div>
       }
     </div>
   </section>

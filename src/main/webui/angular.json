@@ -10,18 +10,6 @@
           "style": "scss"
         }
       },
-      "i18n": {
-        "sourceLocale": {
-          "code": "pt",
-          "baseHref": "/pt/"
-        },
-        "locales": {
-          "en": {
-            "translation": "src/locale/messages.en.xlf",
-            "baseHref": "/en/"
-          }
-        }
-      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -32,8 +20,7 @@
             "outputPath": "dist/issues",
             "browser": "src/main.ts",
             "polyfills": [
-              "zone.js",
-              "@angular/localize/init"
+              "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -45,12 +32,10 @@
             ],
             "styles": [
               "src/styles.scss"
-            ],
-            "i18nMissingTranslation": "warning"
+            ]
           },
           "configurations": {
             "production": {
-              "localize": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -68,18 +53,7 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true,
-              "localize": [
-                "pt"
-              ]
-            },
-            "development-en": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "localize": [
-                "en"
-              ]
+              "sourceMap": true
             }
           },
           "defaultConfiguration": "production"
@@ -92,26 +66,16 @@
             },
             "development": {
               "buildTarget": "issues:build:development"
-            },
-            "development-en": {
-              "buildTarget": "issues:build:development-en"
             }
           },
           "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n",
-          "options": {
-            "outputPath": "src/locale"
-          }
         },
         "test": {
           "builder": "@angular/build:karma",
           "options": {
             "polyfills": [
               "zone.js",
-              "zone.js/testing",
-              "@angular/localize/init"
+              "zone.js/testing"
             ],
             "codeCoverage": true,
             "tsConfig": "tsconfig.spec.json",

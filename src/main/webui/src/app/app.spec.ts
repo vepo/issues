@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
+import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { EMPTY, of } from 'rxjs';
 import { AppComponent } from './app';
 import { AuthService } from './services/auth.service';
@@ -49,7 +50,33 @@ describe('App', () => {
     projectsService.findAll.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [
+        AppComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {
+            pt: {
+              shell: {
+                login: 'Acessar',
+                apiDocumentation: 'Documentação da API',
+                userMenuAria: 'Menu do usuário',
+              },
+            },
+            en: {
+              shell: {
+                login: 'Sign in',
+                apiDocumentation: 'API documentation',
+                userMenuAria: 'User menu',
+              },
+            },
+          },
+          translocoConfig: {
+            availableLangs: ['pt', 'en'],
+            defaultLang: 'pt',
+            reRenderOnLangChange: true,
+          },
+          preloadLangs: true,
+        }),
+      ],
       providers: [
         provideAnimations(),
         provideRouter([]),
@@ -73,6 +100,24 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.btn-header')).toBeTruthy();
     expect(compiled.querySelector('#header-status')).toBeNull();
+  });
+
+  it('should rerender shell content from Portuguese to English in place', async () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const transloco = TestBed.inject(TranslocoService);
+    const currentPath = window.location.pathname;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Acessar');
+    expect(fixture.nativeElement.textContent).toContain('Documentação da API');
+
+    transloco.setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Sign in');
+    expect(fixture.nativeElement.textContent).toContain('API documentation');
+    expect(fixture.nativeElement.textContent).not.toContain('Documentação da API');
+    expect(window.location.pathname).toBe(currentPath);
   });
 
   it('should show search, project menu, and user menu when authenticated', () => {

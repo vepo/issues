@@ -1,61 +1,63 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Importar tickets via CSV</h1>
+      <h1 class="page-title">{{ 'import.title' | transloco }}</h1>
       @if (projectScoped) {
-        <p class="page-subtitle" i18n>
-          Projeto: {{ project?.name ?? projectId }} — carregue o arquivo, associe as colunas e confirme a importação.
+        <p class="page-subtitle">
+          {{ 'import.projectSubtitle' | transloco: { project: project?.name ?? projectId } }}
         </p>
       } @else {
-        <p class="page-subtitle" i18n>
-          Associe a coluna de projeto e os demais campos — cada linha será criada no projeto indicado no CSV.
+        <p class="page-subtitle">
+          {{ 'migration.ticket-import-wizard.f4f68b2553dd' | transloco }}
         </p>
       }
     </div>
     <div class="page-header__actions">
-      <button type="button" class="btn btn-secondary" matButton="outlined" (click)="cancel()" i18n>Cancelar</button>
+      <button type="button" class="btn btn-secondary" matButton="outlined" (click)="cancel()">{{ 'ticket.form.cancel' | transloco }}</button>
     </div>
   </header>
 
   <section class="edit page-panel import-wizard">
     <mat-stepper linear>
-      <mat-step [completed]="canProceedFromUpload()" label="Arquivo" i18n-label>
+      <mat-step [completed]="canProceedFromUpload()" [label]="'migration.ticket-import-wizard.67be5999dafb' | transloco">
         <div class="import-step">
           <label class="btn" matButton="filled">
             <mat-icon fontIcon="upload_file" aria-hidden="true"></mat-icon>
-            <span i18n>Selecionar CSV</span>
+            <span>{{ 'migration.ticket-import-wizard.504046938136' | transloco }}</span>
             <input type="file" accept=".csv,text/csv" hidden (change)="onFileSelected($event)" />
           </label>
 
           @if (fileName) {
-            <p class="import-meta"><strong i18n>Arquivo:</strong> {{ fileName }}</p>
+            <p class="import-meta"><strong>{{ 'import.file' | transloco }}</strong> {{ fileName }}</p>
           }
           @if (uploadResult) {
-            <p class="import-meta" i18n>{{ uploadResult.rowCount }} linha(s) · {{ headers.length }} coluna(s)</p>
+            <p class="import-meta">
+              {{ 'import.rowsAndColumns' | transloco: { rows: uploadResult.rowCount, columns: headers.length } }}
+            </p>
             @if (uploadResult.truncated) {
-              <p class="error" i18n>Arquivo truncado no servidor (máximo de 500 linhas).</p>
+              <p class="error">{{ 'migration.ticket-import-wizard.4751eda6beb7' | transloco }}</p>
             }
           }
           @if (isUploading) {
-            <p i18n>Enviando {{ uploadPartsSent }}/{{ uploadPartCount }} partes…</p>
+            <p>{{ 'migration.ticket-import-wizard.907bf765d1d0' | transloco: { value0: uploadPartsSent, value1: uploadPartCount } }}</p>
           }
           @if (uploadError) {
             <p class="error">{{ uploadError }}</p>
           }
         </div>
         <div class="step-actions">
-          <button type="button" class="btn" matButton="filled" matStepperNext [disabled]="!canProceedFromUpload()" i18n>Próximo</button>
+          <button type="button" class="btn" matButton="filled" matStepperNext [disabled]="!canProceedFromUpload()">{{ 'migration.ticket-import-wizard.8da62540b97d' | transloco }}</button>
         </div>
       </mat-step>
 
-      <mat-step [stepControl]="mappingForm" label="Colunas" i18n-label>
+      <mat-step [stepControl]="mappingForm" [label]="'migration.ticket-import-wizard.d1200cf0f890' | transloco">
         <div class="import-step">
-          <p class="import-step__intro" i18n>
-            Associe cada campo do ticket à coluna correspondente no CSV. Os exemplos abaixo vêm da primeira linha do arquivo.
+          <p class="import-step__intro">
+            {{ 'migration.ticket-import-wizard.94143550be81' | transloco }}
           </p>
           <form [formGroup]="mappingForm" class="import-mapping">
             <section class="import-mapping__section">
-              <h2 class="import-mapping__heading" i18n>Campos obrigatórios</h2>
+              <h2 class="import-mapping__heading">{{ 'migration.ticket-import-wizard.27e058d07f32' | transloco }}</h2>
               <div class="import-mapping__grid">
                 @for (field of requiredMappingFields(); track field.key) {
                   <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
@@ -75,13 +77,13 @@
 
             @if (optionalMappingFields().length) {
               <section class="import-mapping__section">
-                <h2 class="import-mapping__heading" i18n>Campos opcionais</h2>
+                <h2 class="import-mapping__heading">{{ 'migration.ticket-import-wizard.433004bef97a' | transloco }}</h2>
                 <div class="import-mapping__grid">
                   @for (field of optionalMappingFields(); track field.key) {
                     <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
                       <mat-label>{{ field.label }}</mat-label>
                       <mat-select [formControlName]="field.key">
-                        <mat-option [value]="''" i18n>Não importar</mat-option>
+                        <mat-option [value]="''">{{ 'migration.ticket-import-wizard.61ea991a7842' | transloco }}</mat-option>
                         @for (header of headerOptions(); track header) {
                           <mat-option [value]="header">{{ header }}</mat-option>
                         }
@@ -97,14 +99,14 @@
 
             @if (projectScoped && inScopeCustomFields.length > 0) {
               <section class="import-mapping__section">
-                <h2 class="import-mapping__heading" i18n>Campos personalizados</h2>
-                <p class="form-hint" i18n>Associe colunas do CSV às chaves dos campos no escopo do projeto.</p>
+                <h2 class="import-mapping__heading">{{ 'migration.ticket-import-wizard.cd1f6b0236dd' | transloco }}</h2>
+                <p class="form-hint">{{ 'migration.ticket-import-wizard.bf76be603342' | transloco }}</p>
                 <div class="import-mapping__grid">
                   @for (field of inScopeCustomFields; track field.key) {
                     <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
                       <mat-label>{{ field.label }} ({{ field.key }})</mat-label>
                       <mat-select [formControl]="customFieldControl(field.key)">
-                        <mat-option [value]="''" i18n>Não importar</mat-option>
+                        <mat-option [value]="''">{{ 'migration.ticket-import-wizard.61ea991a7842' | transloco }}</mat-option>
                         @for (header of headerOptions(); track header) {
                           <mat-option [value]="header">{{ header }}</mat-option>
                         }
@@ -120,43 +122,42 @@
           </form>
         </div>
         <div class="step-actions">
-          <button type="button" class="btn btn-secondary" matButton="outlined" matStepperPrevious i18n>Voltar</button>
+          <button type="button" class="btn btn-secondary" matButton="outlined" matStepperPrevious>{{ 'common.back' | transloco }}</button>
           <button
             type="button"
             class="btn"
             matButton="filled"
             matStepperNext
             [disabled]="mappingForm.invalid"
-            (click)="saveMappingAndPreview()"
-            i18n>
-            Próximo
+            (click)="saveMappingAndPreview()">
+            {{ 'migration.ticket-import-wizard.8da62540b97d' | transloco }}
           </button>
         </div>
       </mat-step>
 
-      <mat-step label="Pré-visualização" i18n-label>
+      <mat-step [label]="'migration.ticket-import-wizard.a035e91b3001' | transloco">
         <div class="import-step">
           @if (isPreviewLoading) {
-            <p i18n>Validando linhas…</p>
+            <p>{{ 'migration.ticket-import-wizard.d443a3ebe2c3' | transloco }}</p>
           } @else if (previewError) {
             <p class="error">{{ previewError }}</p>
           } @else {
-            <p class="import-meta" i18n>{{ validCount }} válida(s), {{ invalidCount }} com erro</p>
+            <p class="import-meta">{{ 'migration.ticket-import-wizard.bc151743cfb5' | transloco: { value0: validCount, value1: invalidCount } }}</p>
             @if (invalidCount > 0) {
-              <p class="import-step__intro" i18n>Corrija os erros abaixo antes de importar.</p>
+              <p class="import-step__intro">{{ 'migration.ticket-import-wizard.ec9d115fc700' | transloco }}</p>
             }
             <div class="import-preview-table-wrap">
               <table class="import-preview-table">
                 <thead>
                   <tr>
-                    <th i18n>Linha</th>
+                    <th>{{ 'migration.ticket-import-wizard.be00a7f1e4c7' | transloco }}</th>
                     @if (!projectScoped) {
-                      <th i18n>Projeto</th>
+                      <th>{{ 'migration.ticket-import-wizard.8e41360ff251' | transloco }}</th>
                     }
-                    <th i18n>Título</th>
-                    <th i18n>Categoria</th>
-                    <th i18n>Status</th>
-                    <th i18n>Resultado</th>
+                    <th>{{ 'migration.ticket-import-wizard.9a4ff281c5a2' | transloco }}</th>
+                    <th>{{ 'ticket.form.category' | transloco }}</th>
+                    <th>{{ 'common.status' | transloco }}</th>
+                    <th>{{ 'workflow.outcomeAria' | transloco }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -171,7 +172,7 @@
                       <td>{{ row.preview?.statusName || '—' }}</td>
                       <td>
                         @if (row.valid) {
-                          <span i18n>OK</span>
+                          <span>{{ 'migration.ticket-import-wizard.10f31e5cb82d' | transloco }}</span>
                         } @else {
                           <div class="import-validation-result">
                             @if (row.errors?.length) {
@@ -184,7 +185,7 @@
 
                             @if (hasProjectError(row)) {
                               <div class="import-row-fix">
-                                <span class="import-row-fix__label" i18n>Escolha o projeto</span>
+                                <span class="import-row-fix__label">{{ 'migration.ticket-import-wizard.9ade2d251e74' | transloco }}</span>
                                 <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
                                   <mat-select
                                     [value]="row.preview?.projectName ?? ''"
@@ -195,19 +196,19 @@
                                     }
                                   </mat-select>
                                 </mat-form-field>
-                                <a class="import-row-fix__link" routerLink="/projects" i18n>Criar projeto</a>
+                                <a class="import-row-fix__link" routerLink="/projects">{{ 'migration.ticket-import-wizard.9308561e3f0e' | transloco }}</a>
                               </div>
                             }
 
                             @if (hasStatusError(row)) {
                               <div class="import-row-fix">
-                                <span class="import-row-fix__label" i18n>Escolha o status</span>
+                                <span class="import-row-fix__label">{{ 'migration.ticket-import-wizard.b28a5cc4529e' | transloco }}</span>
                                 <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
                                   <mat-select
                                     [value]="row.preview?.statusName ?? ''"
                                     [disabled]="isFixingRow(row) || statusOptionsForRow(row).length === 0"
                                     (selectionChange)="correctStatus(row, $event.value)">
-                                    <mat-option value="" i18n>Status inicial</mat-option>
+                                    <mat-option value="">{{ 'workflow.initialStatus' | transloco }}</mat-option>
                                     @for (status of statusOptionsForRow(row); track status) {
                                       <mat-option [value]="status">{{ status }}</mat-option>
                                     }
@@ -218,19 +219,19 @@
 
                             @if (hasAssigneeError(row)) {
                               <div class="import-row-fix">
-                                <span class="import-row-fix__label" i18n>Escolha o responsável</span>
+                                <span class="import-row-fix__label">{{ 'migration.ticket-import-wizard.b97caa531151' | transloco }}</span>
                                 <mat-form-field appearance="outline" class="form-field form-field--compact" subscriptSizing="dynamic">
                                   <mat-select
                                     [value]="row.preview?.assigneeEmail ?? ''"
                                     [disabled]="isFixingRow(row)"
                                     (selectionChange)="correctAssignee(row, $event.value)">
-                                    <mat-option value="" i18n>Sem responsável</mat-option>
+                                    <mat-option value="">{{ 'migration.ticket-import-wizard.0b50e7237958' | transloco }}</mat-option>
                                     @for (user of users; track user.id) {
                                       <mat-option [value]="user.email">{{ user.name }} ({{ user.email }})</mat-option>
                                     }
                                   </mat-select>
                                 </mat-form-field>
-                                <a class="import-row-fix__link" routerLink="/users" i18n>Criar usuário</a>
+                                <a class="import-row-fix__link" routerLink="/users">{{ 'migration.ticket-import-wizard.e041496cc876' | transloco }}</a>
                               </div>
                             }
                           </div>
@@ -244,44 +245,43 @@
           }
         </div>
         <div class="step-actions">
-          <button type="button" class="btn btn-secondary" matButton="outlined" matStepperPrevious i18n>Voltar</button>
+          <button type="button" class="btn btn-secondary" matButton="outlined" matStepperPrevious>{{ 'common.back' | transloco }}</button>
           <button
             type="button"
             class="btn"
             matButton="filled"
             [disabled]="validCount === 0 || isPreviewLoading || isImporting"
-            (click)="importValidRows()"
-            i18n>
-            Importar válidas
+            (click)="importValidRows()">
+            {{ 'migration.ticket-import-wizard.50a507b2afc9' | transloco }}
           </button>
         </div>
       </mat-step>
 
-      <mat-step label="Resultado" i18n-label>
+      <mat-step [label]="'workflow.outcomeAria' | transloco">
         <div class="import-step">
           @if (isImporting) {
-            <p i18n>Importando tickets…</p>
+            <p>{{ 'migration.ticket-import-wizard.9bf0995ec473' | transloco }}</p>
           } @else if (importResult) {
             <div class="import-summary">
-              <h2 class="import-summary__title" i18n>Resumo da importação</h2>
+              <h2 class="import-summary__title">{{ 'migration.ticket-import-wizard.87b4138f870b' | transloco }}</h2>
               <dl class="import-summary__highlights">
                 <div>
-                  <dt i18n>Tickets importados</dt>
+                  <dt>{{ 'migration.ticket-import-wizard.8c57d9be41c1' | transloco }}</dt>
                   <dd>{{ importResult.summary?.importedCount ?? importResult.created.length }}</dd>
                 </div>
                 <div>
-                  <dt i18n>Projetos impactados</dt>
+                  <dt>{{ 'migration.ticket-import-wizard.cf7430bcc065' | transloco }}</dt>
                   <dd>{{ importResult.summary?.projectsImpacted ?? 0 }}</dd>
                 </div>
               </dl>
 
               @if (importResult.summary?.ticketsByProject?.length) {
-                <h3 class="import-summary__heading" i18n>Distribuição por projeto</h3>
+                <h3 class="import-summary__heading">{{ 'migration.ticket-import-wizard.e0eaeeee4621' | transloco }}</h3>
                 <table class="import-summary-table">
                   <thead>
                     <tr>
-                      <th i18n>Projeto</th>
-                      <th i18n>Tickets</th>
+                      <th>{{ 'migration.ticket-import-wizard.8e41360ff251' | transloco }}</th>
+                      <th>{{ 'migration.ticket-import-wizard.77a516868104' | transloco }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -296,12 +296,12 @@
               }
 
               @if (importResult.summary?.ticketsByStatus?.length) {
-                <h3 class="import-summary__heading" i18n>Distribuição por status</h3>
+                <h3 class="import-summary__heading">{{ 'migration.ticket-import-wizard.1ce177094cea' | transloco }}</h3>
                 <table class="import-summary-table">
                   <thead>
                     <tr>
-                      <th i18n>Status</th>
-                      <th i18n>Tickets</th>
+                      <th>{{ 'common.status' | transloco }}</th>
+                      <th>{{ 'migration.ticket-import-wizard.77a516868104' | transloco }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -319,12 +319,12 @@
             @if (importResult.errors.length) {
               <ul class="error-list">
                 @for (error of importResult.errors; track error.rowNumber) {
-                  <li class="error" i18n>Linha {{ error.rowNumber }}: {{ error.message }}</li>
+                  <li class="error">{{ 'migration.ticket-import-wizard.163bbfc02f99' | transloco: { value0: error.rowNumber, value1: error.message } }}</li>
                 }
               </ul>
             }
-            <a class="btn" matButton="filled" [routerLink]="resultLink()" i18n>Concluir</a>
-            <button type="button" class="btn btn-secondary" matButton="outlined" (click)="resetWizard()" i18n>Importar outro arquivo</button>
+            <a class="btn" matButton="filled" [routerLink]="resultLink()">{{ 'dashboard.finish' | transloco }}</a>
+            <button type="button" class="btn btn-secondary" matButton="outlined" (click)="resetWizard()">{{ 'migration.ticket-import-wizard.bc7d29b8b4ad' | transloco }}</button>
           }
         </div>
       </mat-step>

@@ -1,17 +1,20 @@
 import { MatButtonModule } from '@angular/material/button';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { SavedQuery, SavedQueryService } from '../../services/saved-query.service';
+import { RuntimeDatePipe } from '../../core/runtime-locale.pipes';
 
 @Component({
   selector: 'app-saved-query-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe, MatButtonModule],
+  imports: [CommonModule, RouterLink, RuntimeDatePipe, MatButtonModule, TranslocoPipe],
   templateUrl: './saved-query-list.component.html'
 })
 export class SavedQueryListComponent implements OnInit {
   private readonly savedQueryService = inject(SavedQueryService);
+  private readonly transloco = inject(TranslocoService);
 
   queries: SavedQuery[] = [];
 
@@ -20,7 +23,7 @@ export class SavedQueryListComponent implements OnInit {
   }
 
   deleteQuery(query: SavedQuery): void {
-    if (!confirm(`Excluir consulta "${query.name}"?`)) {
+    if (!confirm(this.transloco.translate('search.saved.confirmDelete', { name: query.name }))) {
       return;
     }
     this.savedQueryService.delete(query.id).subscribe(() => {

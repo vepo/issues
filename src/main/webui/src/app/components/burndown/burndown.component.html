@@ -1,17 +1,17 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Burndown</h1>
+      <h1 class="page-title">{{ 'migration.burndown.f6363c981ce3' | transloco }}</h1>
       <p class="page-subtitle">{{ project.name }}</p>
     </div>
     <div class="page-header__actions">
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'kanban']">
         <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
-        <span i18n>Kanban</span>
+        <span>{{ 'migration.burndown.71149bbcd15e' | transloco }}</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'dashboard']">
         <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
-        <span i18n>Painel</span>
+        <span>{{ 'migration.burndown.72a5d915a258' | transloco }}</span>
       </a>
     </div>
   </header>
@@ -19,14 +19,13 @@
   <div class="page-panel burndown-panel">
     <div class="burndown-controls">
       <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
-        <mat-label i18n>Fase</mat-label>
+        <mat-label>{{ 'ticket.form.phase' | transloco }}</mat-label>
         <mat-select
           [value]="selectedPhaseId"
           (selectionChange)="onPhaseChange($event.value)"
-          i18n-aria-label
-          aria-label="Selecionar fase">
+          [attr.aria-label]="'burndown.selectPhaseAria' | transloco">
           @if (phases.length === 0) {
-            <mat-option [value]="null" i18n>Nenhuma fase disponível</mat-option>
+            <mat-option [value]="null">{{ 'migration.burndown.9a27da16e6c2' | transloco }}</mat-option>
           }
           @for (phase of phases; track phase.id) {
             <mat-option [value]="phase.id">{{ phase.name }}</mat-option>
@@ -43,24 +42,23 @@
           matButton="filled"
           type="button"
           [disabled]="!chartEnabled || loading"
-          (click)="showBurndown()"
-          i18n>
-          Ver burndown
+          (click)="showBurndown()">
+          {{ 'migration.burndown.157911598e82' | transloco }}
         </button>
       </span>
     </div>
 
     @if (selectedPhaseId == null && phases.length > 0) {
-      <p class="page-subtitle" i18n>Selecione uma fase para visualizar o Burndown.</p>
+      <p class="page-subtitle">{{ 'migration.burndown.5162ec57af05' | transloco }}</p>
     }
     @if (phases.length === 0) {
-      <p class="empty-state" i18n>Nenhuma fase neste projeto. Crie uma fase com datas para usar o Burndown.</p>
+      <p class="empty-state">{{ 'migration.burndown.717851219930' | transloco }}</p>
     }
 
     @if (burndown?.warnings?.length) {
       <div class="burndown-warnings" role="status">
         <mat-icon fontIcon="warning" aria-hidden="true"></mat-icon>
-        <span i18n>Tickets sem story points:</span>
+        <span>{{ 'migration.burndown.4e0e0fb7c764' | transloco }}</span>
         @for (warning of burndown!.warnings!; track warning.ticketId; let last = $last) {
           <a [routerLink]="['/ticket', warning.identifier]">{{ warning.identifier }}</a>@if (!last) {<span>, </span>}
         }
@@ -73,8 +71,8 @@
 
     @if (chartVisible && burndown?.datesComplete) {
       <div class="burndown-summary">
-        <span i18n>Compromisso: {{ burndown?.commitmentPoints ?? 0 }} pts</span>
-        <span i18n>Restante: {{ burndown?.remainingPoints ?? 0 }} pts</span>
+        <span>{{ 'migration.burndown.d56e827df498' | transloco: { value0: burndown?.commitmentPoints ?? 0 } }}</span>
+        <span>{{ 'migration.burndown.f307b6ca12b7' | transloco: { value0: burndown?.remainingPoints ?? 0 } }}</span>
       </div>
       <div class="burndown-chart">
         <canvas

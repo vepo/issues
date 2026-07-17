@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { BurndownComponent } from './burndown.component';
 import { BurndownService } from '../../services/burndown.service';
 import { PhaseService } from '../../services/phase.service';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 describe('BurndownComponent', () => {
@@ -39,7 +40,13 @@ describe('BurndownComponent', () => {
     ]));
 
     await TestBed.configureTestingModule({
-      imports: [BurndownComponent],
+      imports: [
+        BurndownComponent,
+        createTranslocoTestingModule(
+          { burndown: { selectPhaseAria: 'Selecionar fase' } },
+          { burndown: { selectPhaseAria: 'Select phase' } },
+        ),
+      ],
       providers: [
         provideCharts(withDefaultRegisterables()),
         { provide: BurndownService, useValue: burndownService },

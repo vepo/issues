@@ -5,6 +5,7 @@ import { MatFormFieldModule, MatError } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../services/auth.service';
 import { passwordsMatchValidator, strongPasswordValidators } from '../../core/password-policy';
 
@@ -20,12 +21,14 @@ import { passwordsMatchValidator, strongPasswordValidators } from '../../core/pa
     MatButtonModule,
     MatIconModule,
     RouterLink,
+    TranslocoPipe,
   ],
 })
 export class RegisterComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   hide = signal(true);
   hideConfirm = signal(true);
@@ -72,7 +75,7 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.saving = false;
-        this.error = err.error?.message ?? 'Não foi possível criar a conta.';
+        this.error = err.error?.message ?? this.transloco.translate('auth.register.error');
       },
     });
   }

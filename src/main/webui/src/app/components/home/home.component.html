@@ -1,28 +1,27 @@
 <div class="page home-hub">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Início</h1>
-      <p class="page-subtitle" i18n>Seus tickets e atividade recente nos projetos em que participa</p>
+      <h1 class="page-title">{{ 'home.title' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'home.subtitle' | transloco }}</p>
     </div>
   </header>
 
   <app-context-hint
     hintId="home"
-    i18n-message
-    message="Seu hub pessoal: tickets abertos nos seus projetos, atribuições e atividade recente." />
+    [message]="'home.hint' | transloco" />
 
   <div class="home-hub__tickets">
     <section class="home-hub__section">
-      <h2 class="home-section__title" i18n>Tickets atuais</h2>
+      <h2 class="home-section__title">{{ 'home.currentTickets' | transloco }}</h2>
       <div class="page-panel page-panel--flush home-hub__panel">
         <div class="data-table data-table--layout-grid data-table--cols-home-tickets">
           <div class="header">
-            <div class="header-cell" i18n>ID</div>
-            <div class="header-cell" i18n>Título</div>
-            <div class="header-cell" i18n>Projeto</div>
-            <div class="header-cell" i18n>Status</div>
-            <div class="header-cell" i18n>Prioridade</div>
-            <div class="header-cell" i18n>Atualizado</div>
+            <div class="header-cell">{{ 'common.id' | transloco }}</div>
+            <div class="header-cell">{{ 'common.title' | transloco }}</div>
+            <div class="header-cell">{{ 'common.project' | transloco }}</div>
+            <div class="header-cell">{{ 'common.status' | transloco }}</div>
+            <div class="header-cell">{{ 'common.priority' | transloco }}</div>
+            <div class="header-cell">{{ 'common.updated' | transloco }}</div>
           </div>
           <div class="body">
             @for (ticket of currentTickets; track ticket.id) {
@@ -36,28 +35,28 @@
                 </div>
                 <div>{{ ticket.status }}</div>
                 <div>{{ ticket.priority }}</div>
-                <div>{{ ticket.updatedAt | date: 'short' }}</div>
+                <div>{{ ticket.updatedAt | runtimeDate: 'short' }}</div>
               </div>
             }
           </div>
           @if (currentTickets.length === 0) {
-            <div class="data-table--empty" i18n>Nenhum ticket aberto nos seus projetos.</div>
+            <div class="data-table--empty">{{ 'home.noCurrentTickets' | transloco }}</div>
           }
         </div>
       </div>
     </section>
 
     <section class="home-hub__section">
-      <h2 class="home-section__title" i18n>Tickets atribuídos</h2>
+      <h2 class="home-section__title">{{ 'home.assignedTickets' | transloco }}</h2>
       <div class="page-panel page-panel--flush home-hub__panel">
         <div class="data-table data-table--layout-grid data-table--cols-home-tickets">
           <div class="header">
-            <div class="header-cell" i18n>ID</div>
-            <div class="header-cell" i18n>Título</div>
-            <div class="header-cell" i18n>Projeto</div>
-            <div class="header-cell" i18n>Status</div>
-            <div class="header-cell" i18n>Prioridade</div>
-            <div class="header-cell" i18n>Atualizado</div>
+            <div class="header-cell">{{ 'common.id' | transloco }}</div>
+            <div class="header-cell">{{ 'common.title' | transloco }}</div>
+            <div class="header-cell">{{ 'common.project' | transloco }}</div>
+            <div class="header-cell">{{ 'common.status' | transloco }}</div>
+            <div class="header-cell">{{ 'common.priority' | transloco }}</div>
+            <div class="header-cell">{{ 'common.updated' | transloco }}</div>
           </div>
           <div class="body">
             @for (ticket of assignedTickets; track ticket.id) {
@@ -71,12 +70,12 @@
                 </div>
                 <div>{{ ticket.status }}</div>
                 <div>{{ ticket.priority }}</div>
-                <div>{{ ticket.updatedAt | date: 'short' }}</div>
+                <div>{{ ticket.updatedAt | runtimeDate: 'short' }}</div>
               </div>
             }
           </div>
           @if (assignedTickets.length === 0) {
-            <div class="data-table--empty" i18n>Nenhum ticket aberto atribuído a você.</div>
+            <div class="data-table--empty">{{ 'home.noAssignedTickets' | transloco }}</div>
           }
         </div>
       </div>
@@ -91,9 +90,9 @@
       <div class="page-panel page-panel--flush home-hub__panel">
         <div class="data-table data-table--layout-grid data-table--cols-home-saved-query">
           <div class="header">
-            <div class="header-cell" i18n>ID</div>
-            <div class="header-cell" i18n>Título</div>
-            <div class="header-cell" i18n>Prioridade</div>
+            <div class="header-cell">{{ 'common.id' | transloco }}</div>
+            <div class="header-cell">{{ 'common.title' | transloco }}</div>
+            <div class="header-cell">{{ 'common.priority' | transloco }}</div>
           </div>
           <div class="body">
             @for (ticket of section.tickets; track ticket.id) {
@@ -112,7 +111,7 @@
   }
 
   <section class="home-hub__section home-activity">
-    <h2 class="home-section__title" i18n>Atividade</h2>
+    <h2 class="home-section__title">{{ 'home.activity' | transloco }}</h2>
     <div class="page-panel page-panel--flush home-hub__panel home-hub__panel--activity">
       @if (activity.length > 0) {
         <div class="activity-feed">
@@ -126,13 +125,13 @@
                   <span class="activity-item__actor">{{ item.actorName }}</span>
                   <span class="activity-item__summary">
                     @if (item.type === 'COMMENT') {
-                      <span i18n>comentou em</span>
+                      <span>{{ 'home.commentedOn' | transloco }}</span>
                     } @else {
-                      <span i18n>alterou status em</span>
+                      <span>{{ 'home.changedStatusOn' | transloco }}</span>
                     }
                     {{ ' ' }}<a [routerLink]="['/ticket', item.ticketIdentifier]">{{ item.ticketIdentifier }}</a>{{ ' — ' }}{{ item.projectName }}
                   </span>
-                  <time class="activity-item__date">{{ item.occurredAt | date: 'medium' }}</time>
+                  <time class="activity-item__date">{{ item.occurredAt | runtimeDate: 'medium' }}</time>
                 </header>
                 @if (item.type === 'COMMENT') {
                   <div class="activity-item__comment" [innerHTML]="item.summary"></div>
@@ -144,7 +143,7 @@
           }
         </div>
       } @else {
-        <div class="data-table--empty" i18n>Nenhuma atividade recente nos seus projetos.</div>
+        <div class="data-table--empty">{{ 'home.noActivity' | transloco }}</div>
       }
     </div>
   </section>

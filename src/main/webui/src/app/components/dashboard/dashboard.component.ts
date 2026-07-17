@@ -1,4 +1,5 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { AsyncPipe, KeyValuePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,6 +11,7 @@ import { Observable, shareReplay } from 'rxjs';
 import { DashboardService } from '../../services/dashboard.service';
 import { Project } from '../../services/projects.service';
 import { ToastService } from '../../services/toast.service';
+import { RuntimeNumberPipe } from '../../core/runtime-locale.pipes';
 import { NormalizePipe } from '../pipes/normalize.pipe';
 import {
   AvailablesDashboards,
@@ -25,12 +27,14 @@ import {
 @Component({
   selector: 'app-dashboard.component',
   imports: [
+    TranslocoPipe,
     DragDropModule,
     MatButtonModule,
     MatIconModule,
     BaseChartDirective,
     AsyncPipe,
     KeyValuePipe,
+    RuntimeNumberPipe,
     NormalizePipe,
     RouterLink,
   ],

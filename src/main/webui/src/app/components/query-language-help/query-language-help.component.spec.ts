@@ -1,13 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { QueryLanguageHelpComponent } from './query-language-help.component';
 import { QUERY_LANGUAGE_EXAMPLES, QUERY_LANGUAGE_FIELDS } from './query-language-reference';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('QueryLanguageHelpComponent', () => {
   let fixture: ComponentFixture<QueryLanguageHelpComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [QueryLanguageHelpComponent]
+      imports: [createTranslocoTestingModule(), QueryLanguageHelpComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(QueryLanguageHelpComponent);

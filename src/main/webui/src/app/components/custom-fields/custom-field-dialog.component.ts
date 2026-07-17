@@ -15,6 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { CustomField, CustomFieldRequest, CustomFieldService, CustomFieldType } from '../../services/custom-field.service';
 
 export type CustomFieldOwner = 'project' | 'workflow';
@@ -41,24 +42,25 @@ export interface CustomFieldDialogData {
     MatCheckboxModule,
     MatButtonModule,
     MatIconModule,
+    TranslocoPipe,
   ],
   template: `
     <h2 mat-dialog-title>{{ isEdit ? 'Editar campo personalizado' : 'Novo campo personalizado' }}</h2>
     <form [formGroup]="form" (ngSubmit)="save()">
       <mat-dialog-content class="custom-field-dialog">
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Chave</mat-label>
+          <mat-label>{{ 'customField.key' | transloco }}</mat-label>
           <input matInput formControlName="key" required maxlength="32" />
-          <mat-hint i18n>Identificador estável (não muda após criar)</mat-hint>
+          <mat-hint>{{ 'migration.custom-field-dialog.24cae8caeb46' | transloco }}</mat-hint>
         </mat-form-field>
 
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Rótulo</mat-label>
+          <mat-label>{{ 'customField.label' | transloco }}</mat-label>
           <input matInput formControlName="label" required maxlength="128" />
         </mat-form-field>
 
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Tipo</mat-label>
+          <mat-label>{{ 'migration.custom-field-dialog.f16a07570992' | transloco }}</mat-label>
           <mat-select formControlName="type" required>
             @for (type of fieldTypes; track type.value) {
               <mat-option [value]="type.value">{{ type.label }}</mat-option>
@@ -66,23 +68,23 @@ export interface CustomFieldDialogData {
           </mat-select>
         </mat-form-field>
 
-        <mat-checkbox formControlName="required" i18n>Obrigatório</mat-checkbox>
-        <mat-checkbox formControlName="enabled" i18n>Ativo</mat-checkbox>
+        <mat-checkbox formControlName="required">{{ 'customField.required' | transloco }}</mat-checkbox>
+        <mat-checkbox formControlName="enabled">{{ 'migration.custom-field-dialog.0c799a50ce68' | transloco }}</mat-checkbox>
 
         @if (form.value.type === 'STRING') {
           <mat-form-field class="form-field" appearance="outline">
-            <mat-label i18n>Tamanho máximo</mat-label>
+            <mat-label>{{ 'migration.custom-field-dialog.3c3363b1d0e0' | transloco }}</mat-label>
             <input matInput type="number" formControlName="stringMaxLength" min="1" max="255" />
           </mat-form-field>
         }
 
         @if (form.value.type === 'INTEGER') {
           <mat-form-field class="form-field" appearance="outline">
-            <mat-label i18n>Mínimo</mat-label>
+            <mat-label>{{ 'migration.custom-field-dialog.f24f141414e2' | transloco }}</mat-label>
             <input matInput type="number" formControlName="integerMin" />
           </mat-form-field>
           <mat-form-field class="form-field" appearance="outline">
-            <mat-label i18n>Máximo</mat-label>
+            <mat-label>{{ 'migration.custom-field-dialog.9fbb388354bb' | transloco }}</mat-label>
             <input matInput type="number" formControlName="integerMax" />
           </mat-form-field>
         }
@@ -90,20 +92,20 @@ export interface CustomFieldDialogData {
         @if (form.value.type === 'ENUM') {
           <section class="form-section" formArrayName="enumOptions">
             <div class="workflow-form__section-header">
-              <h3 class="section-title" i18n>Opções</h3>
+              <h3 class="section-title">{{ 'migration.custom-field-dialog.31c3450474fb' | transloco }}</h3>
               <button class="btn btn-secondary" matButton="outlined" type="button" (click)="addEnumOption()">
                 <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-                <span i18n>Adicionar opção</span>
+                <span>{{ 'migration.custom-field-dialog.0f7a90d19bde' | transloco }}</span>
               </button>
             </div>
             @for (option of enumOptions.controls; track $index; let i = $index) {
               <div class="custom-field-dialog__option" [formGroupName]="i">
                 <mat-form-field class="form-field form-field--compact" appearance="outline">
-                  <mat-label i18n>Valor</mat-label>
+                  <mat-label>{{ 'migration.custom-field-dialog.5ebb5cb3ea12' | transloco }}</mat-label>
                   <input matInput formControlName="value" required />
                 </mat-form-field>
                 <mat-form-field class="form-field form-field--compact" appearance="outline">
-                  <mat-label i18n>Rótulo</mat-label>
+                  <mat-label>{{ 'customField.label' | transloco }}</mat-label>
                   <input matInput formControlName="label" required />
                 </mat-form-field>
                 <button
@@ -112,8 +114,7 @@ export interface CustomFieldDialogData {
                   type="button"
                   (click)="removeEnumOption(i)"
                   [disabled]="enumOptions.length <= 1"
-                  i18n-aria-label
-                  aria-label="Remover opção">
+                  [attr.aria-label]="'customField.removeOptionAria' | transloco">
                   <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
                 </button>
               </div>
@@ -123,7 +124,7 @@ export interface CustomFieldDialogData {
 
         @if (data.owner === 'workflow' && (data.statusNames?.length ?? 0) > 0) {
           <mat-form-field class="form-field" appearance="outline">
-            <mat-label i18n>Obrigatório nos status</mat-label>
+            <mat-label>{{ 'migration.custom-field-dialog.7b6d6c67163c' | transloco }}</mat-label>
             <mat-select formControlName="statusRequired" multiple>
               @for (status of data.statusNames; track status) {
                 <mat-option [value]="status">{{ status }}</mat-option>
@@ -133,8 +134,8 @@ export interface CustomFieldDialogData {
         }
       </mat-dialog-content>
       <mat-dialog-actions align="end">
-        <button class="btn btn-secondary" matButton="outlined" type="button" mat-dialog-close i18n>Cancelar</button>
-        <button class="btn" matButton="filled" type="submit" [disabled]="form.invalid || saving" i18n>Salvar</button>
+        <button class="btn btn-secondary" matButton="outlined" type="button" mat-dialog-close>{{ 'ticket.form.cancel' | transloco }}</button>
+        <button class="btn" matButton="filled" type="submit" [disabled]="form.invalid || saving">{{ 'common.save' | transloco }}</button>
       </mat-dialog-actions>
     </form>
   `,

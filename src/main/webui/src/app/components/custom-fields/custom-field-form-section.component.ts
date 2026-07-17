@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -21,11 +22,11 @@ export interface CustomFieldValueView {
 
 @Component({
   selector: 'app-custom-field-form-section',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatCheckboxModule, RichTextEditorComponent],
+  imports: [TranslocoPipe, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatCheckboxModule, RichTextEditorComponent],
   template: `
     @if (fields.length > 0 || orphanValues.length > 0) {
       <section class="form-section custom-field-form-section">
-        <h2 class="section-title" i18n>Campos personalizados</h2>
+        <h2 class="section-title">{{ 'migration.custom-field-form-section.7005484c4d5d' | transloco }}</h2>
 
         @if (fields.length > 0) {
           <div [formGroup]="valuesForm" class="custom-field-form-section__fields">
@@ -51,7 +52,7 @@ export interface CustomFieldValueView {
                     <mat-label>{{ field.label }}</mat-label>
                     <mat-select [formControlName]="field.key" [required]="field.required">
                       @if (!field.required) {
-                        <mat-option [value]="null" i18n>Nenhum</mat-option>
+                        <mat-option [value]="null">{{ 'migration.custom-field-form-section.d32387df06bf' | transloco }}</mat-option>
                       }
                       @for (option of field.enumOptions; track option.value) {
                         <mat-option [value]="option.value">{{ option.label }}</mat-option>
@@ -76,7 +77,7 @@ export interface CustomFieldValueView {
 
         @if (orphanValues.length > 0) {
           <div class="custom-field-form-section__orphans">
-            <p class="form-hint" i18n>Valores de campos fora do escopo atual (somente leitura):</p>
+            <p class="form-hint">{{ 'migration.custom-field-form-section.51ca950aa6f4' | transloco }}</p>
             <dl class="detail-list">
               @for (orphan of orphanValues; track orphan.key) {
                 <dt><code>{{ orphan.key }}</code></dt>

@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { RuntimeDatePipe } from '../../core/runtime-locale.pipes';
 import {
   ActivityItem,
   activityIcon,
@@ -15,7 +16,7 @@ import {
 @Component({
   selector: 'app-ticket-activity-feed',
   templateUrl: './ticket-activity-feed.component.html',
-  imports: [DatePipe, MatIconModule],
+  imports: [RuntimeDatePipe, MatIconModule, TranslocoPipe],
 })
 export class TicketActivityFeedComponent {
   @Input({ required: true }) items: ActivityItem[] = [];
@@ -55,5 +56,15 @@ export class TicketActivityFeedComponent {
       return value;
     }
     return `${value.slice(0, 200)}…`;
+  }
+
+  protected activitySummaryTranslationKey(item: ActivityItem): string | null {
+    if (item.kind === 'comment') {
+      return 'ticket.activity.commented';
+    }
+    if (item.kind === 'change' && item.action === 'CREATED') {
+      return 'ticket.activity.created';
+    }
+    return null;
   }
 }

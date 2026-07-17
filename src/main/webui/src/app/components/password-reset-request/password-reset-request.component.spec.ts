@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
@@ -15,7 +16,13 @@ describe('PasswordResetRequestComponent', () => {
     const toastService = jasmine.createSpyObj('ToastService', ['success']);
 
     await TestBed.configureTestingModule({
-      imports: [PasswordResetRequestComponent],
+      imports: [
+        PasswordResetRequestComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { pt: {} },
+          translocoConfig: { availableLangs: ['pt'], defaultLang: 'pt' },
+        }),
+      ],
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: authService },

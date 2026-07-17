@@ -1,25 +1,40 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Resultados da busca</h1>
-      <p class="page-subtitle" i18n>Tickets correspondentes aos critérios informados</p>
+      <h1 class="page-title">{{ 'migration.search-tickets.62a1815b06ea' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'migration.search-tickets.1dea4d5f49b7' | transloco }}</p>
     </div>
     <div class="page-header__actions">
-      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/advanced" i18n>Busca avançada</a>
-      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/queries" i18n>Minhas consultas</a>
+      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/advanced">{{ 'migration.search-tickets.e3b4c92b8861' | transloco }}</a>
+      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/queries">{{ 'search.saved.title' | transloco }}</a>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        matButton="outlined"
+        [matMenuTriggerFor]="exportMenu"
+        [disabled]="exportState.loading">
+        {{ 'ticketExport.action' | transloco }}
+      </button>
+      <mat-menu #exportMenu="matMenu" class="menu-panel">
+        <button mat-menu-item type="button" (click)="exportTickets('CSV')">CSV</button>
+        <button mat-menu-item type="button" (click)="exportTickets('JSON')">JSON</button>
+      </mat-menu>
     </div>
   </header>
 
+  @if (exportState.errorKey) {
+    <p class="error" role="alert">{{ exportState.errorKey | transloco }}</p>
+  }
+
   <section class="filter-bar page-panel" aria-label="Filtros de busca">
-    <p class="filter-bar__label" i18n>Status</p>
+    <p class="filter-bar__label">{{ 'common.status' | transloco }}</p>
     <div class="filter-chips" role="group" aria-label="Filtrar por status">
       <button
         type="button"
         class="filter-chip"
         [class.filter-chip--active]="isStatusActive(-1)"
-        (click)="selectStatus(-1)"
-        i18n>
-        Todos
+        (click)="selectStatus(-1)">
+        {{ 'migration.search-tickets.de83e7a7995b' | transloco }}
       </button>
       @for (status of statuses; track status.id) {
         <button
@@ -37,14 +52,14 @@
     <section class="filter-summary" aria-label="Filtros aplicados">
       @if (term) {
         <div class="filter-summary__item">
-          <span class="filter-summary__label" i18n>Termo</span>
+          <span class="filter-summary__label">{{ 'migration.search-tickets.4c9ce2a7b03a' | transloco }}</span>
           <span class="filter-summary__value">{{ term }}</span>
         </div>
       }
       @let status = statusName(statusId);
       @if (status) {
         <div class="filter-summary__item">
-          <span class="filter-summary__label" i18n>Status</span>
+          <span class="filter-summary__label">{{ 'common.status' | transloco }}</span>
           <span class="filter-summary__value">{{ status }}</span>
         </div>
       }
@@ -52,8 +67,8 @@
   }
 
   @if (tickets.length === 0) {
-    <div class="empty-state" i18n>
-      Nenhum ticket encontrado. Tente outros termos ou remova o filtro de status.
+    <div class="empty-state">
+      {{ 'migration.search-tickets.1cca11e4643c' | transloco }}
     </div>
   } @else {
     <div class="project-grid">
@@ -65,7 +80,7 @@
           <h2 class="project-card__title">{{ ticket.title }}</h2>
           <p class="project-card__description">{{ ticket.description }}</p>
           <p class="metadata">
-            <span i18n>Projeto:</span> {{ projectName(ticket.project) }} ·
+            <span>{{ 'migration.search-tickets.d5d53b4872ee' | transloco }}</span> {{ projectName(ticket.project) }} ·
             <span class="status-badge">{{ statusName(ticket.status) }}</span>
             @if (ticket.categoryName) {
               ·

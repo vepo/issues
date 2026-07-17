@@ -5,6 +5,8 @@ import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { BacklogComponent } from './backlog.component';
 import { BacklogService, BacklogTicket } from '../../services/backlog.service';
 import { AuthService } from '../../services/auth.service';
+import { TranslocoService } from '@jsverse/transloco';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('BacklogComponent', () => {
   let component: BacklogComponent;
@@ -71,7 +73,13 @@ describe('BacklogComponent', () => {
     authService.hasRole.and.callFake((role: string) => role === 'project-manager');
 
     await TestBed.configureTestingModule({
-      imports: [BacklogComponent],
+      imports: [
+        BacklogComponent,
+        createTranslocoTestingModule(
+          { backlog: { title: 'Backlog', subtitle: 'Tickets ordenados por rank de planejamento (não por prioridade)' } },
+          { backlog: { title: 'Backlog', subtitle: 'Tickets ordered by planning rank (not priority)' } },
+        ),
+      ],
       providers: [
         provideRouter([]),
         { provide: BacklogService, useValue: backlogService },
@@ -97,6 +105,17 @@ describe('BacklogComponent', () => {
     expect(component.hasMore).toBeTrue();
     expect(fixture.nativeElement.textContent).toContain('Backlog');
     expect(fixture.nativeElement.textContent).toContain('ISS-1');
+  });
+
+  it('should rerender backlog guidance immediately when locale changes from Portuguese to English', async () => {
+    expect(fixture.nativeElement.textContent).toContain('Tickets ordenados por rank de planejamento');
+
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Tickets ordered by planning rank');
+    expect(fixture.nativeElement.textContent).not.toContain('Tickets ordenados por rank de planejamento');
   });
 
   it('should load next page on scroll near bottom', () => {

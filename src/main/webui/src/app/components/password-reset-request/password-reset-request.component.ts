@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -13,7 +14,7 @@ import { ToastService } from '../../services/toast.service';
   selector: 'app-password-reset-reset',
   templateUrl: './password-reset-request.component.html',
   styleUrl: './password-reset-request.component.scss',
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, RouterLink]
+  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, RouterLink, TranslocoPipe]
 })
 export class PasswordResetRequestComponent {
   passwordResetForm: FormGroup;
@@ -21,6 +22,7 @@ export class PasswordResetRequestComponent {
   private formBuilder = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
   @ViewChild('customToast') customToast!: TemplateRef<any>;
 
   constructor() {
@@ -37,10 +39,10 @@ export class PasswordResetRequestComponent {
           next: (resp) => {
             console.log("Success!!", resp)
             this.isLoading = false;
-            this.toastService.success("Recuperação de senha iniciada. Verifique seu email!", 15000);
+            this.toastService.success(this.transloco.translate('auth.reset.requestSuccess'), 15000);
           }, error: () => {
             this.isLoading = false;
-            this.toastService.error('Não foi possível iniciar a recuperação. Tente novamente.');
+            this.toastService.error(this.transloco.translate('auth.reset.requestError'));
           }
         })
     }

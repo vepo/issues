@@ -1,26 +1,27 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatError } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { forkJoin } from 'rxjs';
 import { AuthService, CurrentUser } from '../../services/auth.service';
 import { ApiToken, ApiTokenService, CreatedApiToken } from '../../services/api-token.service';
 import { ToastService } from '../../services/toast.service';
 import { strongPasswordValidators } from '../../core/password-policy';
-import { currentPathLocale, hrefForLocale, isAllowedLocale, UiLocaleCode } from '../../core/ui-locale';
+import { RuntimeDatePipe } from '../../core/runtime-locale.pipes';
+import { isAllowedLocale, UiLocaleCode } from '../../core/ui-locale';
+import { UiLocaleService } from '../../core/ui-locale.service';
 
 const TOKEN_PLACEHOLDER = '<YOUR_API_TOKEN>';
 
 @Component({
   selector: 'app-account-settings',
   imports: [
-    DatePipe,
+    RuntimeDatePipe,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -28,7 +29,8 @@ const TOKEN_PLACEHOLDER = '<YOUR_API_TOKEN>';
     MatButtonModule,
     MatIconModule,
     MatSelectModule,
-    RouterLink
+    RouterLink,
+    TranslocoPipe
   ],
   templateUrl: './account-settings.component.html'
 })
@@ -37,6 +39,8 @@ export class AccountSettingsComponent implements OnInit {
   private readonly apiTokenService = inject(ApiTokenService);
   private readonly toastService = inject(ToastService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly uiLocaleService = inject(UiLocaleService);
+  private readonly transloco = inject(TranslocoService);
 
   readonly localeOptions: { value: UiLocaleCode; label: string }[] = [
     { value: 'pt', label: 'Português' },
@@ -97,7 +101,7 @@ export class AccountSettingsComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.error = $localize`:@@account.loadError:Não foi possível carregar seu perfil.`;
+        this.error = this.transloco.translate('account.messages.loadError');
         this.loading = false;
       }
     });
@@ -112,26 +116,23 @@ export class AccountSettingsComponent implements OnInit {
     this.profileMessage = '';
     this.profileError = '';
     const { name, email, locale } = this.profileForm.value;
-    const previousLocale = isAllowedLocale(this.user?.locale) ? this.user.locale : currentPathLocale();
+    const previousLocale = isAllowedLocale(this.user?.locale)
+      ? this.user.locale
+      : this.uiLocaleService.currentLocale;
     this.authService.updateProfile(name, email, locale).subscribe({
       next: (user) => {
         this.user = user;
         this.isSavingProfile = false;
-        this.profileMessage = $localize`:@@account.profileSaved:Perfil atualizado com sucesso.`;
+        this.profileMessage = this.transloco.translate('account.messages.profileSaved');
         if (isAllowedLocale(locale) && locale !== previousLocale) {
-          this.reloadForLocale(locale);
+          this.uiLocaleService.setActiveLocale(locale);
         }
       },
       error: () => {
         this.isSavingProfile = false;
-        this.profileError = $localize`:@@account.profileSaveError:Não foi possível atualizar o perfil. Verifique o e-mail informado.`;
+        this.profileError = this.transloco.translate('account.messages.profileSaveError');
       }
     });
-  }
-
-  /** Exposed for tests — full page load into the other locale build. */
-  reloadForLocale(locale: UiLocaleCode): void {
-    window.location.assign(hrefForLocale(locale, '/account/settings'));
   }
 
   passwordsMismatch(): boolean {
@@ -151,12 +152,12 @@ export class AccountSettingsComponent implements OnInit {
     this.authService.changePassword(currentPassword, newPassword).subscribe({
       next: () => {
         this.isSavingPassword = false;
-        this.passwordMessage = 'Senha alterada com sucesso.';
+        this.passwordMessage = this.transloco.translate('account.messages.passwordChanged');
         this.passwordForm.reset();
       },
       error: () => {
         this.isSavingPassword = false;
-        this.passwordError = 'Não foi possível alterar a senha. Verifique a senha atual.';
+        this.passwordError = this.transloco.translate('account.messages.passwordChangeError');
       }
     });
   }
@@ -165,7 +166,9 @@ export class AccountSettingsComponent implements OnInit {
     this.isGeneratingAgentConfig = true;
     this.agentConfigError = '';
     this.agentConfigMessage = '';
-    const tokenName = `Agente Cursor ${new Date().toISOString().slice(0, 16).replace('T', ' ')}`;
+    const tokenName = this.transloco.translate('account.agent.generatedTokenName', {
+      date: new Date().toISOString().slice(0, 16).replace('T', ' '),
+    });
     forkJoin({
       created: this.apiTokenService.create(tokenName),
       setup: this.apiTokenService.getAgentSetupConfig(this.agentPreset)
@@ -174,13 +177,13 @@ export class AccountSettingsComponent implements OnInit {
         this.isGeneratingAgentConfig = false;
         this.createdTokenSecret = created.token;
         this.agentSnippet = this.injectTokenIntoSnippet(setup.snippet ?? '', created.token);
-        this.agentConfigMessage = 'Token gerado. Copie a configuração abaixo — o segredo só é exibido uma vez.';
+        this.agentConfigMessage = this.transloco.translate('account.messages.agentConfigGenerated');
         this.loadApiTokens();
-        this.toastService.success('Token e configuração gerados.');
+        this.toastService.success(this.transloco.translate('account.messages.agentConfigGeneratedToast'));
       },
       error: () => {
         this.isGeneratingAgentConfig = false;
-        this.agentConfigError = 'Não foi possível gerar o token e a configuração do agente.';
+        this.agentConfigError = this.transloco.translate('account.messages.agentConfigError');
       }
     });
   }
@@ -198,11 +201,11 @@ export class AccountSettingsComponent implements OnInit {
         this.createdTokenSecret = created.token;
         this.tokenForm.reset();
         this.loadApiTokens();
-        this.toastService.success('Token criado. Copie o segredo agora — ele não será exibido novamente.');
+        this.toastService.success(this.transloco.translate('account.messages.tokenCreated'));
       },
       error: () => {
         this.isCreatingToken = false;
-        this.tokensError = 'Não foi possível criar o token.';
+        this.tokensError = this.transloco.translate('account.messages.tokenCreateError');
       }
     });
   }
@@ -214,18 +217,18 @@ export class AccountSettingsComponent implements OnInit {
     this.apiTokenService.revoke(token.id).subscribe({
       next: () => {
         this.loadApiTokens();
-        this.toastService.success('Token revogado.');
+        this.toastService.success(this.transloco.translate('account.messages.tokenRevoked'));
       },
       error: () => {
-        this.tokensError = 'Não foi possível revogar o token.';
+        this.tokensError = this.transloco.translate('account.messages.tokenRevokeError');
       }
     });
   }
 
   copyText(text: string): void {
     navigator.clipboard.writeText(text).then(
-      () => this.toastService.success('Copiado para a área de transferência.'),
-      () => this.toastService.error('Não foi possível copiar.')
+      () => this.toastService.success(this.transloco.translate('account.messages.copied')),
+      () => this.toastService.error(this.transloco.translate('account.messages.copyError'))
     );
   }
 
@@ -246,7 +249,7 @@ export class AccountSettingsComponent implements OnInit {
       },
       error: () => {
         this.tokensLoading = false;
-        this.tokensError = 'Não foi possível carregar os tokens de API.';
+        this.tokensError = this.transloco.translate('account.messages.tokensLoadError');
       }
     });
   }

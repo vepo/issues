@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ColumnMapping } from '../../generated/model/columnMapping';
 import { ImportRowValidation } from '../../generated/model/importRowValidation';
 import { Project, ProjectWorkflow, ProjectsService } from '../../services/projects.service';
@@ -33,6 +34,7 @@ interface MappingField {
     MatButtonModule,
     MatIconModule,
     RouterLink,
+    TranslocoPipe,
   ],
   templateUrl: './ticket-import-wizard.component.html',
 })

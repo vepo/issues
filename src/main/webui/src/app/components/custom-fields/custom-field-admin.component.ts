@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/cor
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { CustomField, CustomFieldService } from '../../services/custom-field.service';
 import {
   CustomFieldDialogComponent,
@@ -9,40 +10,48 @@ import {
   CustomFieldOwner,
 } from './custom-field-dialog.component';
 
+const CUSTOM_FIELD_TYPE_TRANSLATION_KEYS: Readonly<Record<string, string>> = {
+  STRING: 'customField.shortText',
+  TEXT: 'customField.longText',
+  INTEGER: 'customField.integer',
+  BOOLEAN: 'customField.boolean',
+  ENUM: 'customField.list',
+};
+
 @Component({
   selector: 'app-custom-field-admin',
-  imports: [MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [TranslocoPipe, MatButtonModule, MatIconModule, MatDialogModule],
   template: `
     <section class="form-section custom-field-admin">
       <div class="workflow-form__section-header">
         <h2 class="section-title">{{ sectionTitle }}</h2>
         <button class="btn btn-secondary" matButton="outlined" type="button" (click)="openDialog()" [disabled]="!ownerId">
           <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-          <span i18n>Adicionar campo</span>
+          <span>{{ 'customField.add' | transloco }}</span>
         </button>
       </div>
 
       @if (ownerId == null) {
-        <p class="form-hint" i18n>
+        <p class="form-hint">
           @if (owner === 'workflow') {
-            Salve o processo antes de adicionar campos personalizados.
+            {{ 'migration.custom-field-admin.saveWorkflowFirst' | transloco }}
           } @else {
-            Salve o projeto antes de adicionar campos personalizados.
+            {{ 'migration.custom-field-admin.saveProjectFirst' | transloco }}
           }
         </p>
       } @else if (loading) {
-        <p class="form-hint" i18n>Carregando campos…</p>
+        <p class="form-hint">{{ 'migration.custom-field-admin.333896f6dc37' | transloco }}</p>
       } @else if (fields.length === 0) {
-        <p class="form-hint" i18n>Nenhum campo personalizado definido.</p>
+        <p class="form-hint">{{ 'migration.custom-field-admin.e98e89130943' | transloco }}</p>
       } @else {
         <div class="page-panel page-panel--flush">
           <div class="data-table data-table--layout-table data-table--cols-id-name-color-actions">
             <div class="header">
-              <div class="header-cell" i18n>Chave</div>
-              <div class="header-cell" i18n>Rótulo</div>
-              <div class="header-cell" i18n>Tipo</div>
-              <div class="header-cell" i18n>Obrigatório</div>
-              <div class="header-cell" i18n>Ações</div>
+              <div class="header-cell">{{ 'customField.key' | transloco }}</div>
+              <div class="header-cell">{{ 'customField.label' | transloco }}</div>
+              <div class="header-cell">{{ 'customField.type' | transloco }}</div>
+              <div class="header-cell">{{ 'customField.required' | transloco }}</div>
+              <div class="header-cell">{{ 'common.actions' | transloco }}</div>
             </div>
             <div class="body">
               @for (field of fields; track field.id) {
@@ -51,26 +60,26 @@ import {
                   <div>{{ field.label }}</div>
                   <div>{{ typeLabel(field.type) }}{{ field.enabled ? '' : ' (inativo)' }}</div>
                   <div>
-                    {{ field.required ? 'Sim' : 'Não' }}
+                    {{ (field.required ? 'customField.yes' : 'customField.no') | transloco }}
                     @if (owner === 'workflow' && (field.statusRequired?.length ?? 0) > 0) {
                       <span class="text-muted"> · {{ field.statusRequired.join(', ') }}</span>
                     }
                   </div>
                   <div class="cell-actions">
-                    <button class="btn btn-secondary" matButton="outlined" type="button" (click)="openDialog(field)" i18n>
-                      Editar
+                    <button class="btn btn-secondary" matButton="outlined" type="button" (click)="openDialog(field)">
+                      {{ 'migration.custom-field-admin.96379ced2ee4' | transloco }}
                     </button>
                     @if (field.enabled) {
-                      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="disableField(field)" i18n>
-                        Desativar
+                      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="disableField(field)">
+                        {{ 'serviceAccount.deactivate' | transloco }}
                       </button>
                     } @else {
-                      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="enableField(field)" i18n>
-                        Ativar
+                      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="enableField(field)">
+                        {{ 'migration.custom-field-admin.12488ede1a91' | transloco }}
                       </button>
                     }
-                    <button class="btn btn-cancel" matButton="outlined" type="button" (click)="deleteField(field)" i18n>
-                      Excluir
+                    <button class="btn btn-cancel" matButton="outlined" type="button" (click)="deleteField(field)">
+                      {{ 'migration.custom-field-admin.e99d128634ed' | transloco }}
                     </button>
                   </div>
                 </div>
@@ -88,6 +97,7 @@ import {
 export class CustomFieldAdminComponent implements OnChanges {
   private readonly customFieldService = inject(CustomFieldService);
   private readonly dialog = inject(MatDialog);
+  private readonly transloco = inject(TranslocoService);
 
   @Input({ required: true }) owner!: CustomFieldOwner;
   @Input({ required: true }) ownerId!: number | null;
@@ -105,20 +115,8 @@ export class CustomFieldAdminComponent implements OnChanges {
   }
 
   typeLabel(type: string): string {
-    switch (type) {
-      case 'STRING':
-        return 'Texto curto';
-      case 'TEXT':
-        return 'Texto longo';
-      case 'INTEGER':
-        return 'Inteiro';
-      case 'BOOLEAN':
-        return 'Sim/Não';
-      case 'ENUM':
-        return 'Lista';
-      default:
-        return type;
-    }
+    const translationKey = CUSTOM_FIELD_TYPE_TRANSLATION_KEYS[type];
+    return translationKey ? this.transloco.translate(translationKey) : type;
   }
 
   openDialog(field?: CustomField): void {

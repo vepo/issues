@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -9,11 +9,13 @@ import { MatInputModule } from '@angular/material/input';
 import { Project } from '../../services/projects.service';
 import { ServiceAccount, ServiceAccountService } from '../../services/service-account.service';
 import { ToastService } from '../../services/toast.service';
+import { RuntimeDatePipe } from '../../core/runtime-locale.pipes';
 
 @Component({
   selector: 'app-service-accounts',
   imports: [
-    DatePipe,
+    TranslocoPipe,
+    RuntimeDatePipe,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,

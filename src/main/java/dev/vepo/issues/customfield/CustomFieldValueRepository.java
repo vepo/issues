@@ -1,5 +1,6 @@
 package dev.vepo.issues.customfield;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,21 @@ public class CustomFieldValueRepository {
                               WHERE v.id.ticketId = :ticketId
                               """, TicketCustomFieldValue.class)
                  .setParameter("ticketId", ticketId)
+                 .getResultList();
+    }
+
+    public List<TicketCustomFieldValue> listByTicketIds(Collection<Long> ticketIds) {
+        if (ticketIds == null || ticketIds.isEmpty()) {
+            return List.of();
+        }
+        return em.createQuery("""
+                              SELECT DISTINCT v FROM TicketCustomFieldValue v
+                              JOIN FETCH v.customField f
+                              LEFT JOIN FETCH f.enumOptions
+                              LEFT JOIN FETCH v.enumOption
+                              WHERE v.id.ticketId IN :ticketIds
+                              """, TicketCustomFieldValue.class)
+                 .setParameter("ticketIds", ticketIds)
                  .getResultList();
     }
 

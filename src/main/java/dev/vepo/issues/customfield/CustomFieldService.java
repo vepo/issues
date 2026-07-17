@@ -1,6 +1,7 @@
 package dev.vepo.issues.customfield;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -227,11 +228,26 @@ public class CustomFieldService {
                                         .collect(Collectors.toSet());
         return valueRepository.listByTicketId(ticketId)
                               .stream()
-                              .map(v -> CustomFieldValueResponse.load(v.getCustomField(),
-                                                                      extractValue(v),
-                                                                      inScopeIds.contains(v.getCustomField().getId())
-                                                                              && v.getCustomField().isEnabled()))
+                              .map(value -> toValueResponse(value,
+                                                            inScopeIds.contains(value.getCustomField().getId())
+                                                                    && value.getCustomField().isEnabled()))
                               .toList();
+    }
+
+    @Transactional
+    public Map<Long, List<CustomFieldValueResponse>> readValuesByTicketIds(Collection<Long> ticketIds) {
+        if (ticketIds == null || ticketIds.isEmpty()) {
+            return Map.of();
+        }
+        var valuesByTicket = valueRepository.listByTicketIds(ticketIds)
+                                            .stream()
+                                            .collect(Collectors.groupingBy(TicketCustomFieldValue::getTicketId,
+                                                                           Collectors.mapping(value -> toValueResponse(value,
+                                                                                                                       value.getCustomField()
+                                                                                                                            .isEnabled()),
+                                                                                              Collectors.collectingAndThen(Collectors.toList(),
+                                                                                                                           List::copyOf))));
+        return Map.copyOf(valuesByTicket);
     }
 
     @Transactional
@@ -723,6 +739,10 @@ public class CustomFieldService {
                             value.getIntegerValue(),
                             value.getBooleanValue(),
                             value.getEnumOption());
+    }
+
+    private CustomFieldValueResponse toValueResponse(TicketCustomFieldValue value, boolean inScope) {
+        return CustomFieldValueResponse.load(value.getCustomField(), extractValue(value), inScope);
     }
 
     private Object extractValue(CustomField field,

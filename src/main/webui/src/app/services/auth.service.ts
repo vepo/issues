@@ -9,7 +9,8 @@ import { LoginResponse } from '../generated/model/loginResponse';
 import { RefreshTokenRequest } from '../generated/model/refreshTokenRequest';
 import { ResetPasswordRequest } from '../generated/model/resetPasswordRequest';
 import { asLoaded, Loaded } from '../core/required-types';
-import { currentPathLocale, UiLocaleCode } from '../core/ui-locale';
+import { isAllowedLocale, UiLocaleCode } from '../core/ui-locale';
+import { UiLocaleService } from '../core/ui-locale.service';
 
 export type CurrentUser = Loaded<GeneratedAuthResponse>;
 export type AuthResponse = LoginResponse;
@@ -18,6 +19,7 @@ export type AuthCapabilities = Loaded<AuthCapabilitiesResponse>;
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly api = inject(AuthApi);
+  private readonly uiLocaleService = inject(UiLocaleService);
   private readonly tokenKey = 'jwt_token';
   private readonly refreshTokenKey = 'jwt_refresh_token';
   private capabilities$?: Observable<AuthCapabilities>;
@@ -65,7 +67,7 @@ export class AuthService {
       name,
       email,
       password,
-      locale: locale ?? currentPathLocale(),
+      locale: locale ?? this.uiLocaleService.currentLocale,
     });
   }
 
@@ -78,7 +80,14 @@ export class AuthService {
   }
 
   me() {
-    return this.api.me().pipe(map(asLoaded));
+    return this.api.me().pipe(
+      map(asLoaded),
+      tap(user => {
+        if (isAllowedLocale(user.locale)) {
+          this.uiLocaleService.setActiveLocale(user.locale);
+        }
+      }),
+    );
   }
 
   saveToken(token: string) {

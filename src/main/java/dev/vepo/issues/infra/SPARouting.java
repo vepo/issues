@@ -4,51 +4,34 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import dev.vepo.issues.user.UiLocale;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 
 @ApplicationScoped
 public class SPARouting {
-    private static final String[] PATH_PREFIXES = { "/q/", "/api/", "/@" };
-    private static final Predicate<String> FILE_NAME_PREDICATE = Pattern.compile(".+\\.[a-zA-Z0-9]+$")
-                                                                        .asMatchPredicate();
+    private static final String SPA_ROOT = "/";
+    private static final String[] PASSTHROUGH_PATH_PREFIXES = { "/q/", "/api/", "/@" };
+    private static final Predicate<String> IS_STATIC_RESOURCE_PATH = Pattern.compile(".+\\.[a-zA-Z0-9]+$")
+                                                                            .asMatchPredicate();
 
     public void init(@Observes Router router) {
-        router.get("/*").handler(rc -> {
-            final String path = rc.normalizedPath();
-            if (path.equals("/")) {
-                var locale = UiLocale.fromAcceptLanguage(rc.request().getHeader("Accept-Language"));
-                rc.response()
-                  .setStatusCode(302)
-                  .putHeader("Location", "/" + locale + "/")
-                  .end();
-                return;
-            }
-            if (isLocaleRootOrPrefix(path)) {
-                if (FILE_NAME_PREDICATE.test(path)) {
-                    rc.next();
-                } else {
-                    var locale = path.startsWith("/en") ? "en" : "pt";
-                    rc.reroute("/" + locale + "/");
-                }
-                return;
-            }
-            if (Stream.of(PATH_PREFIXES).noneMatch(path::startsWith) && !FILE_NAME_PREDICATE.test(path)) {
-                var locale = UiLocale.fromAcceptLanguage(rc.request().getHeader("Accept-Language"));
-                rc.response()
-                  .setStatusCode(302)
-                  .putHeader("Location", "/" + locale + path)
-                  .end();
-                return;
-            }
-            rc.next();
-        });
+        router.get("/*").handler(this::handleSpaFallback);
     }
 
-    private static boolean isLocaleRootOrPrefix(String path) {
-        return path.equals("/pt") || path.equals("/en")
-                || path.startsWith("/pt/") || path.startsWith("/en/");
+    private void handleSpaFallback(RoutingContext routingContext) {
+        var path = routingContext.normalizedPath();
+        if (shouldPassThrough(path)) {
+            routingContext.next();
+        } else {
+            routingContext.reroute(SPA_ROOT);
+        }
+    }
+
+    private static boolean shouldPassThrough(String path) {
+        return SPA_ROOT.equals(path)
+                || Stream.of(PASSTHROUGH_PATH_PREFIXES).anyMatch(path::startsWith)
+                || IS_STATIC_RESOURCE_PATH.test(path);
     }
 }

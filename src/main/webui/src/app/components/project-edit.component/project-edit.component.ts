@@ -22,6 +22,7 @@ import { optionalPlainTextLengthValidator } from '../../core/plain-text-length';
 import { GitProvider, GitService } from '../../services/git.service';
 import { ToastService } from '../../services/toast.service';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-project-edit.component',
@@ -34,6 +35,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatCheckboxModule,
     MatRadioModule,
     MatIconModule,
+    TranslocoPipe,
     CustomFieldAdminComponent,
     CustomFieldFormSectionComponent,
     RichTextEditorComponent,

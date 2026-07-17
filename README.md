@@ -11,7 +11,7 @@ Quarkus REST API + Angular SPA, bundled in one deployable via Quinoa.
 | Layer | Technology |
 |-------|------------|
 | Backend | Quarkus 3, Java 21, JAX-RS, CDI, Hibernate ORM |
-| Frontend | Angular 20, Angular Material, Chart.js |
+| Frontend | Angular 20, Angular Material, Chart.js, Transloco runtime i18n |
 | Integration | Quarkus Quinoa (SPA dev server + production bundle) |
 | Database | PostgreSQL, Flyway |
 | Auth | SmallRye JWT (RS256) |
@@ -96,6 +96,7 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 - **Project dashboard** — charts (tickets by day as bar, status, priority), recent tickets (top 20), **Tickets por status** KPI; editable layout with autosave + **Concluir**; per-user layout on the server
 - **Git integration** — one repository per project; forge push webhook (HMAC) and inbound commit API (PAT/SA); commits mentioning ticket ids appear on ticket history
 - **Global search** — simple term search and **query language** (ANTLR, plain text) across ticket fields, comments, and custom fields (`cf.<key>`)
+- **Ticket export** — download visibility-filtered simple, advanced, or saved-query results as stable CSV or schema-v1 JSON, including typed custom fields (maximum 10,000 tickets)
 - **Saved queries** — name, share by link, optional home sections, clone for non-owners
 - **Ticket detail** — expanded view with unified **Atividade** feed (comments + history), assignee, and status actions; agent mutations show **Agente em nome de …**
 
@@ -110,7 +111,7 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 - **Login** — short-lived JWT access token plus refresh token (`POST /auth/refresh`); credentials verified by the active provider (`AUTH_PROVIDER`: `local`, `ldap`, or `endpoint`)
 - **Password recovery** — email link with token; LOCAL provider only (hidden when capabilities say otherwise)
 - **Account** — edit name, email, and **UI language** (`pt` / `en`) at `/account/settings`; change password only when LOCAL
-- **UI languages** — Portuguese (source) and English via path prefixes `/pt/` and `/en/`; preference stored on the user profile
+- **UI languages** — Portuguese and English from runtime catalogs on the same canonical URLs; account changes rerender immediately, and dates, numbers, and Material labels follow the active language
 - **Personal API tokens** — create/list/revoke at account settings (**Tokens de API**); Bearer `iss_pat_…` for scripts and agents; secret shown once
 - **Agent setup** — **Conectar agente** generates a token and copy-ready MCP config (`issues.public-base-url` / `issues.mcp-public-base-url`)
 - **Issues MCP** — separate Quarkus MCP HTTP app ([`issues-mcp/`](issues-mcp/)) forwarding tools to Issues `/api` (not in the main reactor yet)

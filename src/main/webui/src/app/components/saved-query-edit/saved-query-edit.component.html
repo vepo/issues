@@ -1,18 +1,18 @@
 <div class="page">
   <header class="page-header">
-    <h1 class="page-title" i18n>Editar consulta</h1>
+    <h1 class="page-title">{{ 'migration.saved-query-edit.dc675a2a5531' | transloco }}</h1>
   </header>
 
   <section class="page-panel form-stack">
-    <label i18n>Nome</label>
+    <label>{{ 'account.name' | transloco }}</label>
     <input class="form-control" [(ngModel)]="name" />
 
     <label>
       <input type="checkbox" [(ngModel)]="showAtHome" />
-      <span i18n>Exibir na página inicial</span>
+      <span>{{ 'migration.saved-query-edit.de5a0331619e' | transloco }}</span>
     </label>
 
-    <label i18n>Consulta</label>
+    <label>{{ 'search.saved.query' | transloco }}</label>
     <app-query-language-help />
     <textarea class="form-control" rows="8" [(ngModel)]="queryText"></textarea>
 
@@ -21,11 +21,11 @@
     }
 
     <div class="form-actions">
-      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/queries" i18n>Cancelar</a>
+      <a class="btn btn-secondary" matButton="outlined" routerLink="/search/queries">{{ 'ticket.form.cancel' | transloco }}</a>
       @if (id) {
-        <button type="button" class="btn btn-cancel" matButton="filled" (click)="deleteQuery()" i18n>Excluir</button>
+        <button type="button" class="btn btn-cancel" matButton="filled" (click)="deleteQuery()">{{ 'migration.saved-query-edit.ff41b4c7cdaa' | transloco }}</button>
       }
-      <button type="button" class="btn" matButton="filled" (click)="save()" i18n>Salvar</button>
+      <button type="button" class="btn" matButton="filled" (click)="save()">{{ 'common.save' | transloco }}</button>
     </div>
   </section>
 </div>

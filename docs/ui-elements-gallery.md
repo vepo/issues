@@ -462,6 +462,20 @@ See §1.1.1 — header **Projetos** → Kanban per project; optional **Gerenciar
 
 Header row: title **Notificações** + text action **Marcar todas como lidas** (shown when server unread > 0). Unread badge (`.notification-badge`) uses server unread count — `$base-error-color`; display `99+` when unread > 99; hidden at 0. Items navigate on click; single mark-read via service; mark-all reloads page 0 + unread.
 
+### 8.3 Ticket export menu (`mat-menu.menu-panel`)
+
+Compact result-level download action used on `/search`, `/search/advanced`, and `/search/q/:slug`.
+
+| Property | Value |
+|----------|-------|
+| **Trigger** | Secondary outlined `.btn.btn-secondary` labeled **Exportar** / **Export** |
+| **Menu** | `mat-menu.menu-panel` with text items **CSV** and **JSON** |
+| **Placement** | Simple and saved-query page-header actions; advanced-search form actions after a valid query has run |
+| **Loading** | Disable the trigger while the selected export is pending to prevent duplicate downloads |
+| **Errors** | Accessible translated inline `.error[role="alert"]`; restore the trigger after a failed request |
+| **Behavior** | Re-submit the current server-side search criteria and download the attachment filename from `Content-Disposition`; never serialize visible result rows |
+| **Locale** | Trigger and errors react to the active PT/EN catalog; file keys and values remain locale-neutral |
+
 ---
 
 ## 9. Feedback
@@ -555,7 +569,7 @@ Wrapped in `.page` with standard `.page-header`. Inner `.page-panel` contains `.
 
 | Element | Class / component | Properties | Style | Behavior |
 |---------|-------------------|------------|-------|----------|
-| Language select | `account-settings` `mat-select` `locale` | Português (`pt`) \| English (`en`) | Outline field under profile | Saves with profile; reloads `/{locale}/account/settings` |
+| Language select | `account-settings` `mat-select` `locale` | Português (`pt`) \| English (`en`) | Outline field under profile | Saves with profile; activates the matching Transloco runtime catalog and updates copy, date/number formatting, and Material labels immediately without navigation or reload |
 
 ---
 
@@ -592,7 +606,7 @@ Wrapped in `.page` with standard `.page-header`. Inner `.page-panel` contains `.
 | Ticket view | `.edit-form`, `.ticket-actions` undocumented | Fixed — `form.edit`, `.ticket-actions` in global CSS |
 | Toasts | Inline component styles with raw hex | Fixed — moved to `styles.scss` semantic tokens |
 | Layout tokens | Panel/table padding drift | Fixed — `$panel-padding`, `$table-cell-padding-*` |
-| i18n | Systematic pass | Deferred per product decision |
+| i18n | Systematic pass | Implemented — 617-key PT/EN runtime catalogs; canonical routes and immediate same-screen switching |
 
 ### 2026-07-02 — flat UI pass
 

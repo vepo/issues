@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Observable, of } from 'rxjs';
 import { Category } from '../../services/category.service';
 import { Project, ProjectsService } from '../../services/projects.service';
@@ -13,13 +14,13 @@ import { TicketFormComponent, TicketFormDefaults } from '../ticket-form/ticket-f
 
 @Component({
   selector: 'app-create-ticket',
-  imports: [TicketFormComponent],
+  imports: [TranslocoPipe, TicketFormComponent],
   template: `
     <div class="page">
       <header class="page-header">
         <div>
-          <h1 class="page-title" i18n>Novo ticket</h1>
-          <p class="page-subtitle" i18n>Preencha os dados do ticket. Campos podem ser pré-preenchidos pelo template do projeto.</p>
+          <h1 class="page-title">{{ 'ticket.create.title' | transloco }}</h1>
+          <p class="page-subtitle">{{ 'ticket.create.subtitle' | transloco }}</p>
         </div>
       </header>
       @if (cloneWarnings.length > 0) {
@@ -38,6 +39,11 @@ import { TicketFormComponent, TicketFormDefaults } from '../ticket-form/ticket-f
           [initialProjectId]="initialProjectId"
           [lockProject]="lockProject"
           [defaults]="formDefaults"
+          [labels]="{
+            project: ('ticket.create.project' | transloco),
+            title: ('ticket.create.ticketTitle' | transloco),
+            create: ('ticket.create.createAction' | transloco)
+          }"
           [isSaving]="isSaving"
           (projectSelected)="onProjectSelected($event)"
           (submitted)="save($event)"

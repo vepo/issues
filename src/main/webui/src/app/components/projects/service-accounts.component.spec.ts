@@ -1,3 +1,8 @@
+import '@angular/localize/init';
+import { registerLocaleData } from '@angular/common';
+import localeEn from '@angular/common/locales/en';
+import localePt from '@angular/common/locales/pt';
+import { LOCALE_ID } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
@@ -5,6 +10,12 @@ import { of } from 'rxjs';
 import { ServiceAccountService } from '../../services/service-account.service';
 import { ToastService } from '../../services/toast.service';
 import { ServiceAccountsComponent } from './service-accounts.component';
+import { TranslocoService } from '@jsverse/transloco';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
+import { UiLocaleService } from '../../core/ui-locale.service';
+
+registerLocaleData(localePt);
+registerLocaleData(localeEn);
 
 describe('ServiceAccountsComponent', () => {
   let fixture: ComponentFixture<ServiceAccountsComponent>;
@@ -42,7 +53,29 @@ describe('ServiceAccountsComponent', () => {
     serviceAccountService.deactivate.and.returnValue(of(undefined));
 
     await TestBed.configureTestingModule({
-      imports: [ServiceAccountsComponent],
+      imports: [
+        ServiceAccountsComponent,
+        createTranslocoTestingModule(
+          {
+            common: { generating: 'Gerando...' },
+            serviceAccount: {
+              title: 'Contas de serviço',
+              generateToken: 'Gerar token',
+              deactivating: 'Desativando...',
+              deactivate: 'Desativar',
+            },
+          },
+          {
+            common: { generating: 'Generating...' },
+            serviceAccount: {
+              title: 'Service accounts',
+              generateToken: 'Generate token',
+              deactivating: 'Deactivating...',
+              deactivate: 'Deactivate',
+            },
+          },
+        ),
+      ],
       providers: [
         provideRouter([]),
         {
@@ -53,6 +86,7 @@ describe('ServiceAccountsComponent', () => {
         },
         { provide: ServiceAccountService, useValue: serviceAccountService },
         { provide: ToastService, useValue: jasmine.createSpyObj('ToastService', ['success', 'error']) },
+        { provide: LOCALE_ID, useValue: 'pt' },
       ],
     }).compileComponents();
 
@@ -66,6 +100,35 @@ describe('ServiceAccountsComponent', () => {
     expect(text).toContain('bot-ci');
     expect(text).toContain('Gerar token');
     expect(text).toContain('Desativar');
+  });
+
+  it('should rerender service-account actions immediately when locale changes from Portuguese to English', async () => {
+    expect(fixture.nativeElement.textContent).toContain('Contas de serviço');
+    expect(fixture.nativeElement.textContent).toContain('Gerar token');
+    expect(fixture.nativeElement.textContent).toContain('Desativar');
+
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Service accounts');
+    expect(fixture.nativeElement.textContent).toContain('Generate token');
+    expect(fixture.nativeElement.textContent).toContain('Deactivate');
+    expect(fixture.nativeElement.textContent).not.toContain('Gerar token');
+  });
+
+  it('should reformat visible creation dates immediately when locale changes from Portuguese to English', async () => {
+    const localeService = TestBed.inject(UiLocaleService);
+    localeService.setActiveLocale('pt');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('11 de jul. de 2026');
+
+    localeService.setActiveLocale('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Jul 11, 2026');
+    expect(fixture.nativeElement.textContent).not.toContain('11 de jul. de 2026');
   });
 
   it('should create a service account', () => {

@@ -3,6 +3,8 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { WorkflowFormComponent } from './workflow-form.component';
+import { TranslocoService } from '@jsverse/transloco';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('WorkflowFormComponent', () => {
   let fixture: ComponentFixture<WorkflowFormComponent>;
@@ -10,7 +12,26 @@ describe('WorkflowFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [WorkflowFormComponent, NoopAnimationsModule],
+      imports: [
+        WorkflowFormComponent,
+        NoopAnimationsModule,
+        createTranslocoTestingModule(
+          {
+            workflow: {
+              initialStatus: 'Status inicial',
+              addStatus: 'Adicionar status',
+              addFinishStatus: 'Adicionar status de conclusão',
+            },
+          },
+          {
+            workflow: {
+              initialStatus: 'Initial status',
+              addStatus: 'Add status',
+              addFinishStatus: 'Add finish status',
+            },
+          },
+        ),
+      ],
       providers: [provideHttpClient(), provideHttpClientTesting()]
     }).compileComponents();
 
@@ -43,6 +64,20 @@ describe('WorkflowFormComponent', () => {
     const value = emitted[0] as { statuses: string[]; statusReplacements: unknown[] };
     expect(value.statuses).toEqual(['Open', 'Doing', 'Done']);
     expect(value.statusReplacements).toEqual([]);
+  });
+
+  it('should rerender workflow labels immediately when locale changes from Portuguese to English', async () => {
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Status inicial');
+    expect(fixture.nativeElement.textContent).toContain('Adicionar status');
+
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Initial status');
+    expect(fixture.nativeElement.textContent).toContain('Add status');
+    expect(fixture.nativeElement.textContent).not.toContain('Adicionar status');
   });
 
   it('should require replacement when removing an existing status in edit mode', () => {

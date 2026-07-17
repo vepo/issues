@@ -2,44 +2,44 @@
   @if (editMode) {
     <header class="page-header">
       <div>
-        <h1 class="page-title" i18n>Editar usuário</h1>
-        <p class="page-subtitle" i18n>Atualize dados e perfis de acesso</p>
+        <h1 class="page-title">{{ 'migration.users-edit.a8bc2fdf3ee7' | transloco }}</h1>
+        <p class="page-subtitle">{{ 'migration.users-edit.9f931337a186' | transloco }}</p>
       </div>
     </header>
   } @else {
     <header class="page-header">
       <div>
-        <h1 class="page-title" i18n>Novo usuário</h1>
-        <p class="page-subtitle" i18n>Cadastre uma nova conta no sistema</p>
+        <h1 class="page-title">{{ 'user.create' | transloco }}</h1>
+        <p class="page-subtitle">{{ 'migration.users-edit.584beea5bbb6' | transloco }}</p>
       </div>
     </header>
   }
 
   <form class="edit page-panel" [formGroup]="userForm">
     <mat-form-field class="form-field" appearance="outline">
-      <mat-label i18n>Nome</mat-label>
+      <mat-label>{{ 'account.name' | transloco }}</mat-label>
       <input matInput formControlName="name" required />
     </mat-form-field>
     <mat-form-field class="form-field" appearance="outline">
-      <mat-label i18n>Usuário</mat-label>
+      <mat-label>{{ 'migration.users-edit.f4b0671f1d81' | transloco }}</mat-label>
       <input matInput formControlName="username" required />
     </mat-form-field>
     <mat-form-field class="form-field" appearance="outline">
-      <mat-label i18n>E-mail</mat-label>
+      <mat-label>{{ 'auth.email' | transloco }}</mat-label>
       <input matInput formControlName="email" required type="email" />
     </mat-form-field>
     <section>
-      <mat-checkbox [checked]="isRoleSelected('admin')" (change)="toggle('admin')" i18n>Administrador</mat-checkbox>
-      <mat-checkbox [checked]="isRoleSelected('project-manager')" (change)="toggle('project-manager')" i18n
-        >Gerente de projetos</mat-checkbox
-      >
-      <mat-checkbox [checked]="isRoleSelected('user')" (change)="toggle('user')" i18n>Usuário</mat-checkbox>
+      <mat-checkbox [checked]="isRoleSelected('admin')" (change)="toggle('admin')">{{ 'migration.users-edit.f603b19dbe32' | transloco }}</mat-checkbox>
+      <mat-checkbox [checked]="isRoleSelected('project-manager')" (change)="toggle('project-manager')">
+        {{ 'user.roles.projectManager' | transloco }}
+      </mat-checkbox>
+      <mat-checkbox [checked]="isRoleSelected('user')" (change)="toggle('user')">{{ 'migration.users-edit.f4b0671f1d81' | transloco }}</mat-checkbox>
     </section>
     <div class="actions form-actions">
-      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()" i18n>Cancelar</button>
-      <button class="btn" [disabled]="userForm.invalid" matButton="filled" type="button" (click)="save()" i18n
-        >Salvar</button
-      >
+      <button class="btn btn-secondary" matButton="outlined" type="button" (click)="cancel()">{{ 'ticket.form.cancel' | transloco }}</button>
+      <button class="btn" [disabled]="userForm.invalid" matButton="filled" type="button" (click)="save()">
+        {{ 'common.save' | transloco }}
+      </button>
     </div>
   </form>
 </div>

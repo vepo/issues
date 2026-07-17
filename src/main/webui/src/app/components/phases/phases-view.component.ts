@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +10,7 @@ import { phaseStatusLabel } from '../../core/system-labels';
 
 @Component({
   selector: 'app-phases-view',
-  imports: [RouterLink, MatButtonModule, MatIconModule],
+  imports: [TranslocoPipe, RouterLink, MatButtonModule, MatIconModule],
   templateUrl: './phases-view.component.html'
 })
 export class PhasesViewComponent implements OnInit {

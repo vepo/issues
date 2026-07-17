@@ -102,7 +102,7 @@ Example: *"Use tdd-red to create a test for …"*
 
 **Backend:** entity → repository → service (if non-trivial) → `*Endpoint` with `*Request`/`*Response` records → `@QuarkusTest` + REST Assured.
 
-**Frontend:** service → component → route → `*.spec.ts` when behaviour is non-trivial.
+**Frontend:** service → component → route → `*.spec.ts` when behaviour is non-trivial. UI copy uses `@jsverse/transloco` runtime PT/EN catalogs on canonical routes; dates, numbers, and Material labels follow the active `UiLocaleService` locale.
 
 **Full-stack:** align API contract with Angular service; update [feature-catalog.md](docs/feature-catalog.md) when adding routes.
 

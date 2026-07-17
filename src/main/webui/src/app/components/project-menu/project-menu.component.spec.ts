@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
+import { TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { Project, ProjectsService } from '../../services/projects.service';
@@ -34,7 +35,13 @@ describe('ProjectMenuComponent', () => {
     authService.isLoggedIn.and.returnValue(true);
 
     await TestBed.configureTestingModule({
-      imports: [ProjectMenuComponent],
+      imports: [
+        ProjectMenuComponent,
+        TranslocoTestingModule.forRoot({
+          langs: { pt: { shell: { noProjects: 'Nenhum projeto', projects: 'Projetos', manageProjects: 'Gerenciar projetos' } } },
+          translocoConfig: { availableLangs: ['pt'], defaultLang: 'pt' },
+        }),
+      ],
       providers: [
         provideAnimations(),
         provideRouter([]),

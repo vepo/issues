@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,6 +31,7 @@ export interface WorkflowFormValue {
 @Component({
   selector: 'app-workflow-form',
   imports: [
+    TranslocoPipe,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,

@@ -49,7 +49,7 @@ erDiagram
 | Layer | Technology |
 |-------|------------|
 | Backend | Java 21, Quarkus 3.30, Jakarta REST, CDI, Hibernate ORM |
-| Frontend | Angular 20, Angular Material, Chart.js |
+| Frontend | Angular 20, Angular Material, Chart.js, Transloco runtime i18n |
 | Integration | Quarkus Quinoa (SPA dev server + production bundle) |
 | Database | PostgreSQL, Flyway |
 | Auth | SmallRye JWT |
@@ -91,6 +91,7 @@ dev.vepo.issues/
 ├── ticket/                    # TicketService, TicketPaths
 │   ├── list/ search/ find/ create/ update/ assign/ delete/ move/
 │   ├── cloneprefill/          # Target-aware CloneTicketPrefillService + GET endpoint
+│   ├── export/                # Visibility-safe CSV/JSON search export
 │   ├── search/query/          # ANTLR query language (SearchTicketsByQueryEndpoint; cf.<key>)
 │   ├── search/saved/          # SavedQuery CRUD + clone
 │   ├── comments/list/ comments/add/
@@ -146,6 +147,7 @@ Domain services orchestrate repositories, enforce invariants, and fire CDI event
 | `ServiceAccountService` | Project service accounts and tokens |
 | `TicketContextService` | Composite ticket context for agents |
 | `CloneTicketPrefillService` | Target-aware clone defaults and compatible custom-field mapping |
+| `TicketExportService` | Validate export sources, enforce the 10,000-ticket cap, and project stable rows with batched custom fields |
 
 ### Endpoint layer
 
@@ -203,6 +205,7 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | Ticket clone prefill | `ticket.cloneprefill.GetCloneTicketPrefillEndpoint` | `GET /tickets/{sourceId}/clone-prefill?targetProjectId=…` |
 | Ticket search | `ticket.search.SearchTicketsEndpoint` | `GET /tickets/search` |
 | Query language | `ticket.search.query.SearchTicketsByQueryEndpoint` | `POST /tickets/search/query` (`cf.<key>`) |
+| Ticket export | `ticket.export.ExportTicketsEndpoint` | `POST /tickets/export` (CSV/JSON attachment; simple, advanced, or saved-query source) |
 | Saved queries | `ticket.search.saved.*` | `/saved-queries` (CRUD, by-slug, clone) |
 | Home | `home.tickets.*`, `home.activity.*`, `home.savedqueries.*` | `/home/tickets/*`, `/home/activity`, `/home/saved-queries` |
 | Workflows | `workflow.list.ListWorkflowsEndpoint` | `GET /workflows` |
@@ -226,6 +229,8 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 
 ## 8. Frontend routes
 
+Routes are locale-neutral and canonical. Quinoa serves one Angular build; `infra.SPARouting` applies ordinary SPA fallback for non-API, non-asset deep links. `UiLocaleService` selects `pt` or `en`, Transloco loads the matching runtime catalog from `public/i18n`, and changing language rerenders the current route without navigation. Runtime pipes and Material internationalization follow the same active locale.
+
 | Route | Component | Purpose |
 |-------|-----------|---------|
 | `/login` | Login | Authentication |
@@ -235,11 +240,11 @@ Each row is one endpoint class. Path prefixes come from `{Context}Paths`.
 | `/` | Home | Landing (auth required) |
 | `/project/:projectId/kanban` | Kanban | Board view |
 | `/project/:projectId/dashboard` | Dashboard | Analytics |
-| `/search` | SearchTickets | Simple term search |
-| `/search/advanced` | AdvancedSearch | Query language editor |
+| `/search` | SearchTickets | Simple term/status search + CSV/JSON export |
+| `/search/advanced` | AdvancedSearch | Query language editor + export of the last submitted query |
 | `/search/queries` | SavedQueryList | Saved queries list |
 | `/search/queries/new`, `/search/queries/:id/edit` | SavedQueryEdit | Create/edit saved query |
-| `/search/q/:slug` | SavedQueryView | Shared saved query + results |
+| `/search/q/:slug` | SavedQueryView | Shared saved query + results + CSV/JSON export |
 | `/ticket/:ticketIdentifier` | TicketView | Ticket detail (incl. **Agente em nome de …** attribution) |
 | `/tickets/new` | CreateTicket | Global create; clone context uses `cloneFrom` + `targetProjectId`, writable project selection, target template then source overrides |
 | `/account/settings` | AccountSettings | Profile, **Conectar agente**, **Tokens de API** |
@@ -313,7 +318,8 @@ Mandatory: [`.cursor/rules/development-process.mdc`](.cursor/rules/development-p
 | Catalog compliance (SPA guards / menus) | Done — user `roleGuard`; `projectManageGuard`; admin project update; Conta Projetos + Processos for admin; seed saved-query owner |
 | Git integration (repo association + linked commits) | Done — [git-integration.md](feature/git-integration.md) v1; `git` package; webhook + inbound API; activity linked commits |
 | CSV import chunked upload | Done — [ticket-import.md](feature/ticket-import.md) v2; init/part/complete; 5 MB / 1 MB / 500 rows; legacy `POST …/upload` wrapper |
-| UI i18n (pt/en) | Done — [i18n.md](feature/i18n.md) v1; path prefixes `/pt/` `/en/`; `User.uiLocale`; account language select |
+| UI i18n (pt/en) | Done — [i18n.md](feature/i18n.md) v2; 617-key Transloco runtime catalogs, immediate same-URL switching, reactive date/number/Material formatting, canonical routes, and one Angular build |
+| Ticket export (CSV / JSON) | Done — [ticket-export.md](feature/ticket-export.md) v1; authenticated simple/advanced/saved-query downloads, stable reporting contract, 10,000-ticket synchronous cap, and shared query-visibility hardening |
 | Ticket attachments | Done — [ticket-attachments.md](feature/ticket-attachments.md) v1; filesystem storage; multipart upload; ticket detail **Anexos** |
 | Clone ticket | Done — [ticket-management.md](feature/ticket-management.md) v4; active-ticket action, writable cross-project targets, target-aware prefill and warnings; intentionally no clone provenance or related-resource copying |
 

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 import { SavedQueryService } from '../../services/saved-query.service';
 import { SavedQueryListComponent } from './saved-query-list.component';
@@ -26,7 +27,39 @@ describe('SavedQueryListComponent', () => {
     savedQueryService.delete.and.returnValue(of(void 0));
 
     await TestBed.configureTestingModule({
-      imports: [SavedQueryListComponent],
+      imports: [
+        SavedQueryListComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {
+            pt: {
+              search: {
+                saved: {
+                  title: 'Minhas consultas',
+                  create: 'Nova consulta',
+                  query: 'Consulta',
+                  open: 'Abrir',
+                },
+              },
+            },
+            en: {
+              search: {
+                saved: {
+                  title: 'My queries',
+                  create: 'New query',
+                  query: 'Query',
+                  open: 'Open',
+                },
+              },
+            },
+          },
+          translocoConfig: {
+            availableLangs: ['pt', 'en'],
+            defaultLang: 'pt',
+            reRenderOnLangChange: true,
+          },
+          preloadLangs: true,
+        }),
+      ],
       providers: [
         provideRouter([]),
         { provide: SavedQueryService, useValue: savedQueryService }
@@ -47,5 +80,23 @@ describe('SavedQueryListComponent', () => {
     const query = fixture.componentInstance.queries[0];
     fixture.componentInstance.deleteQuery(query);
     expect(savedQueryService.delete).toHaveBeenCalledWith(1);
+  });
+
+  it('should rerender search copy while preserving saved query content', async () => {
+    const transloco = TestBed.inject(TranslocoService);
+    expect(fixture.nativeElement.textContent).toContain('Minhas consultas');
+
+    transloco.setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('My queries');
+    expect(text).toContain('New query');
+    expect(text).toContain('Query');
+    expect(text).toContain('Open');
+    expect(text).toContain('My query');
+    expect(text).toContain('status = "TODO"');
+    expect(text).not.toContain('Minhas consultas');
   });
 });

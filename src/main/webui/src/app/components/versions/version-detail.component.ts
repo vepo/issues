@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -9,17 +9,19 @@ import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../../services/auth.service';
 import { Project } from '../../services/projects.service';
 import { Version, VersionChangelog, VersionService } from '../../services/version.service';
+import { RuntimeDatePipe } from '../../core/runtime-locale.pipes';
 
 @Component({
   selector: 'app-version-detail',
   imports: [
-    DatePipe,
+    TranslocoPipe,
+    RuntimeDatePipe,
     RouterLink,
     ReactiveFormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
-    MatInputModule
+    MatInputModule,
   ],
   templateUrl: './version-detail.component.html'
 })

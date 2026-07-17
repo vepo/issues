@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +9,7 @@ import { Version } from '../../services/version.service';
 
 @Component({
   selector: 'app-versions-view',
-  imports: [RouterLink, MatButtonModule, MatIconModule],
+  imports: [TranslocoPipe, RouterLink, MatButtonModule, MatIconModule],
   templateUrl: './versions-view.component.html'
 })
 export class VersionsViewComponent implements OnInit {

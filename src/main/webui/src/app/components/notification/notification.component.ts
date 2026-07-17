@@ -3,13 +3,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { NotificationService, UserNotification } from '../../services/notification.service';
-import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Subscription } from 'rxjs';
+import { RuntimeDatePipe } from '../../core/runtime-locale.pipes';
 
 @Component({
   selector: 'app-notification',
-  imports: [MatButtonModule, MatIconModule, MatMenuModule, DatePipe],
+  imports: [MatButtonModule, MatIconModule, MatMenuModule, RuntimeDatePipe, TranslocoPipe],
   styleUrl: './notification.component.scss',
   templateUrl: './notification.component.html',
   standalone: true,

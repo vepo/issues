@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -15,12 +16,13 @@ import { ToastService } from '../../services/toast.service';
 @Component({
   selector: 'app-project-allocation',
   imports: [
+    TranslocoPipe,
     FormsModule,
     RouterLink,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
-    MatSelectModule
+    MatSelectModule,
   ],
   templateUrl: './project-allocation.component.html'
 })

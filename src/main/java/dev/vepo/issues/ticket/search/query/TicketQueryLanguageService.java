@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
@@ -12,6 +13,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
+import dev.vepo.issues.project.ProjectAccessService;
 import dev.vepo.issues.ticket.Ticket;
 import dev.vepo.issues.user.User;
 import dev.vepo.issues.user.UserRepository;
@@ -23,11 +25,15 @@ import jakarta.persistence.criteria.Order;
 public class TicketQueryLanguageService {
 
     private final TicketQueryRepository ticketQueryRepository;
+    private final ProjectAccessService projectAccessService;
     private final UserRepository userRepository;
 
     @Inject
-    public TicketQueryLanguageService(TicketQueryRepository ticketQueryRepository, UserRepository userRepository) {
+    public TicketQueryLanguageService(TicketQueryRepository ticketQueryRepository,
+                                      ProjectAccessService projectAccessService,
+                                      UserRepository userRepository) {
         this.ticketQueryRepository = ticketQueryRepository;
+        this.projectAccessService = projectAccessService;
         this.userRepository = userRepository;
     }
 
@@ -35,12 +41,21 @@ public class TicketQueryLanguageService {
         return execute(queryText, requireUser(username));
     }
 
-    public List<Ticket> execute(String queryText, User currentUser) {
+    public List<Ticket> execute(String queryText, User requestingUser) {
+        var readableProjectIds = projectAccessService.readableProjectIds(requestingUser);
+        return execute(queryText, requestingUser, readableProjectIds, Integer.MAX_VALUE);
+    }
+
+    public List<Ticket> execute(String queryText,
+                                User requestingUser,
+                                Set<Long> readableProjectIds,
+                                int limit) {
         Objects.requireNonNull(queryText, "queryText cannot be null");
         if (queryText.isBlank()) {
             throw new InvalidQueryException("Query must not be blank");
         }
-        return ticketQueryRepository.search(parse(queryText.trim()), currentUser);
+        var parsedQuery = parse(queryText.trim());
+        return ticketQueryRepository.search(parsedQuery, requestingUser, readableProjectIds, limit);
     }
 
     public void validate(String queryText) {

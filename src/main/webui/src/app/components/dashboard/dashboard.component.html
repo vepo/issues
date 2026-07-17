@@ -1,19 +1,19 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Painel — {{ project?.name }}</h1>
-      <p class="page-subtitle" i18n>Indicadores e widgets do projeto</p>
+      <h1 class="page-title">{{ 'migration.dashboard.03695db40107' | transloco: { value0: project?.name } }}</h1>
+      <p class="page-subtitle">{{ 'dashboard.subtitle' | transloco }}</p>
     </div>
     <div class="page-header__actions">
       @if (project) {
         <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'kanban']">
           <mat-icon fontIcon="view_kanban" aria-hidden="true"></mat-icon>
-          <span i18n>Kanban</span>
+          <span>{{ 'migration.dashboard.b0ff77002a8b' | transloco }}</span>
         </button>
       }
       <button matButton="filled" (click)="toggleEdit()" class="btn">
         <mat-icon [fontIcon]="isEditing ? 'check' : 'edit'" aria-hidden="true"></mat-icon>
-        <span>{{ isEditing ? 'Concluir' : 'Editar layout' }}</span>
+        <span>{{ (isEditing ? 'dashboard.finish' : 'dashboard.edit') | transloco }}</span>
       </button>
     </div>
   </header>
@@ -21,7 +21,7 @@
   <div class="dashboard-configurator page-panel">
     <div class="dashboard-container" [class.dashboard-container--editing]="isEditing">
       <div class="widgets-panel" [hidden]="!isEditing">
-        <h3 i18n>Widgets disponíveis</h3>
+        <h3>{{ 'migration.dashboard.13136455c43e' | transloco }}</h3>
         <div
           cdkDropList
           #availableList="cdkDropList"
@@ -39,7 +39,7 @@
 
       <div class="dashboard-area">
         @if (pageLayout.widgets.length === 0) {
-          <div class="empty-state" i18n>Nenhum widget — use Editar layout para adicionar indicadores.</div>
+          <div class="empty-state">{{ 'migration.dashboard.e1ea8897c4b0' | transloco }}</div>
         }
         <div
           cdkDropList
@@ -74,14 +74,14 @@
                   <div class="chart-container">
                     @let chartState = loadChartData(widget) | async;
                     @if (!chartState || chartState.kind === 'loading') {
-                      <div class="widget-loading" i18n>Carregando gráfico...</div>
+                      <div class="widget-loading">{{ 'migration.dashboard.fcdf192624fb' | transloco }}</div>
                     } @else if (chartState.kind === 'empty') {
-                      <div class="widget-empty" i18n>Sem dados</div>
+                      <div class="widget-empty">{{ 'migration.dashboard.e6a9877c1f76' | transloco }}</div>
                     } @else if (chartState.kind === 'error') {
                       <div class="widget-error">
-                        <p i18n>Não foi possível carregar o gráfico.</p>
-                        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="retryWidget(widget)" i18n>
-                          Tentar novamente
+                        <p>{{ 'migration.dashboard.e2c1052d06e0' | transloco }}</p>
+                        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="retryWidget(widget)">
+                          {{ 'migration.dashboard.c03a8d1571d0' | transloco }}
                         </button>
                       </div>
                     } @else if (widget.chartType === 'bar') {
@@ -104,14 +104,14 @@
                   <div class="kpi-container">
                     @let kpiState = loadKpiData(widget) | async;
                     @if (!kpiState || kpiState.kind === 'loading') {
-                      <div class="widget-loading" i18n>Carregando indicadores...</div>
+                      <div class="widget-loading">{{ 'migration.dashboard.c87c6fa61b4c' | transloco }}</div>
                     } @else if (kpiState.kind === 'empty') {
-                      <div class="widget-empty" i18n>Sem dados</div>
+                      <div class="widget-empty">{{ 'migration.dashboard.e6a9877c1f76' | transloco }}</div>
                     } @else if (kpiState.kind === 'error') {
                       <div class="widget-error">
-                        <p i18n>Não foi possível carregar os indicadores.</p>
-                        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="retryWidget(widget)" i18n>
-                          Tentar novamente
+                        <p>{{ 'migration.dashboard.90bc77bbc535' | transloco }}</p>
+                        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="retryWidget(widget)">
+                          {{ 'migration.dashboard.c03a8d1571d0' | transloco }}
                         </button>
                       </div>
                     } @else {
@@ -123,12 +123,12 @@
                         <div class="body">
                           <div class="row even">
                             <div>Total</div>
-                            <div>{{ kpiState.data.total }}</div>
+                            <div>{{ kpiState.data.total | runtimeNumber }}</div>
                           </div>
                           @for (item of kpiState.data.perStatus | keyvalue; track $index) {
                             <div class="row {{ $even ? 'odd' : 'even' }}">
                               <div>{{ item.key | normalize }}</div>
-                              <div>{{ item.value }}</div>
+                              <div>{{ item.value | runtimeNumber }}</div>
                             </div>
                           }
                         </div>
@@ -141,14 +141,14 @@
                   <div class="table-container">
                     @let tableState = loadTableData(widget) | async;
                     @if (!tableState || tableState.kind === 'loading') {
-                      <div class="widget-loading" i18n>Carregando tabela...</div>
+                      <div class="widget-loading">{{ 'migration.dashboard.d08276e0024a' | transloco }}</div>
                     } @else if (tableState.kind === 'empty') {
-                      <div class="widget-empty" i18n>Sem dados</div>
+                      <div class="widget-empty">{{ 'migration.dashboard.e6a9877c1f76' | transloco }}</div>
                     } @else if (tableState.kind === 'error') {
                       <div class="widget-error">
-                        <p i18n>Não foi possível carregar a tabela.</p>
-                        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="retryWidget(widget)" i18n>
-                          Tentar novamente
+                        <p>{{ 'migration.dashboard.8142d3e368ae' | transloco }}</p>
+                        <button type="button" class="btn btn-secondary" matButton="outlined" (click)="retryWidget(widget)">
+                          {{ 'migration.dashboard.c03a8d1571d0' | transloco }}
                         </button>
                       </div>
                     } @else {

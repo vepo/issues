@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { UiLocaleService } from '../../core/ui-locale.service';
 import { AuthService } from '../../services/auth.service';
 import { ApiTokenService } from '../../services/api-token.service';
 import { ToastService } from '../../services/toast.service';
@@ -11,9 +13,15 @@ describe('AccountSettingsComponent', () => {
   let fixture: ComponentFixture<AccountSettingsComponent>;
   let authService: jasmine.SpyObj<AuthService>;
   let apiTokenService: jasmine.SpyObj<ApiTokenService>;
+  let uiLocaleService: jasmine.SpyObj<UiLocaleService>;
 
   async function setup(changePassword: boolean): Promise<void> {
     authService = jasmine.createSpyObj('AuthService', ['me', 'getCapabilities', 'changePassword', 'updateProfile']);
+    uiLocaleService = jasmine.createSpyObj(
+      'UiLocaleService',
+      ['setActiveLocale'],
+      { currentLocale: 'pt' },
+    );
     apiTokenService = jasmine.createSpyObj('ApiTokenService', [
       'list',
       'create',
@@ -68,11 +76,98 @@ describe('AccountSettingsComponent', () => {
     }));
 
     await TestBed.configureTestingModule({
-      imports: [AccountSettingsComponent],
+      imports: [
+        AccountSettingsComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {
+            pt: {
+              common: { actions: 'Ações' },
+              auth: { email: 'E-mail', reset: { requestTitle: 'Recuperar senha' } },
+              account: {
+                title: 'Conta',
+                language: 'Idioma',
+                subtitle: 'Seu perfil e permissões no Issues',
+                profile: 'Perfil',
+                name: 'Nome',
+                username: 'Usuário',
+                roles: 'Perfis',
+                saveProfile: 'Salvar perfil',
+                password: {
+                  title: 'Alterar senha',
+                  current: 'Senha atual',
+                  new: 'Nova senha',
+                  confirm: 'Confirmar nova senha',
+                  forgot: 'Esqueceu a senha?',
+                },
+                agent: {
+                  title: 'Conectar agente',
+                  subtitle: 'Gere um token e uma configuração pronta para colar no Cursor MCP.',
+                  preset: 'Preset',
+                  generate: 'Gerar token e configuração',
+                },
+                tokens: {
+                  title: 'Tokens de API',
+                  subtitle: 'Tokens pessoais para agentes e integrações.',
+                  name: 'Nome do token',
+                  create: 'Criar token',
+                  prefix: 'Prefixo',
+                  createdAt: 'Criado em',
+                  lastUsed: 'Último uso',
+                  revoke: 'Revogar',
+                },
+              },
+            },
+            en: {
+              common: { actions: 'Actions' },
+              auth: { email: 'Email', reset: { requestTitle: 'Recover password' } },
+              account: {
+                title: 'Account',
+                language: 'Language',
+                subtitle: 'Your profile and permissions in Issues',
+                profile: 'Profile',
+                name: 'Name',
+                username: 'Username',
+                roles: 'Roles',
+                saveProfile: 'Save profile',
+                password: {
+                  title: 'Change password',
+                  current: 'Current password',
+                  new: 'New password',
+                  confirm: 'Confirm new password',
+                  forgot: 'Forgot your password?',
+                },
+                agent: {
+                  title: 'Connect agent',
+                  subtitle: 'Generate a token and ready-to-paste Cursor MCP configuration.',
+                  preset: 'Preset',
+                  generate: 'Generate token and configuration',
+                },
+                tokens: {
+                  title: 'API tokens',
+                  subtitle: 'Personal tokens for agents and integrations.',
+                  name: 'Token name',
+                  create: 'Create token',
+                  prefix: 'Prefix',
+                  createdAt: 'Created at',
+                  lastUsed: 'Last used',
+                  revoke: 'Revoke',
+                },
+              },
+            },
+          },
+          translocoConfig: {
+            availableLangs: ['pt', 'en'],
+            defaultLang: 'pt',
+            reRenderOnLangChange: true,
+          },
+          preloadLangs: true,
+        }),
+      ],
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: authService },
         { provide: ApiTokenService, useValue: apiTokenService },
+        { provide: UiLocaleService, useValue: uiLocaleService },
         { provide: ToastService, useValue: jasmine.createSpyObj('ToastService', ['success', 'error']) },
       ],
     }).compileComponents();
@@ -117,15 +212,35 @@ describe('AccountSettingsComponent', () => {
     expect(text).not.toContain('<YOUR_API_TOKEN>');
   });
 
-  it('should show language select and save locale with profile', async () => {
+  it('should apply changed profile locale immediately without reloading or changing path', async () => {
     await setup(true);
     expect(fixture.nativeElement.textContent).toContain('Idioma');
     const localeControl = fixture.debugElement.query(By.css('[formControlName=locale]'));
     expect(localeControl).toBeTruthy();
-    const reloadSpy = spyOn(fixture.componentInstance, 'reloadForLocale');
+    const currentPath = window.location.pathname;
     fixture.componentInstance.profileForm.patchValue({ locale: 'en' });
+
     fixture.componentInstance.saveProfile();
+
     expect(authService.updateProfile).toHaveBeenCalledWith('User', 'user@issues.vepo.dev', 'en');
-    expect(reloadSpy).toHaveBeenCalledWith('en');
+    expect(uiLocaleService.setActiveLocale).toHaveBeenCalledOnceWith('en');
+    expect(window.location.pathname).toBe(currentPath);
+  });
+
+  it('should rerender account content from Portuguese to English in place', async () => {
+    await setup(true);
+    const transloco = TestBed.inject(TranslocoService);
+    const currentPath = window.location.pathname;
+    expect(fixture.nativeElement.textContent).toContain('Conta');
+    expect(fixture.nativeElement.textContent).toContain('Idioma');
+
+    transloco.setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Account');
+    expect(fixture.nativeElement.textContent).toContain('Language');
+    expect(fixture.nativeElement.textContent).not.toContain('Idioma');
+    expect(window.location.pathname).toBe(currentPath);
   });
 });

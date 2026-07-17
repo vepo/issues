@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 import { TicketImportWizardComponent } from './ticket-import-wizard.component';
 import { TicketImportService } from '../../services/ticket-import.service';
@@ -12,7 +13,35 @@ describe('TicketImportWizardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TicketImportWizardComponent],
+      imports: [
+        TicketImportWizardComponent,
+        TranslocoTestingModule.forRoot({
+          langs: {
+            pt: {
+              import: {
+                title: 'Importar tickets via CSV',
+                projectSubtitle: 'Projeto: {{project}} — carregue o arquivo, associe as colunas e confirme a importação.',
+                file: 'Arquivo:',
+                rowsAndColumns: '{{rows}} linha(s) · {{columns}} coluna(s)',
+              },
+            },
+            en: {
+              import: {
+                title: 'Import tickets from CSV',
+                projectSubtitle: 'Project: {{project}} — upload the file, map the columns, and confirm the import.',
+                file: 'File:',
+                rowsAndColumns: '{{rows}} rows · {{columns}} columns',
+              },
+            },
+          },
+          translocoConfig: {
+            availableLangs: ['pt', 'en'],
+            defaultLang: 'pt',
+            reRenderOnLangChange: true,
+          },
+          preloadLangs: true,
+        }),
+      ],
       providers: [
         {
           provide: ActivatedRoute,
@@ -115,5 +144,36 @@ describe('TicketImportWizardComponent', () => {
 
     const mapping = fixture.componentInstance.buildColumnMapping();
     expect(mapping.customFieldColumns).toEqual({ sprint: 'Sprint' });
+  });
+
+  it('should rerender import interpolation and plural copy while preserving project and field labels', async () => {
+    fixture.componentInstance.fileName = 'tickets-equipe.csv';
+    fixture.componentInstance.headers = ['Title', 'Sprint'];
+    fixture.componentInstance.uploadResult = {
+      id: 1,
+      fileName: 'tickets-equipe.csv',
+      headers: ['Title', 'Sprint'],
+      rowCount: 2,
+      truncated: false,
+      sampleRows: [],
+      projectScoped: true,
+    };
+    fixture.detectChanges();
+
+    const transloco = TestBed.inject(TranslocoService);
+    expect(fixture.nativeElement.textContent).toContain('Importar tickets via CSV');
+    expect(fixture.nativeElement.textContent).toContain('2 linha(s) · 2 coluna(s)');
+
+    transloco.setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Import tickets from CSV');
+    expect(text).toContain('Project: Test Project');
+    expect(text).toContain('2 rows · 2 columns');
+    expect(text).toContain('tickets-equipe.csv');
+    expect(text).toContain('Sprint');
+    expect(text).not.toContain('Importar tickets via CSV');
   });
 });

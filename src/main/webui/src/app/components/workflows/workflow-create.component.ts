@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CreateWorkflowRequest, WorkflowService } from '../../services/workflow.service';
@@ -5,13 +6,13 @@ import { WorkflowFormComponent, WorkflowFormValue } from './workflow-form.compon
 
 @Component({
   selector: 'app-workflow-create',
-  imports: [WorkflowFormComponent],
+  imports: [TranslocoPipe, WorkflowFormComponent],
   template: `
     <div class="page">
       <header class="page-header">
         <div>
-          <h1 class="page-title" i18n>Novo processo</h1>
-          <p class="page-subtitle" i18n>Defina status, início e transições permitidas</p>
+          <h1 class="page-title">{{ 'migration.workflow-create.c6cc29265f11' | transloco }}</h1>
+          <p class="page-subtitle">{{ 'migration.workflow-create.ac5a2cf49ba6' | transloco }}</p>
         </div>
       </header>
       <section class="edit page-panel">

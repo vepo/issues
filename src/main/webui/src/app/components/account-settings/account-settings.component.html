@@ -1,29 +1,29 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Conta</h1>
-      <p class="page-subtitle" i18n>Seu perfil e permissões no Issues</p>
+      <h1 class="page-title">{{ 'account.title' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'account.subtitle' | transloco }}</p>
     </div>
   </header>
 
   <section class="page-panel">
     @if (loading) {
-      <div class="loading" i18n>Carregando perfil...</div>
+      <div class="loading">{{ 'account.loadingProfile' | transloco }}</div>
     } @else if (error) {
       <div class="error" role="alert">{{ error }}</div>
     } @else if (user) {
-      <h2 class="section-title" i18n>Perfil</h2>
+      <h2 class="section-title">{{ 'account.profile' | transloco }}</h2>
       <form class="edit dialog-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Nome</mat-label>
+          <mat-label>{{ 'account.name' | transloco }}</mat-label>
           <input matInput formControlName="name" required autocomplete="name" />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>E-mail</mat-label>
+          <mat-label>{{ 'auth.email' | transloco }}</mat-label>
           <input matInput type="email" formControlName="email" required autocomplete="email" />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Idioma</mat-label>
+          <mat-label>{{ 'account.language' | transloco }}</mat-label>
           <mat-select formControlName="locale">
             @for (option of localeOptions; track option.value) {
               <mat-option [value]="option.value">{{ option.label }}</mat-option>
@@ -31,9 +31,9 @@
           </mat-select>
         </mat-form-field>
         <dl class="detail-list detail-list--inline">
-          <dt i18n>Usuário</dt>
+          <dt>{{ 'account.username' | transloco }}</dt>
           <dd>{{ user.username }}</dd>
-          <dt i18n>Perfis</dt>
+          <dt>{{ 'account.roles' | transloco }}</dt>
           <dd>
             <span class="labels">
               @for (role of user.roles; track role) {
@@ -50,7 +50,7 @@
         }
         <div class="form-actions">
           <button class="btn" matButton="filled" type="submit" [disabled]="profileForm.invalid || isSavingProfile">
-            <span i18n>{{ isSavingProfile ? 'Salvando...' : 'Salvar perfil' }}</span>
+            <span>{{ (isSavingProfile ? 'common.saving' : 'account.saveProfile') | transloco }}</span>
           </button>
         </div>
       </form>
@@ -59,21 +59,21 @@
 
   <section class="page-panel">
     @if (changePasswordEnabled) {
-      <h2 class="section-title" i18n>Alterar senha</h2>
+      <h2 class="section-title">{{ 'account.password.title' | transloco }}</h2>
       <form class="edit dialog-form" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Senha atual</mat-label>
+          <mat-label>{{ 'account.password.current' | transloco }}</mat-label>
           <input matInput type="password" formControlName="currentPassword" required autocomplete="current-password" />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Nova senha</mat-label>
+          <mat-label>{{ 'account.password.new' | transloco }}</mat-label>
           <input matInput type="password" formControlName="newPassword" required autocomplete="new-password" />
         </mat-form-field>
         <mat-form-field class="form-field" appearance="outline">
-          <mat-label i18n>Confirmar nova senha</mat-label>
+          <mat-label>{{ 'account.password.confirm' | transloco }}</mat-label>
           <input matInput type="password" formControlName="confirmPassword" required autocomplete="new-password" />
           @if (passwordsMismatch()) {
-            <mat-error i18n>As senhas não coincidem</mat-error>
+            <mat-error>{{ 'auth.passwordMismatch' | transloco }}</mat-error>
           }
         </mat-form-field>
         @if (passwordMessage) {
@@ -84,25 +84,23 @@
         }
         <div class="form-actions">
           <button class="btn" matButton="filled" type="submit" [disabled]="passwordForm.invalid || passwordsMismatch() || isSavingPassword">
-            <span i18n>{{ isSavingPassword ? 'Salvando...' : 'Alterar senha' }}</span>
+            <span>{{ (isSavingPassword ? 'common.saving' : 'account.password.title') | transloco }}</span>
           </button>
         </div>
         <p class="text-muted account-hint">
-          <span i18n>Esqueceu a senha?</span>
-          <a routerLink="/login/reset-password" i18n>Recuperar senha</a>
+          <span>{{ 'account.password.forgot' | transloco }}</span>
+          <a routerLink="/login/reset-password">{{ 'auth.reset.requestTitle' | transloco }}</a>
         </p>
       </form>
     }
   </section>
 
   <section class="page-panel">
-    <h2 class="section-title" i18n>Conectar agente</h2>
-    <p class="page-subtitle" i18n>
-      Gere um token e uma configuração pronta para colar no Cursor MCP.
-    </p>
+    <h2 class="section-title">{{ 'account.agent.title' | transloco }}</h2>
+    <p class="page-subtitle">{{ 'account.agent.subtitle' | transloco }}</p>
     <div class="edit dialog-form">
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Preset</mat-label>
+        <mat-label>{{ 'account.agent.preset' | transloco }}</mat-label>
         <mat-select [(value)]="agentPreset">
           <mat-option value="cursor">Cursor</mat-option>
         </mat-select>
@@ -115,7 +113,7 @@
           [disabled]="isGeneratingAgentConfig"
           (click)="generateAgentConfig()">
           <mat-icon fontIcon="smart_toy" aria-hidden="true"></mat-icon>
-          <span i18n>{{ isGeneratingAgentConfig ? 'Gerando...' : 'Gerar token e configuração' }}</span>
+          <span>{{ (isGeneratingAgentConfig ? 'common.generating' : 'account.agent.generate') | transloco }}</span>
         </button>
       </div>
       @if (agentConfigMessage) {
@@ -125,12 +123,12 @@
         <p class="error" role="alert">{{ agentConfigError }}</p>
       }
       @if (agentSnippet) {
-        <label class="section-title" for="agent-snippet" i18n>Configuração MCP</label>
+        <label class="section-title" for="agent-snippet">{{ 'account.agent.mcpConfiguration' | transloco }}</label>
         <pre id="agent-snippet" class="query-preview" tabindex="0">{{ agentSnippet }}</pre>
         <div class="form-actions">
           <button class="btn btn-secondary" matButton="outlined" type="button" (click)="copyText(agentSnippet!)">
             <mat-icon fontIcon="content_copy" aria-hidden="true"></mat-icon>
-            <span i18n>Copiar configuração</span>
+            <span>{{ 'account.agent.copyConfiguration' | transloco }}</span>
           </button>
         </div>
       }
@@ -138,22 +136,20 @@
   </section>
 
   <section class="page-panel">
-    <h2 class="section-title" i18n>Tokens de API</h2>
-    <p class="page-subtitle" i18n>
-      Tokens pessoais para agentes e integrações. O segredo só é exibido uma vez após a criação.
-    </p>
+    <h2 class="section-title">{{ 'account.tokens.title' | transloco }}</h2>
+    <p class="page-subtitle">{{ 'account.tokens.subtitle' | transloco }}</p>
 
     @if (createdTokenSecret) {
       <div class="page-panel" role="status">
-        <p class="success-message" i18n>Copie o token agora — ele não será mostrado novamente.</p>
+        <p class="success-message">{{ 'account.tokens.copyNow' | transloco }}</p>
         <pre class="query-preview" tabindex="0">{{ createdTokenSecret }}</pre>
         <div class="form-actions">
           <button class="btn" matButton="filled" type="button" (click)="copyText(createdTokenSecret!)">
             <mat-icon fontIcon="content_copy" aria-hidden="true"></mat-icon>
-            <span i18n>Copiar token</span>
+            <span>{{ 'account.tokens.copy' | transloco }}</span>
           </button>
           <button class="btn btn-secondary" matButton="outlined" type="button" (click)="dismissSecret()">
-            <span i18n>Ocultar</span>
+            <span>{{ 'common.hide' | transloco }}</span>
           </button>
         </div>
       </div>
@@ -161,13 +157,13 @@
 
     <form class="edit dialog-form" [formGroup]="tokenForm" (ngSubmit)="createApiToken()">
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Nome do token</mat-label>
+        <mat-label>{{ 'account.tokens.name' | transloco }}</mat-label>
         <input matInput formControlName="name" required autocomplete="off" />
       </mat-form-field>
       <div class="form-actions">
         <button class="btn" matButton="filled" type="submit" [disabled]="tokenForm.invalid || isCreatingToken">
           <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-          <span i18n>{{ isCreatingToken ? 'Criando...' : 'Criar token' }}</span>
+          <span>{{ (isCreatingToken ? 'common.creating' : 'account.tokens.create') | transloco }}</span>
         </button>
       </div>
     </form>
@@ -178,34 +174,34 @@
 
     <div class="page-panel page-panel--flush">
       @if (tokensLoading) {
-        <div class="loading" i18n>Carregando tokens...</div>
+        <div class="loading">{{ 'account.tokens.loading' | transloco }}</div>
       } @else {
         <div class="data-table data-table--layout-table">
           <div class="header">
-            <div class="header-cell left-aligned" i18n>Nome</div>
-            <div class="header-cell left-aligned" i18n>Prefixo</div>
-            <div class="header-cell left-aligned" i18n>Criado em</div>
-            <div class="header-cell left-aligned" i18n>Último uso</div>
-            <div class="header-cell header-cell--actions" i18n>Ações</div>
+            <div class="header-cell left-aligned">{{ 'account.name' | transloco }}</div>
+            <div class="header-cell left-aligned">{{ 'account.tokens.prefix' | transloco }}</div>
+            <div class="header-cell left-aligned">{{ 'account.tokens.createdAt' | transloco }}</div>
+            <div class="header-cell left-aligned">{{ 'account.tokens.lastUsed' | transloco }}</div>
+            <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
           </div>
           <div class="body">
             @for (token of activeTokens(); track token.id) {
               <div class="row {{ $even ? 'even' : 'odd' }}">
                 <div class="left-aligned">{{ token.name }}</div>
                 <div class="left-aligned">{{ token.tokenPrefix }}</div>
-                <div class="left-aligned">{{ token.createdAt | date: 'medium' }}</div>
-                <div class="left-aligned">{{ token.lastUsedAt ? (token.lastUsedAt | date: 'medium') : '—' }}</div>
+                <div class="left-aligned">{{ token.createdAt | runtimeDate: 'medium' }}</div>
+                <div class="left-aligned">{{ token.lastUsedAt ? (token.lastUsedAt | runtimeDate: 'medium') : '—' }}</div>
                 <div class="cell-actions">
                   <button class="btn btn-cancel" matButton="outlined" type="button" (click)="revokeApiToken(token)">
                     <mat-icon fontIcon="block" aria-hidden="true"></mat-icon>
-                    <span i18n>Revogar</span>
+                    <span>{{ 'account.tokens.revoke' | transloco }}</span>
                   </button>
                 </div>
               </div>
             }
           </div>
           @if (activeTokens().length === 0) {
-            <div class="data-table--empty" i18n>Nenhum token ativo.</div>
+            <div class="data-table--empty">{{ 'account.tokens.empty' | transloco }}</div>
           }
         </div>
       }

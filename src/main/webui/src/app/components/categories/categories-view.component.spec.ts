@@ -5,6 +5,8 @@ import { of, throwError } from 'rxjs';
 import { CategoriesViewComponent } from './categories-view.component';
 import { CategoryService } from '../../services/category.service';
 import { ToastService } from '../../services/toast.service';
+import { TranslocoService } from '@jsverse/transloco';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('CategoriesViewComponent', () => {
   let component: CategoriesViewComponent;
@@ -25,7 +27,13 @@ describe('CategoriesViewComponent', () => {
     categoryService.findAll.and.returnValue(of(categories));
 
     await TestBed.configureTestingModule({
-      imports: [CategoriesViewComponent],
+      imports: [
+        CategoriesViewComponent,
+        createTranslocoTestingModule(
+          { category: { title: 'Categorias', create: 'Nova categoria' } },
+          { category: { title: 'Categories', create: 'New category' } },
+        ),
+      ],
       providers: [
         {
           provide: ActivatedRoute,
@@ -46,6 +54,19 @@ describe('CategoriesViewComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
     expect(component.categories.length).toBe(2);
+  });
+
+  it('should rerender category actions immediately when locale changes from Portuguese to English', async () => {
+    expect(fixture.nativeElement.textContent).toContain('Categorias');
+    expect(fixture.nativeElement.textContent).toContain('Nova categoria');
+
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Categories');
+    expect(fixture.nativeElement.textContent).toContain('New category');
+    expect(fixture.nativeElement.textContent).not.toContain('Nova categoria');
   });
 
   it('should delete category and refresh list when confirmed', () => {

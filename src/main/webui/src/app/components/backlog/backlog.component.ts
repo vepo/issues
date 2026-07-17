@@ -1,4 +1,5 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +11,7 @@ import { NormalizePipe } from '../pipes/normalize.pipe';
 
 @Component({
   selector: 'app-backlog',
-  imports: [RouterLink, DragDropModule, MatButtonModule, MatIconModule, NormalizePipe],
+  imports: [TranslocoPipe, RouterLink, DragDropModule, MatButtonModule, MatIconModule, NormalizePipe],
   templateUrl: './backlog.component.html',
   styleUrl: './backlog.component.scss'
 })

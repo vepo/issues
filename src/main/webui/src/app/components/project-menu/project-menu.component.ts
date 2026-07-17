@@ -4,21 +4,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../services/auth.service';
 import { Project, ProjectsService } from '../../services/projects.service';
 
 @Component({
   selector: 'app-project-menu',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, RouterLink],
+  imports: [MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule, RouterLink, TranslocoPipe],
   templateUrl: './project-menu.component.html'
 })
 export class ProjectMenuComponent implements OnInit {
   private readonly projectsService = inject(ProjectsService);
   private readonly authService = inject(AuthService);
+  private readonly transloco = inject(TranslocoService);
 
   projects: Project[] = [];
-  readonly emptyTooltip = 'Nenhum projeto';
+  get emptyTooltip(): string {
+    return this.transloco.translate('shell.noProjects');
+  }
 
   ngOnInit(): void {
     this.projectsService.findAll().subscribe(projects => {

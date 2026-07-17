@@ -3,6 +3,7 @@ import { TicketFormComponent } from './ticket-form.component';
 import { PhaseService } from '../../services/phase.service';
 import { CustomFieldService } from '../../services/custom-field.service';
 import { of } from 'rxjs';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('TicketFormComponent', () => {
   let component: TicketFormComponent;
@@ -15,7 +16,7 @@ describe('TicketFormComponent', () => {
     customFieldService.listInScope.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [TicketFormComponent],
+      imports: [createTranslocoTestingModule(), TicketFormComponent],
       providers: [
         { provide: PhaseService, useValue: phaseService },
         { provide: CustomFieldService, useValue: customFieldService },

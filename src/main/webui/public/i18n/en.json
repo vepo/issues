@@ -1,0 +1,776 @@
+{
+  "common": {
+    "actions": "Actions",
+    "back": "Back",
+    "creating": "Creating...",
+    "generating": "Generating...",
+    "hide": "Hide",
+    "id": "ID",
+    "loading": "Loading...",
+    "priority": "Priority",
+    "project": "Project",
+    "save": "Save",
+    "saving": "Saving...",
+    "sending": "Sending...",
+    "status": "Status",
+    "title": "Title",
+    "updated": "Updated"
+  },
+  "shell": {
+    "account": "Account",
+    "administration": "Administration",
+    "apiDocumentation": "API documentation",
+    "categories": "Categories",
+    "copyright": "© 2026 Issues. All rights reserved.",
+    "homeAria": "Issues — home",
+    "import": "Import",
+    "importCsv": "Import CSV",
+    "login": "Sign in",
+    "logout": "Sign out",
+    "manageProjects": "Manage projects",
+    "newTicket": "New",
+    "noProjects": "No projects",
+    "projects": "Projects",
+    "searchPlaceholder": "Search tickets...",
+    "userMenuAria": "User menu",
+    "users": "Users",
+    "workflows": "Workflows"
+  },
+  "auth": {
+    "confirmPassword": "Confirm password",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "8+ characters, with uppercase, lowercase, and a digit",
+    "passwordMismatch": "Passwords do not match",
+    "showConfirmation": "Show confirmation",
+    "showPassword": "Show password",
+    "username": "Username",
+    "login": {
+      "invalidCredentials": "Invalid email or password",
+      "subtitle": "Ticket management system",
+      "title": "Sign in"
+    },
+    "register": {
+      "error": "Unable to create the account.",
+      "haveAccount": "Already have an account? Sign in",
+      "subtitle": "Register to access Issues",
+      "title": "Create account"
+    },
+    "reset": {
+      "backToLogin": "Back to sign in",
+      "credential": "Email or username",
+      "credentialMinLength": "Enter at least 3 characters",
+      "credentialRequired": "Email or username is required",
+      "expiredLink": "Invalid or expired link. Request another password reset.",
+      "invalidLink": "Invalid password reset link.",
+      "passwordMinLength": "Password must have at least 8 characters",
+      "passwordRequired": "Password is required",
+      "requestError": "Unable to start password recovery. Try again.",
+      "requestSubtitle": "Enter your email or username to receive the link",
+      "requestSuccess": "Password recovery started. Check your email!",
+      "requestTitle": "Recover password",
+      "save": "Save new password",
+      "sendLink": "Send link",
+      "subtitle": "Set a new password for your account",
+      "success": "Password reset successfully. Sign in with the new password.",
+      "title": "Reset password"
+    }
+  },
+  "account": {
+    "language": "Language",
+    "loadingProfile": "Loading profile...",
+    "name": "Name",
+    "profile": "Profile",
+    "roles": "Roles",
+    "saveProfile": "Save profile",
+    "subtitle": "Your profile and permissions in Issues",
+    "title": "Account",
+    "username": "Username",
+    "password": {
+      "confirm": "Confirm new password",
+      "current": "Current password",
+      "forgot": "Forgot your password?",
+      "new": "New password",
+      "title": "Change password"
+    },
+    "agent": {
+      "copyConfiguration": "Copy configuration",
+      "generate": "Generate token and configuration",
+      "generatedTokenName": "Cursor Agent {{date}}",
+      "mcpConfiguration": "MCP configuration",
+      "preset": "Preset",
+      "subtitle": "Generate a token and ready-to-paste Cursor MCP configuration.",
+      "title": "Connect agent"
+    },
+    "tokens": {
+      "copy": "Copy token",
+      "copyNow": "Copy the token now — it will not be shown again.",
+      "create": "Create token",
+      "createdAt": "Created at",
+      "empty": "No active tokens.",
+      "lastUsed": "Last used",
+      "loading": "Loading tokens...",
+      "name": "Token name",
+      "prefix": "Prefix",
+      "revoke": "Revoke",
+      "subtitle": "Personal tokens for agents and integrations. The secret is shown only once after creation.",
+      "title": "API tokens"
+    },
+    "messages": {
+      "agentConfigError": "Unable to generate the agent token and configuration.",
+      "agentConfigGenerated": "Token generated. Copy the configuration below — the secret is shown only once.",
+      "agentConfigGeneratedToast": "Token and configuration generated.",
+      "copied": "Copied to the clipboard.",
+      "copyError": "Unable to copy.",
+      "loadError": "Unable to load your profile.",
+      "passwordChanged": "Password changed successfully.",
+      "passwordChangeError": "Unable to change the password. Check the current password.",
+      "profileSaved": "Profile updated successfully.",
+      "profileSaveError": "Unable to update the profile. Check the email address.",
+      "tokenCreated": "Token created. Copy the secret now — it will not be shown again.",
+      "tokenCreateError": "Unable to create the token.",
+      "tokenRevoked": "Token revoked.",
+      "tokenRevokeError": "Unable to revoke the token.",
+      "tokensLoadError": "Unable to load API tokens."
+    }
+  },
+  "notification": {
+    "empty": "No notifications",
+    "markAllRead": "Mark all as read",
+    "title": "Notifications"
+  },
+  "home": {
+    "activity": "Activity",
+    "assignedTickets": "Assigned tickets",
+    "changedStatusOn": "changed status on",
+    "commentedOn": "commented on",
+    "currentTickets": "Current tickets",
+    "hint": "Your personal hub: open tickets in your projects, assignments, and recent activity.",
+    "noActivity": "No recent activity in your projects.",
+    "noAssignedTickets": "No open tickets assigned to you.",
+    "noCurrentTickets": "No open tickets in your projects.",
+    "subtitle": "Your tickets and recent activity in projects you participate in",
+    "title": "Home"
+  },
+  "ticket": {
+    "clone": "Clone ticket",
+    "attachments": "Attachments",
+    "download": "Download",
+    "linkAdded": "Link added",
+    "attachmentAdded": "Attachment added",
+    "attachmentRemoved": "Attachment removed",
+    "attachmentUploadFailed": "Failed to attach the file.",
+    "childrenCompleted": "{{done}}/{{total}} completed",
+    "link": {
+      "removeAria": "Remove link"
+    },
+    "create": {
+      "title": "New ticket",
+      "subtitle": "Enter the ticket data. Fields may be pre-filled from the project template.",
+      "project": "Project",
+      "ticketTitle": "Title",
+      "createAction": "Create"
+    },
+    "form": {
+      "project": "Project",
+      "title": "Title",
+      "description": "Description",
+      "type": "Type",
+      "priority": "Priority",
+      "dueDate": "Due date",
+      "category": "Category",
+      "phase": "Phase",
+      "storyPoints": "Story points",
+      "cancel": "Cancel"
+    },
+    "activity": {
+      "commented": "commented",
+      "created": "created the ticket",
+      "empty": "No activity recorded for this ticket."
+    }
+  },
+  "search": {
+    "saved": {
+      "title": "My queries",
+      "create": "New query",
+      "query": "Query",
+      "open": "Open",
+      "confirmDelete": "Delete query \"{{name}}\"?"
+    }
+  },
+  "ticketExport": {
+    "action": "Export",
+    "errorLimit": "The export exceeds the 10,000 ticket limit.",
+    "errorGeneral": "Could not export tickets."
+  },
+  "import": {
+    "title": "Import tickets from CSV",
+    "projectSubtitle": "Project: {{project}} — upload the file, map the columns, and confirm the import.",
+    "file": "File:",
+    "rowsAndColumns": "{{rows}} rows · {{columns}} columns"
+  },
+  "customField": {
+    "add": "Add field",
+    "key": "Key",
+    "label": "Label",
+    "type": "Type",
+    "required": "Required",
+    "integer": "Integer",
+    "yes": "Yes",
+    "no": "No",
+    "shortText": "Short text",
+    "longText": "Long text",
+    "boolean": "Yes/No",
+    "list": "List",
+    "removeOptionAria": "Remove option"
+  },
+  "project": {
+    "git": {
+      "copySecretAria": "Copy secret",
+      "copyWebhookUrlAria": "Copy webhook URL"
+    },
+    "list": {
+      "title": "Projects",
+      "create": "New project"
+    }
+  },
+  "kanban": {
+    "groupByAria": "Group by",
+    "hint": "Drag cards between columns to move the ticket status.",
+    "subtitle": "Kanban board — drag tickets between columns",
+    "newTicket": "New ticket",
+    "phaseFilterAria": "Filter by phase"
+  },
+  "advancedSearch": {
+    "hint": "Use the query language or open the help below to see fields and operators.",
+    "queryPlaceholder": "project = \"Issues\" AND status = \"To Do\"",
+    "run": "Run",
+    "saveQuery": "Save query"
+  },
+  "burndown": {
+    "selectPhaseAria": "Select phase"
+  },
+  "backlog": {
+    "title": "Backlog",
+    "subtitle": "Tickets ordered by planning rank (not priority)"
+  },
+  "dashboard": {
+    "subtitle": "Project metrics and widgets",
+    "edit": "Edit layout",
+    "finish": "Finish"
+  },
+  "workflow": {
+    "deleteFinishStatusAria": "Delete finish status",
+    "deleteStatusAria": "Delete status",
+    "deleteTransitionAria": "Delete transition",
+    "finishStatusAria": "Finish status",
+    "fromAria": "From",
+    "initialStatus": "Initial status",
+    "addStatus": "Add status",
+    "addFinishStatus": "Add finish status",
+    "outcomeAria": "Outcome",
+    "toAria": "To"
+  },
+  "planning": {
+    "phases": "Phases",
+    "versions": "Versions",
+    "details": "Details"
+  },
+  "category": {
+    "colorPickerTitle": "Click to open the color picker",
+    "title": "Categories",
+    "create": "New category"
+  },
+  "user": {
+    "roles": {
+      "projectManager": "Project manager"
+    },
+    "title": "Users",
+    "create": "New user"
+  },
+  "serviceAccount": {
+    "title": "Service accounts",
+    "generateToken": "Generate token",
+    "deactivating": "Deactivating...",
+    "deactivate": "Deactivate"
+  },
+  "system": {
+    "link": {
+      "blocks": "Blocks",
+      "derived": "Derived from",
+      "duplicates": "Duplicates",
+      "relates": "Relates to",
+      "remaining": "Remaining work of"
+    },
+    "phase": {
+      "active": "Active",
+      "completed": "Completed",
+      "planned": "Planned"
+    },
+    "priority": {
+      "critical": "Critical",
+      "high": "High",
+      "low": "Low",
+      "medium": "Medium"
+    },
+    "ticketType": {
+      "epic": "Epic",
+      "story": "Story",
+      "task": "Task"
+    }
+  },
+  "migration": {
+    "advanced-search": {
+      "9d63af146006": "Advanced search",
+      "8b36822d05e4": "Query in Issues search language (plain text)",
+      "6756561d655d": "Simple search",
+      "fd5f7f4a8c06": "Running query…",
+      "c0d8f48a53f5": "Enter a query and click Execute.",
+      "c9b8a86bf9ea": "No tickets found.",
+      "da8f0b756cf9": "Results ({{value0}})",
+      "90a1139233cf": "Title",
+      "1b5a077b7489": "Priority",
+      "a0ce14b021b3": "Select a ticket from the list."
+    },
+    "backlog": {
+      "bcab99384c12": "Backlog",
+      "9fcb4074b835": "Kanban",
+      "637c5a71e76a": "No tickets in the backlog.",
+      "8334bfed76d4": "Loading…"
+    },
+    "burndown": {
+      "f6363c981ce3": "Burndown",
+      "71149bbcd15e": "Kanban",
+      "72a5d915a258": "Panel",
+      "9a27da16e6c2": "No phases available",
+      "157911598e82": "See burndown",
+      "5162ec57af05": "Select a phase to view the Burndown.",
+      "717851219930": "No phases in this project. Create a phase with dates to use Burndown.",
+      "4e0e0fb7c764": "Tickets without story points:",
+      "d56e827df498": "Commitment: {{value0}} pts",
+      "f307b6ca12b7": "Remainder: {{value0}} pts"
+    },
+    "categories-view": {
+      "a1059f4ddef7": "Classification of tickets by type",
+      "e9a143507b78": "Color",
+      "2e2447f3f0a0": "Edit",
+      "c5c29943b0ff": "Delete",
+      "046a35da0933": "No categories registered.",
+      "3700490d54e7": "Delete category?",
+      "94af6b997800": "This action cannot be undone.",
+      "26b1cf66489d": "Choose color",
+      "78aca488f6aa": "Hex code"
+    },
+    "context-hint": {
+      "463509bfba2f": "To close"
+    },
+    "custom-field-admin": {
+      "333896f6dc37": "Loading fields…",
+      "e98e89130943": "No custom fields defined.",
+      "96379ced2ee4": "Edit",
+      "12488ede1a91": "Activate",
+      "e99d128634ed": "Delete",
+      "saveWorkflowFirst": "Save the workflow before adding custom fields.",
+      "saveProjectFirst": "Save the project before adding custom fields."
+    },
+    "custom-field-dialog": {
+      "24cae8caeb46": "Stable identifier (does not change after creation)",
+      "f16a07570992": "Type",
+      "0c799a50ce68": "Active",
+      "3c3363b1d0e0": "Maximum size",
+      "f24f141414e2": "Minimum",
+      "9fbb388354bb": "Maximum",
+      "31c3450474fb": "Options",
+      "0f7a90d19bde": "Add option",
+      "5ebb5cb3ea12": "Value",
+      "7b6d6c67163c": "Mandatory in statuses"
+    },
+    "custom-field-form-section": {
+      "7005484c4d5d": "Custom Fields",
+      "d32387df06bf": "None",
+      "51ca950aa6f4": "Values ​​of fields outside the current scope (read only):"
+    },
+    "dashboard": {
+      "03695db40107": "Dashboard — {{value0}}",
+      "b0ff77002a8b": "Kanban",
+      "13136455c43e": "Available widgets",
+      "e1ea8897c4b0": "No widgets — use Edit Layout to add bookmarks.",
+      "fcdf192624fb": "Loading graphic...",
+      "e6a9877c1f76": "No data",
+      "e2c1052d06e0": "Unable to load chart.",
+      "c03a8d1571d0": "Try again",
+      "c87c6fa61b4c": "Loading indicators...",
+      "90bc77bbc535": "Unable to load indicators.",
+      "d08276e0024a": "Loading table...",
+      "8142d3e368ae": "Unable to load table."
+    },
+    "kanban": {
+      "065c0cb2c5df": "All",
+      "c9a89e33ab1b": "No phase",
+      "c1c2446da717": "None",
+      "9681821e3628": "Responsible",
+      "5ba945d312c2": "Priority",
+      "2b13fbdf358a": "Burndown",
+      "2317c478dd5f": "Backlog",
+      "d90a60f36f7c": "Panel",
+      "e8b84112e1d2": "No tickets in this column"
+    },
+    "phase-detail": {
+      "aed30886aee6": "New phase",
+      "72a51f3138ed": "— completed in {{value0}}",
+      "a2ac47d70005": "Activate phase",
+      "eb1afd6adb52": "Complete phase",
+      "24615cf4ba87": "Objective",
+      "ad0c95e6414a": "Start date",
+      "88c0119ebd67": "End date",
+      "f93b027d0901": "Deliverable version",
+      "63c4b16cc803": "None",
+      "c4d9aab070cb": "Deliverables",
+      "bf0c291ba493": "Deliverable {{value0}}",
+      "94088de75a71": "Add deliverable",
+      "aa8fdefe8d1f": "{{value0}}"
+    },
+    "phases-view": {
+      "a321ea453f6c": "Planning by period with objective and deliverables",
+      "41182d8967da": "New phase",
+      "83368bc6c36d": "Deliverable version",
+      "4a9214314cad": "No phases registered."
+    },
+    "project-edit": {
+      "7b1020e9ca87": "Edit project",
+      "84f7087e0a09": "Update name, process, prefix and ticket template",
+      "5219ac38f024": "Set up a new ticket project",
+      "1e3569fcd55d": "Process",
+      "0c4fa0a0e8e7": "Select a process...",
+      "9122dcf1b947": "Prefix cannot be changed after ticket creation",
+      "a06d8eb12fdf": "Security level",
+      "8fe6774edb37": "Use ticket template",
+      "a6f7715fcabc": "Template title",
+      "0d77c63e82f7": "Template description",
+      "939601191ce0": "Template category",
+      "3b8d98b695e2": "Select a category...",
+      "7951bddd6a20": "Template priority",
+      "d5a6c5b6a0ef": "None",
+      "2ac1849248eb": "Template — custom fields",
+      "d505046f6122": "Phase template",
+      "22dfc03edf6f": "Objective and deliverables copied for each new phase (editable per phase).",
+      "cf4947148da6": "Standard objective",
+      "ddfb37d56efc": "Standard deliverables",
+      "274ac5ba44b4": "Project manager",
+      "9fc3568b0202": "Git repository",
+      "529756a187e0": "Join a remote repository to link commits that mention ticket identifiers from this project.",
+      "6b3a4cf3a2fb": "Repository URL",
+      "b0d5e13e9b29": "Provider",
+      "166440a0897f": "Default branch",
+      "914a57dd7281": "Connect commits",
+      "cc9703ecf51e": "Paste the repository URL and save the project.",
+      "b0be97603f3b": "Webhook (push): configure in forge with the URL below and the webhook secret.",
+      "a209a153411b": "Webhook URL",
+      "b730434a4273": "Webhook secret",
+      "4be96b6d102b": "Configured secret — use Regenerate to get a new value.",
+      "7036af8afe9a": "Copy now — the secret will not be shown again.",
+      "b08f3c2976e7": "{{value0}}",
+      "a74e3ff2add0": "Hide secret",
+      "2f412492df4f": "API (CI / agent): send commits with Bearer PAT (Account → API Tokens) or token",
+      "034f8effda05": "service account",
+      "7ecfbad31418": "via",
+      "3a2b98116f63": "POST /api/projects/{{value0}}/git/commits",
+      "41e48e683d6c": "."
+    },
+    "project-allocation": {
+      "22163ae9051b": "Allocation",
+      "4129fa017bf9": "Member allocation",
+      "e1c376f48163": "Manage who participates in the {{value0}} project",
+      "a97840147170": "Add member",
+      "88081bbfcc86": "Select a user…",
+      "d3a464b0ebe5": "To add",
+      "626da391c300": "Remove",
+      "1912aa8197cd": "No members allocated."
+    },
+    "project-hub": {
+      "452a1424e7b2": "Kanban",
+      "2bb3b6832a3d": "Burndown",
+      "6d7144612310": "Backlog",
+      "cbcfbe411367": "Panel",
+      "3a28287feb12": "Edit",
+      "501d5eae4bcc": "Allocation",
+      "cadbd9a040bb": "See all",
+      "f42189c65b75": "New phase",
+      "950a2d5e3d32": "No phases registered.",
+      "421c46055b0f": "New version",
+      "449eed4055ae": "Change log",
+      "7b17e64c9446": "No version registered."
+    },
+    "service-accounts": {
+      "b4ac366ccc15": "{{value0}} project machine accounts for agents and CI.",
+      "f171bb8860d6": "Token generated",
+      "2d03c80e8cc3": "Copy the token from",
+      "a9dc65a3bbfe": "— it will not be shown again.",
+      "9a3f7622ae32": "New service account",
+      "50ff3637b04d": "{{value0}}",
+      "191934f5562e": "Loading service accounts...",
+      "b02230bf37bb": "No active service accounts."
+    },
+    "projects-view": {
+      "3167461206d7": "Open a project for Kanban, phases, versions and member allocation",
+      "54da36a94958": "Edit",
+      "efa109072392": "No projects registered."
+    },
+    "query-language-help": {
+      "dab275e45adc": "Query language help",
+      "4073971137bd": "Fields",
+      "d439b337787d": "Field",
+      "9e1cc13fcc9f": "Operators",
+      "11da51d2641a": "Operators and functions",
+      "146ab198207d": "Ordering",
+      "3b3e7a2fc4ec": "Examples",
+      "14bfd80179df": "JQL-inspired syntax, exclusive to Issues. Combine clauses with",
+      "a21cbed406a8": "AND",
+      "a6e10846e6b3": "and",
+      "78056fc1bb5b": "OR",
+      "7829bf962880": ", group with parentheses and use double quotes for text. Optionally end with",
+      "942260f2655e": "ORDER BY ASC field",
+      "20c40611b935": "or",
+      "7d2962676204": "DESC",
+      "e971d8ea0ad3": ".",
+      "4806be14d591": "=",
+      "3ff05c6d438b": "!=",
+      "53c9e6ed1eca": "— equality (text without case sensitivity)",
+      "5f4a6f1695cd": "~",
+      "0bc917227d99": "— contains (partial search)",
+      "ef62aef014e9": "IN ( \"A\", \"B\" )",
+      "a5bba1ab7f50": "NOT IN",
+      "db22e3681bf1": "— just for",
+      "d69f2354fc44": "project",
+      "1d0059dd2b6f": "IS EMPTY",
+      "28157280d36b": "/",
+      "88c873a126c8": "IS NOT EMPTY",
+      "adf5f50c2908": "— optional fields (see table)",
+      "286db9aeea35": ">",
+      "a10e905d254c": ",",
+      "9d293c7e1b74": "<",
+      "63c4555f6575": ">=",
+      "0bb6ca3d51c3": "<=",
+      "743fcb41fd14": "— dates in ISO-8601 format",
+      "c4c52787205b": "me()",
+      "61a535845068": "currentUser()",
+      "58aa06d9d961": "— authenticated user on",
+      "6a81ac087648": "assignee",
+      "5468f240f2ed": "author",
+      "f6d509c1e467": "ORDER BY",
+      "1234b6ae74da": "accepted:",
+      "a697535101e6": "created",
+      "138d3bf29e36": "updated",
+      "878cd1e13342": "finished",
+      "3966093ebde3": "title",
+      "c40270d93a03": "identifier",
+      "5f3f3da1042e": "priority"
+    },
+    "saved-query-edit": {
+      "dc675a2a5531": "Edit query",
+      "de5a0331619e": "Display on home page",
+      "ff41b4c7cdaa": "Delete"
+    },
+    "saved-query-list": {
+      "016a44056721": "No queries saved.",
+      "ba98504dfd8a": "Advanced search",
+      "91ff42c361e1": "Home",
+      "9dff2b5be791": "Edit",
+      "bcecd98ff730": "Delete"
+    },
+    "saved-query-view": {
+      "b8754db054e0": "by {{value0}}",
+      "f689b74581f2": "Copy link",
+      "5a39f4557fe1": "Edit",
+      "7ea379a0d1af": "Clone",
+      "dc854abdde8a": "No tickets found."
+    },
+    "search-tickets": {
+      "62a1815b06ea": "Search results",
+      "1dea4d5f49b7": "Tickets corresponding to the informed criteria",
+      "e3b4c92b8861": "Advanced search",
+      "de83e7a7995b": "All",
+      "4c9ce2a7b03a": "Term",
+      "1cca11e4643c": "No tickets found. Try other terms or remove the status filter.",
+      "d5d53b4872ee": "Project:"
+    },
+    "ticket-activity-feed": {
+      "0fe78f979ae2": "Show less",
+      "050c2ee24c64": "Show more"
+    },
+    "ticket-form": {
+      "118cd0664a0d": "Select a project...",
+      "bd2d4cfbac71": "A project must be selected!",
+      "efa651a0a084": "Title is a required field!",
+      "e4719b52e548": "Title must have at least 5 characters!",
+      "7203d70dc993": "Title must have a maximum of 255 characters!",
+      "a28ad47bbd3c": "Description is a required field!",
+      "44e5eea24501": "Description must have at least 5 characters!",
+      "77b56abd84b5": "Description must have a maximum of 1200 characters!",
+      "f9fcd596e196": "Select a category...",
+      "d55258a39684": "A category must be selected!",
+      "aee959d93569": "None"
+    },
+    "ticket-import-wizard": {
+      "67be5999dafb": "File",
+      "d1200cf0f890": "Columns",
+      "a035e91b3001": "Preview",
+      "f4f68b2553dd": "Associate the project column and other fields — each line will be created in the project indicated in the CSV.",
+      "504046938136": "Select CSV",
+      "4751eda6beb7": "File truncated on the server (maximum 500 lines).",
+      "907bf765d1d0": "Sending {{value0}}/{{value1}} parts…",
+      "8da62540b97d": "Next",
+      "94143550be81": "Associate each ticket field with the corresponding column in the CSV. The examples below come from the first line of the file.",
+      "27e058d07f32": "Required fields",
+      "433004bef97a": "Optional fields",
+      "61ea991a7842": "Do not import",
+      "cd1f6b0236dd": "Custom Fields",
+      "bf76be603342": "Associate CSV columns with field keys in the project scope.",
+      "d443a3ebe2c3": "Validating lines…",
+      "bc151743cfb5": "{{value0}} valid, {{value1}} with error",
+      "ec9d115fc700": "Correct the errors below before importing.",
+      "be00a7f1e4c7": "Line",
+      "8e41360ff251": "Project",
+      "9a4ff281c5a2": "Title",
+      "10f31e5cb82d": "OK",
+      "9ade2d251e74": "Choose the project",
+      "9308561e3f0e": "Create project",
+      "b28a5cc4529e": "Choose status",
+      "b97caa531151": "Choose the person responsible",
+      "0b50e7237958": "No responsible",
+      "e041496cc876": "Create user",
+      "50a507b2afc9": "Import valid",
+      "9bf0995ec473": "Importing tickets…",
+      "87b4138f870b": "Import summary",
+      "8c57d9be41c1": "Imported tickets",
+      "cf7430bcc065": "Impacted projects",
+      "e0eaeeee4621": "Distribution by project",
+      "77a516868104": "Tickets",
+      "1ce177094cea": "Distribution by status",
+      "163bbfc02f99": "Line {{value0}}: {{value1}}",
+      "bc7d29b8b4ad": "Import another file"
+    },
+    "ticket-view": {
+      "fd927aef8c33": "deleted",
+      "dc14a768d50b": "{{value0}}",
+      "9a47585a807c": "Stop observing",
+      "8cae2a06a556": "Observe",
+      "1e7ebe7e1a52": "Delete",
+      "9624ffb885b5": "Restore",
+      "2a93281113dc": "Title",
+      "4563bbe1f005": "Type",
+      "c21ad086d3ac": "Priority",
+      "a2115ee8a7b6": "None",
+      "1aa21f7a7474": "Planned release",
+      "fb9428573d92": "Delivered version",
+      "f7417412e825": "Project",
+      "6f1b4ba1e960": "Author",
+      "b70e791a26ba": "Responsible",
+      "2c4d7e1226d0": "Completion date",
+      "0c739d555dc2": "(out of scope)",
+      "6e3e3ae868cf": "Subscribed",
+      "a7e3d9283281": "None",
+      "8851f3caadf8": "Not assigned",
+      "b761c5236280": "Update responsible",
+      "3d2ed0790382": "Move to",
+      "488860068990": "Move ticket",
+      "1214faf81fac": "Links",
+      "014b126306d2": "Remove",
+      "f015e4f60cde": "No link on this ticket.",
+      "8705b002a9d6": "Search ticket…",
+      "7309dec35596": "Link",
+      "76017252c21b": "Subtasks",
+      "b039bb0fb934": "No subtasks in this epic.",
+      "775219745c8e": "New subtask",
+      "558877a8957a": "No attachments to this ticket.",
+      "aef9072b0d7d": "Choose file",
+      "a3b819630732": "Attach",
+      "c60f5a0833fe": "History",
+      "0134bfa176b9": "Comments",
+      "6ce6d3b90e3f": "Date",
+      "0cbfe4004122": "User",
+      "e2271ae811c7": "Change",
+      "d53bd5937fa9": "Add comment",
+      "c90843b2fc4d": "Post comment",
+      "055f44b4a7bf": "Comments ({{value0}})",
+      "fc8c22bbb864": "Loading comments...",
+      "8026730e897b": "No comments yet. Be the first to comment.",
+      "142b3977d1af": "Delete ticket",
+      "58ce8fab0a96": "Do you want to delete this ticket? This action cannot be undone.",
+      "96e8e7aa6fd1": "Delete attachment",
+      "25f597ee8387": "Do you want to delete the {{value0}} attachment?",
+      "6bac666c65a0": "Epic with open subtasks",
+      "46956e12a0c2": "This epic still has {{value0}}/{{value1}} completed subtasks. Do you want to move it to a completed status anyway?",
+      "0ac071c612d2": "Move anyway",
+      "95a4c15547e8": "It will be created in the same project as the epic {{value0}}.",
+      "a7096cdd6b10": "Description (optional)"
+    },
+    "users-edit": {
+      "a8bc2fdf3ee7": "Edit user",
+      "9f931337a186": "Update data and access profiles",
+      "584beea5bbb6": "Register a new account in the system",
+      "f4b0671f1d81": "User",
+      "f603b19dbe32": "Administrator"
+    },
+    "users-view": {
+      "79d5d5f337aa": "Manage accounts and access permissions",
+      "6eff85a17949": "Filters",
+      "76e0c5dad225": "Administrator",
+      "8bbaa54294e2": "User",
+      "f6812e47beb5": "Admin",
+      "5c2105fd689b": "Manager",
+      "112108b98d41": "Edit",
+      "4a793149f0b1": "Delete",
+      "21a8598bb24d": "No users found with filters applied.",
+      "616cab4e3272": "Delete user?",
+      "9159ddec7271": "This action cannot be undone."
+    },
+    "version-detail": {
+      "24ce72c75d58": "New version",
+      "044bcd245c96": "SemVer label (e.g. 1.0.0) and release changelog",
+      "00a784a439d9": "SemVer Label",
+      "d8408fa6d2e6": "{{value0}}",
+      "885da70f4baf": "Change log",
+      "6478dd02e03c": "No tickets in this section.",
+      "a6e33cfe8163": "Ticket",
+      "4f85467562bd": "Title",
+      "739f633ba3eb": "Conclusion"
+    },
+    "versions-view": {
+      "b7166e7c78b5": "Project SemVer release planning",
+      "a497b46b61a0": "New version",
+      "dd464d613c92": "Change log",
+      "468951a8e387": "No version registered."
+    },
+    "workflow-create": {
+      "c6cc29265f11": "New process",
+      "ac5a2cf49ba6": "Set status, start and allowed transitions"
+    },
+    "workflow-edit": {
+      "a8f4c39c35f3": "Edit process",
+      "87e4b6a5adfa": "Change name, status, transitions and remap tickets if necessary",
+      "b5aabad5bf28": "Loading process..."
+    },
+    "workflow-form": {
+      "6f95609e70b0": "Initial phase status",
+      "5aa88cbba401": "None",
+      "e4d113b4d6a9": "Status name",
+      "55b7f9e6fac6": "WIP",
+      "c0e971140be9": "Status {{value0}}",
+      "dad79563d75a": "WIP Limit",
+      "4961a3572dde": "Remove “{{value0}}”",
+      "969bf8d9db10": "If there are tickets in this status, choose where to move them:",
+      "098819c644e4": "Move tickets to",
+      "48bb9458aff2": "Confirm",
+      "8f262a2fdefe": "Transitions",
+      "7a08afbd892c": "Add transition",
+      "977f4677eca2": "{{value0}}"
+    },
+    "workflows-view": {
+      "3c2bf3f97d15": "Status flows and transitions for projects",
+      "33950c9d6b1f": "New process",
+      "d90f88d814f1": "Edit",
+      "043c81694070": "No process registered."
+    }
+  }
+}

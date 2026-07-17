@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { ContextBarComponent } from './components/context-bar/context-bar.component';
 import { NotificationComponent } from './components/notification/notification.component';
 import { ProjectMenuComponent } from './components/project-menu/project-menu.component';
@@ -23,7 +24,8 @@ import { AuthService } from './services/auth.service';
     MatIconModule,
     MatMenuModule,
     RoleDirective,
-    ContextBarComponent
+    ContextBarComponent,
+    TranslocoPipe
   ],
   templateUrl: './app.html'
 })

@@ -1,13 +1,13 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Categorias</h1>
-      <p class="page-subtitle" i18n>Classificação de tickets por tipo</p>
+      <h1 class="page-title">{{ 'category.title' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'migration.categories-view.a1059f4ddef7' | transloco }}</p>
     </div>
     <div class="page-header__actions">
       <button class="btn" matButton="filled" type="button" (click)="openCreateDialog()">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-        <span i18n>Nova categoria</span>
+        <span>{{ 'category.create' | transloco }}</span>
       </button>
     </div>
   </header>
@@ -16,9 +16,9 @@
     <div class="data-table data-table--layout-table data-table--cols-id-name-color-actions">
       <div class="header">
         <div class="header-cell">ID</div>
-        <div class="header-cell" i18n>Nome</div>
-        <div class="header-cell" i18n>Cor</div>
-        <div class="header-cell header-cell--actions" i18n>Ações</div>
+        <div class="header-cell">{{ 'account.name' | transloco }}</div>
+        <div class="header-cell">{{ 'migration.categories-view.e9a143507b78' | transloco }}</div>
+        <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
       </div>
       <div class="body">
         @for (entry of categories; track entry.id) {
@@ -32,18 +32,18 @@
             <div class="cell-actions">
               <button class="btn btn-secondary" matButton="outlined" type="button" (click)="openEditDialog(entry)">
                 <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
-                <span i18n>Editar</span>
+                <span>{{ 'migration.categories-view.2e2447f3f0a0' | transloco }}</span>
               </button>
               <button class="btn btn-secondary" matButton="outlined" type="button" (click)="confirmDelete(entry)">
                 <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
-                <span i18n>Excluir</span>
+                <span>{{ 'migration.categories-view.c5c29943b0ff' | transloco }}</span>
               </button>
             </div>
           </div>
         }
       </div>
       @if (categories.length === 0) {
-        <div class="data-table--empty" i18n>Nenhuma categoria cadastrada.</div>
+        <div class="data-table--empty">{{ 'migration.categories-view.046a35da0933' | transloco }}</div>
       }
     </div>
   </section>

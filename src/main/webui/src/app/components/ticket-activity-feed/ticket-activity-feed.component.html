@@ -8,8 +8,14 @@
         <div class="activity-item__body">
           <header class="activity-item__header">
             <span class="activity-item__actor">{{ activityActorLabel(item) }}</span>
-            <span class="activity-item__summary">{{ activitySummary(item) }}</span>
-            <time class="activity-item__date">{{ item.timestamp | date: 'medium' }}</time>
+            <span class="activity-item__summary">
+              @if (activitySummaryTranslationKey(item); as translationKey) {
+                {{ translationKey | transloco }}
+              } @else {
+                {{ activitySummary(item) }}
+              }
+            </span>
+            <time class="activity-item__date">{{ item.timestamp | runtimeDate: 'medium' }}</time>
           </header>
 
           @if (item.kind === 'comment') {
@@ -19,7 +25,7 @@
               <span class="commit-sha">{{ shortCommitSha(item.sha) }}</span>
               <span>{{ item.message }}</span>
               @if (item.commitUrl) {
-                <a [href]="item.commitUrl" target="_blank" rel="noopener noreferrer" i18n>Abrir</a>
+                <a [href]="item.commitUrl" target="_blank" rel="noopener noreferrer">{{ 'search.saved.open' | transloco }}</a>
               }
             </div>
           } @else if (hasValueChange(item)) {
@@ -37,9 +43,9 @@
             @if (shouldTruncate(item.oldValue) || shouldTruncate(item.newValue)) {
               <button type="button" class="activity-item__toggle" (click)="toggleExpanded(item)">
                 @if (isExpanded(item)) {
-                  <span i18n>Mostrar menos</span>
+                  <span>{{ 'migration.ticket-activity-feed.0fe78f979ae2' | transloco }}</span>
                 } @else {
-                  <span i18n>Mostrar mais</span>
+                  <span>{{ 'migration.ticket-activity-feed.050c2ee24c64' | transloco }}</span>
                 }
               </button>
             }
@@ -49,5 +55,5 @@
     }
   </div>
 } @else {
-  <div class="empty-state" i18n>Nenhuma atividade registrada para este ticket.</div>
+  <div class="empty-state">{{ 'ticket.activity.empty' | transloco }}</div>
 }

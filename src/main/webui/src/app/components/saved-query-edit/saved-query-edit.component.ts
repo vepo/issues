@@ -1,3 +1,4 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
@@ -9,7 +10,7 @@ import { SavedQueryService } from '../../services/saved-query.service';
 @Component({
   selector: 'app-saved-query-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MatButtonModule, QueryLanguageHelpComponent],
+  imports: [TranslocoPipe, CommonModule, FormsModule, RouterLink, MatButtonModule, QueryLanguageHelpComponent],
   templateUrl: './saved-query-edit.component.html'
 })
 export class SavedQueryEditComponent implements OnInit {

@@ -1,0 +1,776 @@
+{
+  "common": {
+    "actions": "Ações",
+    "back": "Voltar",
+    "creating": "Criando...",
+    "generating": "Gerando...",
+    "hide": "Ocultar",
+    "id": "ID",
+    "loading": "Carregando...",
+    "priority": "Prioridade",
+    "project": "Projeto",
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "sending": "Enviando...",
+    "status": "Status",
+    "title": "Título",
+    "updated": "Atualizado"
+  },
+  "shell": {
+    "account": "Conta",
+    "administration": "Administração",
+    "apiDocumentation": "Documentação da API",
+    "categories": "Categorias",
+    "copyright": "© 2026 Issues. Todos os direitos reservados.",
+    "homeAria": "Issues — página inicial",
+    "import": "Importar",
+    "importCsv": "Importar CSV",
+    "login": "Acessar",
+    "logout": "Sair",
+    "manageProjects": "Gerenciar projetos",
+    "newTicket": "Novo",
+    "noProjects": "Nenhum projeto",
+    "projects": "Projetos",
+    "searchPlaceholder": "Buscar tickets...",
+    "userMenuAria": "Menu do usuário",
+    "users": "Usuários",
+    "workflows": "Processos"
+  },
+  "auth": {
+    "confirmPassword": "Confirmar senha",
+    "email": "E-mail",
+    "password": "Senha",
+    "passwordHint": "8+ caracteres, com maiúscula, minúscula e dígito",
+    "passwordMismatch": "As senhas não coincidem",
+    "showConfirmation": "Mostrar confirmação",
+    "showPassword": "Mostrar senha",
+    "username": "Usuário",
+    "login": {
+      "invalidCredentials": "E-mail ou senha inválidos",
+      "subtitle": "Sistema de gerenciamento de tickets",
+      "title": "Entrar"
+    },
+    "register": {
+      "error": "Não foi possível criar a conta.",
+      "haveAccount": "Já tem conta? Entrar",
+      "subtitle": "Cadastre-se para acessar o Issues",
+      "title": "Criar conta"
+    },
+    "reset": {
+      "backToLogin": "Voltar ao login",
+      "credential": "E-mail ou usuário",
+      "credentialMinLength": "Informe pelo menos 3 caracteres",
+      "credentialRequired": "E-mail ou usuário é obrigatório",
+      "expiredLink": "Link inválido ou expirado. Solicite uma nova recuperação de senha.",
+      "invalidLink": "Link de redefinição inválido.",
+      "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+      "passwordRequired": "Senha é obrigatória",
+      "requestError": "Não foi possível iniciar a recuperação. Tente novamente.",
+      "requestSubtitle": "Informe seu e-mail ou usuário para receber o link",
+      "requestSuccess": "Recuperação de senha iniciada. Verifique seu email!",
+      "requestTitle": "Recuperar senha",
+      "save": "Salvar nova senha",
+      "sendLink": "Enviar link",
+      "subtitle": "Defina uma nova senha para sua conta",
+      "success": "Senha redefinida com sucesso. Faça login com a nova senha.",
+      "title": "Redefinir senha"
+    }
+  },
+  "account": {
+    "language": "Idioma",
+    "loadingProfile": "Carregando perfil...",
+    "name": "Nome",
+    "profile": "Perfil",
+    "roles": "Perfis",
+    "saveProfile": "Salvar perfil",
+    "subtitle": "Seu perfil e permissões no Issues",
+    "title": "Conta",
+    "username": "Usuário",
+    "password": {
+      "confirm": "Confirmar nova senha",
+      "current": "Senha atual",
+      "forgot": "Esqueceu a senha?",
+      "new": "Nova senha",
+      "title": "Alterar senha"
+    },
+    "agent": {
+      "copyConfiguration": "Copiar configuração",
+      "generate": "Gerar token e configuração",
+      "generatedTokenName": "Agente Cursor {{date}}",
+      "mcpConfiguration": "Configuração MCP",
+      "preset": "Preset",
+      "subtitle": "Gere um token e uma configuração pronta para colar no Cursor MCP.",
+      "title": "Conectar agente"
+    },
+    "tokens": {
+      "copy": "Copiar token",
+      "copyNow": "Copie o token agora — ele não será mostrado novamente.",
+      "create": "Criar token",
+      "createdAt": "Criado em",
+      "empty": "Nenhum token ativo.",
+      "lastUsed": "Último uso",
+      "loading": "Carregando tokens...",
+      "name": "Nome do token",
+      "prefix": "Prefixo",
+      "revoke": "Revogar",
+      "subtitle": "Tokens pessoais para agentes e integrações. O segredo só é exibido uma vez após a criação.",
+      "title": "Tokens de API"
+    },
+    "messages": {
+      "agentConfigError": "Não foi possível gerar o token e a configuração do agente.",
+      "agentConfigGenerated": "Token gerado. Copie a configuração abaixo — o segredo só é exibido uma vez.",
+      "agentConfigGeneratedToast": "Token e configuração gerados.",
+      "copied": "Copiado para a área de transferência.",
+      "copyError": "Não foi possível copiar.",
+      "loadError": "Não foi possível carregar seu perfil.",
+      "passwordChanged": "Senha alterada com sucesso.",
+      "passwordChangeError": "Não foi possível alterar a senha. Verifique a senha atual.",
+      "profileSaved": "Perfil atualizado com sucesso.",
+      "profileSaveError": "Não foi possível atualizar o perfil. Verifique o e-mail informado.",
+      "tokenCreated": "Token criado. Copie o segredo agora — ele não será exibido novamente.",
+      "tokenCreateError": "Não foi possível criar o token.",
+      "tokenRevoked": "Token revogado.",
+      "tokenRevokeError": "Não foi possível revogar o token.",
+      "tokensLoadError": "Não foi possível carregar os tokens de API."
+    }
+  },
+  "notification": {
+    "empty": "Nenhuma notificação",
+    "markAllRead": "Marcar todas como lidas",
+    "title": "Notificações"
+  },
+  "home": {
+    "activity": "Atividade",
+    "assignedTickets": "Tickets atribuídos",
+    "changedStatusOn": "alterou status em",
+    "commentedOn": "comentou em",
+    "currentTickets": "Tickets atuais",
+    "hint": "Seu hub pessoal: tickets abertos nos seus projetos, atribuições e atividade recente.",
+    "noActivity": "Nenhuma atividade recente nos seus projetos.",
+    "noAssignedTickets": "Nenhum ticket aberto atribuído a você.",
+    "noCurrentTickets": "Nenhum ticket aberto nos seus projetos.",
+    "subtitle": "Seus tickets e atividade recente nos projetos em que participa",
+    "title": "Início"
+  },
+  "ticket": {
+    "clone": "Clonar ticket",
+    "attachments": "Anexos",
+    "download": "Baixar",
+    "linkAdded": "Vínculo adicionado",
+    "attachmentAdded": "Anexo adicionado",
+    "attachmentRemoved": "Anexo removido",
+    "attachmentUploadFailed": "Falha ao anexar o arquivo.",
+    "childrenCompleted": "{{done}}/{{total}} concluídas",
+    "link": {
+      "removeAria": "Remover vínculo"
+    },
+    "create": {
+      "title": "Novo ticket",
+      "subtitle": "Preencha os dados do ticket. Campos podem ser pré-preenchidos pelo template do projeto.",
+      "project": "Projeto",
+      "ticketTitle": "Título",
+      "createAction": "Criar"
+    },
+    "form": {
+      "project": "Projeto",
+      "title": "Título",
+      "description": "Descrição",
+      "type": "Tipo",
+      "priority": "Prioridade",
+      "dueDate": "Data de vencimento",
+      "category": "Categoria",
+      "phase": "Fase",
+      "storyPoints": "Story points",
+      "cancel": "Cancelar"
+    },
+    "activity": {
+      "commented": "comentou",
+      "created": "criou o ticket",
+      "empty": "Nenhuma atividade registrada para este ticket."
+    }
+  },
+  "search": {
+    "saved": {
+      "title": "Minhas consultas",
+      "create": "Nova consulta",
+      "query": "Consulta",
+      "open": "Abrir",
+      "confirmDelete": "Excluir consulta \"{{name}}\"?"
+    }
+  },
+  "ticketExport": {
+    "action": "Exportar",
+    "errorLimit": "A exportação excede o limite de 10.000 tickets.",
+    "errorGeneral": "Não foi possível exportar os tickets."
+  },
+  "import": {
+    "title": "Importar tickets via CSV",
+    "projectSubtitle": "Projeto: {{project}} — carregue o arquivo, associe as colunas e confirme a importação.",
+    "file": "Arquivo:",
+    "rowsAndColumns": "{{rows}} linha(s) · {{columns}} coluna(s)"
+  },
+  "customField": {
+    "add": "Adicionar campo",
+    "key": "Chave",
+    "label": "Rótulo",
+    "type": "Tipo",
+    "required": "Obrigatório",
+    "integer": "Inteiro",
+    "yes": "Sim",
+    "no": "Não",
+    "shortText": "Texto curto",
+    "longText": "Texto longo",
+    "boolean": "Sim/Não",
+    "list": "Lista",
+    "removeOptionAria": "Remover opção"
+  },
+  "project": {
+    "git": {
+      "copySecretAria": "Copiar segredo",
+      "copyWebhookUrlAria": "Copiar URL do webhook"
+    },
+    "list": {
+      "title": "Projetos",
+      "create": "Novo projeto"
+    }
+  },
+  "kanban": {
+    "groupByAria": "Agrupar por",
+    "hint": "Arraste cards entre colunas para mover o status do ticket.",
+    "subtitle": "Quadro Kanban — arraste os tickets entre colunas",
+    "newTicket": "Novo ticket",
+    "phaseFilterAria": "Filtrar por fase"
+  },
+  "advancedSearch": {
+    "hint": "Use a linguagem de consulta ou abra a ajuda abaixo para ver campos e operadores.",
+    "queryPlaceholder": "project = \"Issues\" AND status = \"To Do\"",
+    "run": "Executar",
+    "saveQuery": "Salvar consulta"
+  },
+  "burndown": {
+    "selectPhaseAria": "Selecionar fase"
+  },
+  "backlog": {
+    "title": "Backlog",
+    "subtitle": "Tickets ordenados por rank de planejamento (não por prioridade)"
+  },
+  "dashboard": {
+    "subtitle": "Indicadores e widgets do projeto",
+    "edit": "Editar layout",
+    "finish": "Concluir"
+  },
+  "workflow": {
+    "deleteFinishStatusAria": "Excluir status de conclusão",
+    "deleteStatusAria": "Excluir status",
+    "deleteTransitionAria": "Excluir transição",
+    "finishStatusAria": "Status de conclusão",
+    "fromAria": "De",
+    "initialStatus": "Status inicial",
+    "addStatus": "Adicionar status",
+    "addFinishStatus": "Adicionar status de conclusão",
+    "outcomeAria": "Resultado",
+    "toAria": "Para"
+  },
+  "planning": {
+    "phases": "Fases",
+    "versions": "Versões",
+    "details": "Detalhes"
+  },
+  "category": {
+    "colorPickerTitle": "Clique para abrir o seletor de cores",
+    "title": "Categorias",
+    "create": "Nova categoria"
+  },
+  "user": {
+    "roles": {
+      "projectManager": "Gerente de projetos"
+    },
+    "title": "Usuários",
+    "create": "Novo usuário"
+  },
+  "serviceAccount": {
+    "title": "Contas de serviço",
+    "generateToken": "Gerar token",
+    "deactivating": "Desativando...",
+    "deactivate": "Desativar"
+  },
+  "system": {
+    "link": {
+      "blocks": "Bloqueia",
+      "derived": "Derivado de",
+      "duplicates": "Duplicata de",
+      "relates": "Relacionado a",
+      "remaining": "Trabalho restante de"
+    },
+    "phase": {
+      "active": "Ativa",
+      "completed": "Concluída",
+      "planned": "Planejada"
+    },
+    "priority": {
+      "critical": "Crítica",
+      "high": "Alta",
+      "low": "Baixa",
+      "medium": "Média"
+    },
+    "ticketType": {
+      "epic": "Épico",
+      "story": "História",
+      "task": "Tarefa"
+    }
+  },
+  "migration": {
+    "advanced-search": {
+      "9d63af146006": "Busca avançada",
+      "8b36822d05e4": "Consulta em linguagem de busca do Issues (texto simples)",
+      "6756561d655d": "Busca simples",
+      "fd5f7f4a8c06": "Executando consulta…",
+      "c0d8f48a53f5": "Informe uma consulta e clique em Executar.",
+      "c9b8a86bf9ea": "Nenhum ticket encontrado.",
+      "da8f0b756cf9": "Resultados ({{value0}})",
+      "90a1139233cf": "Título",
+      "1b5a077b7489": "Prioridade",
+      "a0ce14b021b3": "Selecione um ticket na lista."
+    },
+    "backlog": {
+      "bcab99384c12": "Backlog",
+      "9fcb4074b835": "Kanban",
+      "637c5a71e76a": "Nenhum ticket no backlog.",
+      "8334bfed76d4": "Carregando…"
+    },
+    "burndown": {
+      "f6363c981ce3": "Burndown",
+      "71149bbcd15e": "Kanban",
+      "72a5d915a258": "Painel",
+      "9a27da16e6c2": "Nenhuma fase disponível",
+      "157911598e82": "Ver burndown",
+      "5162ec57af05": "Selecione uma fase para visualizar o Burndown.",
+      "717851219930": "Nenhuma fase neste projeto. Crie uma fase com datas para usar o Burndown.",
+      "4e0e0fb7c764": "Tickets sem story points:",
+      "d56e827df498": "Compromisso: {{value0}} pts",
+      "f307b6ca12b7": "Restante: {{value0}} pts"
+    },
+    "categories-view": {
+      "a1059f4ddef7": "Classificação de tickets por tipo",
+      "e9a143507b78": "Cor",
+      "2e2447f3f0a0": "Editar",
+      "c5c29943b0ff": "Excluir",
+      "046a35da0933": "Nenhuma categoria cadastrada.",
+      "3700490d54e7": "Excluir categoria?",
+      "94af6b997800": "Esta ação não pode ser desfeita.",
+      "26b1cf66489d": "Escolher cor",
+      "78aca488f6aa": "Código hex"
+    },
+    "context-hint": {
+      "463509bfba2f": "Fechar"
+    },
+    "custom-field-admin": {
+      "333896f6dc37": "Carregando campos…",
+      "e98e89130943": "Nenhum campo personalizado definido.",
+      "96379ced2ee4": "Editar",
+      "12488ede1a91": "Ativar",
+      "e99d128634ed": "Excluir",
+      "saveWorkflowFirst": "Salve o processo antes de adicionar campos personalizados.",
+      "saveProjectFirst": "Salve o projeto antes de adicionar campos personalizados."
+    },
+    "custom-field-dialog": {
+      "24cae8caeb46": "Identificador estável (não muda após criar)",
+      "f16a07570992": "Tipo",
+      "0c799a50ce68": "Ativo",
+      "3c3363b1d0e0": "Tamanho máximo",
+      "f24f141414e2": "Mínimo",
+      "9fbb388354bb": "Máximo",
+      "31c3450474fb": "Opções",
+      "0f7a90d19bde": "Adicionar opção",
+      "5ebb5cb3ea12": "Valor",
+      "7b6d6c67163c": "Obrigatório nos status"
+    },
+    "custom-field-form-section": {
+      "7005484c4d5d": "Campos personalizados",
+      "d32387df06bf": "Nenhum",
+      "51ca950aa6f4": "Valores de campos fora do escopo atual (somente leitura):"
+    },
+    "dashboard": {
+      "03695db40107": "Painel — {{value0}}",
+      "b0ff77002a8b": "Kanban",
+      "13136455c43e": "Widgets disponíveis",
+      "e1ea8897c4b0": "Nenhum widget — use Editar layout para adicionar indicadores.",
+      "fcdf192624fb": "Carregando gráfico...",
+      "e6a9877c1f76": "Sem dados",
+      "e2c1052d06e0": "Não foi possível carregar o gráfico.",
+      "c03a8d1571d0": "Tentar novamente",
+      "c87c6fa61b4c": "Carregando indicadores...",
+      "90bc77bbc535": "Não foi possível carregar os indicadores.",
+      "d08276e0024a": "Carregando tabela...",
+      "8142d3e368ae": "Não foi possível carregar a tabela."
+    },
+    "kanban": {
+      "065c0cb2c5df": "Todos",
+      "c9a89e33ab1b": "Sem fase",
+      "c1c2446da717": "Nenhuma",
+      "9681821e3628": "Responsável",
+      "5ba945d312c2": "Prioridade",
+      "2b13fbdf358a": "Burndown",
+      "2317c478dd5f": "Backlog",
+      "d90a60f36f7c": "Painel",
+      "e8b84112e1d2": "Nenhum ticket nesta coluna"
+    },
+    "phase-detail": {
+      "aed30886aee6": "Nova fase",
+      "72a51f3138ed": "— concluída em {{value0}}",
+      "a2ac47d70005": "Ativar fase",
+      "eb1afd6adb52": "Concluir fase",
+      "24615cf4ba87": "Objetivo",
+      "ad0c95e6414a": "Data de início",
+      "88c0119ebd67": "Data de fim",
+      "f93b027d0901": "Versão entregável",
+      "63c4b16cc803": "Nenhuma",
+      "c4d9aab070cb": "Entregáveis",
+      "bf0c291ba493": "Entregável {{value0}}",
+      "94088de75a71": "Adicionar entregável",
+      "aa8fdefe8d1f": "{{value0}}"
+    },
+    "phases-view": {
+      "a321ea453f6c": "Planejamento por período com objetivo e entregáveis",
+      "41182d8967da": "Nova fase",
+      "83368bc6c36d": "Versão entregável",
+      "4a9214314cad": "Nenhuma fase cadastrada."
+    },
+    "project-edit": {
+      "7b1020e9ca87": "Editar projeto",
+      "84f7087e0a09": "Atualize nome, processo, prefixo e template de ticket",
+      "5219ac38f024": "Configure um novo projeto de tickets",
+      "1e3569fcd55d": "Processo",
+      "0c4fa0a0e8e7": "Selecione um processo...",
+      "9122dcf1b947": "O prefixo não pode ser alterado após a criação de tickets",
+      "a06d8eb12fdf": "Nível de segurança",
+      "8fe6774edb37": "Usar template de ticket",
+      "a6f7715fcabc": "Título do template",
+      "0d77c63e82f7": "Descrição do template",
+      "939601191ce0": "Categoria do template",
+      "3b8d98b695e2": "Selecione uma categoria...",
+      "7951bddd6a20": "Prioridade do template",
+      "d5a6c5b6a0ef": "Nenhuma",
+      "2ac1849248eb": "Template — campos personalizados",
+      "d505046f6122": "Template de fase",
+      "22dfc03edf6f": "Objetivo e entregáveis copiados para cada nova fase (editáveis por fase).",
+      "cf4947148da6": "Objetivo padrão",
+      "ddfb37d56efc": "Entregáveis padrão",
+      "274ac5ba44b4": "Responsável do projeto",
+      "9fc3568b0202": "Repositório Git",
+      "529756a187e0": "Associe um repositório remoto para vincular commits que mencionem identificadores de tickets deste projeto.",
+      "6b3a4cf3a2fb": "URL do repositório",
+      "b0d5e13e9b29": "Provedor",
+      "166440a0897f": "Branch padrão",
+      "914a57dd7281": "Conectar commits",
+      "cc9703ecf51e": "Cole a URL do repositório e salve o projeto.",
+      "b0be97603f3b": "Webhook (push): configure no forge com a URL abaixo e o segredo do webhook.",
+      "a209a153411b": "URL do webhook",
+      "b730434a4273": "Segredo do webhook",
+      "4be96b6d102b": "Segredo configurado — use Regenerar para obter um novo valor.",
+      "7036af8afe9a": "Copie agora — o segredo não será mostrado novamente.",
+      "b08f3c2976e7": "{{value0}}",
+      "a74e3ff2add0": "Ocultar segredo",
+      "2f412492df4f": "API (CI / agente): envie commits com Bearer PAT (Conta → Tokens de API) ou token de",
+      "034f8effda05": "conta de serviço",
+      "7ecfbad31418": "via",
+      "3a2b98116f63": "POST /api/projects/{{value0}}/git/commits",
+      "41e48e683d6c": "."
+    },
+    "project-allocation": {
+      "22163ae9051b": "Alocação",
+      "4129fa017bf9": "Alocação de membros",
+      "e1c376f48163": "Gerencie quem participa do projeto {{value0}}",
+      "a97840147170": "Adicionar membro",
+      "88081bbfcc86": "Selecione um usuário…",
+      "d3a464b0ebe5": "Adicionar",
+      "626da391c300": "Remover",
+      "1912aa8197cd": "Nenhum membro alocado."
+    },
+    "project-hub": {
+      "452a1424e7b2": "Kanban",
+      "2bb3b6832a3d": "Burndown",
+      "6d7144612310": "Backlog",
+      "cbcfbe411367": "Painel",
+      "3a28287feb12": "Editar",
+      "501d5eae4bcc": "Alocação",
+      "cadbd9a040bb": "Ver todas",
+      "f42189c65b75": "Nova fase",
+      "950a2d5e3d32": "Nenhuma fase cadastrada.",
+      "421c46055b0f": "Nova versão",
+      "449eed4055ae": "Registro de alterações",
+      "7b17e64c9446": "Nenhuma versão cadastrada."
+    },
+    "service-accounts": {
+      "b4ac366ccc15": "Contas de máquina do projeto {{value0}} para agentes e CI.",
+      "f171bb8860d6": "Token gerado",
+      "2d03c80e8cc3": "Copie o token de",
+      "a9dc65a3bbfe": "— ele não será mostrado novamente.",
+      "9a3f7622ae32": "Nova conta de serviço",
+      "50ff3637b04d": "{{value0}}",
+      "191934f5562e": "Carregando contas de serviço...",
+      "b02230bf37bb": "Nenhuma conta de serviço ativa."
+    },
+    "projects-view": {
+      "3167461206d7": "Abra um projeto para Kanban, fases, versões e alocação de membros",
+      "54da36a94958": "Editar",
+      "efa109072392": "Nenhum projeto cadastrado."
+    },
+    "query-language-help": {
+      "dab275e45adc": "Ajuda da linguagem de consulta",
+      "4073971137bd": "Campos",
+      "d439b337787d": "Campo",
+      "9e1cc13fcc9f": "Operadores",
+      "11da51d2641a": "Operadores e funções",
+      "146ab198207d": "Ordenação",
+      "3b3e7a2fc4ec": "Exemplos",
+      "14bfd80179df": "Sintaxe inspirada em JQL, exclusiva do Issues. Combine cláusulas com",
+      "a21cbed406a8": "AND",
+      "a6e10846e6b3": "e",
+      "78056fc1bb5b": "OR",
+      "7829bf962880": ", agrupe com parênteses e use aspas duplas para textos. Opcionalmente termine com",
+      "942260f2655e": "ORDER BY campo ASC",
+      "20c40611b935": "ou",
+      "7d2962676204": "DESC",
+      "e971d8ea0ad3": ".",
+      "4806be14d591": "=",
+      "3ff05c6d438b": "!=",
+      "53c9e6ed1eca": "— igualdade (texto sem diferenciar maiúsculas)",
+      "5f4a6f1695cd": "~",
+      "0bc917227d99": "— contém (busca parcial)",
+      "ef62aef014e9": "IN ( \"A\", \"B\" )",
+      "a5bba1ab7f50": "NOT IN",
+      "db22e3681bf1": "— apenas para",
+      "d69f2354fc44": "project",
+      "1d0059dd2b6f": "IS EMPTY",
+      "28157280d36b": "/",
+      "88c873a126c8": "IS NOT EMPTY",
+      "adf5f50c2908": "— campos opcionais (ver tabela)",
+      "286db9aeea35": ">",
+      "a10e905d254c": ",",
+      "9d293c7e1b74": "<",
+      "63c4555f6575": ">=",
+      "0bb6ca3d51c3": "<=",
+      "743fcb41fd14": "— datas em formato ISO-8601",
+      "c4c52787205b": "me()",
+      "61a535845068": "currentUser()",
+      "58aa06d9d961": "— usuário autenticado em",
+      "6a81ac087648": "assignee",
+      "5468f240f2ed": "author",
+      "f6d509c1e467": "ORDER BY",
+      "1234b6ae74da": "aceita:",
+      "a697535101e6": "created",
+      "138d3bf29e36": "updated",
+      "878cd1e13342": "finished",
+      "3966093ebde3": "title",
+      "c40270d93a03": "identifier",
+      "5f3f3da1042e": "priority"
+    },
+    "saved-query-edit": {
+      "dc675a2a5531": "Editar consulta",
+      "de5a0331619e": "Exibir na página inicial",
+      "ff41b4c7cdaa": "Excluir"
+    },
+    "saved-query-list": {
+      "016a44056721": "Nenhuma consulta salva.",
+      "ba98504dfd8a": "Busca avançada",
+      "91ff42c361e1": "Home",
+      "9dff2b5be791": "Editar",
+      "bcecd98ff730": "Excluir"
+    },
+    "saved-query-view": {
+      "b8754db054e0": "por {{value0}}",
+      "f689b74581f2": "Copiar link",
+      "5a39f4557fe1": "Editar",
+      "7ea379a0d1af": "Clonar",
+      "dc854abdde8a": "Nenhum ticket encontrado."
+    },
+    "search-tickets": {
+      "62a1815b06ea": "Resultados da busca",
+      "1dea4d5f49b7": "Tickets correspondentes aos critérios informados",
+      "e3b4c92b8861": "Busca avançada",
+      "de83e7a7995b": "Todos",
+      "4c9ce2a7b03a": "Termo",
+      "1cca11e4643c": "Nenhum ticket encontrado. Tente outros termos ou remova o filtro de status.",
+      "d5d53b4872ee": "Projeto:"
+    },
+    "ticket-activity-feed": {
+      "0fe78f979ae2": "Mostrar menos",
+      "050c2ee24c64": "Mostrar mais"
+    },
+    "ticket-form": {
+      "118cd0664a0d": "Selecione um projeto...",
+      "bd2d4cfbac71": "Um projeto deve ser selecionado!",
+      "efa651a0a084": "Título é um campo obrigatório!",
+      "e4719b52e548": "Título deve ter ao menos 5 caracteres!",
+      "7203d70dc993": "Título deve ter no máximo 255 caracteres!",
+      "a28ad47bbd3c": "Descrição é um campo obrigatório!",
+      "44e5eea24501": "Descrição deve ter ao menos 5 caracteres!",
+      "77b56abd84b5": "Descrição deve ter no máximo 1200 caracteres!",
+      "f9fcd596e196": "Selecione uma categoria...",
+      "d55258a39684": "Uma categoria deve ser selecionada!",
+      "aee959d93569": "Nenhuma"
+    },
+    "ticket-import-wizard": {
+      "67be5999dafb": "Arquivo",
+      "d1200cf0f890": "Colunas",
+      "a035e91b3001": "Pré-visualização",
+      "f4f68b2553dd": "Associe a coluna de projeto e os demais campos — cada linha será criada no projeto indicado no CSV.",
+      "504046938136": "Selecionar CSV",
+      "4751eda6beb7": "Arquivo truncado no servidor (máximo de 500 linhas).",
+      "907bf765d1d0": "Enviando {{value0}}/{{value1}} partes…",
+      "8da62540b97d": "Próximo",
+      "94143550be81": "Associe cada campo do ticket à coluna correspondente no CSV. Os exemplos abaixo vêm da primeira linha do arquivo.",
+      "27e058d07f32": "Campos obrigatórios",
+      "433004bef97a": "Campos opcionais",
+      "61ea991a7842": "Não importar",
+      "cd1f6b0236dd": "Campos personalizados",
+      "bf76be603342": "Associe colunas do CSV às chaves dos campos no escopo do projeto.",
+      "d443a3ebe2c3": "Validando linhas…",
+      "bc151743cfb5": "{{value0}} válida(s), {{value1}} com erro",
+      "ec9d115fc700": "Corrija os erros abaixo antes de importar.",
+      "be00a7f1e4c7": "Linha",
+      "8e41360ff251": "Projeto",
+      "9a4ff281c5a2": "Título",
+      "10f31e5cb82d": "OK",
+      "9ade2d251e74": "Escolha o projeto",
+      "9308561e3f0e": "Criar projeto",
+      "b28a5cc4529e": "Escolha o status",
+      "b97caa531151": "Escolha o responsável",
+      "0b50e7237958": "Sem responsável",
+      "e041496cc876": "Criar usuário",
+      "50a507b2afc9": "Importar válidas",
+      "9bf0995ec473": "Importando tickets…",
+      "87b4138f870b": "Resumo da importação",
+      "8c57d9be41c1": "Tickets importados",
+      "cf7430bcc065": "Projetos impactados",
+      "e0eaeeee4621": "Distribuição por projeto",
+      "77a516868104": "Tickets",
+      "1ce177094cea": "Distribuição por status",
+      "163bbfc02f99": "Linha {{value0}}: {{value1}}",
+      "bc7d29b8b4ad": "Importar outro arquivo"
+    },
+    "ticket-view": {
+      "fd927aef8c33": "excluído",
+      "dc14a768d50b": "{{value0}}",
+      "9a47585a807c": "Deixar de observar",
+      "8cae2a06a556": "Observar",
+      "1e7ebe7e1a52": "Excluir",
+      "9624ffb885b5": "Restaurar",
+      "2a93281113dc": "Título",
+      "4563bbe1f005": "Tipo",
+      "c21ad086d3ac": "Prioridade",
+      "a2115ee8a7b6": "Nenhuma",
+      "1aa21f7a7474": "Versão planejada",
+      "fb9428573d92": "Versão entregue",
+      "f7417412e825": "Projeto",
+      "6f1b4ba1e960": "Autor",
+      "b70e791a26ba": "Responsável",
+      "2c4d7e1226d0": "Data de conclusão",
+      "0c739d555dc2": "(fora do escopo)",
+      "6e3e3ae868cf": "Subscritos",
+      "a7e3d9283281": "Nenhum",
+      "8851f3caadf8": "Não atribuído",
+      "b761c5236280": "Atualizar responsável",
+      "3d2ed0790382": "Mover para",
+      "488860068990": "Mover ticket",
+      "1214faf81fac": "Vínculos",
+      "014b126306d2": "Remover",
+      "f015e4f60cde": "Nenhum vínculo neste ticket.",
+      "8705b002a9d6": "Buscar ticket…",
+      "7309dec35596": "Vincular",
+      "76017252c21b": "Subtarefas",
+      "b039bb0fb934": "Nenhuma subtarefa neste épico.",
+      "775219745c8e": "Nova subtarefa",
+      "558877a8957a": "Nenhum anexo neste ticket.",
+      "aef9072b0d7d": "Escolher arquivo",
+      "a3b819630732": "Anexar",
+      "c60f5a0833fe": "Histórico",
+      "0134bfa176b9": "Comentários",
+      "6ce6d3b90e3f": "Data",
+      "0cbfe4004122": "Usuário",
+      "e2271ae811c7": "Alteração",
+      "d53bd5937fa9": "Adicionar comentário",
+      "c90843b2fc4d": "Publicar comentário",
+      "055f44b4a7bf": "Comentários ({{value0}})",
+      "fc8c22bbb864": "Carregando comentários...",
+      "8026730e897b": "Nenhum comentário ainda. Seja o primeiro a comentar.",
+      "142b3977d1af": "Excluir ticket",
+      "58ce8fab0a96": "Deseja excluir este ticket? Esta ação não pode ser desfeita.",
+      "96e8e7aa6fd1": "Excluir anexo",
+      "25f597ee8387": "Deseja excluir o anexo {{value0}}?",
+      "6bac666c65a0": "Épico com subtarefas abertas",
+      "46956e12a0c2": "Este épico ainda tem {{value0}}/{{value1}} subtarefas concluídas. Deseja movê-lo para um status de conclusão mesmo assim?",
+      "0ac071c612d2": "Mover mesmo assim",
+      "95a4c15547e8": "Será criada no mesmo projeto do épico {{value0}}.",
+      "a7096cdd6b10": "Descrição (opcional)"
+    },
+    "users-edit": {
+      "a8bc2fdf3ee7": "Editar usuário",
+      "9f931337a186": "Atualize dados e perfis de acesso",
+      "584beea5bbb6": "Cadastre uma nova conta no sistema",
+      "f4b0671f1d81": "Usuário",
+      "f603b19dbe32": "Administrador"
+    },
+    "users-view": {
+      "79d5d5f337aa": "Gerencie contas e permissões de acesso",
+      "6eff85a17949": "Filtros",
+      "76e0c5dad225": "Administrador",
+      "8bbaa54294e2": "Usuário",
+      "f6812e47beb5": "Admin",
+      "5c2105fd689b": "Gerente",
+      "112108b98d41": "Editar",
+      "4a793149f0b1": "Excluir",
+      "21a8598bb24d": "Nenhum usuário encontrado com os filtros aplicados.",
+      "616cab4e3272": "Excluir usuário?",
+      "9159ddec7271": "Esta ação não pode ser desfeita."
+    },
+    "version-detail": {
+      "24ce72c75d58": "Nova versão",
+      "044bcd245c96": "Rótulo SemVer (ex.: 1.0.0) e registro de alterações da release",
+      "00a784a439d9": "Rótulo SemVer",
+      "d8408fa6d2e6": "{{value0}}",
+      "885da70f4baf": "Registro de alterações",
+      "6478dd02e03c": "Nenhum ticket nesta seção.",
+      "a6e33cfe8163": "Ticket",
+      "4f85467562bd": "Título",
+      "739f633ba3eb": "Conclusão"
+    },
+    "versions-view": {
+      "b7166e7c78b5": "Planejamento de releases SemVer do projeto",
+      "a497b46b61a0": "Nova versão",
+      "dd464d613c92": "Registro de alterações",
+      "468951a8e387": "Nenhuma versão cadastrada."
+    },
+    "workflow-create": {
+      "c6cc29265f11": "Novo processo",
+      "ac5a2cf49ba6": "Defina status, início e transições permitidas"
+    },
+    "workflow-edit": {
+      "a8f4c39c35f3": "Editar processo",
+      "87e4b6a5adfa": "Altere nome, status, transições e remapeie tickets se necessário",
+      "b5aabad5bf28": "Carregando processo..."
+    },
+    "workflow-form": {
+      "6f95609e70b0": "Status inicial da fase",
+      "5aa88cbba401": "Nenhum",
+      "e4d113b4d6a9": "Nome do status",
+      "55b7f9e6fac6": "WIP",
+      "c0e971140be9": "Status {{value0}}",
+      "dad79563d75a": "Limite WIP",
+      "4961a3572dde": "Remover “{{value0}}”",
+      "969bf8d9db10": "Se houver tickets neste status, escolha para onde movê-los:",
+      "098819c644e4": "Mover tickets para",
+      "48bb9458aff2": "Confirmar",
+      "8f262a2fdefe": "Transições",
+      "7a08afbd892c": "Adicionar transição",
+      "977f4677eca2": "{{value0}}"
+    },
+    "workflows-view": {
+      "3c2bf3f97d15": "Fluxos de status e transições para projetos",
+      "33950c9d6b1f": "Novo processo",
+      "d90f88d814f1": "Editar",
+      "043c81694070": "Nenhum processo cadastrado."
+    }
+  }
+}

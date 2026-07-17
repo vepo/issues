@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ContextHintComponent } from './context-hint.component';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('ContextHintComponent', () => {
   let fixture: ComponentFixture<ContextHintComponent>;
@@ -7,7 +8,7 @@ describe('ContextHintComponent', () => {
   beforeEach(async () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
-      imports: [ContextHintComponent]
+      imports: [createTranslocoTestingModule(), ContextHintComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ContextHintComponent);

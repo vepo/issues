@@ -1,11 +1,45 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { TranslocoService, TranslocoTestingModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
 import { Project, ProjectsService } from '../../services/projects.service';
 import { Ticket, TicketService } from '../../services/ticket.service';
 import { PhaseService } from '../../services/phase.service';
 import { CustomFieldService } from '../../services/custom-field.service';
 import { CreateTicketComponent } from './create-ticket.component';
+
+const createTicketTranslations = TranslocoTestingModule.forRoot({
+  langs: {
+    pt: {
+      ticket: {
+        create: {
+          title: 'Novo ticket',
+          subtitle: 'Preencha os dados do ticket. Campos podem ser pré-preenchidos pelo template do projeto.',
+          project: 'Projeto',
+          ticketTitle: 'Título',
+          createAction: 'Criar',
+        },
+      },
+    },
+    en: {
+      ticket: {
+        create: {
+          title: 'New ticket',
+          subtitle: 'Enter the ticket data. Fields may be pre-filled from the project template.',
+          project: 'Project',
+          ticketTitle: 'Title',
+          createAction: 'Create',
+        },
+      },
+    },
+  },
+  translocoConfig: {
+    availableLangs: ['pt', 'en'],
+    defaultLang: 'pt',
+    reRenderOnLangChange: true,
+  },
+  preloadLangs: true,
+});
 
 describe('CreateTicketComponent', () => {
   let component: CreateTicketComponent;
@@ -23,7 +57,7 @@ describe('CreateTicketComponent', () => {
     customFieldService.listInScope.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [CreateTicketComponent],
+      imports: [CreateTicketComponent, createTicketTranslations],
       providers: [
         {
           provide: ActivatedRoute,
@@ -107,6 +141,25 @@ describe('CreateTicketComponent', () => {
       priority: 'MEDIUM',
       customFieldDefaults: [],
     }));
+  });
+
+  it('should rerender create and form copy while preserving project-authored defaults', async () => {
+    const transloco = TestBed.inject(TranslocoService);
+    expect(fixture.nativeElement.textContent).toContain('Novo ticket');
+    expect(fixture.nativeElement.textContent).toContain('Projeto');
+
+    transloco.setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('New ticket');
+    expect(text).toContain('Project');
+    expect(text).toContain('Title');
+    expect(text).toContain('Create');
+    expect(component.formDefaults?.title).toBe('New work item');
+    expect(component.formDefaults?.description).toBe('Describe the change here.');
+    expect(text).not.toContain('Novo ticket');
   });
 });
 
@@ -205,7 +258,7 @@ describe('CreateTicketComponent clone flow', () => {
     customFieldService.listInScope.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [CreateTicketComponent],
+      imports: [CreateTicketComponent, createTicketTranslations],
       providers: [
         {
           provide: ActivatedRoute,

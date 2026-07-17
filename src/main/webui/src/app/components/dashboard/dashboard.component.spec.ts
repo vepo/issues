@@ -1,3 +1,8 @@
+import '@angular/localize/init';
+import { registerLocaleData } from '@angular/common';
+import localeEn from '@angular/common/locales/en';
+import localePt from '@angular/common/locales/pt';
+import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -5,6 +10,12 @@ import { DashboardService } from '../../services/dashboard.service';
 import { ToastService } from '../../services/toast.service';
 import { AvailablesDashboards } from './availables.dashboards';
 import { DashboardComponent } from './dashboard.component';
+import { TranslocoService } from '@jsverse/transloco';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
+import { UiLocaleService } from '../../core/ui-locale.service';
+
+registerLocaleData(localePt);
+registerLocaleData(localeEn);
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -61,12 +72,19 @@ describe('DashboardComponent', () => {
     availableDashboards.loadKpiData.and.returnValue(of({ kind: 'loading' }));
 
     await TestBed.configureTestingModule({
-      imports: [DashboardComponent],
+      imports: [
+        DashboardComponent,
+        createTranslocoTestingModule(
+          { dashboard: { subtitle: 'Indicadores e widgets do projeto', edit: 'Editar layout', finish: 'Concluir' } },
+          { dashboard: { subtitle: 'Project metrics and widgets', edit: 'Edit layout', finish: 'Finish' } },
+        ),
+      ],
       providers: [
         { provide: ActivatedRoute, useValue: { data: of({ project }) } },
         { provide: DashboardService, useValue: dashboardService },
         { provide: ToastService, useValue: toast },
         { provide: AvailablesDashboards, useValue: availableDashboards },
+        { provide: LOCALE_ID, useValue: 'pt' },
       ],
     }).compileComponents();
 
@@ -77,6 +95,43 @@ describe('DashboardComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should rerender dashboard controls immediately when locale changes from Portuguese to English', async () => {
+    expect(fixture.nativeElement.textContent).toContain('Indicadores e widgets do projeto');
+    expect(fixture.nativeElement.textContent).toContain('Editar layout');
+
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Project metrics and widgets');
+    expect(fixture.nativeElement.textContent).toContain('Edit layout');
+    expect(fixture.nativeElement.textContent).not.toContain('Editar layout');
+  });
+
+  it('should reformat visible KPI numbers immediately when locale changes from Portuguese to English', async () => {
+    availableDashboards.loadKpiData.and.returnValue(of({
+      kind: 'ready',
+      data: { total: 1234.5, perStatus: new Map() },
+    }));
+    component.pageLayout = {
+      id: 'runtime-locale',
+      name: 'Runtime locale',
+      widgets: [allWidgets.find((widget) => widget.id === 'performance-kpi')!],
+      layout: [],
+    };
+    const localeService = TestBed.inject(UiLocaleService);
+    localeService.setActiveLocale('pt');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('1.234,5');
+
+    localeService.setActiveLocale('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('1,234.5');
+    expect(fixture.nativeElement.textContent).not.toContain('1.234,5');
   });
 
   it('should load layout from server without using localStorage', () => {

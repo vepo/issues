@@ -5,6 +5,8 @@ import { of, throwError } from 'rxjs';
 import { UsersService } from '../../services/users.service';
 import { ToastService } from '../../services/toast.service';
 import { UsersViewComponent } from './users-view.component';
+import { TranslocoService } from '@jsverse/transloco';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('UsersViewComponent', () => {
   let component: UsersViewComponent;
@@ -24,7 +26,13 @@ describe('UsersViewComponent', () => {
     usersService.search.and.returnValue(of(users));
 
     await TestBed.configureTestingModule({
-      imports: [UsersViewComponent],
+      imports: [
+        UsersViewComponent,
+        createTranslocoTestingModule(
+          { user: { title: 'Usuários', create: 'Novo usuário' } },
+          { user: { title: 'Users', create: 'New user' } },
+        ),
+      ],
       providers: [
         { provide: UsersService, useValue: usersService },
         { provide: ActivatedRoute, useValue: { data: of({ users }) } },
@@ -41,6 +49,19 @@ describe('UsersViewComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should rerender user actions immediately when locale changes from Portuguese to English', async () => {
+    expect(fixture.nativeElement.textContent).toContain('Usuários');
+    expect(fixture.nativeElement.textContent).toContain('Novo usuário');
+
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Users');
+    expect(fixture.nativeElement.textContent).toContain('New user');
+    expect(fixture.nativeElement.textContent).not.toContain('Novo usuário');
   });
 
   it('should delete user and refresh list when confirmed', () => {

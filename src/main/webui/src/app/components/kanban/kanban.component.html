@@ -2,21 +2,20 @@
   <header class="page-header">
     <div>
       <h1 class="page-title">{{ project.name }}</h1>
-      <p class="page-subtitle" i18n>Quadro Kanban — arraste os tickets entre colunas</p>
+      <p class="page-subtitle">{{ 'kanban.subtitle' | transloco }}</p>
     </div>
     <div class="page-header__actions">
       <div class="board-phase-filter">
-        <span class="board-phase-filter__label" i18n>Fase</span>
+        <span class="board-phase-filter__label">{{ 'ticket.form.phase' | transloco }}</span>
         <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
           <mat-select
             [value]="phaseFilter"
             (selectionChange)="phaseFilter = $event.value"
             panelClass="board-phase-filter-panel"
-            i18n-aria-label
-            aria-label="Filtrar por fase">
-            <mat-option value="all" i18n>Todos</mat-option>
-            <mat-option value="active" i18n>Ativa</mat-option>
-            <mat-option value="unplanned" i18n>Sem fase</mat-option>
+            [attr.aria-label]="'kanban.phaseFilterAria' | transloco">
+            <mat-option value="all">{{ 'migration.kanban.065c0cb2c5df' | transloco }}</mat-option>
+            <mat-option value="active">{{ 'system.phase.active' | transloco }}</mat-option>
+            <mat-option value="unplanned">{{ 'migration.kanban.c9a89e33ab1b' | transloco }}</mat-option>
             @for (phase of phases; track phase.id) {
               <mat-option [value]="phaseFilterValue(phase.id)">
                 {{ phase.name }} ({{ statusLabel(phase.status) }})
@@ -26,55 +25,53 @@
         </mat-form-field>
       </div>
       <div class="board-phase-filter">
-        <span class="board-phase-filter__label" i18n>Agrupar por</span>
+        <span class="board-phase-filter__label">{{ 'kanban.groupByAria' | transloco }}</span>
         <mat-form-field class="form-field form-field--control" appearance="outline" subscriptSizing="dynamic">
           <mat-select
             [value]="swimlaneMode"
             (selectionChange)="swimlaneMode = $event.value"
             panelClass="board-phase-filter-panel"
-            i18n-aria-label
-            aria-label="Agrupar por">
-            <mat-option value="none" i18n>Nenhuma</mat-option>
-            <mat-option value="assignee" i18n>Responsável</mat-option>
-            <mat-option value="priority" i18n>Prioridade</mat-option>
+            [attr.aria-label]="'kanban.groupByAria' | transloco">
+            <mat-option value="none">{{ 'migration.kanban.c1c2446da717' | transloco }}</mat-option>
+            <mat-option value="assignee">{{ 'migration.kanban.9681821e3628' | transloco }}</mat-option>
+            <mat-option value="priority">{{ 'migration.kanban.5ba945d312c2' | transloco }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
       <a class="btn" matButton="filled" [routerLink]="['/project', project.id, 'tickets', 'new']">
         <mat-icon fontIcon="add" aria-hidden="true"></mat-icon>
-        <span i18n>Novo ticket</span>
+        <span>{{ 'kanban.newTicket' | transloco }}</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'burndown']">
         <mat-icon fontIcon="trending_down" aria-hidden="true"></mat-icon>
-        <span i18n>Burndown</span>
+        <span>{{ 'migration.kanban.2b13fbdf358a' | transloco }}</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'tickets', 'import']">
         <mat-icon fontIcon="upload_file" aria-hidden="true"></mat-icon>
-        <span i18n>Importar CSV</span>
+        <span>{{ 'shell.importCsv' | transloco }}</span>
       </a>
       <a class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'backlog']">
         <mat-icon fontIcon="reorder" aria-hidden="true"></mat-icon>
-        <span i18n>Backlog</span>
+        <span>{{ 'migration.kanban.2317c478dd5f' | transloco }}</span>
       </a>
       <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'dashboard']">
         <mat-icon fontIcon="query_stats" aria-hidden="true"></mat-icon>
-        <span i18n>Painel</span>
+        <span>{{ 'migration.kanban.d90a60f36f7c' | transloco }}</span>
       </button>
       <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'versions']">
         <mat-icon fontIcon="new_releases" aria-hidden="true"></mat-icon>
-        <span i18n>Versões</span>
+        <span>{{ 'planning.versions' | transloco }}</span>
       </button>
       <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/project', project.id, 'phases']">
         <mat-icon fontIcon="timeline" aria-hidden="true"></mat-icon>
-        <span i18n>Fases</span>
+        <span>{{ 'planning.phases' | transloco }}</span>
       </button>
     </div>
   </header>
 
   <app-context-hint
     hintId="kanban"
-    i18n-message
-    message="Arraste cards entre colunas para mover o status do ticket." />
+    [message]="'kanban.hint' | transloco" />
 
   @if (swimlaneMode === 'none') {
     <div class="board">
@@ -95,7 +92,7 @@
           <div class="card-container">
             @let statusTicket = ticketsOf(status.id);
             @if (statusTicket.length === 0) {
-              <div class="card empty" i18n>Nenhum ticket nesta coluna</div>
+              <div class="card empty">{{ 'migration.kanban.e8b84112e1d2' | transloco }}</div>
             }
             @for (ticket of statusTicket; track ticket.identifier) {
               <div class="card" cdkDrag [cdkDragData]="ticket" [style.border-left-color]="ticket.categoryColor || 'transparent'">
@@ -147,7 +144,7 @@
                 <div class="card-container">
                   @let statusTicket = ticketsOf(status.id, lane);
                   @if (statusTicket.length === 0) {
-                    <div class="card empty" i18n>Nenhum ticket nesta coluna</div>
+                    <div class="card empty">{{ 'migration.kanban.e8b84112e1d2' | transloco }}</div>
                   }
                   @for (ticket of statusTicket; track ticket.identifier) {
                     <div class="card" cdkDrag [cdkDragData]="ticket" [style.border-left-color]="ticket.categoryColor || 'transparent'">

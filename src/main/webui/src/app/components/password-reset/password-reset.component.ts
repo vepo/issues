@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { strongPasswordValidators } from '../../core/password-policy';
@@ -17,7 +18,8 @@ import { strongPasswordValidators } from '../../core/password-policy';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    RouterLink
+    RouterLink,
+    TranslocoPipe
   ],
   templateUrl: './password-reset.component.html',
   styleUrl: './password-reset.component.scss'
@@ -28,6 +30,7 @@ export class PasswordResetComponent {
   private readonly auth = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   hide = signal(true);
   hideConfirm = signal(true);
@@ -62,7 +65,7 @@ export class PasswordResetComponent {
     }
     const token = this.route.snapshot.paramMap.get('token');
     if (!token) {
-      this.error = 'Link de redefinição inválido.';
+      this.error = this.transloco.translate('auth.reset.invalidLink');
       return;
     }
 
@@ -71,12 +74,12 @@ export class PasswordResetComponent {
     this.auth.confirmPasswordReset(token, this.resetForm.value.newPassword).subscribe({
       next: async () => {
         this.isLoading = false;
-        this.toastService.success('Senha redefinida com sucesso. Faça login com a nova senha.');
+        this.toastService.success(this.transloco.translate('auth.reset.success'));
         await this.router.navigate(['/login']);
       },
       error: () => {
         this.isLoading = false;
-        this.error = 'Link inválido ou expirado. Solicite uma nova recuperação de senha.';
+        this.error = this.transloco.translate('auth.reset.expiredLink');
       }
     });
   }

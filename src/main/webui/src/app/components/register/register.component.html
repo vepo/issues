@@ -2,24 +2,24 @@
   <div class="auth-card">
     <div class="auth-card__header">
       <mat-icon fontIcon="person_add" aria-hidden="true"></mat-icon>
-      <h1 i18n>Criar conta</h1>
-      <p i18n>Cadastre-se para acessar o Issues</p>
+      <h1>{{ 'auth.register.title' | transloco }}</h1>
+      <p>{{ 'auth.register.subtitle' | transloco }}</p>
     </div>
     <form class="auth-card__body" [formGroup]="form" (ngSubmit)="register()">
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Usuário</mat-label>
+        <mat-label>{{ 'auth.username' | transloco }}</mat-label>
         <input matInput formControlName="username" required autocomplete="username" />
       </mat-form-field>
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Nome</mat-label>
+        <mat-label>{{ 'account.name' | transloco }}</mat-label>
         <input matInput formControlName="name" required autocomplete="name" />
       </mat-form-field>
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>E-mail</mat-label>
+        <mat-label>{{ 'auth.email' | transloco }}</mat-label>
         <input matInput formControlName="email" type="email" required autocomplete="email" />
       </mat-form-field>
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Senha</mat-label>
+        <mat-label>{{ 'auth.password' | transloco }}</mat-label>
         <input
           matInput
           formControlName="password"
@@ -27,13 +27,13 @@
           required
           autocomplete="new-password"
         />
-        <button type="button" mat-icon-button matSuffix (click)="toggleVisibility($event, 'password')" aria-label="Mostrar senha">
+        <button type="button" mat-icon-button matSuffix (click)="toggleVisibility($event, 'password')" [attr.aria-label]="'auth.showPassword' | transloco">
           <mat-icon>{{ hide() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
-        <mat-hint i18n>8+ caracteres, com maiúscula, minúscula e dígito</mat-hint>
+        <mat-hint>{{ 'auth.passwordHint' | transloco }}</mat-hint>
       </mat-form-field>
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label i18n>Confirmar senha</mat-label>
+        <mat-label>{{ 'auth.confirmPassword' | transloco }}</mat-label>
         <input
           matInput
           formControlName="confirmPassword"
@@ -41,11 +41,11 @@
           required
           autocomplete="new-password"
         />
-        <button type="button" mat-icon-button matSuffix (click)="toggleVisibility($event, 'confirm')" aria-label="Mostrar confirmação">
+        <button type="button" mat-icon-button matSuffix (click)="toggleVisibility($event, 'confirm')" [attr.aria-label]="'auth.showConfirmation' | transloco">
           <mat-icon>{{ hideConfirm() ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
         @if (passwordsMismatch()) {
-          <mat-error i18n>As senhas não coincidem</mat-error>
+          <mat-error>{{ 'auth.passwordMismatch' | transloco }}</mat-error>
         }
       </mat-form-field>
       @if (error) {
@@ -54,10 +54,10 @@
       <div class="form-actions">
         <button class="btn" matButton="filled" type="submit" [disabled]="form.invalid || saving">
           <mat-icon fontIcon="person_add" aria-hidden="true"></mat-icon>
-          <span i18n>Criar conta</span>
+          <span>{{ 'auth.register.title' | transloco }}</span>
         </button>
         <button class="btn btn-secondary" matButton="outlined" type="button" routerLink="/login">
-          <span i18n>Já tem conta? Entrar</span>
+          <span>{{ 'auth.register.haveAccount' | transloco }}</span>
         </button>
       </div>
     </form>

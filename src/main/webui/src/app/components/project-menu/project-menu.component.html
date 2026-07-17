@@ -1,6 +1,6 @@
 <span
   class="project-menu-trigger"
-  [matTooltip]="emptyTooltip"
+  [matTooltip]="'shell.noProjects' | transloco"
   [matTooltipDisabled]="hasProjects()">
   <button
     type="button"
@@ -8,10 +8,9 @@
     matButton="outlined"
     [matMenuTriggerFor]="hasProjects() ? projectsMenu : null"
     [disabled]="!hasProjects()"
-    aria-label="Projetos"
-    i18n-aria-label>
+    [attr.aria-label]="'shell.projects' | transloco">
     <mat-icon fontIcon="work" aria-hidden="true"></mat-icon>
-    <span i18n>Projetos</span>
+    <span>{{ 'shell.projects' | transloco }}</span>
   </button>
 </span>
 <mat-menu #projectsMenu="matMenu" class="menu-panel">
@@ -25,7 +24,7 @@
     <div class="divider"></div>
     <a mat-menu-item routerLink="/projects">
       <mat-icon matMenuItemIcon fontIcon="settings"></mat-icon>
-      <span i18n>Gerenciar projetos</span>
+      <span>{{ 'shell.manageProjects' | transloco }}</span>
     </a>
   }
 </mat-menu>

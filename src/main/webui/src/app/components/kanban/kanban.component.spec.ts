@@ -10,6 +10,8 @@ import { NormalizePipe } from '../pipes/normalize.pipe';
 import { ProjectStatus } from '../../services/status.service';
 import { Phase, PhaseService } from '../../services/phase.service';
 import { ProjectMembersService } from '../../services/project-members.service';
+import { TranslocoService } from '@jsverse/transloco';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('KanbanComponent', () => {
   let component: KanbanComponent;
@@ -116,7 +118,17 @@ describe('KanbanComponent', () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [CommonModule, DragDropModule, RouterLink, NormalizePipe, KanbanComponent],
+      imports: [
+        CommonModule,
+        DragDropModule,
+        RouterLink,
+        NormalizePipe,
+        KanbanComponent,
+        createTranslocoTestingModule(
+          { kanban: { subtitle: 'Quadro Kanban — arraste os tickets entre colunas', newTicket: 'Novo ticket' } },
+          { kanban: { subtitle: 'Kanban board — drag tickets between columns', newTicket: 'New ticket' } },
+        ),
+      ],
       providers: [
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ProjectsService, useValue: mockProjectsService },
@@ -136,6 +148,19 @@ describe('KanbanComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should rerender Kanban controls immediately when locale changes from Portuguese to English', async () => {
+    expect(fixture.nativeElement.textContent).toContain('Quadro Kanban — arraste os tickets entre colunas');
+    expect(fixture.nativeElement.textContent).toContain('Novo ticket');
+
+    TestBed.inject(TranslocoService).setActiveLang('en');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Kanban board — drag tickets between columns');
+    expect(fixture.nativeElement.textContent).toContain('New ticket');
+    expect(fixture.nativeElement.textContent).not.toContain('Novo ticket');
   });
 
   describe('visibleTickets', () => {

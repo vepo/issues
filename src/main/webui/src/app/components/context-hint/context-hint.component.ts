@@ -1,10 +1,11 @@
+import { TranslocoPipe } from '@jsverse/transloco';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-context-hint',
   standalone: true,
-  imports: [MatButtonModule],
+  imports: [TranslocoPipe, MatButtonModule],
   templateUrl: './context-hint.component.html'
 })
 export class ContextHintComponent implements OnInit {

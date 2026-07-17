@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { ProjectMembersService } from '../../services/project-members.service';
 import { UsersService } from '../../services/users.service';
 import { ToastService } from '../../services/toast.service';
+import { createTranslocoTestingModule } from '../../core/testing/transloco-testing';
 
 describe('ProjectAllocationComponent', () => {
   let fixture: ComponentFixture<ProjectAllocationComponent>;
@@ -15,7 +16,7 @@ describe('ProjectAllocationComponent', () => {
     membersService.listMembers.and.returnValue(of([{ id: 1, name: 'User', email: 'user@issues.vepo.dev' }]));
 
     await TestBed.configureTestingModule({
-      imports: [ProjectAllocationComponent],
+      imports: [createTranslocoTestingModule(), ProjectAllocationComponent],
       providers: [
         {
           provide: ActivatedRoute,

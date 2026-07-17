@@ -1,22 +1,22 @@
 <div class="page">
   <header class="page-header">
     <div>
-      <h1 class="page-title" i18n>Usuários</h1>
-      <p class="page-subtitle" i18n>Gerencie contas e permissões de acesso</p>
+      <h1 class="page-title">{{ 'user.title' | transloco }}</h1>
+      <p class="page-subtitle">{{ 'migration.users-view.79d5d5f337aa' | transloco }}</p>
     </div>
     <div class="page-header__actions">
       <button class="btn" matButton="filled" [routerLink]="['/', 'users', 'new']">
         <mat-icon fontIcon="person_add" aria-hidden="true"></mat-icon>
-        <span i18n>Novo usuário</span>
+        <span>{{ 'user.create' | transloco }}</span>
       </button>
     </div>
   </header>
 
   <section class="filter-bar page-panel" aria-label="Filtros de usuários">
-    <p class="filter-bar__label" i18n>Filtros</p>
+    <p class="filter-bar__label">{{ 'migration.users-view.6eff85a17949' | transloco }}</p>
     <div class="filter-bar__fields">
       <mat-form-field class="form-field form-field--compact" appearance="outline">
-        <mat-label i18n>Nome</mat-label>
+        <mat-label>{{ 'account.name' | transloco }}</mat-label>
         <input
           matInput
           type="text"
@@ -25,7 +25,7 @@
         />
       </mat-form-field>
       <mat-form-field class="form-field form-field--compact" appearance="outline">
-        <mat-label i18n>E-mail</mat-label>
+        <mat-label>{{ 'auth.email' | transloco }}</mat-label>
         <input
           matInput
           type="email"
@@ -39,25 +39,22 @@
         type="button"
         class="filter-chip"
         [class.filter-chip--active]="filter.roles.indexOf('admin') !== -1"
-        (click)="toggleRole('admin')"
-        i18n>
-        Administrador
+        (click)="toggleRole('admin')">
+        {{ 'migration.users-view.76e0c5dad225' | transloco }}
       </button>
       <button
         type="button"
         class="filter-chip"
         [class.filter-chip--active]="filter.roles.indexOf('project-manager') !== -1"
-        (click)="toggleRole('project-manager')"
-        i18n>
-        Gerente de projetos
+        (click)="toggleRole('project-manager')">
+        {{ 'user.roles.projectManager' | transloco }}
       </button>
       <button
         type="button"
         class="filter-chip"
         [class.filter-chip--active]="filter.roles.indexOf('user') !== -1"
-        (click)="toggleRole('user')"
-        i18n>
-        Usuário
+        (click)="toggleRole('user')">
+        {{ 'migration.users-view.8bbaa54294e2' | transloco }}
       </button>
     </div>
   </section>
@@ -66,10 +63,10 @@
     <div class="data-table data-table--layout-table">
       <div class="header">
         <div class="header-cell">ID</div>
-        <div class="header-cell" i18n>Nome</div>
-        <div class="header-cell" i18n>E-mail</div>
-        <div class="header-cell" i18n>Perfis</div>
-        <div class="header-cell header-cell--actions" i18n>Ações</div>
+        <div class="header-cell">{{ 'account.name' | transloco }}</div>
+        <div class="header-cell">{{ 'auth.email' | transloco }}</div>
+        <div class="header-cell">{{ 'account.roles' | transloco }}</div>
+        <div class="header-cell header-cell--actions">{{ 'common.actions' | transloco }}</div>
       </div>
       <div class="body">
         @for (entry of users; track entry.id) {
@@ -80,31 +77,31 @@
             <div>
               <span class="labels">
                 @if (entry.roles.indexOf('admin') !== -1) {
-                  <span class="label" i18n>Admin</span>
+                  <span class="label">{{ 'migration.users-view.f6812e47beb5' | transloco }}</span>
                 }
                 @if (entry.roles.indexOf('project-manager') !== -1) {
-                  <span class="label" i18n>Gerente</span>
+                  <span class="label">{{ 'migration.users-view.5c2105fd689b' | transloco }}</span>
                 }
                 @if (entry.roles.indexOf('user') !== -1) {
-                  <span class="label" i18n>Usuário</span>
+                  <span class="label">{{ 'migration.users-view.8bbaa54294e2' | transloco }}</span>
                 }
               </span>
             </div>
             <div class="cell-actions">
               <button class="btn btn-secondary" matButton="outlined" [routerLink]="['/', 'users', entry.id]">
                 <mat-icon fontIcon="edit" aria-hidden="true"></mat-icon>
-                <span i18n>Editar</span>
+                <span>{{ 'migration.users-view.112108b98d41' | transloco }}</span>
               </button>
               <button class="btn btn-secondary" matButton="outlined" type="button" (click)="confirmDelete(entry)">
                 <mat-icon fontIcon="delete" aria-hidden="true"></mat-icon>
-                <span i18n>Excluir</span>
+                <span>{{ 'migration.users-view.4a793149f0b1' | transloco }}</span>
               </button>
             </div>
           </div>
         }
       </div>
       @if (users.length === 0) {
-        <div class="data-table--empty" i18n>Nenhum usuário encontrado com os filtros aplicados.</div>
+        <div class="data-table--empty">{{ 'migration.users-view.21a8598bb24d' | transloco }}</div>
       }
     </div>
   </section>
