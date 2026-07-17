@@ -1,7 +1,7 @@
 # Ticket management
 
 **Feature version:** 5  
-**Status:** in-progress
+**Status:** done
 **Requested:** retrospective baseline (documented 2026-07-03)
 
 ## Summary
@@ -430,7 +430,7 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 ### Comment @mentions — 2026-07-17
 
 **Version:** 5  
-**Status:** in-progress
+**Status:** done
 
 **Description:** Let comment authors tag other users with `@` in the rich-text comment editor; tagged users are notified directly, even when not already subscribed to the ticket.
 
@@ -446,13 +446,13 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 
 | ID | Criterion | Source | Done |
 |----|-----------|--------|------|
-| FC1 | Typing `@` in the comment editor offers a candidate list matching **Wireframe** | Wireframe | ☐ |
-| FC2 | Mentioning a project member notifies them in-app/SSE even when not a ticket subscriber, without changing the subscriber list | FQ18–FQ19 | ☐ |
-| FC3 | No email is sent for mentions in v1 | FQ20 | ☐ |
-| FC4 | Mention renders as plain `@username` text in the posted comment | FQ21 | ☐ |
-| FC5 | `domain-specification.md` defines **Mention** term and invariant | Impact / Docs | ☐ |
-| FC6 | `feature-catalog.md` — ticket detail comment step mentions @mentions | Impact / Docs | ☐ |
-| FC7 | README § Tickets & workflow mentions @mentions | Impact / Docs | ☐ |
+| FC1 | Typing `@` in the comment editor offers a candidate list matching **Wireframe** | Wireframe | ☑ |
+| FC2 | Mentioning a project member notifies them in-app/SSE even when not a ticket subscriber, without changing the subscriber list | FQ18–FQ19 | ☑ |
+| FC3 | No email is sent for mentions in v1 | FQ20 | ☑ |
+| FC4 | Mention renders as plain `@username` text in the posted comment | FQ21 | ☑ |
+| FC5 | `domain-specification.md` defines **Mention** term and invariant | Impact / Docs | ☑ |
+| FC6 | `feature-catalog.md` — ticket detail comment step mentions @mentions | Impact / Docs | ☑ |
+| FC7 | README § Tickets & workflow mentions @mentions | Impact / Docs | ☑ |
 
 #### Tasks
 
@@ -464,8 +464,8 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 | T4 | `MentionParserTest` (unit) — extraction, dedup, punctuation boundary, email exclusion, blank/null | ☑ |
 | T5 | `ticket-view` comment form — on `@` keystroke, filter the ticket's project members and insert `@username` as plain text on selection; added `username` to `ProjectMemberResponse` (was missing, required for the autocomplete) and regenerated the Angular API client | ☑ |
 | T6 | `ticket-view.component.spec.ts` — autocomplete filters project members on `@`; selecting a candidate inserts plain-text mention; no trailing `@` closes the autocomplete | ☑ |
-| T7 | Flip domain-spec invariant **81** from Planned to implemented; add @mentions to `feature-catalog.md` ticket-detail comment step and README § Tickets & workflow | ☐ |
-| T8 | Run `mvn verify` + `npm run build` + Angular tests; recheck **Feature checklist** FC1–FC7 before `done` | ☐ |
+| T7 | Flip domain-spec invariant **81** from Planned to implemented; add @mentions to `feature-catalog.md` ticket-detail comment step and README § Tickets & workflow | ☑ |
+| T8 | Run `mvn verify` + `npm run build` + Angular tests; recheck **Feature checklist** FC1–FC7 before `done` | ☑ |
 
 #### Test coverage
 
@@ -480,7 +480,7 @@ Core ticket lifecycle: view and edit ticket fields (including optional **due dat
 
 **Development approval:** approved 2026-07-17 — tasks: T1, T2, T3, T4, T5, T6, T7, T8
 
-**Implementation notes:** (in progress — TDD starting on T1.)
+**Implementation notes:** Server parses `@username` from raw comment text via `MentionParser` (before `HtmlSanitizer`, which HTML-entity-encodes `@`) and matches exactly against the ticket's current project members (`ProjectMemberRepository.findMembersByProjectId`); `TicketService.addComment` calls `NotificationService.notifyMentions` synchronously (not the async `NotificationEvent`/`NotificationEventListener` path used for ticket-move) so the endpoint test can assert the notification without `Awaitility`. Reused `tb_notifications` with `type="comment-mention"` — no schema change. Added `username` to `ProjectMemberResponse` (previously missing) so the Angular autocomplete can insert the exact token the server matches on; regenerated the OpenAPI client (`npm run generate:api`), which required fixing two existing specs (`kanban.component.spec.ts`, `project-allocation.component.spec.ts`) that constructed `ProjectMember` mocks without `username`. Comment editor (`ticket-view`) shows an inline `@` autocomplete over project members and inserts `@username` as plain text — no `app-rich-text-editor` internals changed. `mvn verify` (178 backend tests incl. `MentionParserTest`, `AddCommentEndpointTest`, `ArchitectureTest`) and `npm run build` + full Angular suite (285 tests) green on 2026-07-17.
 
 ## Architecture — Comment @mentions v5
 

@@ -30,7 +30,7 @@ Ordered ideas for Issues that are **not yet** in active development (or are queu
 | Order | Status | Idea | Why / notes | Suggested slug | Feature doc |
 |------:|--------|------|-------------|----------------|-------------|
 | — | done | **CSV / JSON export** of tickets | Shipped 2026-07-17 — visibility-safe simple/advanced/saved-query downloads with custom fields | `ticket-export` | [ticket-export.md](../feature/ticket-export.md) |
-| — | promoted | **@mentions in comments** + notify mentioned users | Tasks-ready 2026-07-17 (T1–T8) — extends ticket-management (comments); awaiting task approval | `ticket-mentions` | [ticket-management.md](../feature/ticket-management.md) v5 |
+| — | done | **@mentions in comments** + notify mentioned users | Shipped 2026-07-17 — server-parsed `@username` mentions notify project members in-app/SSE even when not subscribed; extends ticket-management v5 | `ticket-mentions` | [ticket-management.md](../feature/ticket-management.md) v5 |
 | 1 | idea | **Due-date reminders** (email and/or in-app) | Due date exists; no nudge yet | `due-date-reminders` | — |
 | 2 | idea | **Bulk ticket operations** (assign, move, set fields) | Power-user / triage | `bulk-ticket-ops` | — |
 | 3 | idea | **Custom fields on Kanban cards** | Deferred from CF v1 (**FQ20**) | `custom-fields` | [custom-fields.md](../feature/custom-fields.md) (later changelog) |
@@ -132,3 +132,4 @@ Ordered ideas for Issues that are **not yet** in active development (or are queu
 | 2026-07-17 | @mentions FQ18–FQ21 and AQ25–AQ26 answered; [ticket-management.md](../feature/ticket-management.md) v5 → `architecture-ready`; awaiting task break |
 | 2026-07-17 | @mentions task break complete (T1–T8, TC1–TC6); [ticket-management.md](../feature/ticket-management.md) v5 → `tasks-ready`; awaiting explicit task approval |
 | 2026-07-17 | @mentions T1–T8 approved; [ticket-management.md](../feature/ticket-management.md) v5 → `in-progress`; TDD underway |
+| 2026-07-17 | @mentions v5 → `done`; `mvn verify` (178 backend tests) and full Angular suite (285 tests) green; renumbered active ranks |
