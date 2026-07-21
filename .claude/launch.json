@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "quarkus-dev",
+      "runtimeExecutable": "mvn",
+      "runtimeArgs": ["quarkus:dev"],
+      "port": 8080
+    }
+  ]
+}

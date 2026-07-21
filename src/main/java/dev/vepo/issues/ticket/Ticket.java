@@ -70,6 +70,12 @@ public class Ticket {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
+    @Column(name = "due_soon_reminder_sent_at")
+    private LocalDateTime dueSoonReminderSentAt;
+
+    @Column(name = "overdue_reminder_sent_at")
+    private LocalDateTime overdueReminderSentAt;
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -214,6 +220,22 @@ public class Ticket {
 
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public LocalDateTime getDueSoonReminderSentAt() {
+        return dueSoonReminderSentAt;
+    }
+
+    public void setDueSoonReminderSentAt(LocalDateTime dueSoonReminderSentAt) {
+        this.dueSoonReminderSentAt = dueSoonReminderSentAt;
+    }
+
+    public LocalDateTime getOverdueReminderSentAt() {
+        return overdueReminderSentAt;
+    }
+
+    public void setOverdueReminderSentAt(LocalDateTime overdueReminderSentAt) {
+        this.overdueReminderSentAt = overdueReminderSentAt;
     }
 
     public Category getCategory() {

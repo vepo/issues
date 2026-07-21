@@ -294,7 +294,8 @@ public class TicketService {
                                            entity.getTicketType().name(),
                                            request.ticketType().name());
         }
-        if (!Objects.equals(entity.getDueDate(), request.dueDate())) {
+        var dueDateChanged = !Objects.equals(entity.getDueDate(), request.dueDate());
+        if (dueDateChanged) {
             historyService.logFieldChanged(entity,
                                            user,
                                            "dueDate",
@@ -338,6 +339,10 @@ public class TicketService {
         entity.setDueDate(request.dueDate());
         entity.setStoryPoints(request.storyPoints());
         entity.setUpdatedAt(LocalDateTime.now());
+        if (dueDateChanged) {
+            entity.setDueSoonReminderSentAt(null);
+            entity.setOverdueReminderSentAt(null);
+        }
 
         if (request.customFields() != null) {
             customFieldService.validateRequiredForUpdate(entity.getId(),
@@ -364,9 +369,14 @@ public class TicketService {
         requireAssigneeIsProjectMember(entity.getProject().getId(), newAssignee.getId());
         var fromAssignee = entity.getAssignee() != null ? entity.getAssignee().getName() : null;
         var toAssignee = newAssignee.getName();
+        var assigneeChanged = entity.getAssignee() == null || !entity.getAssignee().getId().equals(newAssignee.getId());
 
         entity.setAssignee(newAssignee);
         entity.setUpdatedAt(LocalDateTime.now());
+        if (assigneeChanged) {
+            entity.setDueSoonReminderSentAt(null);
+            entity.setOverdueReminderSentAt(null);
+        }
 
         var user = requireUserByUsername(username);
         if (!java.util.Objects.equals(fromAssignee, toAssignee)) {

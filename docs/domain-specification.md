@@ -233,6 +233,7 @@ Methodology-neutral planning terms. Product-owned phase and version copy follows
 | **Mark as read** | User acknowledges a single notification. | `POST /notifications/{id}/read` |
 | **Mark all as read** | User acknowledges all of their unread notifications at once. | `POST /notifications/read-all` |
 | **Ticket change email** | Transactional email when a subscribed ticket changes. | `MailerService`, Qute template `notifyTicketChange.html` |
+| **Due-date reminder** | In-app-only notification sent directly to a ticket's **assignee** when its **due date** is one day away or has passed; fires at most once per firing point (due-soon, overdue) and resets if the due date or assignee changes. Unassigned tickets are never reminded. | `type="due-date-reminder"`; `ticket.reminders.DueDateReminderScheduler` (daily), `DueDateReminderService`; [feature/due-date-reminders.md](../feature/due-date-reminders.md) |
 
 ### Analytics & views
 

@@ -191,6 +191,7 @@ Required before phase 5. User must name task IDs (e.g. "Approve T1–T8"). Answe
 | Ticket links, epics & subtasks | `feature/ticket-links.md` | 1 | done |
 | Burndown (phase remaining vs ideal) | `feature/burndown.md` | 1 | tasks-ready |
 | Ticket attachments (upload/download on ticket) | `feature/ticket-attachments.md` | 1 | done |
+| Due-date reminders (scheduled in-app nudge) | `feature/due-date-reminders.md` | 1 | in-progress |
 
 ## Versioning
 

@@ -1,5 +1,6 @@
 package dev.vepo.issues.ticket;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -392,6 +393,34 @@ public class TicketRepository {
                               """.formatted(versionPredicate), Ticket.class)
                  .setParameter("projectId", projectId)
                  .setParameter("versionId", versionId)
+                 .getResultStream();
+    }
+
+    public Stream<Ticket> findDueSoonReminderEligible(LocalDate dueDate) {
+        return em.createQuery("""
+                              FROM Ticket t
+                              WHERE t.deleted = false
+                                AND t.finishedAt IS NULL
+                                AND t.canceledAt IS NULL
+                                AND t.assignee IS NOT NULL
+                                AND t.dueDate = :dueDate
+                                AND t.dueSoonReminderSentAt IS NULL
+                              """, Ticket.class)
+                 .setParameter("dueDate", dueDate)
+                 .getResultStream();
+    }
+
+    public Stream<Ticket> findOverdueReminderEligible(LocalDate today) {
+        return em.createQuery("""
+                              FROM Ticket t
+                              WHERE t.deleted = false
+                                AND t.finishedAt IS NULL
+                                AND t.canceledAt IS NULL
+                                AND t.assignee IS NOT NULL
+                                AND t.dueDate < :today
+                                AND t.overdueReminderSentAt IS NULL
+                              """, Ticket.class)
+                 .setParameter("today", today)
                  .getResultStream();
     }
 }

@@ -31,20 +31,27 @@ public class NotificationService {
     public void notifyMentions(Ticket ticket, User author, Set<User> mentionedUsers, String content) {
         mentionedUsers.stream()
                       .filter(mentioned -> !mentioned.getId().equals(author.getId()))
-                      .forEach(mentioned -> {
-                          var notification = notificationRepository.save(new Notification("comment-mention", mentioned, ticket, content));
-                          channelRegistry.computeIfPresent(mentioned.getUsername(), (username, sink) -> {
-                              if (!sink.isClosed()) {
-                                  sink.send(sse.newEventBuilder()
-                                               .id("ticket-change")
-                                               .mediaType(MediaType.APPLICATION_JSON_TYPE)
-                                               .data(UserNotificationEvent.load(notification))
-                                               .build());
-                                  return sink;
-                              }
-                              return null;
-                          });
-                      });
+                      .forEach(mentioned -> deliverDirect("comment-mention", mentioned, ticket, content));
+    }
+
+    @Transactional
+    public void notifyDueDateReminder(Ticket ticket, User assignee, String content) {
+        deliverDirect("due-date-reminder", assignee, ticket, content);
+    }
+
+    private void deliverDirect(String type, User recipient, Ticket ticket, String content) {
+        var notification = notificationRepository.save(new Notification(type, recipient, ticket, content));
+        channelRegistry.computeIfPresent(recipient.getUsername(), (username, sink) -> {
+            if (!sink.isClosed()) {
+                sink.send(sse.newEventBuilder()
+                             .id("ticket-change")
+                             .mediaType(MediaType.APPLICATION_JSON_TYPE)
+                             .data(UserNotificationEvent.load(notification))
+                             .build());
+                return sink;
+            }
+            return null;
+        });
     }
 
     public NotificationPageResponse list(String username, int page, int size) {

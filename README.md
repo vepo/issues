@@ -105,6 +105,7 @@ Full persona table: [docs/feature-catalog.md](docs/feature-catalog.md) § Dev pe
 - **In-app notifications** — persisted alerts, accurate unread badge, mark-as-read, and mark all as read
 - **Real-time delivery** — SSE channel registers on login for live pushes; dropdown loads history via paginated API with infinite scroll; SSE auto-reconnects after network drop
 - **Email** — password reset and ticket change notifications (Mailer + Qute)
+- **Due-date reminders** — daily scheduled check notifies a ticket's assignee in-app when its due date is one day away or has passed (no email); fires once per firing point, skips unassigned/finished/canceled/deleted tickets
 
 ### Authentication
 

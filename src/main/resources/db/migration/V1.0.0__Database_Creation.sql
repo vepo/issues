@@ -122,6 +122,8 @@ CREATE TABLE tb_tickets (
     canceled_at TIMESTAMP(6) WITH TIME ZONE,
     story_points INTEGER CHECK (story_points IS NULL OR story_points >= 0),
     due_date    DATE,
+    due_soon_reminder_sent_at TIMESTAMP(6) WITH TIME ZONE,
+    overdue_reminder_sent_at  TIMESTAMP(6) WITH TIME ZONE,
     observed_version_id BIGINT REFERENCES tb_versions,
     target_version_id   BIGINT REFERENCES tb_versions,
     phase_id            BIGINT REFERENCES tb_phases,
