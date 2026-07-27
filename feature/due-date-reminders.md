@@ -104,12 +104,12 @@ Tickets already carry an optional **due date** ([ticket-management.md](ticket-ma
 
 | ID | Test | Covers | Done |
 |----|------|--------|------|
-| TC1 | `DueDateReminderServiceTest` — ticket due tomorrow with assignee fires the reminder | T3, T4, T5 | ☐ |
-| TC2 | `DueDateReminderServiceTest` — overdue ticket with assignee fires the reminder | T3, T4, T5 | ☐ |
-| TC3 | `DueDateReminderServiceTest` — finished, canceled, soft-deleted, and unassigned tickets are excluded | T3, T5 | ☐ |
-| TC4 | `DueDateReminderServiceTest` — a second scheduler run does not re-fire an already-sent reminder | T5 | ☐ |
-| TC5 | `DueDateReminderServiceTest` or `UpdateTicketEndpointTest` — changing due date or assignee resets the markers | T7 | ☐ |
-| TC6 | `ArchitectureTest` | T4 | ☐ |
+| TC1 | `DueDateReminderServiceTest` — ticket due tomorrow with assignee fires the reminder | T3, T4, T5 | ☑ |
+| TC2 | `DueDateReminderServiceTest` — overdue ticket with assignee fires the reminder | T3, T4, T5 | ☑ |
+| TC3 | `DueDateReminderServiceTest` — finished, canceled, soft-deleted, and unassigned tickets are excluded | T3, T5 | ☑ |
+| TC4 | `DueDateReminderServiceTest` — a second scheduler run does not re-fire an already-sent reminder | T5 | ☑ |
+| TC5 | `DueDateReminderServiceTest` or `UpdateTicketEndpointTest` — changing due date or assignee resets the markers | T7 | ☑ |
+| TC6 | `ArchitectureTest` | T4 | ☑ |
 
 **Development approval:** approved 2026-07-17 — tasks: T1, T2, T3, T4, T5, T6, T7, T8, T9, T10
 
